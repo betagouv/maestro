@@ -6,13 +6,9 @@ import type {
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   DAOAInProgressProgrammingPlanFixture,
-  DAOAInProgressVolailleSubPlanId,
-  DAOAValidatedProgrammingPlanFixture
+  DAOAInProgressVolailleSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
-import {
-  DAOAVolailleFieldConfigs,
-  StageFieldOptions
-} from 'maestro-shared/test/specificDataFixtures';
+import { DAOAVolailleFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import {
   AdminFixture,
   LaboratoryOfficeUserFixture,
@@ -544,109 +540,6 @@ describe('SpecificDataFieldConfig router', () => {
         DAOAVolailleFieldConfigs.map(({ field }) => ({
           field: { key: field.key }
         }))
-      );
-    });
-  });
-
-  describe('GET /programming-plans/:programmingPlanId/specific-data-fields', () => {
-    const testRoute = `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/specific-data-fields`;
-    const testKey = 'testPlanLevelField';
-
-    beforeAll(async () => {
-      const field = await kysely
-        .insertInto('specificDataFields')
-        .values({
-          key: testKey,
-          inputType: 'select',
-          label: 'Champ niveau plan'
-        })
-        .returning('id')
-        .executeTakeFirstOrThrow();
-
-      const options = await kysely
-        .insertInto('specificDataFieldOptions')
-        .values([
-          { fieldKey: testKey, value: 'LARGE', label: 'Large', order: 1 },
-          { fieldKey: testKey, value: 'ETROIT', label: 'Étroit', order: 2 }
-        ])
-        .returning(['id', 'value'])
-        .execute();
-
-      const planField = await kysely
-        .insertInto('programmingPlanFields')
-        .values({
-          programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
-          fieldId: field.id,
-          required: true,
-          order: 0
-        })
-        .returning('id')
-        .executeTakeFirstOrThrow();
-
-      await kysely
-        .insertInto('programmingPlanFieldOptions')
-        .values(
-          options.map(({ id }) => ({
-            programmingPlanFieldId: planField.id,
-            specificDataFieldOptionId: id
-          }))
-        )
-        .execute();
-    });
-
-    afterAll(async () => {
-      await kysely
-        .deleteFrom('specificDataFields')
-        .where('key', '=', testKey)
-        .execute();
-    });
-
-    test('should fail if the user is not authenticated', async () => {
-      await request(app)
-        .get(testRoute)
-        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    test('should return the plan level fields to a sampler, who cannot read the plan settings', async () => {
-      const res = await request(app)
-        .get(testRoute)
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_OK);
-
-      expect(res.body).toContainEqual({
-        id: expect.any(String),
-        programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
-        required: true,
-        order: 0,
-        field: {
-          key: testKey,
-          inputType: 'select',
-          label: 'Champ niveau plan',
-          hintText: null,
-          options: [
-            { value: 'LARGE', label: 'Large', order: 1 },
-            { value: 'ETROIT', label: 'Étroit', order: 2 }
-          ]
-        }
-      });
-    });
-
-    test('should offer more stage options than any of its sub-plans, for out of plan sampling', async () => {
-      const res = await request(app)
-        .get(
-          `/api/programming-plans/${DAOAValidatedProgrammingPlanFixture.id}/specific-data-fields`
-        )
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_OK);
-
-      const planStageOptions = res.body.find(
-        (config: { field: { key: string } }) => config.field.key === 'stage'
-      )?.field.options;
-
-      expect(planStageOptions).toHaveLength(StageFieldOptions.length);
-      expect(planStageOptions.length).toBeGreaterThan(
-        DAOAVolailleFieldConfigs.find(({ field }) => field.key === 'stage')
-          ?.field.options.length ?? 0
       );
     });
   });

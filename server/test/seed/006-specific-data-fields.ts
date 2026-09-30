@@ -67,7 +67,7 @@ const spreadFieldsOverSiblingSubPlans = async (): Promise<void> => {
   }
 };
 
-const seedStageOptionsAndPlanFields = async (): Promise<void> => {
+const seedMissingStageOptions = async (): Promise<void> => {
   const field = await kysely
     .selectFrom('specificDataFields')
     .select('id')
@@ -96,40 +96,6 @@ const seedStageOptionsAndPlanFields = async (): Promise<void> => {
         missing.map((option) => ({
           fieldKey: StageFieldConfig.key,
           ...option
-        }))
-      )
-      .execute();
-  }
-
-  const options = await kysely
-    .selectFrom('specificDataFieldOptions')
-    .select('id')
-    .where('fieldKey', '=', StageFieldConfig.key)
-    .execute();
-
-  const programmingPlans = await kysely
-    .selectFrom('programmingPlans')
-    .select('id')
-    .execute();
-
-  for (const { id: programmingPlanId } of programmingPlans) {
-    const { id: planFieldId } = await kysely
-      .insertInto('programmingPlanFields')
-      .values({
-        programmingPlanId,
-        fieldId: field.id,
-        required: true,
-        order: 0
-      })
-      .returning('id')
-      .executeTakeFirstOrThrow();
-
-    await kysely
-      .insertInto('programmingPlanFieldOptions')
-      .values(
-        options.map(({ id }) => ({
-          programmingPlanFieldId: planFieldId,
-          specificDataFieldOptionId: id
         }))
       )
       .execute();
@@ -257,5 +223,5 @@ export const seed = async (): Promise<void> => {
   }
 
   await spreadFieldsOverSiblingSubPlans();
-  await seedStageOptionsAndPlanFields();
+  await seedMissingStageOptions();
 };

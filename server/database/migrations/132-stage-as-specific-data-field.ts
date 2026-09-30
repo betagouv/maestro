@@ -112,50 +112,6 @@ export const up = async (knex: Knex) => {
   );
 
   await knex.raw(
-    `insert into programming_plan_fields
-       (programming_plan_id, field_id, required, "order")
-     select pp.id, ?, true,
-            coalesce(
-              (select min(f."order") - 1
-               from programming_plan_fields f
-               where f.programming_plan_id = pp.id),
-              0
-            )
-     from programming_plans pp`,
-    [fieldId]
-  );
-
-  await knex.raw(
-    `insert into programming_plan_field_options
-       (programming_plan_field_id, specific_data_field_option_id)
-     select distinct pf.id, spfo.specific_data_field_option_id
-     from programming_plan_fields pf
-     join programming_sub_plans_raw sp on sp.programming_plan_id = pf.programming_plan_id
-     join programming_sub_plan_fields_raw spf
-       on spf.programming_sub_plan_id = sp.id and spf.field_id = pf.field_id
-     join programming_sub_plan_field_options spfo
-       on spfo.programming_sub_plan_field_id = spf.id
-     where pf.field_id = ?`,
-    [fieldId]
-  );
-
-  // Un plan dont aucun sous-plan ne porte de stade laisserait le formulaire
-  // hors plan sans aucun choix : on lui ouvre le référentiel complet.
-  await knex.raw(
-    `insert into programming_plan_field_options
-       (programming_plan_field_id, specific_data_field_option_id)
-     select pf.id, sdfo.id
-     from programming_plan_fields pf
-     join specific_data_field_options sdfo on sdfo.field_key = ?
-     where pf.field_id = ?
-       and not exists (
-         select 1 from programming_plan_field_options o
-         where o.programming_plan_field_id = pf.id
-       )`,
-    [FIELD_KEY, fieldId]
-  );
-
-  await knex.raw(
     `insert into sample_specific_data_values (sample_id, field_id, value, option_id)
      select s.id, ?, null, sdfo.id
      from samples s

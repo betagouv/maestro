@@ -106,22 +106,6 @@ export const specificDataFieldConfigRouter = {
       return { status: HttpStatus.NO_CONTENT };
     }
   },
-  '/programming-plans/:programmingPlanId/specific-data-fields': {
-    get: async (_, { programmingPlanId }) => {
-      console.info(
-        'Get specific data field configs for plan',
-        programmingPlanId
-      );
-
-      const configs =
-        await specificDataFieldConfigRepository.findByPlan(programmingPlanId);
-
-      return {
-        status: HttpStatus.OK,
-        response: configs
-      };
-    }
-  },
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields':
     {
       get: async (_, { programmingSubPlanId }) => {

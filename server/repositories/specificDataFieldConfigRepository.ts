@@ -14,7 +14,6 @@ import type {
 import type { FieldInheritance } from 'maestro-shared/schema/SpecificData/FieldInheritance';
 import {
   FieldInputType,
-  type ProgrammingPlanFieldConfig,
   type ProgrammingPlanFieldId,
   type ProgrammingSubPlanFieldConfig,
   type ProgrammingSubPlanFieldId,
@@ -130,86 +129,6 @@ const findSubPlanFieldOptions = async <
   }
 
   return optionsByRowId;
-};
-
-const findByPlan = async (
-  programmingPlanId: string | null | undefined
-): Promise<ProgrammingPlanFieldConfig[]> => {
-  if (!programmingPlanId) {
-    return [];
-  }
-
-  console.info('Find specific data field configs for plan', programmingPlanId);
-
-  const rows = await kysely
-    .selectFrom('programmingPlanFields as pf')
-    .innerJoin('specificDataFields as sdf', 'sdf.id', 'pf.fieldId')
-    .select([
-      'pf.id',
-      'pf.programmingPlanId',
-      'pf.required',
-      'pf.order',
-      'sdf.key',
-      'sdf.inputType',
-      'sdf.label',
-      'sdf.hintText'
-    ])
-    .where('pf.programmingPlanId', '=', programmingPlanId)
-    .orderBy('pf.order')
-    .execute();
-
-  if (rows.length === 0) {
-    return [];
-  }
-
-  const options = await kysely
-    .selectFrom('programmingPlanFieldOptions as pfo')
-    .innerJoin(
-      'specificDataFieldOptions as sdfo',
-      'sdfo.id',
-      'pfo.specificDataFieldOptionId'
-    )
-    .select([
-      'pfo.programmingPlanFieldId',
-      'sdfo.value',
-      'sdfo.label',
-      'sdfo.order'
-    ])
-    .where(
-      'pfo.programmingPlanFieldId',
-      'in',
-      rows.map(({ id }) => id)
-    )
-    .orderBy('sdfo.order')
-    .execute();
-
-  const optionsByRowId: Record<
-    string,
-    { value: string; label: string; order: number }[]
-  > = {};
-  for (const option of options) {
-    const rowOptions = optionsByRowId[option.programmingPlanFieldId] ?? [];
-    rowOptions.push({
-      value: option.value,
-      label: option.label,
-      order: option.order
-    });
-    optionsByRowId[option.programmingPlanFieldId] = rowOptions;
-  }
-
-  return rows.map((row) => ({
-    id: row.id,
-    programmingPlanId: row.programmingPlanId,
-    required: row.required,
-    order: row.order,
-    field: {
-      key: row.key,
-      inputType: FieldInputType.parse(row.inputType),
-      label: row.label,
-      hintText: row.hintText,
-      options: optionsByRowId[row.id] ?? []
-    }
-  }));
 };
 
 const findByPlanSubPlan = async (
@@ -767,7 +686,6 @@ const replaceSubPlanFields = async (
 };
 
 export const specificDataFieldConfigRepository = {
-  findByPlan,
   findByPlanSubPlan,
   findSubPlanFieldSettings,
   findSachaFields,

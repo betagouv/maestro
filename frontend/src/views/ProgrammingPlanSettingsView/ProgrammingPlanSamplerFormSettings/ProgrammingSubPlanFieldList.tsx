@@ -3,7 +3,6 @@ import type {
   AdminFieldConfig,
   ProgrammingSubPlanFieldSetting
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import type { SpecificDataFieldOptionId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { assert, type Equals } from 'tsafe';
 import { ProgrammingSubPlanFieldItem } from './ProgrammingSubPlanFieldItem';
 
@@ -11,16 +10,12 @@ interface Props {
   fields: ProgrammingSubPlanFieldSetting[];
   onChange: (fields: ProgrammingSubPlanFieldSetting[]) => void;
   allFields: AdminFieldConfig[];
-  planOptionIdsByFieldId:
-    | Record<string, SpecificDataFieldOptionId[]>
-    | undefined;
 }
 
 export const ProgrammingSubPlanFieldList = ({
   fields,
   onChange,
   allFields,
-  planOptionIdsByFieldId,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -68,7 +63,6 @@ export const ProgrammingSubPlanFieldList = ({
             key={field.fieldId}
             field={field}
             globalField={globalField}
-            planOptionIds={planOptionIdsByFieldId?.[field.fieldId]}
             canMoveUp={i > 0 && !visibleFields[i - 1].field.managedAtPlanLevel}
             canMoveDown={i < visibleFields.length - 1}
             onChange={(updated) => replaceAt(index, updated)}

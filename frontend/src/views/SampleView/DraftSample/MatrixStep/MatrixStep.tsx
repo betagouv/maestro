@@ -149,7 +149,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     planSubPlans.find((sp) => sp.id === programmingSubPlanId)?.subPlanNumber ??
     '';
 
-  const { data: subPlanFieldConfigs = [], isSuccess: isFieldConfigsLoaded } =
+  const { data: fieldConfigs = [], isSuccess: isFieldConfigsLoaded } =
     apiClient.useFindProgrammingSubPlanFieldConfigsQuery(
       {
         programmingPlanId: partialSample.programmingPlanId,
@@ -157,32 +157,6 @@ const MatrixStep = ({ partialSample }: Props) => {
       },
       { skip: !programmingSubPlanId }
     );
-
-  const { data: planFieldConfigs = [] } =
-    apiClient.useFindProgrammingPlanFieldConfigsQuery(
-      { programmingPlanId: partialSample.programmingPlanId },
-      { skip: isProgrammingPlanSample(partialSample) }
-    );
-
-  const fieldConfigs = useMemo(() => {
-    if (isProgrammingPlanSample(partialSample)) {
-      return subPlanFieldConfigs;
-    }
-
-    const planStageOptions = planFieldConfigs.find(
-      (fc) => fc.field.key === 'stage'
-    )?.field.options;
-
-    if (!planStageOptions) {
-      return subPlanFieldConfigs;
-    }
-
-    return subPlanFieldConfigs.map((fc) =>
-      fc.field.key === 'stage'
-        ? { ...fc, field: { ...fc.field, options: planStageOptions } }
-        : fc
-    );
-  }, [partialSample, subPlanFieldConfigs, planFieldConfigs]);
 
   const planLayout = specificDataFormLayout(subPlanNumber);
 

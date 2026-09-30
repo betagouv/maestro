@@ -78,7 +78,6 @@ export const MaestroRoutes = [
   '/programming-plans/:programmingPlanId',
   '/programming-plans/:programmingPlanId/local-status',
   '/programming-plans/:programmingPlanId/settings',
-  '/programming-plans/:programmingPlanId/specific-data-fields',
   '/sacha/commemoratifs',
   '/samples',
   '/samples/count',
