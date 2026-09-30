@@ -1,5 +1,9 @@
 import { isNil, sumBy, uniq } from 'lodash-es';
-import { RegionList, Regions } from 'maestro-shared/referential/Region';
+import {
+  type Region,
+  RegionList,
+  Regions
+} from 'maestro-shared/referential/Region';
 import { type Stage, StageList } from 'maestro-shared/referential/Stage';
 import {
   hasPrescriptionPermission,
@@ -27,7 +31,10 @@ import programmingPlanRepository from '../repositories/programmingPlanRepository
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
-import { parsePrescriptionImportFile } from '../services/prescriptionImportService';
+import {
+  type ImportedScope,
+  parsePrescriptionImportFile
+} from '../services/prescriptionImportService';
 import { withEffectiveLocalPrescriptionChanges } from './localPrescriptionController';
 
 const withPendingPrescriptionChanges = async (
@@ -166,12 +173,21 @@ export const prescriptionsRouter = {
     }
   },
   '/prescriptions/import': {
-    post: async ({ userRole, body }) => {
+    post: async ({ user, userRole, body }) => {
       console.info('Import prescriptions for year', body.year);
 
       const programmingPlans = await programmingPlanRepository.findMany({
         year: body.year
       });
+
+      const canWriteRegion = hasPermission(userRole, 'updatePrescription');
+      const canDistribute =
+        hasPermission(userRole, 'distributePrescriptionToDepartments') ||
+        hasPermission(userRole, 'distributePrescriptionToSlaughterhouses');
+
+      if (!canWriteRegion && !canDistribute) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
 
       const updatablePlanIds = new Set(
         programmingPlans
@@ -182,9 +198,32 @@ export const prescriptionsRouter = {
           .map((programmingPlan) => programmingPlan.id)
       );
 
-      if (updatablePlanIds.size === 0) {
-        return { status: HttpStatus.FORBIDDEN };
-      }
+      const openPlanIds = new Set(
+        programmingPlans
+          .filter((programmingPlan) =>
+            programmingPlan.regionalStatus.some(
+              (regionalStatus) => regionalStatus.status !== 'Closed'
+            )
+          )
+          .map((programmingPlan) => programmingPlan.id)
+      );
+
+      const writableDepartments = user.department
+        ? [user.department]
+        : user.region
+          ? Regions[user.region].departments
+          : undefined;
+
+      const isWritableScope = (scope: ImportedScope): boolean => {
+        if (scope.echelon === 'Region') {
+          return canWriteRegion;
+        }
+        return (
+          canDistribute &&
+          (isNil(writableDepartments) ||
+            writableDepartments.includes(scope.department))
+        );
+      };
 
       const { cells, totals, unrecognized } = parsePrescriptionImportFile(
         Buffer.from(body.content, 'base64'),
@@ -196,7 +235,8 @@ export const prescriptionsRouter = {
 
       const resolvePrescriptionId = (
         subPlanNumber: string,
-        rowNumber: number
+        rowNumber: number,
+        allowedPlanIds: Set<string>
       ): string | undefined => {
         const matching = prescriptionsBySubPlanNumber.get(subPlanNumber);
 
@@ -207,7 +247,7 @@ export const prescriptionsRouter = {
 
         const [prescription] = matching;
 
-        if (!updatablePlanIds.has(prescription.programmingPlanId)) {
+        if (!allowedPlanIds.has(prescription.programmingPlanId)) {
           unrecognized.push(`Ligne ${rowNumber}`);
           return undefined;
         }
@@ -216,30 +256,53 @@ export const prescriptionsRouter = {
       };
 
       const localChanges = cells.flatMap((cell) => {
+        if (!isWritableScope(cell.scope)) {
+          unrecognized.push(cell.columnLabel);
+          return [];
+        }
+
         const prescriptionId = resolvePrescriptionId(
           cell.subPlanNumber,
-          cell.rowNumber
+          cell.rowNumber,
+          cell.scope.echelon === 'Region' ? updatablePlanIds : openPlanIds
         );
-        return prescriptionId
-          ? [
-              {
-                prescriptionId,
-                region: cell.region,
-                sampleCount: cell.sampleCount
-              }
-            ]
-          : [];
+
+        if (!prescriptionId) {
+          return [];
+        }
+
+        return [
+          {
+            prescriptionId,
+            region:
+              cell.scope.echelon === 'Region'
+                ? cell.scope.region
+                : (user.region as Region),
+            department:
+              cell.scope.echelon === 'Region'
+                ? undefined
+                : cell.scope.department,
+            companySiret:
+              cell.scope.echelon === 'Company'
+                ? cell.scope.companySiret
+                : undefined,
+            sampleCount: cell.sampleCount
+          }
+        ];
       });
 
-      const resolvedTotals = totals.flatMap((total) => {
-        const prescriptionId = resolvePrescriptionId(
-          total.subPlanNumber,
-          total.rowNumber
-        );
-        return prescriptionId
-          ? [{ prescriptionId, sampleCount: total.sampleCount }]
-          : [];
-      });
+      const resolvedTotals = canWriteRegion
+        ? totals.flatMap((total) => {
+            const prescriptionId = resolvePrescriptionId(
+              total.subPlanNumber,
+              total.rowNumber,
+              updatablePlanIds
+            );
+            return prescriptionId
+              ? [{ prescriptionId, sampleCount: total.sampleCount }]
+              : [];
+          })
+        : [];
 
       return {
         status: HttpStatus.OK,

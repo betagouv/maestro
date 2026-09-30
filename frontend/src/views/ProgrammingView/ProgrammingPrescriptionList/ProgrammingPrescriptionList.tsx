@@ -141,7 +141,10 @@ const ProgrammingPrescriptionList = ({
     PrescriptionImportResult | undefined
   >(undefined);
 
-  const canImport = hasNationalView && hasUserPermission('updatePrescription');
+  const canImport =
+    (hasNationalView && hasUserPermission('updatePrescription')) ||
+    hasUserPermission('distributePrescriptionToDepartments') ||
+    hasUserPermission('distributePrescriptionToSlaughterhouses');
 
   const hasPendingChanges =
     pendingLocalChanges.size > 0 ||
@@ -368,16 +371,20 @@ const ProgrammingPrescriptionList = ({
         for (const {
           prescriptionId,
           region,
+          department,
+          companySiret,
           sampleCount
         } of result.localChanges) {
-          const key = { prescriptionId, region };
+          const key = {
+            prescriptionId,
+            region,
+            department: department ?? undefined,
+            companySiret: companySiret ?? undefined
+          };
           const keyString = toLocalPrescriptionKeyString(key);
           const persistedSampleCount = (allLocalPrescriptions ?? []).find(
             (localPrescription) =>
-              localPrescription.prescriptionId === prescriptionId &&
-              localPrescription.region === region &&
-              isNil(localPrescription.department) &&
-              isNil(localPrescription.companySiret)
+              toLocalPrescriptionKeyString(localPrescription) === keyString
           )?.sampleCount;
 
           if (persistedSampleCount === sampleCount) {

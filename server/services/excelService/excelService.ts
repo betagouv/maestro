@@ -519,10 +519,12 @@ const generatePrescriptionsExportExcel = async (
     if (hasCompanyColumns) {
       columnTitles.push(
         ...companySirets.map((companySiret) => {
-          const companyName =
-            departmentCompanies.find((c) => c.siret === companySiret)?.name ??
-            companySiret;
-          return `${companyName}\nProgrammés`;
+          const companyName = departmentCompanies.find(
+            (c) => c.siret === companySiret
+          )?.name;
+          return companyName
+            ? `${companyName}\n${companySiret}\nProgrammés`
+            : `${companySiret}\nProgrammés`;
         })
       );
     }
