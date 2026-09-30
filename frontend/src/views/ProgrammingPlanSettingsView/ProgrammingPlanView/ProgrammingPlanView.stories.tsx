@@ -60,6 +60,20 @@ const confirmCompletion = async (canvasElement: HTMLElement) => {
   await userEvent.click(modal.getByText('Terminer', { selector: 'button' }));
 };
 
+const discardUnsavedChanges = async (canvasElement: HTMLElement) => {
+  const modal = within(
+    canvasElement.querySelector('#unsaved-changes-modal') as HTMLElement
+  );
+  await waitFor(() =>
+    expect(
+      modal.getByText('Continuer quand même', { selector: 'button' })
+    ).toBeVisible()
+  );
+  await userEvent.click(
+    modal.getByText('Continuer quand même', { selector: 'button' })
+  );
+};
+
 const genAdminField = (key: string, id: string): AdminFieldConfig => ({
   id: SpecificDataFieldId.parse(id),
   key,
@@ -799,6 +813,7 @@ export const SubPlanErrorsClearedOnNavigation: Story = {
     ).toBeInTheDocument();
 
     await userEvent.click(canvas.getByText('102 - Fruits et légumes'));
+    await discardUnsavedChanges(canvasElement);
     await expect(
       await canvas.findByRole('heading', { name: '102 - Fruits et légumes' })
     ).toBeInTheDocument();
