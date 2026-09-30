@@ -34,6 +34,7 @@ import {
 } from 'src/utils/sampleLaboratories';
 import { pluralize } from 'src/utils/stringUtils';
 import PrescriptionSubstances from '../../../components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
+import { findPrescriptionPlan } from '../prescriptionPlan';
 import {
   bySubstanceKindLabel,
   Colgroup,
@@ -682,9 +683,8 @@ const ProgrammingPrescriptionRow = ({
             <div className={cx('fr-col-3')}>
               <PrescriptionSubstances
                 programmingPlan={
-                  programmingPlans.find(
-                    (p) => p.id === prescription.programmingPlanId
-                  ) ?? programmingPlans[0]
+                  findPrescriptionPlan(programmingPlans, prescription) ??
+                  programmingPlans[0]
                 }
                 prescription={prescription}
                 renderMode="inline"

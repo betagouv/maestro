@@ -13,7 +13,10 @@ import { knexInstance as db } from './db';
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { prescriptionSubstanceTable } from './prescriptionSubstanceRepository';
 import { programmingPlansTable } from './programmingPlanRepository';
-import { programmingSubPlansTable } from './programmingSubPlanRepository';
+import {
+  programmingSubPlansRawTable,
+  programmingSubPlansTable
+} from './programmingSubPlanRepository';
 import { userRepository } from './userRepository';
 
 export const prescriptionsTable = 'prescriptions';
@@ -22,6 +25,8 @@ const localPrescriptionChangesTable = 'local_prescription_changes';
 const prescriptionChangesTable = 'prescription_changes';
 
 export const Prescriptions = () => db<Prescription>(prescriptionsTable);
+
+const programmingPlanIdColumn = `${programmingSubPlansRawTable}.programming_plan_id`;
 
 const matrixKindsFilter = (
   findOptions: FindPrescriptionOptions
@@ -343,7 +348,7 @@ const missingDistributionExpression = (
     return [
       `case when (
          select pp.distribution_kind from ${programmingPlansTable} pp
-         where pp.id = ${prescriptionsTable}.programming_plan_id
+         where pp.id = ${programmingPlanIdColumn}
        ) = 'SLAUGHTERHOUSE'
        then ${distributedToDepartments(visibility)}
        else false
@@ -416,55 +421,58 @@ const buildFindQuery = (
   { matrixKinds, subPlanIds }: ResolvedFilters,
   visibility?: PendingChangeVisibility
 ): Knex.QueryBuilder =>
-  Prescriptions().modify((builder) => {
-    if (findOptions.programmingPlanId) {
-      builder.where(
-        `${prescriptionsTable}.programming_plan_id`,
-        findOptions.programmingPlanId
-      );
-    }
-    if (findOptions.programmingPlanIds) {
-      builder.whereIn(
-        `${prescriptionsTable}.programming_plan_id`,
-        findOptions.programmingPlanIds
-      );
-    }
-    if (findOptions.year || findOptions.programmingPlanDomainIds) {
-      builder.join(
-        programmingPlansTable,
-        `${prescriptionsTable}.programming_plan_id`,
-        `${programmingPlansTable}.id`
-      );
-    }
-    if (findOptions.year) {
-      builder.where(`${programmingPlansTable}.year`, findOptions.year);
-    }
-    if (findOptions.programmingPlanDomainIds) {
-      builder.whereIn(
-        `${programmingPlansTable}.domain_id`,
-        findOptions.programmingPlanDomainIds
-      );
-    }
-    if (findOptions.matrixKind) {
-      builder.where(
-        `${prescriptionsTable}.matrix_kind`,
-        findOptions.matrixKind
-      );
-    }
-    if (findOptions.contexts) {
-      builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
-    }
-    if (subPlanIds) {
-      builder.whereIn(
-        `${prescriptionsTable}.programming_sub_plan_id`,
-        subPlanIds
-      );
-    }
-    if (matrixKinds) {
-      builder.whereIn(`${prescriptionsTable}.matrix_kind`, matrixKinds);
-    }
-    applyLocalPrescriptionFilters(builder, findOptions, visibility);
-  });
+  Prescriptions()
+    .join(
+      programmingSubPlansRawTable,
+      `${programmingSubPlansRawTable}.id`,
+      `${prescriptionsTable}.programming_sub_plan_id`
+    )
+    .modify((builder) => {
+      if (findOptions.programmingPlanId) {
+        builder.where(programmingPlanIdColumn, findOptions.programmingPlanId);
+      }
+      if (findOptions.programmingPlanIds) {
+        builder.whereIn(
+          programmingPlanIdColumn,
+          findOptions.programmingPlanIds
+        );
+      }
+      if (findOptions.year || findOptions.programmingPlanDomainIds) {
+        builder.join(
+          programmingPlansTable,
+          programmingPlanIdColumn,
+          `${programmingPlansTable}.id`
+        );
+      }
+      if (findOptions.year) {
+        builder.where(`${programmingPlansTable}.year`, findOptions.year);
+      }
+      if (findOptions.programmingPlanDomainIds) {
+        builder.whereIn(
+          `${programmingPlansTable}.domain_id`,
+          findOptions.programmingPlanDomainIds
+        );
+      }
+      if (findOptions.matrixKind) {
+        builder.where(
+          `${prescriptionsTable}.matrix_kind`,
+          findOptions.matrixKind
+        );
+      }
+      if (findOptions.contexts) {
+        builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
+      }
+      if (subPlanIds) {
+        builder.whereIn(
+          `${prescriptionsTable}.programming_sub_plan_id`,
+          subPlanIds
+        );
+      }
+      if (matrixKinds) {
+        builder.whereIn(`${prescriptionsTable}.matrix_kind`, matrixKinds);
+      }
+      applyLocalPrescriptionFilters(builder, findOptions, visibility);
+    });
 
 const findMany = async (
   findOptions: FindPrescriptionOptions,
@@ -589,7 +597,7 @@ const findCounts = async (
 
   return buildFindQuery(countOptions, resolved, visibility)
     .select(
-      `${prescriptionsTable}.programming_plan_id as planId`,
+      `${programmingPlanIdColumn} as planId`,
       `${prescriptionsTable}.programming_sub_plan_id as subPlanId`,
       `${prescriptionsTable}.matrix_kind as matrixKind`,
       `${prescriptionsTable}.context as context`,

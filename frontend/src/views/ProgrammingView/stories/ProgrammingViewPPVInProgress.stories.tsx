@@ -39,12 +39,12 @@ const pastProgrammingPlan = {
   })
 };
 const prescription1 = genPrescription({
-  programmingPlanId: programmingPlan.id,
+  programmingSubPlanId: programmingPlan.subPlans[0].id,
   context: 'Control',
   matrixKind: 'A0DEH'
 });
 const prescription2 = genPrescription({
-  programmingPlanId: programmingPlan.id,
+  programmingSubPlanId: programmingPlan.subPlans[0].id,
   context: 'Control',
   matrixKind: 'A0DQS'
 });

@@ -14,6 +14,7 @@ import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPl
 import { useContext, useMemo } from 'react';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
+import { findPrescriptionPlan } from '../prescriptionPlan';
 import {
   type AggregateDisplayStatus,
   buildAggregateDisplayStatus,
@@ -69,8 +70,13 @@ export const useProgrammingPlanTrackingStatus = (
   );
 
   const prescriptionsByPlan = useMemo(
-    () => groupBy(prescriptions ?? [], 'programmingPlanId'),
-    [prescriptions]
+    () =>
+      groupBy(
+        prescriptions ?? [],
+        (prescription) =>
+          findPrescriptionPlan(programmingPlans, prescription)?.id
+      ),
+    [prescriptions, programmingPlans]
   );
   const localPrescriptionsByPrescription = useMemo(
     () => groupBy(localPrescriptions ?? [], 'prescriptionId'),

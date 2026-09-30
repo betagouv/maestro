@@ -286,8 +286,7 @@ export interface Prescriptions {
   matrixKind: string | null;
   notes: string | null;
   programmingInstruction: string | null;
-  programmingPlanId: string | null;
-  programmingSubPlanId: ProgrammingSubPlanId | null;
+  programmingSubPlanId: ProgrammingSubPlanId;
   sampleCount: number;
 }
 

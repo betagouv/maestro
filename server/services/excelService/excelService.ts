@@ -536,10 +536,12 @@ const generatePrescriptionsExportExcel = async (
       )
     ].toSorted(LocalPrescriptionSort);
 
-    const prescriptionPlan = planById.get(prescription.programmingPlanId);
     const prescriptionSubPlan = subPlanById.get(
       prescription.programmingSubPlanId
     );
+    const prescriptionPlan =
+      prescriptionSubPlan &&
+      planById.get(prescriptionSubPlan.programmingPlanId);
 
     const columns: (string | number)[] = [];
     if (!exportedRegion) {

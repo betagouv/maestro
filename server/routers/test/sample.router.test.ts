@@ -4,6 +4,7 @@ import { addDays, format } from 'date-fns';
 import { omit } from 'lodash-es';
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
+import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   DummyLaboratoryIds,
   type UserRefined
@@ -23,10 +24,11 @@ import {
   DAOAInProgressBovinSubPlanId,
   DAOAInProgressProgrammingPlanFixture,
   DAOAInProgressVolailleSubPlanId,
+  genProgrammingSubPlan,
   PPVInProgressProgrammingPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture,
-  PPVValidatedSubPlanId
+  PPVValidatedSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
@@ -66,6 +68,8 @@ import {
 import { LocalPrescriptionSubstanceKindsLaboratories } from '../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
+import { toProgrammingPlanSettingsRow } from '../../repositories/programmingPlanSettingsRow';
+import { ProgrammingSubPlansRaw } from '../../repositories/programmingSubPlanRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
@@ -529,6 +533,10 @@ describe('Sample router', () => {
 
   describe('PUT /samples/{sampleId}', () => {
     const testRoute = (sampleId: string) => `/api/samples/${sampleId}`;
+    const specificMatrixSubPlan = genProgrammingSubPlan({
+      ...PPVValidatedSubPlanFixture,
+      id: ProgrammingSubPlanId.parse(uuidv4())
+    });
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -700,12 +708,14 @@ describe('Sample router', () => {
     test('should derive prescriptionId when a prescription has a matching specific matrix value', async () => {
       const specificMatrix = 'A00GZ';
       const prescription = genPrescription({
-        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        programmingSubPlanId: PPVValidatedSubPlanId,
+        programmingSubPlanId: specificMatrixSubPlan.id,
         context: PrescriptionFixture.context,
         matrixKind: PrescriptionFixture.matrixKind,
         matrix: specificMatrix
       });
+      await ProgrammingSubPlansRaw().insert(
+        toProgrammingPlanSettingsRow(specificMatrixSubPlan)
+      );
       await Prescriptions().insert(prescription);
 
       const sampleId = uuidv4();
@@ -734,6 +744,9 @@ describe('Sample router', () => {
 
       await Samples().where({ id: sampleId }).delete();
       await Prescriptions().where({ id: prescription.id }).delete();
+      await ProgrammingSubPlansRaw()
+        .where({ id: specificMatrixSubPlan.id })
+        .delete();
     });
 
     test('should derive prescriptionId from a catch-all prescription (matrix=null) when sample has a specific matrix', async () => {
@@ -768,8 +781,7 @@ describe('Sample router', () => {
       const newMatrix = 'A00HF';
       const newLaboratoryId = DummyLaboratoryIds[0];
       const prescription = genPrescription({
-        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        programmingSubPlanId: PPVValidatedSubPlanId,
+        programmingSubPlanId: specificMatrixSubPlan.id,
         context: PrescriptionFixture.context,
         matrixKind: PrescriptionFixture.matrixKind,
         matrix: newMatrix
@@ -778,6 +790,9 @@ describe('Sample router', () => {
         prescriptionId: prescription.id,
         region: Sample11Fixture.region
       });
+      await ProgrammingSubPlansRaw().insert(
+        toProgrammingPlanSettingsRow(specificMatrixSubPlan)
+      );
       await Prescriptions().insert(prescription);
       await LocalPrescriptions().insert(
         omit(formatLocalPrescription(localPrescription), [
@@ -837,6 +852,9 @@ describe('Sample router', () => {
 
       await Samples().where({ id: sampleId }).delete();
       await Prescriptions().where({ id: prescription.id }).delete();
+      await ProgrammingSubPlansRaw()
+        .where({ id: specificMatrixSubPlan.id })
+        .delete();
     });
 
     test('should be forbidden to send a sample with sampleAt in the future', async () => {

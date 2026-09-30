@@ -86,11 +86,16 @@ const findAgreementScopes = async (
       `${localPrescriptionSubstanceKindsLaboratoriesTable}.substance_kind`,
       substanceKind
     )
+    .join(
+      'programming_sub_plans_raw',
+      'programming_sub_plans_raw.id',
+      'prescriptions.programming_sub_plan_id'
+    )
     .andWhere('prescriptions.programming_sub_plan_id', programmingSubPlanId)
     .distinct(
       `${localPrescriptionSubstanceKindsLaboratoriesTable}.region`,
       `${localPrescriptionSubstanceKindsLaboratoriesTable}.department`,
-      'prescriptions.programming_plan_id'
+      'programming_sub_plans_raw.programming_plan_id'
     )) as unknown as {
     region: Region;
     department: Department | 'None';

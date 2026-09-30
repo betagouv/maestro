@@ -107,8 +107,16 @@ export const prescriptionsRouter = {
       };
     },
     post: async ({ userRole, body }) => {
+      const subPlan = await programmingSubPlanRepository.findUnique(
+        body.programmingSubPlanId
+      );
+
+      if (!subPlan) {
+        return { status: HttpStatus.BAD_REQUEST };
+      }
+
       const programmingPlan = await getAndCheckProgrammingPlan(
-        body.programmingPlanId
+        subPlan.programmingPlanId
       );
 
       if (!hasPrescriptionPermission(userRole, programmingPlan).create) {
@@ -122,8 +130,7 @@ export const prescriptionsRouter = {
 
       const createdPrescription = {
         ...body,
-        id: uuidv4(),
-        programmingPlanId: programmingPlan.id
+        id: uuidv4()
       };
 
       await prescriptionRepository.insert(createdPrescription);
@@ -189,23 +196,27 @@ export const prescriptionsRouter = {
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      const updatablePlanIds = new Set(
+      const updatableSubPlanIds = new Set(
         programmingPlans
           .filter(
             (programmingPlan) =>
               hasPrescriptionPermission(userRole, programmingPlan).update
           )
-          .map((programmingPlan) => programmingPlan.id)
+          .flatMap((programmingPlan) =>
+            programmingPlan.subPlans.map((subPlan) => subPlan.id)
+          )
       );
 
-      const openPlanIds = new Set(
+      const openSubPlanIds = new Set(
         programmingPlans
           .filter((programmingPlan) =>
             programmingPlan.regionalStatus.some(
               (regionalStatus) => regionalStatus.status !== 'Closed'
             )
           )
-          .map((programmingPlan) => programmingPlan.id)
+          .flatMap((programmingPlan) =>
+            programmingPlan.subPlans.map((subPlan) => subPlan.id)
+          )
       );
 
       const writableDepartments = user.department
@@ -236,7 +247,7 @@ export const prescriptionsRouter = {
       const resolvePrescriptionId = (
         subPlanNumber: string,
         rowNumber: number,
-        allowedPlanIds: Set<string>
+        allowedSubPlanIds: Set<ProgrammingSubPlanId>
       ): string | undefined => {
         const matching = prescriptionsBySubPlanNumber.get(subPlanNumber);
 
@@ -247,7 +258,7 @@ export const prescriptionsRouter = {
 
         const [prescription] = matching;
 
-        if (!allowedPlanIds.has(prescription.programmingPlanId)) {
+        if (!allowedSubPlanIds.has(prescription.programmingSubPlanId)) {
           unrecognized.push(`Ligne ${rowNumber}`);
           return undefined;
         }
@@ -264,7 +275,7 @@ export const prescriptionsRouter = {
         const prescriptionId = resolvePrescriptionId(
           cell.subPlanNumber,
           cell.rowNumber,
-          cell.scope.echelon === 'Region' ? updatablePlanIds : openPlanIds
+          cell.scope.echelon === 'Region' ? updatableSubPlanIds : openSubPlanIds
         );
 
         if (!prescriptionId) {
@@ -296,7 +307,7 @@ export const prescriptionsRouter = {
             const prescriptionId = resolvePrescriptionId(
               total.subPlanNumber,
               total.rowNumber,
-              updatablePlanIds
+              updatableSubPlanIds
             );
             return prescriptionId
               ? [{ prescriptionId, sampleCount: total.sampleCount }]

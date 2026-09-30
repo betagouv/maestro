@@ -10,7 +10,8 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   genProgrammingPlan,
-  genProgrammingPlanDomain
+  genProgrammingPlanDomain,
+  genProgrammingSubPlan
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
@@ -75,18 +76,26 @@ describe('Prescriptions router', () => {
     })),
     year: 1822
   });
+  const inProgressSurveillanceSubPlan = genProgrammingSubPlan({
+    programmingPlanId: programmingPlanInProgress.id,
+    subPlanNumber: 'TEST2'
+  });
+  const inProgressSubPlanWithoutPrescription = genProgrammingSubPlan({
+    programmingPlanId: programmingPlanInProgress.id,
+    subPlanNumber: 'TEST3'
+  });
   const closedControlPrescription = genPrescription({
-    programmingPlanId: programmingPlanClosed.id,
+    programmingSubPlanId: programmingPlanClosed.subPlans[0].id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options)
   });
   const submittedControlPrescription = genPrescription({
-    programmingPlanId: programmingPlanSubmitted.id,
+    programmingSubPlanId: programmingPlanSubmitted.subPlans[0].id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options)
   });
   const inProgressControlPrescription = genPrescription({
-    programmingPlanId: programmingPlanInProgress.id,
+    programmingSubPlanId: programmingPlanInProgress.subPlans[0].id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options)
   });
@@ -95,7 +104,7 @@ describe('Prescriptions router', () => {
     analysisMethod: 'Mono'
   });
   const inProgressSurveillancePrescription = genPrescription({
-    programmingPlanId: programmingPlanInProgress.id,
+    programmingSubPlanId: inProgressSurveillanceSubPlan.id,
     context: 'Surveillance',
     matrixKind: oneOf(MatrixKindEffective.options)
   });
@@ -135,12 +144,19 @@ describe('Prescriptions router', () => {
         programmingPlanSubmitted,
         programmingPlanInProgress,
         programmingPlanClosed
-      ].flatMap((plan) =>
-        plan.subPlans.map((sp) => ({
-          ...toProgrammingPlanSettingsRow(sp),
-          programmingPlanId: plan.id
-        }))
-      )
+      ]
+        .flatMap((plan) =>
+          plan.subPlans.map((sp) => ({
+            ...toProgrammingPlanSettingsRow(sp),
+            programmingPlanId: plan.id
+          }))
+        )
+        .concat(
+          [
+            inProgressSurveillanceSubPlan,
+            inProgressSubPlanWithoutPrescription
+          ].map(toProgrammingPlanSettingsRow)
+        )
     );
     await Prescriptions().insert([
       closedControlPrescription,
@@ -156,10 +172,11 @@ describe('Prescriptions router', () => {
   afterAll(async () => {
     await Prescriptions()
       .delete()
-      .where('programmingPlanId', 'in', [
-        programmingPlanInProgress.id,
-        programmingPlanSubmitted.id,
-        programmingPlanClosed.id
+      .where('id', 'in', [
+        closedControlPrescription.id,
+        submittedControlPrescription.id,
+        inProgressControlPrescription.id,
+        inProgressSurveillancePrescription.id
       ]);
     await ProgrammingPlans()
       .delete()
@@ -282,7 +299,7 @@ describe('Prescriptions router', () => {
 
   describe('POST /prescriptions', () => {
     const validBody = genPrescription({
-      programmingPlanId: programmingPlanInProgress.id,
+      programmingSubPlanId: inProgressSubPlanWithoutPrescription.id,
       context: 'Control'
     });
     const testRoute = '/api/prescriptions';
@@ -303,11 +320,8 @@ describe('Prescriptions router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
-      await badRequestTest({ ...validBody, programmingPlanId: undefined });
-      await badRequestTest({
-        ...validBody,
-        programmingPlanId: fakerFR.string.alphanumeric(32)
-      });
+      await badRequestTest({ ...validBody, programmingSubPlanId: undefined });
+      await badRequestTest({ ...validBody, programmingSubPlanId: uuidv4() });
       await badRequestTest({ ...validBody, context: undefined });
       await badRequestTest({ ...validBody, context: 'invalid' });
       await badRequestTest({ ...validBody, matrixKind: undefined });
@@ -336,7 +350,7 @@ describe('Prescriptions router', () => {
         .post(testRoute)
         .send({
           ...validBody,
-          programmingPlanId: programmingPlanClosed.id
+          programmingSubPlanId: programmingPlanClosed.subPlans[0].id
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);

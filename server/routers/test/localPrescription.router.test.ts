@@ -18,6 +18,7 @@ import type {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
+import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import {
@@ -32,10 +33,13 @@ import {
   DAOAVolailleValidatedSubPlanFixture,
   genProgrammingPlan,
   genProgrammingPlanDomain,
+  genProgrammingSubPlan,
   PPVClosedProgrammingPlanFixture,
+  PPVClosedSubPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
   PPVSubmittedSubPlanFixture,
-  PPVValidatedProgrammingPlanFixture
+  PPVValidatedProgrammingPlanFixture,
+  PPVValidatedSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
@@ -105,23 +109,31 @@ describe('Local prescriptions router', () => {
       laboratoryId: laboratory.id
     }
   ];
+  const validatedControlSubPlan = genProgrammingSubPlan({
+    ...PPVValidatedSubPlanFixture,
+    id: ProgrammingSubPlanId.parse(uuidv4())
+  });
+  const submittedControlSubPlan2 = genProgrammingSubPlan({
+    ...PPVSubmittedSubPlanFixture,
+    id: ProgrammingSubPlanId.parse(uuidv4())
+  });
   const closedControlPrescription = genPrescription({
-    programmingPlanId: PPVClosedProgrammingPlanFixture.id,
+    programmingSubPlanId: PPVClosedSubPlanFixture.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options)
   });
   const validatedControlPrescription = genPrescription({
-    programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+    programmingSubPlanId: validatedControlSubPlan.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options)
   });
   const submittedControlPrescription1 = genPrescription({
-    programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+    programmingSubPlanId: PPVSubmittedSubPlanFixture.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options)
   });
   const submittedControlPrescription2 = genPrescription({
-    programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+    programmingSubPlanId: submittedControlSubPlan2.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options)
   });
@@ -193,6 +205,11 @@ describe('Local prescriptions router', () => {
 
   beforeAll(async () => {
     await Laboratories().insert(toDbRow(laboratory));
+    await ProgrammingSubPlansRaw().insert(
+      [validatedControlSubPlan, submittedControlSubPlan2].map(
+        toProgrammingPlanSettingsRow
+      )
+    );
     await Prescriptions().insert([
       closedControlPrescription,
       validatedControlPrescription,
@@ -244,9 +261,12 @@ describe('Local prescriptions router', () => {
     await Samples().delete().where('id', sample.id);
     await Prescriptions()
       .delete()
-      .where('programmingPlanId', 'in', [
-        PPVSubmittedProgrammingPlanFixture.id
-      ]);
+      .whereIn(
+        'programmingSubPlanId',
+        ProgrammingSubPlansRaw()
+          .select('id')
+          .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
+      );
     await ProgrammingPlans()
       .delete()
       .where('id', 'in', [PPVSubmittedProgrammingPlanFixture.id]);
@@ -1243,13 +1263,13 @@ describe('Local prescriptions router', () => {
     });
 
     const slaughterhousePrescription = genPrescription({
-      programmingPlanId: programmingPlanSlaughterhouse.id,
+      programmingSubPlanId: programmingPlanSlaughterhouse.subPlans[0].id,
       context: 'Control',
       matrixKind: oneOf(MatrixKindEffective.options)
     });
 
     const slaughterhousePrescriptionClosed = genPrescription({
-      programmingPlanId: programmingPlanSlaughterhouseClosed.id,
+      programmingSubPlanId: programmingPlanSlaughterhouseClosed.subPlans[0].id,
       context: 'Control',
       matrixKind: oneOf(MatrixKindEffective.options)
     });
@@ -2476,8 +2496,12 @@ describe('Local prescriptions router', () => {
   });
 
   describe('Change history lifecycle', () => {
+    const changeTrackingSubPlan = genProgrammingSubPlan({
+      ...PPVSubmittedSubPlanFixture,
+      id: ProgrammingSubPlanId.parse(uuidv4())
+    });
     const changeTrackingPrescription = genPrescription({
-      programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+      programmingSubPlanId: changeTrackingSubPlan.id,
       context: 'Exploratory',
       matrixKind: oneOf(MatrixKindEffective.options)
     });
@@ -2492,6 +2516,9 @@ describe('Local prescriptions router', () => {
       `/api/prescriptions/${changeTrackingLocalPrescription.prescriptionId}/regions/${changeTrackingLocalPrescription.region}`;
 
     beforeAll(async () => {
+      await ProgrammingSubPlansRaw().insert(
+        toProgrammingPlanSettingsRow(changeTrackingSubPlan)
+      );
       await Prescriptions().insert(changeTrackingPrescription);
       await LocalPrescriptions().insert(
         omit(formatLocalPrescription(changeTrackingLocalPrescription), [

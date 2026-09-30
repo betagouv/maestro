@@ -170,7 +170,6 @@ export const NationalCoordinatorViewByRegion: Story = {
           programmingPlan: getProgrammingPlanWithStatus('SubmittedToRegion'),
           prescription: genPrescription({
             id: '22222222-2222-2222-2222-222222222222',
-            programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
             programmingSubPlanId: PPVValidatedSubPlanId,
             context: 'Surveillance',
             matrixKind: 'A01SN'

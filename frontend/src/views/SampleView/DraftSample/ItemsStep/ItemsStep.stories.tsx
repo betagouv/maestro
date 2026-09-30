@@ -34,7 +34,7 @@ type Story = StoryObj<typeof meta>;
 
 const programmingPlan = genProgrammingPlan();
 const prescription1 = genPrescription({
-  programmingPlanId: programmingPlan.id,
+  programmingSubPlanId: programmingPlan.subPlans[0].id,
   context: 'Control',
   matrixKind: 'A001M'
 });

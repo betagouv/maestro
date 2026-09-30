@@ -6,6 +6,7 @@ import {
   Regions
 } from 'maestro-shared/referential/Region';
 import type { Stage } from 'maestro-shared/referential/Stage';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import {
   emptyProgrammingPlanSettings,
@@ -72,7 +73,11 @@ import programmingPlanRepository, {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
+import { toProgrammingPlanSettingsRow } from '../../repositories/programmingPlanSettingsRow';
+import {
+  ProgrammingSubPlansRaw,
+  programmingSubPlanRepository
+} from '../../repositories/programmingSubPlanRepository';
 import {
   UserCompanies,
   Users,
@@ -86,6 +91,23 @@ import { TEST_LOGGED_SECRET, tokenProvider } from '../../test/testUtils';
 
 describe('ProgrammingPlan router', () => {
   const { app } = createServer();
+
+  const insertPrescriptionInPlan = async (programmingPlanId: string) => {
+    const subPlan = genProgrammingSubPlan({ programmingPlanId });
+    const prescription = genPrescription({ programmingSubPlanId: subPlan.id });
+    await ProgrammingSubPlansRaw().insert(
+      toProgrammingPlanSettingsRow(subPlan)
+    );
+    await Prescriptions().insert(prescription);
+    return prescription;
+  };
+
+  const deletePrescription = async (prescription: Prescription) => {
+    await Prescriptions().where({ id: prescription.id }).delete();
+    await programmingSubPlanRepository.deleteOne(
+      prescription.programmingSubPlanId
+    );
+  };
 
   const daoaInProgressSubPlanFixtures = [
     DAOAVolailleInProgressSubPlanFixture,
@@ -617,10 +639,9 @@ describe('ProgrammingPlan router', () => {
 
     test('a pending National edit targeting one region stays invisible to everyone but National itself; the region it targets is unaffected', async () => {
       const targetRegion = RegionalCoordinator.region as Region;
-      const modifiedPrescription = genPrescription({
-        programmingPlanId: PPVSubmittedProgrammingPlanFixture.id
-      });
-      await Prescriptions().insert(modifiedPrescription);
+      const modifiedPrescription = await insertPrescriptionInPlan(
+        PPVSubmittedProgrammingPlanFixture.id
+      );
       await LocalPrescriptionChanges().insert({
         prescriptionId: modifiedPrescription.id,
         region: targetRegion,
@@ -668,7 +689,7 @@ describe('ProgrammingPlan router', () => {
         )
       ).toMatchObject({ hasPendingChange: false });
 
-      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
+      await deletePrescription(modifiedPrescription);
     });
 
     test('once diffused, a region whose live data outran its own sentAt shows needsResend to everyone, but only the region itself gets folded into hasPendingChange', async () => {
@@ -681,10 +702,9 @@ describe('ProgrammingPlan router', () => {
         })
         .update({ sentAt: originalSentAt, lastSentAt: originalSentAt });
 
-      const modifiedPrescription = genPrescription({
-        programmingPlanId: PPVValidatedProgrammingPlanFixture.id
-      });
-      await Prescriptions().insert(modifiedPrescription);
+      const modifiedPrescription = await insertPrescriptionInPlan(
+        PPVValidatedProgrammingPlanFixture.id
+      );
       await LocalPrescriptionChanges().insert({
         prescriptionId: modifiedPrescription.id,
         region: targetRegion,
@@ -729,7 +749,7 @@ describe('ProgrammingPlan router', () => {
       ).toMatchObject({ needsResend: true, hasPendingChange: true });
 
       // Cleanup
-      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
+      await deletePrescription(modifiedPrescription);
       await ProgrammingPlanLocalStatus()
         .where({
           programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
@@ -752,10 +772,9 @@ describe('ProgrammingPlan router', () => {
         }))
       );
 
-      const modifiedPrescription = genPrescription({
-        programmingPlanId: DAOAValidatedProgrammingPlanFixture.id
-      });
-      await Prescriptions().insert(modifiedPrescription);
+      const modifiedPrescription = await insertPrescriptionInPlan(
+        DAOAValidatedProgrammingPlanFixture.id
+      );
       await LocalPrescriptionChanges().insert({
         prescriptionId: modifiedPrescription.id,
         region,
@@ -792,7 +811,7 @@ describe('ProgrammingPlan router', () => {
       ).toMatchObject({ status: 'Validated', hasPendingChange: false });
 
       // Cleanup
-      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
+      await deletePrescription(modifiedPrescription);
       await ProgrammingPlanLocalStatus()
         .where({
           programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
@@ -1144,10 +1163,9 @@ describe('ProgrammingPlan router', () => {
 
     test('a first submission carrying pending edits still reaches the administrator', async () => {
       const planId = PPVInProgressProgrammingPlanFixture.id;
-      const prescription = genPrescription({ programmingPlanId: planId });
+      const prescription = await insertPrescriptionInPlan(planId);
 
       try {
-        await Prescriptions().insert(prescription);
         await LocalPrescriptionChanges().insert({
           prescriptionId: prescription.id,
           region: RegionalCoordinator.region as Region,
@@ -1179,7 +1197,7 @@ describe('ProgrammingPlan router', () => {
         await LocalPrescriptionChanges()
           .where('prescription_id', prescription.id)
           .delete();
-        await Prescriptions().where('id', prescription.id).delete();
+        await deletePrescription(prescription);
         await ProgrammingPlanLocalStatus()
           .where('programmingPlanId', planId)
           .update({ status: 'InProgress', sentAt: null });
@@ -1394,10 +1412,9 @@ describe('ProgrammingPlan router', () => {
         PPVSubmittedProgrammingPlanFixture.regionalStatus[0].region;
       const previousSentAt = new Date('2020-01-01');
 
-      const modifiedPrescription = genPrescription({
-        programmingPlanId: PPVSubmittedProgrammingPlanFixture.id
-      });
-      await Prescriptions().insert(modifiedPrescription);
+      const modifiedPrescription = await insertPrescriptionInPlan(
+        PPVSubmittedProgrammingPlanFixture.id
+      );
       await PrescriptionChanges().insert({
         prescriptionId: modifiedPrescription.id,
         sampleCount: modifiedPrescription.sampleCount + 1,
@@ -1495,7 +1512,7 @@ describe('ProgrammingPlan router', () => {
           region: 'None'
         })
         .update({ status: 'InProgress', sentAt: null });
-      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
+      await deletePrescription(modifiedPrescription);
     });
   });
 
@@ -1505,14 +1522,12 @@ describe('ProgrammingPlan router', () => {
     test('a first share-out carrying pending edits still reaches the departments', async () => {
       const planId = DAOAInProgressProgrammingPlanFixture.id;
       const region = RegionalCoordinator.region as Region;
-      const prescription = genPrescription({ programmingPlanId: planId });
+      const prescription = await insertPrescriptionInPlan(planId);
 
       try {
         await ProgrammingPlanLocalStatus()
           .where({ programmingPlanId: planId, region })
           .update({ status: 'SubmittedToRegion', sentAt: null });
-
-        await Prescriptions().insert(prescription);
         await LocalPrescriptionChanges().insert({
           prescriptionId: prescription.id,
           region,
@@ -1552,7 +1567,7 @@ describe('ProgrammingPlan router', () => {
         await LocalPrescriptionChanges()
           .where('prescription_id', prescription.id)
           .delete();
-        await Prescriptions().where('id', prescription.id).delete();
+        await deletePrescription(prescription);
         await ProgrammingPlanLocalStatus()
           .where({ programmingPlanId: planId, region })
           .whereNot({ department: 'None' })
@@ -1701,10 +1716,9 @@ describe('ProgrammingPlan router', () => {
         }))
       );
 
-      const modifiedPrescription = genPrescription({
-        programmingPlanId: DAOAValidatedProgrammingPlanFixture.id
-      });
-      await Prescriptions().insert(modifiedPrescription);
+      const modifiedPrescription = await insertPrescriptionInPlan(
+        DAOAValidatedProgrammingPlanFixture.id
+      );
       await LocalPrescriptionChanges().insert({
         prescriptionId: modifiedPrescription.id,
         region: RegionalCoordinator.region,
@@ -1790,7 +1804,7 @@ describe('ProgrammingPlan router', () => {
           department: 'None'
         })
         .update({ sentAt: null, lastModifiedAt: null });
-      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
+      await deletePrescription(modifiedPrescription);
     });
   });
 
@@ -1874,10 +1888,9 @@ describe('ProgrammingPlan router', () => {
     test('resend after modification only notifies national coordinators and samplers', async () => {
       const previousSentAt = new Date('2020-01-01');
 
-      const modifiedPrescription = genPrescription({
-        programmingPlanId: PPVValidatedProgrammingPlanFixture.id
-      });
-      await Prescriptions().insert(modifiedPrescription);
+      const modifiedPrescription = await insertPrescriptionInPlan(
+        PPVValidatedProgrammingPlanFixture.id
+      );
       await LocalPrescriptionChanges().insert({
         prescriptionId: modifiedPrescription.id,
         region: RegionalCoordinator.region,
@@ -1929,7 +1942,7 @@ describe('ProgrammingPlan router', () => {
           region: RegionalCoordinator.region
         })
         .update({ status: 'Validated', sentAt: null, lastModifiedAt: null });
-      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
+      await deletePrescription(modifiedPrescription);
     });
 
     test('resend after a NATIONAL correction (not Regional-authored) keeps the first sentAt and notifies', async () => {
@@ -1941,10 +1954,9 @@ describe('ProgrammingPlan router', () => {
         })
         .update({ status: 'Validated', sentAt: previousSentAt });
 
-      const modifiedPrescription = genPrescription({
-        programmingPlanId: PPVValidatedProgrammingPlanFixture.id
-      });
-      await Prescriptions().insert(modifiedPrescription);
+      const modifiedPrescription = await insertPrescriptionInPlan(
+        PPVValidatedProgrammingPlanFixture.id
+      );
       await LocalPrescriptionChanges().insert({
         prescriptionId: modifiedPrescription.id,
         region: RegionalCoordinator.region,
@@ -1998,7 +2010,7 @@ describe('ProgrammingPlan router', () => {
           region: RegionalCoordinator.region
         })
         .update({ status: 'Validated', sentAt: null, lastModifiedAt: null });
-      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
+      await deletePrescription(modifiedPrescription);
     });
   });
 
