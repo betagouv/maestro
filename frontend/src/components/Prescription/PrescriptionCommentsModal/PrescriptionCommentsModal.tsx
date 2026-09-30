@@ -11,8 +11,6 @@ import {
   type Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
-import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { LocalPrescriptionCommentToCreate } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
@@ -51,9 +49,6 @@ export interface Props {
   ) => Promise<void>;
 }
 
-const getPrescriptionTag = (prescription: Prescription) =>
-  prescription.matrix ?? prescription.matrixKind;
-
 const DefaultVisibleCount = 3;
 
 const PrescriptionCommentsModal = ({
@@ -77,7 +72,7 @@ const PrescriptionCommentsModal = ({
   const [visibleCommentsCount, setVisibleCommentsCount] =
     useState(DefaultVisibleCount);
   const [currentTag, setCurrentTag] = useState<
-    Region | Department | MatrixKind | Matrix | null
+    Region | Department | Prescription['id'] | null
   >(() => {
     if (!prescriptionCommentsData) {
       return null;
@@ -86,7 +81,7 @@ const PrescriptionCommentsModal = ({
       return prescriptionCommentsData.currentRegion ?? null;
     }
     return prescriptionCommentsData.currentPrescription
-      ? getPrescriptionTag(prescriptionCommentsData.currentPrescription)
+      ? prescriptionCommentsData.currentPrescription.id
       : null;
   });
 
@@ -121,12 +116,12 @@ const PrescriptionCommentsModal = ({
         );
       } else {
         setCurrentTag(
-          getPrescriptionTag(
+          (
             prescriptionCommentsData.currentPrescription ??
-              [...prescriptionCommentsData.prescriptionCommentsList].sort(
-                PrescriptionCommentSort
-              )[0].prescription
-          )
+            [...prescriptionCommentsData.prescriptionCommentsList].sort(
+              PrescriptionCommentSort
+            )[0].prescription
+          ).id
         );
       }
       setVisibleCommentsCount(DefaultVisibleCount);
@@ -153,8 +148,7 @@ const PrescriptionCommentsModal = ({
                 : isNil(_.department)
           )
         : prescriptionCommentsData?.prescriptionCommentsList.find(
-            ({ prescription }) =>
-              getPrescriptionTag(prescription) === currentTag
+            ({ prescription }) => prescription.id === currentTag
           ),
     [
       currentTag,
@@ -234,7 +228,10 @@ const PrescriptionCommentsModal = ({
       title={
         <>
           {prescriptionCommentsData?.viewBy === 'Prescription' &&
-            getPrescriptionTitle(prescriptionCommentsData.prescription)}
+            getPrescriptionTitle(
+              [prescriptionCommentsData.programmingPlan],
+              prescriptionCommentsData.prescription
+            )}
           {prescriptionCommentsData?.viewBy === 'Region' &&
             `Région ${Regions[prescriptionCommentsData.region].name}`}
           {hasRegionalView &&
@@ -313,17 +310,12 @@ const PrescriptionCommentsModal = ({
                   : [...prescriptionCommentsData.prescriptionCommentsList]
                       .sort(PrescriptionCommentSort)
                       .map((prescriptionComment) => ({
-                        children: `${getPrescriptionTitle(prescriptionComment.prescription)} (${prescriptionComment.comments.length})`,
+                        children: `${getPrescriptionTitle([prescriptionComment.programmingPlan], prescriptionComment.prescription)} (${prescriptionComment.comments.length})`,
                         pressed:
-                          currentTag ===
-                          getPrescriptionTag(prescriptionComment.prescription),
+                          currentTag === prescriptionComment.prescription.id,
                         nativeButtonProps: {
                           onClick: () =>
-                            setCurrentTag(
-                              getPrescriptionTag(
-                                prescriptionComment.prescription
-                              )
-                            )
+                            setCurrentTag(prescriptionComment.prescription.id)
                         }
                       }))) as unknown as [TagProps, ...TagProps[]]
               }

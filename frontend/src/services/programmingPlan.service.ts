@@ -200,9 +200,12 @@ const programmingPlanApi = api.injectEndpoints({
   })
 });
 
+export const useFindProgrammingPlansQuery: typeof programmingPlanApi.useFindProgrammingPlansQuery =
+  programmingPlanApi.useFindProgrammingPlansQuery;
+export const useGetProgrammingPlanQuery: typeof programmingPlanApi.useGetProgrammingPlanQuery =
+  programmingPlanApi.useGetProgrammingPlanQuery;
+
 export const {
-  useFindProgrammingPlansQuery,
-  useGetProgrammingPlanQuery,
   useUpdateProgrammingPlanStatusMutation,
   useUpdateProgrammingPlanLocalStatusMutation,
   useFindProgrammingPlanSettingsQuery,

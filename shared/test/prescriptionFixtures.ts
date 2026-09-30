@@ -1,6 +1,5 @@
 import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
-import { MatrixKindEffective } from '../referential/Matrix/MatrixKind';
 import { RegionList, Regions } from '../referential/Region';
 import { SSD2Ids } from '../referential/Residue/SSD2Id';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
@@ -25,7 +24,6 @@ export const genPrescription = (
   id: uuidv4(),
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: oneOf(ProgrammingPlanContextList),
-  matrixKind: oneOf(MatrixKindEffective.options),
   sampleCount: 0,
   ...data
 });
@@ -54,8 +52,7 @@ export const genPrescriptionSubstance = (
 export const PrescriptionFixture = genPrescription({
   id: '11111111-1111-1111-1111-111111111111',
   programmingSubPlanId: PPVValidatedSubPlanId,
-  context: PPVValidatedProgrammingPlanFixture.contexts[0],
-  matrixKind: 'A00GY'
+  context: PPVValidatedProgrammingPlanFixture.contexts[0]
 });
 
 export const LocalPrescriptionFixture = genLocalPrescription({
@@ -74,8 +71,6 @@ export const FoieDeBovinPrescriptionFixture = genPrescription({
   id: '177e280f-7fc5-499f-9dcb-4970dc00af36',
   programmingSubPlanId: DAOAInProgressBovinSubPlanId,
   context: 'Surveillance',
-  matrixKind: 'A01QX',
-  matrix: 'A01XF#F28.A0C0S',
   sampleCount: 80,
   notes: 'Prescription pour le foie de bovin',
   programmingInstruction: 'Instructions pour le foie de bovin'
@@ -84,7 +79,6 @@ export const VolaillePrescriptionFixture = genPrescription({
   id: '608d0973-b472-4964-a8d7-246f91ad4d39',
   programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
   context: 'Surveillance',
-  matrixKind: 'A01SN',
   sampleCount: 77
 });
 export const FoieDeBovinValidatedPrescriptionFixture = {

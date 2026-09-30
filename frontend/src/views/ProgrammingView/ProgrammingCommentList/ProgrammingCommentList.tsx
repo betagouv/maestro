@@ -91,7 +91,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
 
   const filteredPrescriptions = commentedPrescriptions
     .filter((prescription) =>
-      getPrescriptionTitle(prescription)
+      getPrescriptionTitle([programmingPlan], prescription)
         .toLowerCase()
         .includes(matrixQuery.toLowerCase())
     )
@@ -169,7 +169,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
               <div className={cx('fr-m-2w')}>
                 <div className={clsx('d-flex-align-center')}>
                   <h6 className="flex-grow-1">
-                    {getPrescriptionTitle(prescription)}
+                    {getPrescriptionTitle([programmingPlan], prescription)}
                   </h6>
                   <Button
                     priority="secondary"

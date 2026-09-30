@@ -9,7 +9,6 @@ import { laboratoryAgreementRepository } from '../repositories/laboratoryAgreeme
 import laboratoryAnalyticalCompetenceRepository from '../repositories/laboratoryAnalyticalCompetenceRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import localPrescriptionSubstanceKindLaboratoryRepository from '../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
-import prescriptionRepository from '../repositories/prescriptionRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
@@ -114,16 +113,14 @@ export const laboratoriesRouter = {
     get: async ({ query }, _params, response) => {
       console.info('Export laboratory agreements');
 
-      const [agreements, laboratories, prescriptions] = await Promise.all([
+      const [agreements, laboratories] = await Promise.all([
         laboratoryAgreementRepository.findMany(query),
-        laboratoryRepository.findMany(),
-        prescriptionRepository.findMany({ year: query.year })
+        laboratoryRepository.findMany()
       ]);
 
       const buffer = await excelService.generateLaboratoryAgreementsExportExcel(
         agreements,
-        laboratories,
-        prescriptions
+        laboratories
       );
 
       const fileName = 'agrements-laboratoires.xlsx';

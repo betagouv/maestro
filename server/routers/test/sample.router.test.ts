@@ -2,7 +2,10 @@ import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
 import { addDays, format } from 'date-fns';
 import { omit } from 'lodash-es';
-import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
+import {
+  type Matrix,
+  MatrixEffective
+} from 'maestro-shared/referential/Matrix/Matrix';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
@@ -706,15 +709,16 @@ describe('Sample router', () => {
     });
 
     test('should derive prescriptionId when a prescription has a matching specific matrix value', async () => {
-      const specificMatrix = 'A00GZ';
+      const specificMatrix: Matrix = 'A00GZ';
       const prescription = genPrescription({
         programmingSubPlanId: specificMatrixSubPlan.id,
-        context: PrescriptionFixture.context,
-        matrixKind: PrescriptionFixture.matrixKind,
-        matrix: specificMatrix
+        context: PrescriptionFixture.context
       });
       await ProgrammingSubPlansRaw().insert(
-        toProgrammingPlanSettingsRow(specificMatrixSubPlan)
+        toProgrammingPlanSettingsRow({
+          ...specificMatrixSubPlan,
+          matrix: specificMatrix
+        })
       );
       await Prescriptions().insert(prescription);
 
@@ -726,7 +730,7 @@ describe('Sample router', () => {
         department: Sample11Fixture.department,
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
         context: PrescriptionFixture.context,
-        matrixKind: PrescriptionFixture.matrixKind,
+        matrixKind: PPVValidatedSubPlanFixture.matrixKind,
         matrix: specificMatrix,
         company: CompanyFixture
       });
@@ -758,7 +762,7 @@ describe('Sample router', () => {
         department: Sample11Fixture.department,
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
         context: PrescriptionFixture.context,
-        matrixKind: PrescriptionFixture.matrixKind,
+        matrixKind: PPVValidatedSubPlanFixture.matrixKind,
         matrix: 'A00GZ',
         company: CompanyFixture
       });
@@ -778,20 +782,21 @@ describe('Sample router', () => {
     });
 
     test('should update the laboratory from the local prescription when the matrix changes', async () => {
-      const newMatrix = 'A00HF';
+      const newMatrix: Matrix = 'A00HF';
       const newLaboratoryId = DummyLaboratoryIds[0];
       const prescription = genPrescription({
         programmingSubPlanId: specificMatrixSubPlan.id,
-        context: PrescriptionFixture.context,
-        matrixKind: PrescriptionFixture.matrixKind,
-        matrix: newMatrix
+        context: PrescriptionFixture.context
       });
       const localPrescription = genLocalPrescription({
         prescriptionId: prescription.id,
         region: Sample11Fixture.region
       });
       await ProgrammingSubPlansRaw().insert(
-        toProgrammingPlanSettingsRow(specificMatrixSubPlan)
+        toProgrammingPlanSettingsRow({
+          ...specificMatrixSubPlan,
+          matrix: newMatrix
+        })
       );
       await Prescriptions().insert(prescription);
       await LocalPrescriptions().insert(
@@ -819,7 +824,7 @@ describe('Sample router', () => {
         department: Sample11Fixture.department,
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
         context: PrescriptionFixture.context,
-        matrixKind: PrescriptionFixture.matrixKind,
+        matrixKind: PPVValidatedSubPlanFixture.matrixKind,
         matrix: 'A00GZ',
         prescriptionId: PrescriptionFixture.id,
         company: CompanyFixture

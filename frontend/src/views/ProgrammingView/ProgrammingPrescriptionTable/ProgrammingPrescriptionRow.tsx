@@ -14,12 +14,14 @@ import {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import {
-  getPrescriptionTitle,
   hasPrescriptionPermission,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  getSubPlanMatrixTitle,
+  type ProgrammingSubPlan
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { memo, useState } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
@@ -219,7 +221,7 @@ const ProgrammingPrescriptionRow = ({
                 >
                   <div className="matrice-cell__content">
                     <span className="matrice-cell__title">
-                      {getPrescriptionTitle(prescription)}
+                      {subPlan && getSubPlanMatrixTitle(subPlan)}
                     </span>
                     {showComments && rowCommentCount > 0 && (
                       <Button

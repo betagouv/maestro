@@ -2,7 +2,6 @@ import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
 import { isEqual, omit } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
-import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import {
   type Region,
   RegionList,
@@ -45,7 +44,6 @@ import {
   genCreatedPartialSample,
   genSampleItem
 } from 'maestro-shared/test/sampleFixtures';
-import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
   DepartmentalCoordinator,
@@ -119,23 +117,19 @@ describe('Local prescriptions router', () => {
   });
   const closedControlPrescription = genPrescription({
     programmingSubPlanId: PPVClosedSubPlanFixture.id,
-    context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options)
+    context: 'Control'
   });
   const validatedControlPrescription = genPrescription({
     programmingSubPlanId: validatedControlSubPlan.id,
-    context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options)
+    context: 'Control'
   });
   const submittedControlPrescription1 = genPrescription({
     programmingSubPlanId: PPVSubmittedSubPlanFixture.id,
-    context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options)
+    context: 'Control'
   });
   const submittedControlPrescription2 = genPrescription({
     programmingSubPlanId: submittedControlSubPlan2.id,
-    context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options)
+    context: 'Control'
   });
   const closedControlLocalPrescriptions: LocalPrescription[] = RegionList.map(
     (region) => ({
@@ -1264,14 +1258,12 @@ describe('Local prescriptions router', () => {
 
     const slaughterhousePrescription = genPrescription({
       programmingSubPlanId: programmingPlanSlaughterhouse.subPlans[0].id,
-      context: 'Control',
-      matrixKind: oneOf(MatrixKindEffective.options)
+      context: 'Control'
     });
 
     const slaughterhousePrescriptionClosed = genPrescription({
       programmingSubPlanId: programmingPlanSlaughterhouseClosed.subPlans[0].id,
-      context: 'Control',
-      matrixKind: oneOf(MatrixKindEffective.options)
+      context: 'Control'
     });
 
     const slaughterhouseLocalPrescriptions: LocalPrescription[] =
@@ -2502,8 +2494,7 @@ describe('Local prescriptions router', () => {
     });
     const changeTrackingPrescription = genPrescription({
       programmingSubPlanId: changeTrackingSubPlan.id,
-      context: 'Exploratory',
-      matrixKind: oneOf(MatrixKindEffective.options)
+      context: 'Exploratory'
     });
     const changeTrackingLocalPrescription: LocalPrescription =
       genLocalPrescription({

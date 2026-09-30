@@ -67,18 +67,10 @@ const findMany = async (
   }
 
   if (opts?.matrixKinds?.length) {
-    const matrixKinds = opts.matrixKinds;
-    query = query.where(({ exists, selectFrom }) =>
-      exists(
-        selectFrom('prescriptions')
-          .select('prescriptions.programmingSubPlanId')
-          .whereRef(
-            'prescriptions.programmingSubPlanId',
-            '=',
-            'laboratoryAgreements.programmingSubPlanId'
-          )
-          .where('prescriptions.matrixKind', 'in', matrixKinds)
-      )
+    query = query.where(
+      'programmingSubPlans.matrixKind',
+      'in',
+      opts.matrixKinds
     );
   }
 

@@ -10,13 +10,15 @@ import type { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescr
 import { toLocalPrescriptionKeyString } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import {
   hasEverSentOnward,
   type ProgrammingPlanEchelon
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  getSubPlanMatrixTitle,
+  stagesFromSubPlans
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   companiesIsRequired,
   userRegionsForRole
@@ -686,7 +688,7 @@ export const localPrescriptionsRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         draftPrescriptionComment.programmingPlanId
       );
-      const { prescription } = await getAndCheckPrescription(
+      const { prescription, subPlan } = await getAndCheckPrescription(
         params.prescriptionId,
         programmingPlan
       );
@@ -740,7 +742,7 @@ export const localPrescriptionsRouter = {
         },
         recipients,
         {
-          matrix: getPrescriptionTitle(prescription),
+          matrix: getSubPlanMatrixTitle(subPlan) ?? subPlan.label,
           sampleCount: localPrescription.sampleCount,
           comment: draftPrescriptionComment.comment,
           author: user ? `${user.name}` : 'Anonyme'
@@ -764,7 +766,7 @@ export const localPrescriptionsRouter = {
         const programmingPlan = await getAndCheckProgrammingPlan(
           draftPrescriptionComment.programmingPlanId
         );
-        const { prescription } = await getAndCheckPrescription(
+        const { prescription, subPlan } = await getAndCheckPrescription(
           params.prescriptionId,
           programmingPlan
         );
@@ -821,7 +823,7 @@ export const localPrescriptionsRouter = {
           },
           recipients,
           {
-            matrix: getPrescriptionTitle(prescription),
+            matrix: getSubPlanMatrixTitle(subPlan) ?? subPlan.label,
             sampleCount: localPrescription.sampleCount,
             comment: draftPrescriptionComment.comment,
             author: user ? `${user.name}` : 'Anonyme'

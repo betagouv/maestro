@@ -184,7 +184,6 @@ describe('generatePrescriptionsExportExcel', async () => {
       id: '3b2c8b1a-2f4e-4c6d-8a9b-0c1d2e3f4a5b',
       programmingSubPlanId: PPVInProgressSubPlanId,
       context: 'Surveillance',
-      matrixKind: 'A00GY',
       sampleCount: 12
     });
 

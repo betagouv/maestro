@@ -6,6 +6,8 @@
 import { type ColumnType, type Expression, type Kysely, sql } from 'kysely';
 import type { Department } from 'maestro-shared/referential/Department';
 import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
+import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import type { Region } from 'maestro-shared/referential/Region';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import type { Stage } from 'maestro-shared/referential/Stage';
@@ -282,8 +284,6 @@ export interface Notices {
 export interface Prescriptions {
   context: string | null;
   id: Generated<string>;
-  matrix: string | null;
-  matrixKind: string | null;
   notes: string | null;
   programmingInstruction: string | null;
   programmingSubPlanId: ProgrammingSubPlanId;
@@ -471,6 +471,8 @@ export interface ProgrammingSubPlans extends ProgrammingPlanSettings {
   analysisPermissionRole: UserRole | null;
   contactListId: number | null;
   withSacha: boolean;
+  matrixKind: MatrixKind | null;
+  matrix: Matrix | null;
 }
 
 export interface SampleDocuments {

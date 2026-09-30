@@ -8,7 +8,8 @@ import {
 import {
   genProgrammingPlan,
   PPVValidatedSubPlanFixture,
-  PPVValidatedSubPlanId
+  PPVValidatedSubPlanId,
+  withMatrixKindSubPlans
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
@@ -47,19 +48,20 @@ const sampler = genUser({
   region: '44',
   programmingSubPlanIds: [PPVValidatedSubPlanId]
 });
-const programmingPlan = genProgrammingPlan({
-  subPlans: [PPVValidatedSubPlanFixture],
-  distributionKind: 'REGIONAL'
-});
+const programmingPlan = withMatrixKindSubPlans(
+  genProgrammingPlan({
+    subPlans: [PPVValidatedSubPlanFixture],
+    distributionKind: 'REGIONAL'
+  }),
+  ['A001M', 'A00TQ']
+);
 const prescription1 = genPrescription({
   programmingSubPlanId: programmingPlan.subPlans[0].id,
-  context: 'Control',
-  matrixKind: 'A001M'
+  context: 'Control'
 });
 const prescription2 = genPrescription({
-  programmingSubPlanId: programmingPlan.subPlans[0].id,
-  context: 'Control',
-  matrixKind: 'A00TQ'
+  programmingSubPlanId: programmingPlan.subPlans[1].id,
+  context: 'Control'
 });
 const regionalPrescription1 = genLocalPrescription({
   prescriptionId: prescription1.id,
@@ -71,6 +73,9 @@ const regionalPrescription2 = genLocalPrescription({
 });
 
 const storyMockApi: Partial<MockApi> = {
+  useGetProgrammingPlanQuery: {
+    data: programmingPlan
+  },
   useFindPrescriptionsQuery: {
     data: [prescription1, prescription2]
   },
@@ -180,10 +185,10 @@ export const MatrixStepPPVSubmittingErrors: Story = {
 
     await userEvent.click(canvas.getByTestId('submit-button'));
     await expect(
-      canvas.getByText(
+      canvas.queryByText(
         'Veuillez renseigner la catégorie de matrice programmée.'
       )
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
     await expect(
       canvas.getByText('Veuillez renseigner la matrice.')
     ).toBeInTheDocument();
@@ -222,13 +227,10 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
 
     await expect(matrixKindListbox).toBeInTheDocument();
     await expect(within(matrixKindListbox).getAllByRole('option').length).toBe(
-      2
+      1
     );
 
-    await userEvent.selectOptions(
-      matrixKindListbox,
-      MatrixKindLabels[prescription1.matrixKind]
-    );
+    await userEvent.selectOptions(matrixKindListbox, MatrixKindLabels.A001M);
     await userEvent.click(stageSelect);
     await expect(
       canvas.queryByText(

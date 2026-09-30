@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import type { MatrixKind } from '../referential/Matrix/MatrixKind';
 import { isDromRegion, RegionList, Regions } from '../referential/Region';
 import {
   type ProgrammingPlanDomain,
@@ -145,6 +146,8 @@ export const genProgrammingSubPlan = (
     substanceKinds: [substanceKind]
   })),
   samplesManaged: true,
+  matrixKind: null,
+  matrix: null,
   ...data
 });
 
@@ -161,7 +164,8 @@ export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
   analysisPermissionRole: 'Sampler',
   contactListId: 7,
   withSacha: false,
-  substanceKinds: ['Any']
+  substanceKinds: ['Any'],
+  matrixKind: 'A00GY'
 });
 export const PPVValidatedDromSubPlanFixture = genProgrammingSubPlan({
   ...PPVValidatedSubPlanFixture,
@@ -197,7 +201,8 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
   withSacha: true,
-  substanceKinds: ['Mono', 'Multi', 'Copper']
+  substanceKinds: ['Mono', 'Multi', 'Copper'],
+  matrixKind: 'A01SN'
 });
 
 export const DAOAVolailleInProgressSubPlanFixture = genProgrammingSubPlan({
@@ -216,7 +221,9 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
   withSacha: true,
-  substanceKinds: ['Mono', 'Multi', 'Copper']
+  substanceKinds: ['Mono', 'Multi', 'Copper'],
+  matrixKind: 'A01QX',
+  matrix: 'A01XF#F28.A0C0S'
 });
 
 export const DAOABovinInProgressSubPlanFixture = genProgrammingSubPlan({
@@ -275,6 +282,22 @@ export const genProgrammingPlan = (
     ...data
   };
 };
+
+export const withMatrixKindSubPlans = <T extends ProgrammingPlanChecked>(
+  programmingPlan: T,
+  matrixKinds: MatrixKind[]
+): T => ({
+  ...programmingPlan,
+  subPlans: matrixKinds.map((matrixKind, index) => ({
+    ...programmingPlan.subPlans[0],
+    id:
+      index === 0
+        ? programmingPlan.subPlans[0].id
+        : ProgrammingSubPlanId.parse(uuidv4()),
+    subPlanNumber: `PPV${String(index + 1).padStart(2, '0')}`,
+    matrixKind
+  }))
+});
 
 export const genDeletableProgrammingPlan = (
   data?: Partial<ProgrammingPlanChecked>
