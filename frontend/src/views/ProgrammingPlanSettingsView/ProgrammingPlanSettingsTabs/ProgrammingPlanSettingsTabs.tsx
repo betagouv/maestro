@@ -28,6 +28,9 @@ import {
   useState
 } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
+import UnsavedChangesGuard, {
+  useUnsavedChangesGuard
+} from 'src/components/UnsavedChangesGuard/UnsavedChangesGuard';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { ApiClientContext } from 'src/services/apiClient';
@@ -155,6 +158,15 @@ export const ProgrammingPlanSettingsTabs = ({
   };
 
   useEffect(resetDraft, [settings]);
+
+  const hasChanges =
+    !!draft &&
+    (!isEqual(draft, settings) || technicalInstructionFile !== undefined);
+
+  const unsavedChangesGuard = useUnsavedChangesGuard({
+    when: hasChanges,
+    onDiscard: resetDraft
+  });
 
   const [selectedTabId, setSelectedTabId] = useState<SettingsTabId>('global');
 
@@ -327,14 +339,11 @@ export const ProgrammingPlanSettingsTabs = ({
       >
         <div inert={readOnly}>{tabContent(selectedTabId)}</div>
       </Tabs>
-      {!readOnly && (
+      {!readOnly && (hasChanges || !draft.settingsCompleted) && (
         <>
           <ProgrammingSubPlanActionBar
             completed={draft.settingsCompleted}
-            hasChanges={
-              !isEqual(draft, settings) ||
-              technicalInstructionFile !== undefined
-            }
+            hasChanges={hasChanges}
             saveCall={
               subPlan
                 ? updateSubPlanSettingsCall
@@ -359,6 +368,7 @@ export const ProgrammingPlanSettingsTabs = ({
           </ConfirmationModal>
         </>
       )}
+      <UnsavedChangesGuard guard={unsavedChangesGuard} />
     </>
   );
 };
