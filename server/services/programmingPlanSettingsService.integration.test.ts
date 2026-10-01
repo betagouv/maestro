@@ -436,6 +436,7 @@ describe('ProgrammingPlan sampler form inheritance', () => {
       {
         ...settings!,
         matrices: subPlan!.matrices,
+        context: subPlan!.context,
         settingsCompleted: false,
         fields
       }

@@ -30,6 +30,7 @@ import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanSampleSetting } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -281,7 +282,6 @@ export interface Notices {
 }
 
 export interface Prescriptions {
-  context: string | null;
   id: Generated<string>;
   notes: string | null;
   programmingInstruction: string | null;
@@ -466,11 +466,11 @@ export interface ProgrammingSubPlans extends ProgrammingPlanSettings {
   settingsCompleted: Generated<boolean>;
   programmingPlanId: string;
   subPlanNumber: string;
-  label: string;
   analysisPermissionRole: UserRole | null;
   contactListId: number | null;
   withSacha: boolean;
   matrices: SubPlanMatrices | null;
+  context: ProgrammingPlanContext | null;
 }
 
 export interface SampleDocuments {

@@ -4,7 +4,10 @@ import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  type ProgrammingSubPlan,
+  subPlanLabel
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import type React from 'react';
 import { useContext } from 'react';
@@ -40,7 +43,7 @@ const withDeletionLabels = (target: ProgrammingPlanDeletionTarget) => {
       return {
         ...target,
         article: 'le sous-plan',
-        name: `${target.subPlan.subPlanNumber} - ${target.subPlan.label}`
+        name: `${target.subPlan.subPlanNumber} - ${subPlanLabel(target.subPlan)}`
       };
     default:
       return assertUnreachable(target);

@@ -55,12 +55,10 @@ const previousProgrammingPlan = genProgrammingPlan({
 });
 
 const prescription1 = genPrescription({
-  programmingSubPlanId: currentProgrammingPlan.subPlans[0].id,
-  context: 'Control'
+  programmingSubPlanId: currentProgrammingPlan.subPlans[0].id
 });
 const prescription2 = genPrescription({
-  programmingSubPlanId: currentProgrammingPlan.subPlans[1].id,
-  context: 'Control'
+  programmingSubPlanId: currentProgrammingPlan.subPlans[1].id
 });
 const sample1 = genCreatedPartialSample({
   status: 'InReview',

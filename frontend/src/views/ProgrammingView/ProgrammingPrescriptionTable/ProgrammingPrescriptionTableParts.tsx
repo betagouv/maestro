@@ -15,9 +15,9 @@ export type RowWrapperKey = PlanHeaderRowKey | PrescriptionRowKey;
 
 export const toPlanHeaderRowKey = (
   planId: string,
-  context: ProgrammingPlanContext
+  context: ProgrammingPlanContext | null | undefined
 ): PlanHeaderRowKey =>
-  PlanHeaderRowKey.parse(`plan-header-${planId}-${context}`);
+  PlanHeaderRowKey.parse(`plan-header-${planId}-${context ?? ''}`);
 
 export const toPrescriptionRowKey = (id: string): PrescriptionRowKey =>
   PrescriptionRowKey.parse(id);

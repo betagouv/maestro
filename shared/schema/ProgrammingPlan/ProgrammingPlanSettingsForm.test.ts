@@ -68,21 +68,32 @@ describe('ProgrammingPlanSettingsForm', () => {
       },
       'plan'
     ],
-    ['sub-plan', ProgrammingSubPlanSettingsForm, { matrices }, 'subPlan'],
+    [
+      'sub-plan',
+      ProgrammingSubPlanSettingsForm,
+      { matrices, context: 'Control' },
+      'subPlan'
+    ],
     [
       'plan form',
       ProgrammingLevelSettingsForm,
       {
         nationalCoordinators: null,
         technicalInstruction: null,
-        matrices: null
+        matrices: null,
+        context: null
       },
       'plan'
     ],
     [
       'sub-plan form',
       ProgrammingSubPlanLevelSettingsForm,
-      { nationalCoordinators: null, technicalInstruction: null, matrices },
+      {
+        nationalCoordinators: null,
+        technicalInstruction: null,
+        matrices,
+        context: 'Control'
+      },
       'subPlan'
     ]
   ] as const)('%s level', (_, schema, levelSettings, level) => {
@@ -205,6 +216,7 @@ describe('ProgrammingPlanSettingsForm', () => {
         substanceKindsManaged: true,
         samplesManaged: true,
         matrices,
+        context: 'Control',
         ...settings,
         fields: []
       });
@@ -333,6 +345,7 @@ describe('ProgrammingPlanSettingsForm', () => {
         settingsCompleted: true,
         nationalCoordinators: [],
         matrices,
+        context: 'Control',
         fields: []
       });
 
@@ -348,6 +361,7 @@ describe('ProgrammingPlanSettingsForm', () => {
           nationalCoordinators: null,
           technicalInstruction: null,
           matrices,
+          context: 'Control',
           fields: []
         }).success
       ).toBe(true);
@@ -361,6 +375,7 @@ describe('ProgrammingPlanSettingsForm', () => {
     }) =>
       ProgrammingSubPlanSettingsForm.safeParse({
         ...inheritedSettings,
+        context: 'Control',
         ...settings,
         fields: []
       });
@@ -396,8 +411,45 @@ describe('ProgrammingPlanSettingsForm', () => {
           nationalCoordinators: null,
           technicalInstruction: null,
           matrices: null,
+          context: null,
           fields: []
         }).success
+      ).toBe(true);
+    });
+  });
+
+  describe('context', () => {
+    const subPlanForm = (settings: {
+      context: 'Control' | null;
+      settingsCompleted: boolean;
+    }) =>
+      ProgrammingSubPlanSettingsForm.safeParse({
+        ...inheritedSettings,
+        matrices,
+        ...settings,
+        fields: []
+      });
+
+    test('should accept a sub-plan draft without context', () => {
+      expect(
+        subPlanForm({ context: null, settingsCompleted: false }).success
+      ).toBe(true);
+    });
+
+    test('should refuse to complete a sub-plan without context', () => {
+      const result = subPlanForm({ context: null, settingsCompleted: true });
+
+      expect(result.error?.issues).toStrictEqual([
+        expect.objectContaining({
+          path: ['context'],
+          message: 'Veuillez renseigner le contexte.'
+        })
+      ]);
+    });
+
+    test('should accept a completed sub-plan with a context', () => {
+      expect(
+        subPlanForm({ context: 'Control', settingsCompleted: true }).success
       ).toBe(true);
     });
   });

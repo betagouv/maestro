@@ -4,6 +4,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import { subPlanLabel } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useContext } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
@@ -39,7 +40,7 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   const subPlan = programmingPlan?.subPlans.find((_) => _.id === subPlanId);
 
   const title = subPlan
-    ? `${subPlan.subPlanNumber} - ${subPlan.label}`
+    ? `${subPlan.subPlanNumber} - ${subPlanLabel(subPlan)}`
     : programmingPlan?.title;
 
   return !programmingPlan ? null : (

@@ -193,7 +193,10 @@ const findMany = async (
         );
       }
       if (findOptions.contexts) {
-        builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
+        builder.whereIn(
+          `${programmingSubPlansRawTable}.context`,
+          findOptions.contexts
+        );
       }
 
       if (findOptions.allLevels) {

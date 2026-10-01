@@ -5,6 +5,7 @@ import {
   ProgrammingPlanFieldSetting,
   ProgrammingSubPlanFieldSetting
 } from '../SpecificData/FieldConfigInput';
+import { ProgrammingPlanContext } from './Context';
 import { samplesCoverageIssues } from './completedSubPlanSettings';
 import { ProgrammingPlanNationalCoordinator } from './ProgrammingPlanNationalCoordinator';
 import {
@@ -74,6 +75,22 @@ const checkMatricesCompleteness = (
   }
 };
 
+const checkContextCompleteness = (
+  ctx: z.core.ParsePayload<{
+    settingsCompleted: boolean;
+    context: ProgrammingPlanContext | null;
+  }>
+) => {
+  if (ctx.value.settingsCompleted && !ctx.value.context) {
+    ctx.issues.push({
+      input: ctx.value,
+      code: 'custom',
+      message: 'Veuillez renseigner le contexte.',
+      path: ['context']
+    });
+  }
+};
+
 const checkSamplesCoverSubstanceKinds =
   (level: 'plan' | 'subPlan') =>
   (ctx: z.core.ParsePayload<z.infer<typeof SettingsFormBase>>) => {
@@ -123,6 +140,7 @@ export type ProgrammingPlanTechnicalInstruction = z.infer<
 
 const SubPlanSettingsFormShape = SettingsFormBase.extend({
   matrices: SubPlanMatrices.nullable(),
+  context: ProgrammingPlanContext.nullable(),
   fields: refineSchema(
     z.array(ProgrammingSubPlanFieldSetting),
     hasUniqueFields,
@@ -152,7 +170,8 @@ export const ProgrammingSubPlanSettingsForm = checkSchema(
   SubPlanSettingsFormShape,
   checkCompleteness('subPlan'),
   checkSamplesCoverSubstanceKinds('subPlan'),
-  checkMatricesCompleteness
+  checkMatricesCompleteness,
+  checkContextCompleteness
 );
 export type ProgrammingSubPlanSettingsForm = z.infer<
   typeof ProgrammingSubPlanSettingsForm
@@ -177,5 +196,6 @@ export const ProgrammingSubPlanLevelSettingsForm = checkSchema(
   ProgrammingLevelSettingsFormShape,
   checkCompleteness('subPlan'),
   checkSamplesCoverSubstanceKinds('subPlan'),
-  checkMatricesCompleteness
+  checkMatricesCompleteness,
+  checkContextCompleteness
 );

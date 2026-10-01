@@ -40,7 +40,10 @@ import {
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  type ProgrammingSubPlanId,
+  subPlanLabel
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import {
   getSampleMatrixLabel,
@@ -623,8 +626,10 @@ const generatePrescriptionsExportExcel = async (
         ? (domainLabelById.get(prescriptionPlan.domainId) ?? '')
         : '',
       plan: prescriptionPlan?.title ?? '',
-      context: ContextLabels[prescription.context],
-      matrix: prescriptionSubPlan?.label ?? '',
+      context: prescriptionSubPlan?.context
+        ? ContextLabels[prescriptionSubPlan.context]
+        : '',
+      matrix: prescriptionSubPlan ? subPlanLabel(prescriptionSubPlan) : '',
       stages: (prescriptionSubPlan?.stages ?? [])
         .map((stage) => StageLabels[stage])
         .join(', '),
@@ -892,7 +897,9 @@ const generateLaboratoryAgreementsExportExcel = async (
         analytes: SubstanceKindLabels[substanceKind],
         matrices,
         domain:
-          subPlan?.label ?? subPlan?.subPlanNumber ?? programmingSubPlanId,
+          (subPlan ? subPlanLabel(subPlan) : '') ||
+          subPlan?.subPlanNumber ||
+          programmingSubPlanId,
         stages,
         labCells
       };

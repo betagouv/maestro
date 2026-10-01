@@ -56,12 +56,10 @@ const programmingPlan = withMatrixKindSubPlans(
   ['A001M', 'A00TQ']
 );
 const prescription1 = genPrescription({
-  programmingSubPlanId: programmingPlan.subPlans[0].id,
-  context: 'Control'
+  programmingSubPlanId: programmingPlan.subPlans[0].id
 });
 const prescription2 = genPrescription({
-  programmingSubPlanId: programmingPlan.subPlans[1].id,
-  context: 'Control'
+  programmingSubPlanId: programmingPlan.subPlans[1].id
 });
 const regionalPrescription1 = genLocalPrescription({
   prescriptionId: prescription1.id,

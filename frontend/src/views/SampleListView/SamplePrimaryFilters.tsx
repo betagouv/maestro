@@ -16,7 +16,8 @@ import type { Prescription } from 'maestro-shared/schema/Prescription/Prescripti
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   findPrescriptionSubPlan,
-  type ProgrammingSubPlanId
+  type ProgrammingSubPlanId,
+  subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { getSubPlanMatrixKinds } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
@@ -124,7 +125,7 @@ const SamplePrimaryFilters = ({
                 .filter((sp) => !filters.programmingSubPlanIds?.includes(sp.id))
                 .map((sp) => (
                   <option key={`subPlan-${sp.id}`} value={sp.id}>
-                    {sp.label}
+                    {subPlanLabel(sp)}
                   </option>
                 ))}
             </Select>

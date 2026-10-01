@@ -83,24 +83,20 @@ describe('Prescriptions router', () => {
     subPlanNumber: 'TEST3'
   });
   const closedControlPrescription = genPrescription({
-    programmingSubPlanId: programmingPlanClosed.subPlans[0].id,
-    context: 'Control'
+    programmingSubPlanId: programmingPlanClosed.subPlans[0].id
   });
   const submittedControlPrescription = genPrescription({
-    programmingSubPlanId: programmingPlanSubmitted.subPlans[0].id,
-    context: 'Control'
+    programmingSubPlanId: programmingPlanSubmitted.subPlans[0].id
   });
   const inProgressControlPrescription = genPrescription({
-    programmingSubPlanId: programmingPlanInProgress.subPlans[0].id,
-    context: 'Control'
+    programmingSubPlanId: programmingPlanInProgress.subPlans[0].id
   });
   const inProgressControlPrescriptionSubstance = genPrescriptionSubstance({
     prescriptionId: inProgressControlPrescription.id,
     analysisMethod: 'Mono'
   });
   const inProgressSurveillancePrescription = genPrescription({
-    programmingSubPlanId: inProgressSurveillanceSubPlan.id,
-    context: 'Surveillance'
+    programmingSubPlanId: inProgressSurveillanceSubPlan.id
   });
 
   beforeAll(async () => {
@@ -293,8 +289,7 @@ describe('Prescriptions router', () => {
 
   describe('POST /prescriptions', () => {
     const validBody = genPrescription({
-      programmingSubPlanId: inProgressSubPlanWithoutPrescription.id,
-      context: 'Control'
+      programmingSubPlanId: inProgressSubPlanWithoutPrescription.id
     });
     const testRoute = '/api/prescriptions';
 

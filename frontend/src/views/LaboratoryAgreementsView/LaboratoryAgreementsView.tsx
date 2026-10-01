@@ -38,9 +38,10 @@ import type {
   LaboratoryAgreementField,
   LaboratoryAgreementRowKey
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
-import type {
-  ProgrammingSubPlan,
-  ProgrammingSubPlanId
+import {
+  type ProgrammingSubPlan,
+  type ProgrammingSubPlanId,
+  subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { assert, type Equals } from 'tsafe';
 import { AppPageWithYearTitle } from '../../components/_app/AppPage/AppPageWithYearTitle';
@@ -262,8 +263,8 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
         if (substanceCmp !== 0) {
           return substanceCmp;
         }
-        return a.programmingSubPlan.label.localeCompare(
-          b.programmingSubPlan.label
+        return subPlanLabel(a.programmingSubPlan).localeCompare(
+          subPlanLabel(b.programmingSubPlan)
         );
       });
   }, [

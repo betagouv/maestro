@@ -46,3 +46,16 @@ export const getSubPlanMatrixLabels = (
       ? [MatrixKindLabels[item.matrixKind]]
       : item.matrices.map((matrix) => MatrixLabels[matrix])
   );
+
+export const subPlanMatrixNameParts = (
+  matrices: SubPlanMatrices | null
+): string[] => {
+  const items = matrices?.items ?? [];
+  const detailedMatrices = items.flatMap((item) => item.matrices);
+
+  return items.map((item) =>
+    detailedMatrices.length === 1 && item.matrices.length === 1
+      ? MatrixLabels[item.matrices[0]]
+      : MatrixKindLabels[item.matrixKind]
+  );
+};

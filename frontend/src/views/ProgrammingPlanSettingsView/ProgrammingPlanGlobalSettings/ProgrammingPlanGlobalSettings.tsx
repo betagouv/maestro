@@ -1,6 +1,10 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { StageLabels, StageList } from 'maestro-shared/referential/Stage';
+import {
+  ContextLabels,
+  type ProgrammingPlanContext
+} from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanNationalCoordinator } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import type { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings.ts';
 import type {
@@ -13,6 +17,8 @@ import {
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { AppMultiSelect } from 'src/components/_app/AppMultiSelect/AppMultiSelect';
+import AppSelect from 'src/components/_app/AppSelect/AppSelect';
+import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import type { UseForm } from 'src/hooks/useForm';
 import { assert, type Equals } from 'tsafe';
 import { ProgrammingPlanDocuments } from '../ProgrammingPlanDocuments/ProgrammingPlanDocuments';
@@ -26,10 +32,12 @@ type Props<
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
     technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
     matrices: SubPlanMatrices | null;
+    context: ProgrammingPlanContext | null;
   }
 > = {
   settings: T;
   planSettings: ProgrammingPlanSettings | undefined;
+  contexts: ProgrammingPlanContext[];
   technicalInstructionFile: File | undefined;
   inputForm: UseForm<typeof ProgrammingLevelSettingsForm>;
   onChange: (settings: T) => void;
@@ -41,10 +49,12 @@ export const ProgrammingPlanGlobalSettings = <
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
     technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
     matrices: SubPlanMatrices | null;
+    context: ProgrammingPlanContext | null;
   }
 >({
   settings,
   planSettings,
+  contexts,
   technicalInstructionFile,
   inputForm,
   onChange,
@@ -108,6 +118,27 @@ export const ProgrammingPlanGlobalSettings = <
           />
         )}
       </ProgrammingPlanSettingInheritance>
+      {planSettings !== undefined && (
+        <AppSelect
+          label="Contexte"
+          value={settings.context ?? ''}
+          options={selectOptionsFromList(contexts, {
+            labels: ContextLabels,
+            withDefault: 'auto',
+            defaultLabel: 'Choisir un contexte'
+          })}
+          onChange={(event) =>
+            onChange({
+              ...settings,
+              context: (event.target.value ||
+                null) as ProgrammingPlanContext | null
+            })
+          }
+          inputForm={inputForm}
+          inputKey="context"
+          required
+        />
+      )}
       {planSettings !== undefined && (
         <ProgrammingPlanMatrixSettings
           matrices={settings.matrices}

@@ -150,7 +150,6 @@ export const genProgrammingSubPlan = (
   stages: [],
   stagesManaged: true,
   settingsCompleted: true,
-  label: 'Test SubPlan',
   withSacha: (data?.id && SachaSubPlanIds.includes(data.id)) ?? false,
   substanceKinds: ['Any'],
   substanceKindsManaged: true,
@@ -160,6 +159,7 @@ export const genProgrammingSubPlan = (
   })),
   samplesManaged: true,
   matrices: null,
+  context: 'Control',
   ...data
 });
 
@@ -172,7 +172,6 @@ export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
     'ALIMENTATION_ANIMALE',
     'TRANSFORMATION'
   ],
-  label: 'Production primaire végétale',
   analysisPermissionRole: 'Sampler',
   contactListId: 7,
   withSacha: false,
@@ -183,7 +182,7 @@ export const PPVValidatedDromSubPlanFixture = genProgrammingSubPlan({
   ...PPVValidatedSubPlanFixture,
   id: PPVValidatedDromSubPlanId,
   programmingPlanId: PPVValidatedDromProgrammingPlanId,
-  label: 'Production primaire végétale - DROM'
+  context: 'Surveillance'
 });
 
 export const PPVClosedSubPlanFixture = genProgrammingSubPlan({
@@ -209,7 +208,6 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   subPlanNumber: 'M01',
   stages: ['ABATTAGE'],
-  label: 'Abattoir / Viande de volaille',
   analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
   withSacha: true,
@@ -229,7 +227,6 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   subPlanNumber: 'M02',
   stages: ['ABATTAGE'],
-  label: 'Abattoir / Foie de bovin',
   analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
   withSacha: true,

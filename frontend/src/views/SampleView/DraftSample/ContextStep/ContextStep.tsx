@@ -18,7 +18,8 @@ import {
 import {
   isPPVSubPlan,
   type ProgrammingSubPlanId,
-  stagesFromSubPlans
+  stagesFromSubPlans,
+  subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   isOutsideProgrammingPlanSample,
@@ -287,7 +288,7 @@ const ContextStep = ({ partialSample }: Props) => {
     ),
     {
       labels: Object.fromEntries(
-        (programmingPlan?.subPlans ?? []).map((sp) => [sp.id, sp.label])
+        (programmingPlan?.subPlans ?? []).map((sp) => [sp.id, subPlanLabel(sp)])
       ),
       withDefault: 'auto',
       withSort: true

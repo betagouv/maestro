@@ -1,11 +1,8 @@
-import { countBy, omit } from 'lodash-es';
-import {
-  type MatrixKind,
-  MatrixKindLabels
-} from 'maestro-shared/referential/Matrix/MatrixKind';
+import { omit } from 'lodash-es';
+import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   type ProgrammingSubPlan,
   ProgrammingSubPlanId
@@ -33,14 +30,22 @@ import { ProgrammingPlans } from '../../../repositories/programmingPlanRepositor
 import { toProgrammingPlanSettingsRow } from '../../../repositories/programmingPlanSettingsRow';
 import { ProgrammingSubPlansRaw } from '../../../repositories/programmingSubPlanRepository';
 
-type PPVPrescription = Prescription & { matrixKind: MatrixKind };
+type PPVPrescription = Prescription & {
+  matrixKind: MatrixKind;
+  context: ProgrammingPlanContext;
+};
 
 const genPPVPrescription = ({
   matrixKind,
+  context,
   ...data
-}: Partial<Prescription> & { matrixKind: MatrixKind }): PPVPrescription => ({
+}: Partial<Prescription> & {
+  matrixKind: MatrixKind;
+  context: ProgrammingPlanContext;
+}): PPVPrescription => ({
   ...genPrescription(data),
-  matrixKind
+  matrixKind,
+  context
 });
 
 export const abricotsEtSimilaires = genPPVPrescription({
@@ -274,30 +279,17 @@ const graineDeTournesol2 = genPPVPrescription({
   matrixKind: 'A0DBP',
   sampleCount: 50
 });
-const subPlanLabel = ({ matrixKind }: PPVPrescription): string =>
-  MatrixKindLabels[matrixKind];
-
 const buildSubPlans = (
   base: ProgrammingSubPlan,
   prescriptions: PPVPrescription[]
-): ProgrammingSubPlan[] => {
-  const occurrences = countBy(prescriptions, subPlanLabel);
-
-  return prescriptions.map((prescription, index) => {
-    const label = subPlanLabel(prescription);
-
-    return {
-      ...base,
-      id: index === 0 ? base.id : ProgrammingSubPlanId.parse(uuidv4()),
-      subPlanNumber: `PPV${String(index + 1).padStart(2, '0')}`,
-      matrices: genSubPlanMatrices(prescription.matrixKind),
-      label:
-        occurrences[label] > 1
-          ? `${label} - ${ContextLabels[prescription.context]}`
-          : label
-    };
-  });
-};
+): ProgrammingSubPlan[] =>
+  prescriptions.map((prescription, index) => ({
+    ...base,
+    id: index === 0 ? base.id : ProgrammingSubPlanId.parse(uuidv4()),
+    subPlanNumber: `PPV${String(index + 1).padStart(2, '0')}`,
+    matrices: genSubPlanMatrices(prescription.matrixKind),
+    context: prescription.context
+  }));
 
 const basePrescriptions = [
   abricotsEtSimilaires,
@@ -476,7 +468,7 @@ export const seed = async () => {
 
   await Prescriptions().insert(
     [...prescriptions, ...inProgressPrescriptions].map((prescription) =>
-      omit(prescription, 'matrixKind')
+      omit(prescription, ['matrixKind', 'context'])
     )
   );
 

@@ -1141,6 +1141,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
             ...pickProgrammingPlanSettings(programmingSubPlan),
             settingsCompleted: programmingSubPlan.settingsCompleted,
             matrices: programmingSubPlan.matrices,
+            context: programmingSubPlan.context,
             fields:
               await specificDataFieldConfigRepository.findSubPlanFieldSettings(
                 programmingSubPlanId

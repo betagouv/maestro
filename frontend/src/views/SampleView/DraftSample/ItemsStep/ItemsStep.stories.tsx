@@ -34,8 +34,7 @@ type Story = StoryObj<typeof meta>;
 
 const programmingPlan = genProgrammingPlan();
 const prescription1 = genPrescription({
-  programmingSubPlanId: programmingPlan.subPlans[0].id,
-  context: 'Control'
+  programmingSubPlanId: programmingPlan.subPlans[0].id
 });
 
 const partialSample = {

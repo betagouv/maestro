@@ -18,7 +18,10 @@ import {
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  type ProgrammingSubPlan,
+  subPlanLabel
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { memo, useState } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
@@ -218,7 +221,7 @@ const ProgrammingPrescriptionRow = ({
                 >
                   <div className="matrice-cell__content">
                     <span className="matrice-cell__title">
-                      {subPlan?.label}
+                      {subPlan ? subPlanLabel(subPlan) : ''}
                     </span>
                     {showComments && rowCommentCount > 0 && (
                       <Button
