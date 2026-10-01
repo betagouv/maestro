@@ -53,7 +53,6 @@ const emptySettings: ProgrammingLevelSettingsForm = {
   settingsCompleted: false,
   nationalCoordinators: null,
   technicalInstruction: null,
-  matrices: null,
   fields: []
 };
 
@@ -144,7 +143,6 @@ export const ProgrammingPlanSettingsTabs = ({
           }
         : planSettings && {
             ...planSettings,
-            matrices: null,
             fields: planSettings.fields.map((field) => ({
               ...field,
               inheritance: 'Own' as const,
@@ -235,7 +233,6 @@ export const ProgrammingPlanSettingsTabs = ({
           programmingPlanId,
           programmingSubPlanId: subPlan.id,
           ...pickProgrammingPlanSettings(draft),
-          matrices: draft.matrices,
           fields: draft.fields,
           settingsCompleted
         }).unwrap();

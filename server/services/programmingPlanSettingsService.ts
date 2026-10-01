@@ -326,7 +326,6 @@ const saveSubPlanSettings = (
 
     const ownSettings = pick(settings, [
       'settingsCompleted',
-      'matrices',
       ...ProgrammingPlanSettingKey.options.flatMap((settingKey) =>
         settings[managedKey(settingKey)]
           ? [settingKey, managedKey(settingKey)]

@@ -7,7 +7,6 @@ import type {
   ProgrammingLevelSettingsForm,
   ProgrammingPlanTechnicalInstruction
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
-import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import {
   SubstanceKind,
   SubstanceKindLabels
@@ -25,7 +24,6 @@ type Props<
   T extends ProgrammingPlanSettings & {
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
     technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
-    matrices: SubPlanMatrices | null;
   }
 > = {
   settings: T;
@@ -40,7 +38,6 @@ export const ProgrammingPlanGlobalSettings = <
   T extends ProgrammingPlanSettings & {
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
     technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
-    matrices: SubPlanMatrices | null;
   }
 >({
   settings,
@@ -108,13 +105,22 @@ export const ProgrammingPlanGlobalSettings = <
           />
         )}
       </ProgrammingPlanSettingInheritance>
-      {planSettings !== undefined && (
-        <ProgrammingPlanMatrixSettings
-          matrices={settings.matrices}
-          errorMessage={inputForm.message('matrices')}
-          onChange={(matrices) => onChange({ ...settings, matrices })}
-        />
-      )}
+      <ProgrammingPlanSettingInheritance
+        settingKey="matrices"
+        label="Matrice(s)"
+        settings={settings}
+        planSettings={planSettings}
+        onChange={onChange}
+      >
+        {(props) => (
+          <ProgrammingPlanMatrixSettings
+            matrices={settings.matrices}
+            errorMessage={inputForm.message('matrices')}
+            onChange={(matrices) => onChange({ ...settings, matrices })}
+            {...props}
+          />
+        )}
+      </ProgrammingPlanSettingInheritance>
       {!planSettings && (
         <ProgrammingPlanDocuments
           technicalInstruction={settings.technicalInstruction}

@@ -9,21 +9,20 @@ const meta = {
   component: ProgrammingPlanMatrixSettings,
   args: {
     matrices: null,
+    label: 'Matrice(s)',
+    required: true,
+    disabled: false,
     errorMessage: undefined,
     onChange: fn()
   },
-  render: function Render({
-    matrices: initialMatrices,
-    errorMessage,
-    onChange
-  }) {
+  render: function Render({ matrices: initialMatrices, onChange, ...props }) {
     const [matrices, setMatrices] = useState<SubPlanMatrices | null>(
       initialMatrices
     );
     return (
       <ProgrammingPlanMatrixSettings
+        {...props}
         matrices={matrices}
-        errorMessage={errorMessage}
         onChange={(matrices) => {
           setMatrices(matrices);
           onChange(matrices);
@@ -145,6 +144,60 @@ export const RemoveLastMatrixKind: Story = {
     await expect(
       canvas.getByRole('button', { name: 'Ajouter catégorie(s) de matrice' })
     ).toBeInTheDocument();
+  }
+};
+
+export const Disabled: Story = {
+  args: {
+    disabled: true,
+    required: false,
+    matrices: {
+      operator: 'And',
+      items: [
+        { matrixKind: 'A00QT', matrices: [] },
+        { matrixKind: 'A01GP', matrices: ['A01GS'] }
+      ]
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByText('Radis et similaires', {
+        selector: '.fr-tag:not(.fr-tag--dismiss)'
+      })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByText('Mirabelles', {
+        selector: '.fr-tag:not(.fr-tag--dismiss)'
+      })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: 'Radis et similaires' })
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: 'Mirabelles' })
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: 'Modifier' })
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByRole('radio', { name: 'Toutes (et)' })
+    ).toBeChecked();
+    await expect(
+      canvas.getByRole('radio', { name: 'Une parmi (ou)' })
+    ).toBeDisabled();
+  }
+};
+
+export const DisabledWithoutMatrices: Story = {
+  args: { disabled: true, required: false },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).queryByRole('button', {
+        name: 'Ajouter catégorie(s) de matrice'
+      })
+    ).not.toBeInTheDocument();
   }
 };
 

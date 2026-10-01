@@ -160,6 +160,7 @@ export const genProgrammingSubPlan = (
   })),
   samplesManaged: true,
   matrices: null,
+  matricesManaged: true,
   ...data
 });
 
@@ -276,6 +277,8 @@ export const genProgrammingPlan = (
     substanceKindsManaged: false,
     samples: null,
     samplesManaged: false,
+    matrices: null,
+    matricesManaged: false,
     settingsCompleted: true,
     createdAt: new Date(),
     createdBy: uuidv4(),

@@ -110,6 +110,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     samplesManaged: true,
     settingsCompleted: false,
     matrices: genSubPlanMatrices('A00GY'),
+    matricesManaged: true,
     fields: [matriceField, quantiteField].map(({ id }) => ({
       fieldId: id,
       required: false,
@@ -127,6 +128,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     samplesManaged: true,
     settingsCompleted: false,
     matrices: genSubPlanMatrices('A0DVX'),
+    matricesManaged: true,
     fields: []
   },
   [AnimauxSubPlanId]: {
@@ -138,6 +140,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     samplesManaged: true,
     settingsCompleted: true,
     matrices: genSubPlanMatrices('A00GY'),
+    matricesManaged: true,
     fields: [
       {
         fieldId: especeField.id,
@@ -175,6 +178,8 @@ const planSettings: ProgrammingPlanSettingsForm = {
   substanceKindsManaged: false,
   samples: null,
   samplesManaged: false,
+  matrices: null,
+  matricesManaged: false,
   settingsCompleted: false,
   nationalCoordinators: [nationalCoordinator],
   technicalInstruction: null,
@@ -1037,6 +1042,54 @@ export const PlanSubstanceKindsSwitch: Story = {
         ...planSettings,
         substanceKinds: ['Any'],
         substanceKindsManaged: true
+      })
+    );
+  }
+};
+
+export const PlanMatrices: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    const managedSwitch = canvas.getByTitle(
+      'Paramétrer « Matrice(s) » au niveau du plan'
+    );
+    await expect(managedSwitch).not.toBeChecked();
+    await expect(
+      canvas.queryByRole('button', { name: 'Ajouter catégorie(s) de matrice' })
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(managedSwitch);
+    await userEvent.click(
+      await canvas.findByRole('button', {
+        name: 'Ajouter catégorie(s) de matrice'
+      })
+    );
+    const modalElement = canvasElement.ownerDocument.getElementById(
+      'programming-sub-plan-matrix-selection-modal'
+    ) as HTMLElement;
+    const modal = within(modalElement);
+    await waitFor(() =>
+      expect(modal.getByLabelText('Rechercher une matrice')).toBeVisible()
+    );
+    await userEvent.click(
+      modal.getByRole('button', { name: 'Déplier Prunes et similaires' })
+    );
+    await userEvent.click(modal.getByRole('checkbox', { name: 'Mirabelles' }));
+    await userEvent.click(modal.getByRole('button', { name: 'Enregistrer' }));
+    await waitFor(() => expect(modalElement).not.toBeVisible());
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        ...planSettings,
+        matrices: genSubPlanMatrices('A01GP', ['A01GS']),
+        matricesManaged: true
       })
     );
   }

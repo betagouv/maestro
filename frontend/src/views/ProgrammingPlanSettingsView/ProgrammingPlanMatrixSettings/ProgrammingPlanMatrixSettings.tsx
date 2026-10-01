@@ -7,6 +7,7 @@ import type {
   MatrixOperator,
   SubPlanMatrices
 } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
+import type { ReactNode } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { assert, type Equals } from 'tsafe';
 import { MatrixSelectionModal } from './MatrixSelectionModal';
@@ -25,12 +26,18 @@ const operatorLabels: Record<MatrixOperator, string> = {
 
 type Props = {
   matrices: SubPlanMatrices | null;
+  label: ReactNode;
+  required: boolean;
+  disabled: boolean;
   errorMessage: string | undefined;
   onChange: (matrices: SubPlanMatrices | null) => void;
 };
 
 export const ProgrammingPlanMatrixSettings = ({
   matrices,
+  label,
+  required,
+  disabled,
   errorMessage,
   onChange,
   ..._rest
@@ -53,25 +60,28 @@ export const ProgrammingPlanMatrixSettings = ({
     label: operatorLabels[operator],
     nativeInputProps: {
       checked: matrices?.operator === operator,
+      disabled,
       onChange: () => matrices && onChange({ ...matrices, operator })
     }
   });
 
   return (
-    <div className={clsx('border', cx('fr-p-2w'))}>
+    <div>
       <span className={cx('fr-label', 'fr-mb-1w')}>
-        Matrice(s)
-        <AppRequiredInput />
+        {label}
+        {required && <AppRequiredInput />}
       </span>
       {matrices === null ? (
-        <Button
-          iconId="fr-icon-add-line"
-          priority="secondary"
-          size="small"
-          onClick={() => matrixSelectionModal.open()}
-        >
-          Ajouter catégorie(s) de matrice
-        </Button>
+        !disabled && (
+          <Button
+            iconId="fr-icon-add-line"
+            priority="secondary"
+            size="small"
+            onClick={() => matrixSelectionModal.open()}
+          >
+            Ajouter catégorie(s) de matrice
+          </Button>
+        )
       ) : (
         <>
           {matrices.items.length > 1 && (
@@ -85,17 +95,20 @@ export const ProgrammingPlanMatrixSettings = ({
           )}
           <MatrixSelectionRows
             selection={selection}
+            disabled={disabled}
             onChange={changeSelection}
           />
-          <div className={clsx('border-top', cx('fr-pt-2w'))}>
-            <Button
-              iconId="fr-icon-edit-line"
-              priority="secondary"
-              size="small"
-              title="Modifier"
-              onClick={() => matrixSelectionModal.open()}
-            />
-          </div>
+          {!disabled && (
+            <div className={clsx('border-top', cx('fr-pt-2w'))}>
+              <Button
+                iconId="fr-icon-edit-line"
+                priority="secondary"
+                size="small"
+                title="Modifier"
+                onClick={() => matrixSelectionModal.open()}
+              />
+            </div>
+          )}
         </>
       )}
       {errorMessage && <p className={cx('fr-error-text')}>{errorMessage}</p>}

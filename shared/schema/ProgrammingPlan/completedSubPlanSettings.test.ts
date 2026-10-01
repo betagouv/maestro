@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { genSubPlanMatrices } from '../../test/programmingPlanFixtures';
 import {
   completedSubPlanSettingIssues,
   effectiveSubPlanSettings,
@@ -27,7 +28,9 @@ const planSettings: ProgrammingPlanSettings = {
   substanceKinds: ['Mono', 'Multi'],
   substanceKindsManaged: true,
   samples: [sample('Mono', 'Multi')],
-  samplesManaged: true
+  samplesManaged: true,
+  matrices: genSubPlanMatrices('A00GY'),
+  matricesManaged: true
 };
 
 const inheritingSubPlan = {
@@ -35,6 +38,7 @@ const inheritingSubPlan = {
   stagesManaged: false,
   substanceKindsManaged: false,
   samplesManaged: false,
+  matricesManaged: false,
   subPlanNumber: 'M01',
   settingsCompleted: true
 };
@@ -46,6 +50,8 @@ const ownSubPlan = {
   substanceKindsManaged: true,
   samples: [sample('Copper')],
   samplesManaged: true,
+  matrices: genSubPlanMatrices('A01QX'),
+  matricesManaged: true,
   subPlanNumber: 'M02',
   settingsCompleted: true
 };

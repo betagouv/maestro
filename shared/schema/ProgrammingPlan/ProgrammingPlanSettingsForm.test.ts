@@ -11,7 +11,7 @@ import {
   emptyProgrammingPlanSettings,
   managedKey,
   ProgrammingPlanSettingKey,
-  type ProgrammingPlanSettings
+  ProgrammingPlanSettings
 } from './ProgrammingPlanSettings';
 import {
   ProgrammingLevelSettingsForm,
@@ -19,6 +19,8 @@ import {
   ProgrammingSubPlanLevelSettingsForm,
   ProgrammingSubPlanSettingsForm
 } from './ProgrammingPlanSettingsForm';
+
+const matrices = genSubPlanMatrices('A00GY');
 
 const completedSettings: {
   [K in ProgrammingPlanSettingKey]: {
@@ -39,6 +41,10 @@ const completedSettings: {
     value: [{ ...defaultProgrammingPlanSample, substanceKinds: ['Mono'] }],
     message: 'Veuillez configurer au moins un échantillon.',
     context: { substanceKinds: ['Mono'] }
+  },
+  matrices: {
+    value: matrices,
+    message: 'Veuillez renseigner au moins une catégorie de matrice.'
   }
 };
 
@@ -46,10 +52,9 @@ const inheritedSettings: ProgrammingPlanSettings = {
   ...emptyProgrammingPlanSettings(false),
   stages: completedSettings.stages.value,
   substanceKinds: completedSettings.substanceKinds.value,
-  samples: completedSettings.samples.value
+  samples: completedSettings.samples.value,
+  matrices: completedSettings.matrices.value
 };
-
-const matrices = genSubPlanMatrices('A00GY');
 
 const nationalCoordinator = {
   id: NationalCoordinatorId,
@@ -68,21 +73,17 @@ describe('ProgrammingPlanSettingsForm', () => {
       },
       'plan'
     ],
-    ['sub-plan', ProgrammingSubPlanSettingsForm, { matrices }, 'subPlan'],
+    ['sub-plan', ProgrammingSubPlanSettingsForm, {}, 'subPlan'],
     [
       'plan form',
       ProgrammingLevelSettingsForm,
-      {
-        nationalCoordinators: null,
-        technicalInstruction: null,
-        matrices: null
-      },
+      { nationalCoordinators: null, technicalInstruction: null },
       'plan'
     ],
     [
       'sub-plan form',
       ProgrammingSubPlanLevelSettingsForm,
-      { nationalCoordinators: null, technicalInstruction: null, matrices },
+      { nationalCoordinators: null, technicalInstruction: null },
       'subPlan'
     ]
   ] as const)('%s level', (_, schema, levelSettings, level) => {
@@ -98,8 +99,13 @@ describe('ProgrammingPlanSettingsForm', () => {
 
     describe.each(ProgrammingPlanSettingKey.options)('%s', (settingKey) => {
       const { value, message, context } = completedSettings[settingKey];
+      const emptyValues = [null, []].filter(
+        (emptyValue) =>
+          ProgrammingPlanSettings.shape[settingKey].safeParse(emptyValue)
+            .success
+      );
 
-      test.each([null, []])(
+      test.each(emptyValues)(
         'should accept a draft managing it with %j',
         (emptyValue) => {
           expect(
@@ -112,7 +118,7 @@ describe('ProgrammingPlanSettingsForm', () => {
         }
       );
 
-      test.each([null, []])(
+      test.each(emptyValues)(
         'should refuse to complete a level managing it with %j',
         (emptyValue) => {
           const result = form({
@@ -204,7 +210,6 @@ describe('ProgrammingPlanSettingsForm', () => {
         substanceKinds: ['Mono', 'Multi', 'Copper'],
         substanceKindsManaged: true,
         samplesManaged: true,
-        matrices,
         ...settings,
         fields: []
       });
@@ -332,7 +337,6 @@ describe('ProgrammingPlanSettingsForm', () => {
         ...inheritedSettings,
         settingsCompleted: true,
         nationalCoordinators: [],
-        matrices,
         fields: []
       });
 
@@ -347,55 +351,6 @@ describe('ProgrammingPlanSettingsForm', () => {
           settingsCompleted: true,
           nationalCoordinators: null,
           technicalInstruction: null,
-          matrices,
-          fields: []
-        }).success
-      ).toBe(true);
-    });
-  });
-
-  describe('matrices', () => {
-    const subPlanForm = (settings: {
-      matrices: typeof matrices | null;
-      settingsCompleted: boolean;
-    }) =>
-      ProgrammingSubPlanSettingsForm.safeParse({
-        ...inheritedSettings,
-        ...settings,
-        fields: []
-      });
-
-    test('should accept a sub-plan draft without matrices', () => {
-      expect(
-        subPlanForm({ matrices: null, settingsCompleted: false }).success
-      ).toBe(true);
-    });
-
-    test('should refuse to complete a sub-plan without matrices', () => {
-      const result = subPlanForm({ matrices: null, settingsCompleted: true });
-
-      expect(result.error?.issues).toStrictEqual([
-        expect.objectContaining({
-          path: ['matrices'],
-          message: 'Veuillez renseigner au moins une catégorie de matrice.'
-        })
-      ]);
-    });
-
-    test('should accept a completed sub-plan with matrices', () => {
-      expect(subPlanForm({ matrices, settingsCompleted: true }).success).toBe(
-        true
-      );
-    });
-
-    test('should accept a completed plan form without matrices', () => {
-      expect(
-        ProgrammingLevelSettingsForm.safeParse({
-          ...inheritedSettings,
-          settingsCompleted: true,
-          nationalCoordinators: null,
-          technicalInstruction: null,
-          matrices: null,
           fields: []
         }).success
       ).toBe(true);

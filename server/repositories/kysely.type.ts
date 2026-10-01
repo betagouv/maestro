@@ -306,6 +306,8 @@ interface ProgrammingPlanSettings {
     ProgrammingPlanSamplesJson | null
   >;
   samplesManaged: Generated<boolean>;
+  matrices: SubPlanMatrices | null;
+  matricesManaged: Generated<boolean>;
 }
 
 export interface ProgrammingPlans extends ProgrammingPlanSettings {
@@ -470,7 +472,6 @@ export interface ProgrammingSubPlans extends ProgrammingPlanSettings {
   analysisPermissionRole: UserRole | null;
   contactListId: number | null;
   withSacha: boolean;
-  matrices: SubPlanMatrices | null;
 }
 
 export interface SampleDocuments {
