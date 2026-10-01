@@ -239,7 +239,7 @@ export const ProgrammingPlanSettingsTabs = ({
         await updateProgrammingPlanSettings({
           programmingPlanId,
           ...pickProgrammingPlanSettings(draft),
-          title: titleDraft,
+          title: hasTitleChange ? titleDraft : undefined,
           nationalCoordinators: draft.nationalCoordinators ?? [],
           technicalInstruction: await uploadTechnicalInstruction(
             draft.technicalInstruction
