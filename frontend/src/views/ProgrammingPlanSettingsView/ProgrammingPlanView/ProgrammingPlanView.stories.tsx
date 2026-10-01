@@ -719,7 +719,7 @@ export const SubPlanCompleted: Story = {
       canvas.getByRole('tab', { name: 'Formulaire préleveur' })
     );
     await userEvent.click(
-      canvas.getByRole('button', { name: 'Hérité du plan' })
+      await canvas.findByRole('button', { name: 'Hérité du plan' })
     );
 
     await expect(
@@ -1509,7 +1509,7 @@ export const PlanReadOnlyForNonCoordinator: Story = {
     await userEvent.click(
       canvas.getByRole('tab', { name: 'Formulaire préleveur' })
     );
-    const addField = canvas.getByRole('button', {
+    const addField = await canvas.findByRole('button', {
       name: 'Ajouter un descripteur'
     });
     addField.focus();
