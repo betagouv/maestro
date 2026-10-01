@@ -24,6 +24,7 @@ import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescri
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   Fragment,
   useCallback,
@@ -484,6 +485,9 @@ const ProgrammingPrescriptionTable = ({
     prescriptions,
     (prescription) => findPrescriptionPlan(programmingPlans, prescription)?.id
   );
+
+  const prescriptionContext = (prescription: Prescription) =>
+    findPrescriptionSubPlan(programmingPlans, prescription)?.context;
   const planOrder = Object.keys(prescriptionsByPlan);
 
   const hasVisibleSlaughterhousePlan = planOrder.some(
@@ -508,9 +512,9 @@ const ProgrammingPrescriptionTable = ({
     planOrder
       .flatMap((planId) => {
         const planPrescriptions = prescriptionsByPlan[planId] ?? [];
-        const byContext = groupBy(planPrescriptions, 'context');
-        return [...new Set(planPrescriptions.map((p) => p.context))].flatMap(
-          (context) => byContext[context] ?? []
+        const byContext = groupBy(planPrescriptions, prescriptionContext);
+        return [...new Set(planPrescriptions.map(prescriptionContext))].flatMap(
+          (context) => byContext[String(context)] ?? []
         );
       })
       .slice(0, renderedRowCount)
@@ -753,15 +757,18 @@ const ProgrammingPrescriptionTable = ({
             programmingPlans[0];
           const planPrescriptions = prescriptionsByPlan[planId] ?? [];
           const contextOrder = [
-            ...new Set(planPrescriptions.map((p) => p.context))
+            ...new Set(planPrescriptions.map(prescriptionContext))
           ];
-          const prescriptionsByContext = groupBy(planPrescriptions, 'context');
+          const prescriptionsByContext = groupBy(
+            planPrescriptions,
+            prescriptionContext
+          );
 
           return (
             <Fragment key={`plan-group-${planId}`}>
               {contextOrder.map((context) => {
                 const contextPrescriptions =
-                  prescriptionsByContext[context] ?? [];
+                  prescriptionsByContext[String(context)] ?? [];
                 const contextPrescriptionIds = new Set(
                   contextPrescriptions.map((p) => p.id)
                 );
@@ -800,7 +807,7 @@ const ProgrammingPrescriptionTable = ({
                         {[
                           domainLabels[plan.domainId],
                           plan.title,
-                          ContextLabels[context]
+                          context ? ContextLabels[context] : ''
                         ]
                           .filter(Boolean)
                           .join(' | ')}

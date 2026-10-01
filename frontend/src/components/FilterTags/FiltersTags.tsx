@@ -14,6 +14,7 @@ import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { subPlanLabel } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { SampleComplianceLabels } from 'maestro-shared/schema/Sample/SampleCompliance';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -228,7 +229,9 @@ const filtersConfig = {
         (id) =>
           programmingPlans
             ?.flatMap((plan) => plan.subPlans)
-            .find((subPlan) => subPlan.id === id)?.label,
+            .flatMap((subPlan) =>
+              subPlan.id === id ? [subPlanLabel(subPlan)] : []
+            )[0],
         onChange
       )
   }

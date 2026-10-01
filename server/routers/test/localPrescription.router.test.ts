@@ -116,20 +116,16 @@ describe('Local prescriptions router', () => {
     id: ProgrammingSubPlanId.parse(uuidv4())
   });
   const closedControlPrescription = genPrescription({
-    programmingSubPlanId: PPVClosedSubPlanFixture.id,
-    context: 'Control'
+    programmingSubPlanId: PPVClosedSubPlanFixture.id
   });
   const validatedControlPrescription = genPrescription({
-    programmingSubPlanId: validatedControlSubPlan.id,
-    context: 'Control'
+    programmingSubPlanId: validatedControlSubPlan.id
   });
   const submittedControlPrescription1 = genPrescription({
-    programmingSubPlanId: PPVSubmittedSubPlanFixture.id,
-    context: 'Control'
+    programmingSubPlanId: PPVSubmittedSubPlanFixture.id
   });
   const submittedControlPrescription2 = genPrescription({
-    programmingSubPlanId: submittedControlSubPlan2.id,
-    context: 'Control'
+    programmingSubPlanId: submittedControlSubPlan2.id
   });
   const closedControlLocalPrescriptions: LocalPrescription[] = RegionList.map(
     (region) => ({
@@ -1257,13 +1253,11 @@ describe('Local prescriptions router', () => {
     });
 
     const slaughterhousePrescription = genPrescription({
-      programmingSubPlanId: programmingPlanSlaughterhouse.subPlans[0].id,
-      context: 'Control'
+      programmingSubPlanId: programmingPlanSlaughterhouse.subPlans[0].id
     });
 
     const slaughterhousePrescriptionClosed = genPrescription({
-      programmingSubPlanId: programmingPlanSlaughterhouseClosed.subPlans[0].id,
-      context: 'Control'
+      programmingSubPlanId: programmingPlanSlaughterhouseClosed.subPlans[0].id
     });
 
     const slaughterhouseLocalPrescriptions: LocalPrescription[] =
@@ -2197,7 +2191,7 @@ describe('Local prescriptions router', () => {
       });
 
       expect(notificationData).toMatchObject({
-        category: submittedControlPrescription1.context,
+        category: PPVSubmittedSubPlanFixture.context,
         author: expect.objectContaining({
           id: RegionalCoordinator.id
         }),
@@ -2260,7 +2254,7 @@ describe('Local prescriptions router', () => {
       });
 
       expect(notificationData).toMatchObject({
-        category: submittedControlPrescription1.context,
+        category: PPVSubmittedSubPlanFixture.context,
         author: expect.objectContaining({
           id: DepartmentalCoordinator.id
         }),
@@ -2493,8 +2487,7 @@ describe('Local prescriptions router', () => {
       id: ProgrammingSubPlanId.parse(uuidv4())
     });
     const changeTrackingPrescription = genPrescription({
-      programmingSubPlanId: changeTrackingSubPlan.id,
-      context: 'Exploratory'
+      programmingSubPlanId: changeTrackingSubPlan.id
     });
     const changeTrackingLocalPrescription: LocalPrescription =
       genLocalPrescription({

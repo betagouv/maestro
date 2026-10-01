@@ -3,9 +3,10 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import clsx from 'clsx';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import type {
-  ProgrammingSubPlan,
-  ProgrammingSubPlanId
+import {
+  type ProgrammingSubPlan,
+  type ProgrammingSubPlanId,
+  subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
@@ -34,7 +35,7 @@ export const ProgrammingSubPlanList = ({
 
     return subPlans
       .filter((subPlan) =>
-        `${subPlan.subPlanNumber} ${subPlan.label}`
+        `${subPlan.subPlanNumber} ${subPlanLabel(subPlan)}`
           .toLowerCase()
           .includes(trimmedSearch)
       )
@@ -105,7 +106,7 @@ export const ProgrammingSubPlanList = ({
                   subPlan.id === currentSubPlanId ? 'page' : undefined
                 }
               >
-                {subPlan.subPlanNumber} - {subPlan.label}
+                {subPlan.subPlanNumber} - {subPlanLabel(subPlan)}
                 {subPlan.settingsCompleted && (
                   <span
                     className={clsx(

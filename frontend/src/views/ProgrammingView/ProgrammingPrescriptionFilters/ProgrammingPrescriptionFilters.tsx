@@ -17,7 +17,10 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  type ProgrammingSubPlanId,
+  subPlanLabel
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useContext, useMemo, useState } from 'react';
 import AppCheckboxSelect from '../../../components/_app/AppCheckboxSelect/AppCheckboxSelect';
 import FiltersTags from '../../../components/FilterTags/FiltersTags';
@@ -149,7 +152,7 @@ const ProgrammingPrescriptionFilters = ({
               const subPlan = subPlans.find((_) => _.id === subPlanId);
               return {
                 label: subPlan
-                  ? `${subPlan.subPlanNumber} - ${subPlan.label}`
+                  ? `${subPlan.subPlanNumber} - ${subPlanLabel(subPlan)}`
                   : subPlanId,
                 value: subPlanId,
                 sortKey: subPlanSortKeys.get(subPlanId) ?? ''

@@ -1,8 +1,11 @@
 import { intersection, uniq } from 'lodash-es';
 import { z } from 'zod';
-import type { Stage } from '../../referential/Stage';
+import { type Stage, StageLabels } from '../../referential/Stage';
+import { SubstanceKindLabels } from '../Substance/SubstanceKind';
 import { UserRole } from '../User/UserRole';
+import { ContextLabels, ProgrammingPlanContext } from './Context';
 import { ProgrammingPlanSettings } from './ProgrammingPlanSettings';
+import { subPlanMatrixNameParts } from './SubPlanMatrices';
 
 export const ProgrammingSubPlanId = z.string().brand<'ProgrammingSubPlanId'>();
 export type ProgrammingSubPlanId = z.infer<typeof ProgrammingSubPlanId>;
@@ -13,13 +16,30 @@ export const ProgrammingSubPlan = z.object({
   subPlanNumber: z.string(),
   ...ProgrammingPlanSettings.shape,
   settingsCompleted: z.boolean(),
-  label: z.string(),
   analysisPermissionRole: UserRole.nullish(),
   contactListId: z.number().int().nullish(),
-  withSacha: z.boolean()
+  withSacha: z.boolean(),
+  context: ProgrammingPlanContext.nullable()
 });
 
 export type ProgrammingSubPlan = z.infer<typeof ProgrammingSubPlan>;
+
+export const subPlanLabel = (
+  subPlan: Pick<
+    ProgrammingSubPlan,
+    'stages' | 'matrices' | 'substanceKinds' | 'context'
+  >
+): string =>
+  [
+    (subPlan.stages ?? []).map((stage) => StageLabels[stage]).join(', '),
+    subPlanMatrixNameParts(subPlan.matrices).join(', '),
+    (subPlan.substanceKinds ?? [])
+      .map((substanceKind) => SubstanceKindLabels[substanceKind])
+      .join(', '),
+    subPlan.context ? ContextLabels[subPlan.context] : ''
+  ]
+    .filter((part) => part !== '')
+    .join(' - ');
 
 export const findPrescriptionSubPlan = <
   T extends Pick<ProgrammingSubPlan, 'id'>

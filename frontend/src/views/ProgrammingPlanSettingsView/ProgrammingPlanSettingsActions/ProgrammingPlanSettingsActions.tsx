@@ -6,7 +6,10 @@ import {
   isProgrammingPlanDeletable,
   isProgrammingPlanDomainDeletable
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { isProgrammingSubPlanDeletable } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  isProgrammingSubPlanDeletable,
+  subPlanLabel
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserBase } from 'maestro-shared/schema/User/User';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
@@ -48,7 +51,7 @@ const duplicationLabel = (target: ProgrammingPlanDeletionTarget): string => {
     case 'plan':
       return `Le plan ${target.programmingPlan.title}`;
     case 'subPlan':
-      return `Le sous-plan ${target.subPlan.subPlanNumber} - ${target.subPlan.label}`;
+      return `Le sous-plan ${target.subPlan.subPlanNumber} - ${subPlanLabel(target.subPlan)}`;
     default:
       return assertUnreachable(target);
   }

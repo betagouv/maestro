@@ -180,8 +180,7 @@ export const NationalCoordinatorViewByRegion: Story = {
           programmingPlan: getProgrammingPlanWithStatus('SubmittedToRegion'),
           prescription: genPrescription({
             id: '22222222-2222-2222-2222-222222222222',
-            programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
-            context: 'Surveillance'
+            programmingSubPlanId: DAOAInProgressVolailleSubPlanId
           }),
           comments: [
             genLocalPrescriptionComment({

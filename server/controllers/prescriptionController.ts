@@ -415,7 +415,9 @@ export const prescriptionsRouter = {
           matrixKinds: uniq(stagedRows.flatMap((row) => row.matrixKinds)),
           programmingPlanIds: uniq(stagedRows.map((row) => row.planId)),
           programmingSubPlanIds: uniq(stagedRows.map((row) => row.subPlanId)),
-          contexts: uniq(stagedRows.map((row) => row.context))
+          contexts: uniq(
+            stagedRows.flatMap((row) => (row.context ? [row.context] : []))
+          )
         }
       };
     }
