@@ -44,6 +44,8 @@ import { ProgrammingSubPlanActionBar } from '../ProgrammingSubPlanActionBar/Prog
 type Props = {
   programmingPlan: ProgrammingPlanChecked;
   subPlan: ProgrammingSubPlan | undefined;
+  titleDraft: string | undefined;
+  onResetTitle: () => void;
 };
 
 const emptySettings: ProgrammingLevelSettingsForm = {
@@ -95,6 +97,8 @@ const planSaveConflictMessage = ({
 export const ProgrammingPlanSettingsTabs = ({
   programmingPlan,
   subPlan,
+  titleDraft,
+  onResetTitle,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -154,17 +158,23 @@ export const ProgrammingPlanSettingsTabs = ({
   const [technicalInstructionFile, setTechnicalInstructionFile] =
     useState<File>();
 
+  const hasTitleChange =
+    titleDraft !== undefined && titleDraft !== programmingPlan.title;
+
   const resetDraft = () => {
     setDraft(settings);
     setTechnicalInstructionFile(undefined);
     createDocumentUploadCall.reset();
+    onResetTitle();
   };
 
   useEffect(resetDraft, [settings]);
 
   const hasChanges =
     !!draft &&
-    (!isEqual(draft, settings) || technicalInstructionFile !== undefined);
+    (!isEqual(draft, settings) ||
+      technicalInstructionFile !== undefined ||
+      hasTitleChange);
 
   const unsavedChangesGuard = useUnsavedChangesGuard({
     when: hasChanges,
@@ -233,6 +243,7 @@ export const ProgrammingPlanSettingsTabs = ({
         await updateProgrammingPlanSettings({
           programmingPlanId,
           ...pickProgrammingPlanSettings(draft),
+          title: hasTitleChange ? titleDraft : undefined,
           nationalCoordinators: draft.nationalCoordinators ?? [],
           technicalInstruction: await uploadTechnicalInstruction(
             draft.technicalInstruction

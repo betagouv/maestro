@@ -132,6 +132,11 @@ const SubPlanSettingsFormShape = SettingsFormBase.extend({
 
 export const ProgrammingPlanSettingsForm = checkSchema(
   SettingsFormBase.extend({
+    title: z
+      .string()
+      .trim()
+      .min(1, 'Veuillez renseigner le nom du plan.')
+      .optional(),
     nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator),
     technicalInstruction: ProgrammingPlanTechnicalInstruction.nullable(),
     fields: refineSchema(
