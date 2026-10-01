@@ -299,8 +299,8 @@ export const Default: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.getByRole('heading', { name: 'Production primaire végétale' })
-    ).toBeInTheDocument();
+      canvas.getByRole('textbox', { name: 'Nom du plan' })
+    ).toHaveValue('Production primaire végétale');
 
     await expect(canvas.getByText('Tous les domaines')).toHaveAttribute(
       'href',
