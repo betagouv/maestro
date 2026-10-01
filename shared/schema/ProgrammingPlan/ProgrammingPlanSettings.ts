@@ -6,11 +6,13 @@ import {
   ProgrammingPlanSampleMaxCount,
   ProgrammingPlanSampleSetting
 } from './ProgrammingPlanSampleSetting';
+import { SubPlanMatrices } from './SubPlanMatrices';
 
 export const ProgrammingPlanSettingKey = z.enum([
   'stages',
   'substanceKinds',
-  'samples'
+  'samples',
+  'matrices'
 ]);
 export type ProgrammingPlanSettingKey = z.infer<
   typeof ProgrammingPlanSettingKey
@@ -25,7 +27,9 @@ export const ProgrammingPlanSettings = z.object({
     .array(ProgrammingPlanSampleSetting)
     .max(ProgrammingPlanSampleMaxCount)
     .nullable(),
-  samplesManaged: z.boolean()
+  samplesManaged: z.boolean(),
+  matrices: SubPlanMatrices.nullable(),
+  matricesManaged: z.boolean()
 } satisfies Record<ProgrammingPlanSettingKey, z.ZodType> &
   Record<`${ProgrammingPlanSettingKey}Managed`, z.ZodType>);
 
@@ -64,8 +68,9 @@ export const inheritsUnmanagedSetting = (
       !planSettings[managedKey(settingKey)]
   );
 
-export const isMissingSetting = (value: unknown[] | null): boolean =>
-  isNil(value) || value.length === 0;
+export const isMissingSetting = (
+  value: unknown[] | SubPlanMatrices | null
+): boolean => isNil(value) || (Array.isArray(value) && value.length === 0);
 
 export const managesSamplesAboveSubstanceKinds = {
   plan: (planSettings: ProgrammingPlanSettings): boolean =>

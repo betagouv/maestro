@@ -13,7 +13,6 @@ import {
   ProgrammingPlanSettingKey,
   ProgrammingPlanSettings
 } from './ProgrammingPlanSettings';
-import { SubPlanMatrices } from './SubPlanMatrices';
 
 const hasUniqueFields = (fields: { fieldId: string }[]): boolean =>
   new Set(fields.map(({ fieldId }) => fieldId)).size === fields.length;
@@ -28,7 +27,8 @@ const SettingsFormBase = ProgrammingPlanSettings.extend({
 const missingSettingMessages: Record<ProgrammingPlanSettingKey, string> = {
   stages: 'Veuillez renseigner au moins un stade de prélèvement.',
   substanceKinds: 'Veuillez renseigner au moins un analyte.',
-  samples: 'Veuillez configurer au moins un échantillon.'
+  samples: 'Veuillez configurer au moins un échantillon.',
+  matrices: 'Veuillez renseigner au moins une catégorie de matrice.'
 };
 
 const inheritedMissingSettingMessage =
@@ -57,22 +57,6 @@ const checkCompleteness =
       }
     }
   };
-
-const checkMatricesCompleteness = (
-  ctx: z.core.ParsePayload<{
-    settingsCompleted: boolean;
-    matrices: SubPlanMatrices | null;
-  }>
-) => {
-  if (ctx.value.settingsCompleted && !ctx.value.matrices) {
-    ctx.issues.push({
-      input: ctx.value,
-      code: 'custom',
-      message: 'Veuillez renseigner au moins une catégorie de matrice.',
-      path: ['matrices']
-    });
-  }
-};
 
 const checkSamplesCoverSubstanceKinds =
   (level: 'plan' | 'subPlan') =>
@@ -122,7 +106,6 @@ export type ProgrammingPlanTechnicalInstruction = z.infer<
 >;
 
 const SubPlanSettingsFormShape = SettingsFormBase.extend({
-  matrices: SubPlanMatrices.nullable(),
   fields: refineSchema(
     z.array(ProgrammingSubPlanFieldSetting),
     hasUniqueFields,
@@ -151,8 +134,7 @@ export type ProgrammingPlanSettingsForm = z.infer<
 export const ProgrammingSubPlanSettingsForm = checkSchema(
   SubPlanSettingsFormShape,
   checkCompleteness('subPlan'),
-  checkSamplesCoverSubstanceKinds('subPlan'),
-  checkMatricesCompleteness
+  checkSamplesCoverSubstanceKinds('subPlan')
 );
 export type ProgrammingSubPlanSettingsForm = z.infer<
   typeof ProgrammingSubPlanSettingsForm
@@ -176,6 +158,5 @@ export type ProgrammingLevelSettingsForm = z.infer<
 export const ProgrammingSubPlanLevelSettingsForm = checkSchema(
   ProgrammingLevelSettingsFormShape,
   checkCompleteness('subPlan'),
-  checkSamplesCoverSubstanceKinds('subPlan'),
-  checkMatricesCompleteness
+  checkSamplesCoverSubstanceKinds('subPlan')
 );

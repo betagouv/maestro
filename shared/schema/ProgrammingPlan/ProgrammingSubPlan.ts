@@ -3,7 +3,6 @@ import { z } from 'zod';
 import type { Stage } from '../../referential/Stage';
 import { UserRole } from '../User/UserRole';
 import { ProgrammingPlanSettings } from './ProgrammingPlanSettings';
-import { SubPlanMatrices } from './SubPlanMatrices';
 
 export const ProgrammingSubPlanId = z.string().brand<'ProgrammingSubPlanId'>();
 export type ProgrammingSubPlanId = z.infer<typeof ProgrammingSubPlanId>;
@@ -17,8 +16,7 @@ export const ProgrammingSubPlan = z.object({
   label: z.string(),
   analysisPermissionRole: UserRole.nullish(),
   contactListId: z.number().int().nullish(),
-  withSacha: z.boolean(),
-  matrices: SubPlanMatrices.nullable()
+  withSacha: z.boolean()
 });
 
 export type ProgrammingSubPlan = z.infer<typeof ProgrammingSubPlan>;

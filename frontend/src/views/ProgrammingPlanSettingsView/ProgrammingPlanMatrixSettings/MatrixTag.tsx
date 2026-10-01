@@ -6,19 +6,23 @@ import './MatrixTag.scss';
 
 type Props = {
   matrix: Matrix;
-  onDismiss: () => void;
+  onDismiss: (() => void) | undefined;
 };
 
 export const MatrixTag = ({ matrix, onDismiss, ..._rest }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  return (
+  return onDismiss ? (
     <Tag
       small
       dismissible
       className="matrix-tag"
       nativeButtonProps={{ onClick: onDismiss }}
     >
+      {MatrixLabels[matrix]}
+    </Tag>
+  ) : (
+    <Tag small className="matrix-tag">
       {MatrixLabels[matrix]}
     </Tag>
   );

@@ -12,11 +12,13 @@ import {
 
 type Props = {
   selection: MatrixSelection;
+  disabled?: boolean;
   onChange: (selection: MatrixSelection) => void;
 };
 
 export const MatrixSelectionRows = ({
   selection,
+  disabled,
   onChange,
   ..._rest
 }: Props) => {
@@ -36,15 +38,20 @@ export const MatrixSelectionRows = ({
           style={{ gap: '1rem' }}
         >
           <div>
-            <Tag
-              small
-              dismissible
-              nativeButtonProps={{
-                onClick: () => onChange(removeMatrixKind(selection, matrixKind))
-              }}
-            >
-              {MatrixKindLabels[matrixKind]}
-            </Tag>
+            {disabled ? (
+              <Tag small>{MatrixKindLabels[matrixKind]}</Tag>
+            ) : (
+              <Tag
+                small
+                dismissible
+                nativeButtonProps={{
+                  onClick: () =>
+                    onChange(removeMatrixKind(selection, matrixKind))
+                }}
+              >
+                {MatrixKindLabels[matrixKind]}
+              </Tag>
+            )}
           </div>
           <div
             className={clsx('d-flex-row', 'd-flex-justify-end')}
@@ -59,8 +66,11 @@ export const MatrixSelectionRows = ({
                 <MatrixTag
                   key={matrix}
                   matrix={matrix}
-                  onDismiss={() =>
-                    onChange(toggleMatrix(selection, matrixKind, matrix))
+                  onDismiss={
+                    disabled
+                      ? undefined
+                      : () =>
+                          onChange(toggleMatrix(selection, matrixKind, matrix))
                   }
                 />
               ))
