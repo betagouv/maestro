@@ -1,6 +1,5 @@
 import { getDayOfYear } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
-import { type Region, Regions } from 'maestro-shared/referential/Region';
 import { z } from 'zod';
 
 export const SampleReference = z
@@ -11,7 +10,7 @@ export type SampleReference = z.infer<typeof SampleReference>;
 
 const NumeroDAP = z
   .string()
-  .regex(/^\d{12}$/)
+  .regex(/^6666\d{8}$/)
   .brand('NumeroDAP');
 type NumeroDAP = z.infer<typeof NumeroDAP>;
 
@@ -21,39 +20,11 @@ export const NumeroEtiquette = z
   .brand('NumeroEtiquette');
 export type NumeroEtiquette = z.infer<typeof NumeroEtiquette>;
 
-const regionByShortName: Record<string, Region> = Object.fromEntries(
-  Object.entries(Regions).map(([region, { shortName }]) => [
-    shortName,
-    region as Region
-  ])
-);
-
 export const numeroDAPFromReference = (
   reference: SampleReference
 ): NumeroDAP => {
-  const [shortName, yy, serial] = reference.split('-');
-  const region = regionByShortName[shortName];
-  if (!region) {
-    throw new Error(`Région inconnue pour le préfixe ${shortName}`);
-  }
-  const year = `${2000 + Number.parseInt(yy, 10)}`;
-  const paddedSerial = serial.padStart(6, '0');
-  return NumeroDAP.parse(`${year}${region}${paddedSerial}`);
-};
-
-const referenceFromNumeroDAP = (numeroDAP: NumeroDAP): SampleReference => {
-  const year = numeroDAP.substring(0, 4);
-  const region = numeroDAP.substring(4, 6) as Region;
-  const serial = numeroDAP.substring(6, 12);
-  const regionConf = Regions[region];
-  if (!regionConf) {
-    throw new Error(`Code région inconnu ${region}`);
-  }
-  const yy = year.substring(2, 4);
-  const trimmedSerial = serial.substring(1);
-  return SampleReference.parse(
-    `${regionConf.shortName}-${yy}-${trimmedSerial}`
-  );
+  const [, year, serial] = reference.split('-');
+  return NumeroDAP.parse(`6666${year}${serial.padStart(6, '0')}`);
 };
 
 export const referencesFromSample = (
@@ -76,7 +47,7 @@ export const referencesFromEtiquette = (
   etiquette: NumeroEtiquette
 ): {
   numeroDAP: NumeroDAP;
-  reference: SampleReference;
+  referenceSuffix: string;
   itemNumber: number;
   year: number;
   dayOfYear: number;
@@ -87,7 +58,7 @@ export const referencesFromEtiquette = (
   const itemNumber = Number.parseInt(etiquette.substring(21, 24), 10);
   return {
     numeroDAP,
-    reference: referenceFromNumeroDAP(numeroDAP),
+    referenceSuffix: `${numeroDAP.substring(4, 6)}-${numeroDAP.substring(7, 12)}`,
     itemNumber,
     year,
     dayOfYear

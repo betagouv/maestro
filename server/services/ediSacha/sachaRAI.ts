@@ -18,10 +18,7 @@ import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
 import { RaiLabError, RaiMaestroError } from './sachaErrors';
 import { validateRaiDaoaFields } from './sachaRAIValidation';
-import {
-  referencesFromEtiquette,
-  type SampleReference
-} from './sachaReferences';
+import { referencesFromEtiquette } from './sachaReferences';
 import { RESIDUE_MAPPING } from './sachaResidueMapping';
 import type { SachaResultats } from './sachaValidator';
 
@@ -197,10 +194,12 @@ export const processSachaRAI = async (
     throw new RaiLabError('NumeroEtiquette manquant', xmlDocumentId);
   }
 
-  let reference: SampleReference;
+  let numeroDAP: string;
+  let referenceSuffix: string;
   let itemNumber: number;
   try {
-    ({ reference, itemNumber } = referencesFromEtiquette(etiquette));
+    ({ numeroDAP, referenceSuffix, itemNumber } =
+      referencesFromEtiquette(etiquette));
   } catch {
     throw new RaiLabError(
       `NumeroEtiquette invalide (${etiquette})`,
@@ -217,11 +216,12 @@ export const processSachaRAI = async (
         .onRef('analysis.itemNumber', '=', 'sampleItems.itemNumber')
         .onRef('analysis.copyNumber', '=', 'sampleItems.copyNumber')
     )
-    .where('samples.reference', '=', reference)
+    .where('samples.reference', 'like', `___-${referenceSuffix}`)
     .where('sampleItems.recipientKind', '=', 'Laboratory')
     .where('sampleItems.itemNumber', '=', itemNumber)
     .select([
       'samples.id as sampleId',
+      'samples.reference as reference',
       'samples.department as department',
       'sampleItems.itemNumber as itemNumber',
       'sampleItems.copyNumber as copyNumber',
@@ -233,12 +233,12 @@ export const processSachaRAI = async (
 
   if (!sampleItem) {
     throw new RaiLabError(
-      `Échantillon introuvable pour la référence ${reference}`,
+      `Échantillon introuvable pour le numéro DAP ${numeroDAP}`,
       xmlDocumentId
     );
   }
 
-  const { laboratoryId, department: departmentValue } = sampleItem;
+  const { laboratoryId, reference, department: departmentValue } = sampleItem;
   if (!laboratoryId) {
     throw new RaiMaestroError(
       `Aucun laboratoire associé à l'échantillon ${reference}`,
