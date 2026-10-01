@@ -16,6 +16,7 @@ import {
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
+  genSubPlanMatrices,
   PPVInProgressProgrammingPlanFixture,
   PPVInProgressSubPlanFixture,
   PPVInProgressSubPlanId,
@@ -289,7 +290,7 @@ const buildSubPlans = (
       ...base,
       id: index === 0 ? base.id : ProgrammingSubPlanId.parse(uuidv4()),
       subPlanNumber: `PPV${String(index + 1).padStart(2, '0')}`,
-      matrixKind: prescription.matrixKind,
+      matrices: genSubPlanMatrices(prescription.matrixKind),
       label:
         occurrences[label] > 1
           ? `${label} - ${ContextLabels[prescription.context]}`

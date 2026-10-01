@@ -1,10 +1,8 @@
 import { z } from 'zod';
-import { MatrixKindLabels } from '../../referential/Matrix/MatrixKind';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import {
   findPrescriptionSubPlan,
-  getSubPlanMatrixTitle,
   ProgrammingSubPlanId
 } from '../ProgrammingPlan/ProgrammingSubPlan';
 import { hasPermission } from '../User/User';
@@ -57,11 +55,7 @@ export const sortPrescriptions = <T extends Prescription>(
         (subPlan) =>
           [
             subPlan.id,
-            [
-              programmingPlan.title,
-              subPlan.subPlanNumber,
-              subPlan.matrixKind ? MatrixKindLabels[subPlan.matrixKind] : ''
-            ] as const
+            [programmingPlan.title, subPlan.subPlanNumber] as const
           ] as const
       )
     )
@@ -69,7 +63,7 @@ export const sortPrescriptions = <T extends Prescription>(
 
   const sortKey = (prescription: T) => {
     const subPlanKey = subPlanKeys.get(prescription.programmingSubPlanId);
-    return [subPlanKey ? '0' : '1', ...(subPlanKey ?? ['', '', ''])].join();
+    return [subPlanKey ? '0' : '1', ...(subPlanKey ?? ['', ''])].join();
   };
 
   return prescriptions.toSorted((a, b) => sortKey(a).localeCompare(sortKey(b)));
@@ -103,7 +97,5 @@ export const hasPrescriptionPermission = (
 export const getPrescriptionTitle = (
   programmingPlans: Pick<ProgrammingPlanChecked, 'subPlans'>[],
   prescription: Pick<Prescription, 'programmingSubPlanId'>
-): string => {
-  const subPlan = findPrescriptionSubPlan(programmingPlans, prescription);
-  return (subPlan && getSubPlanMatrixTitle(subPlan)) ?? '';
-};
+): string =>
+  findPrescriptionSubPlan(programmingPlans, prescription)?.label ?? '';

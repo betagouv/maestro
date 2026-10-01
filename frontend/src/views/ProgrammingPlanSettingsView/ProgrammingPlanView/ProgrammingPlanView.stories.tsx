@@ -13,6 +13,7 @@ import {
   genProgrammingPlan,
   genProgrammingPlanDomain,
   genProgrammingSubPlan,
+  genSubPlanMatrices,
   NationalCoordinatorEmail,
   NationalCoordinatorId,
   NationalCoordinatorName
@@ -108,6 +109,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     samples: [{ ...defaultProgrammingPlanSample, substanceKinds: ['Mono'] }],
     samplesManaged: true,
     settingsCompleted: false,
+    matrices: genSubPlanMatrices('A00GY'),
     fields: [matriceField, quantiteField].map(({ id }) => ({
       fieldId: id,
       required: false,
@@ -124,6 +126,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     samples: null,
     samplesManaged: true,
     settingsCompleted: false,
+    matrices: genSubPlanMatrices('A0DVX'),
     fields: []
   },
   [AnimauxSubPlanId]: {
@@ -134,6 +137,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     samples: [{ ...defaultProgrammingPlanSample, substanceKinds: ['Mono'] }],
     samplesManaged: true,
     settingsCompleted: true,
+    matrices: genSubPlanMatrices('A00GY'),
     fields: [
       {
         fieldId: especeField.id,
@@ -792,6 +796,51 @@ export const SubPlanIncompleteCannotComplete: Story = {
         expect.objectContaining({
           programmingSubPlanId: CerealesSubPlanId,
           stages: [],
+          settingsCompleted: false
+        })
+      )
+    );
+  }
+};
+
+export const SubPlanWithoutMatricesCannotComplete: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Aulx et échalotes' })
+    );
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    );
+
+    await expect(
+      await canvas.findByText(
+        'Veuillez renseigner au moins une catégorie de matrice.'
+      )
+    ).toBeInTheDocument();
+    await expect(completionModal(canvasElement)).not.toBeVisible();
+    await expect(updateProgrammingSubPlanSettings).not.toHaveBeenCalled();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith(
+        expect.objectContaining({
+          programmingSubPlanId: CerealesSubPlanId,
+          matrices: null,
           settingsCompleted: false
         })
       )

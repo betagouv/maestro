@@ -1,5 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { MatrixKind } from '../referential/Matrix/MatrixKind';
+import type { Matrix } from '../referential/Matrix/Matrix';
+import {
+  type MatrixKind,
+  MatrixKindLabels
+} from '../referential/Matrix/MatrixKind';
 import { isDromRegion, RegionList, Regions } from '../referential/Region';
 import {
   type ProgrammingPlanDomain,
@@ -12,6 +16,7 @@ import {
   type ProgrammingSubPlan,
   ProgrammingSubPlanId
 } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { SubPlanMatrices } from '../schema/ProgrammingPlan/SubPlanMatrices';
 import { oneOf } from './testFixtures';
 
 const currentYear = new Date().getFullYear();
@@ -128,6 +133,14 @@ const SachaSubPlanIds = [
   DAOAInProgressBovinSubPlanId
 ];
 
+export const genSubPlanMatrices = (
+  matrixKind: MatrixKind,
+  matrices: Matrix[] = []
+): SubPlanMatrices => ({
+  operator: 'Or',
+  items: [{ matrixKind, matrices }]
+});
+
 export const genProgrammingSubPlan = (
   data?: Partial<ProgrammingSubPlan>
 ): ProgrammingSubPlan => ({
@@ -146,8 +159,7 @@ export const genProgrammingSubPlan = (
     substanceKinds: [substanceKind]
   })),
   samplesManaged: true,
-  matrixKind: null,
-  matrix: null,
+  matrices: null,
   ...data
 });
 
@@ -165,7 +177,7 @@ export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
   contactListId: 7,
   withSacha: false,
   substanceKinds: ['Any'],
-  matrixKind: 'A00GY'
+  matrices: genSubPlanMatrices('A00GY')
 });
 export const PPVValidatedDromSubPlanFixture = genProgrammingSubPlan({
   ...PPVValidatedSubPlanFixture,
@@ -202,7 +214,7 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   contactListId: 9,
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper'],
-  matrixKind: 'A01SN'
+  matrices: genSubPlanMatrices('A01SN')
 });
 
 export const DAOAVolailleInProgressSubPlanFixture = genProgrammingSubPlan({
@@ -222,8 +234,7 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   contactListId: 9,
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper'],
-  matrixKind: 'A01QX',
-  matrix: 'A01XF#F28.A0C0S'
+  matrices: genSubPlanMatrices('A01QX', ['A01XF#F28.A0C0S'])
 });
 
 export const DAOABovinInProgressSubPlanFixture = genProgrammingSubPlan({
@@ -295,7 +306,8 @@ export const withMatrixKindSubPlans = <T extends ProgrammingPlanChecked>(
         ? programmingPlan.subPlans[0].id
         : ProgrammingSubPlanId.parse(uuidv4()),
     subPlanNumber: `PPV${String(index + 1).padStart(2, '0')}`,
-    matrixKind
+    label: MatrixKindLabels[matrixKind],
+    matrices: genSubPlanMatrices(matrixKind)
   }))
 });
 

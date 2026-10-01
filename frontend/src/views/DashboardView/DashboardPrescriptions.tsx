@@ -18,6 +18,7 @@ import {
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { getSubPlanMatrixKinds } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import {
   type FunctionComponent,
   useContext,
@@ -170,15 +171,14 @@ const DashboardPrescriptionCard: FunctionComponent<{
   localPrescriptions: LocalPrescription[];
   region?: Region | null;
 }> = ({ programmingPlan, prescription, localPrescriptions, region }) => {
-  const matrixKind = findPrescriptionSubPlan(
-    [programmingPlan],
-    prescription
-  )?.matrixKind;
+  const matrixKinds = getSubPlanMatrixKinds(
+    findPrescriptionSubPlan([programmingPlan], prescription)?.matrices ?? null
+  );
   const linkTo = AuthenticatedAppRoutes.SamplesByYearRoute.link(
     programmingPlan.year,
     {
       programmingPlanIds: [programmingPlan.id],
-      matrixKinds: matrixKind ? [matrixKind] : undefined,
+      matrixKinds: matrixKinds.length > 0 ? matrixKinds : undefined,
       regions: region ? [region] : undefined
     }
   );

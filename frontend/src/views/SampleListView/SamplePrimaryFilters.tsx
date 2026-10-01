@@ -18,6 +18,7 @@ import {
   findPrescriptionSubPlan,
   type ProgrammingSubPlanId
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { getSubPlanMatrixKinds } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   type SampleStatus,
@@ -25,7 +26,6 @@ import {
   SampleStatusList
 } from 'maestro-shared/schema/Sample/SampleStatus';
 import type { UserListItem } from 'maestro-shared/schema/User/User';
-import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import {
   samplersOptions,
@@ -50,13 +50,12 @@ const SamplePrimaryFilters = ({
   prescriptions,
   currentUserId
 }: Props) => {
-  const prescriptionMatrixKinds = prescriptions
-    ?.map(
-      (prescription) =>
-        findPrescriptionSubPlan(programmingPlans ?? [], prescription)
-          ?.matrixKind
+  const prescriptionMatrixKinds = prescriptions?.flatMap((prescription) =>
+    getSubPlanMatrixKinds(
+      findPrescriptionSubPlan(programmingPlans ?? [], prescription)?.matrices ??
+        null
     )
-    .filter(isDefinedAndNotNull);
+  );
 
   return (
     <>

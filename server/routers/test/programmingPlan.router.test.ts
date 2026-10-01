@@ -14,6 +14,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures.ts';
@@ -129,6 +130,7 @@ describe('ProgrammingPlan router', () => {
     for (const subPlan of daoaInProgressSubPlanFixtures) {
       await programmingSubPlanRepository.updateSettings(subPlan.id, {
         ...pickProgrammingPlanSettings(subPlan),
+        matrices: subPlan.matrices,
         settingsCompleted: false
       });
     }
@@ -2240,6 +2242,13 @@ describe('ProgrammingPlan router', () => {
       ...emptyProgrammingPlanSettings(true),
       stages: ['TRANSFORMATION'] satisfies Stage[],
       settingsCompleted: false,
+      matrices: {
+        operator: 'And',
+        items: [
+          { matrixKind: 'A01SN', matrices: [] },
+          { matrixKind: 'A01QX', matrices: ['A01XF#F28.A0C0S'] }
+        ]
+      } satisfies SubPlanMatrices,
       fields: []
     };
 
@@ -2386,7 +2395,8 @@ describe('ProgrammingPlan router', () => {
         )
       ).resolves.toMatchObject({
         stages: validBody.stages,
-        stagesManaged: true
+        stagesManaged: true,
+        matrices: validBody.matrices
       });
     });
   });

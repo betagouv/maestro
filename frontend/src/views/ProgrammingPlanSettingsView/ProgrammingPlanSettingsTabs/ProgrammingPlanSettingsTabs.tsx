@@ -51,6 +51,7 @@ const emptySettings: ProgrammingLevelSettingsForm = {
   settingsCompleted: false,
   nationalCoordinators: null,
   technicalInstruction: null,
+  matrices: null,
   fields: []
 };
 
@@ -77,6 +78,7 @@ const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   stages: 'global',
   substanceKinds: 'global',
   samples: 'samples',
+  matrices: 'global',
   nationalCoordinators: 'global',
   technicalInstruction: 'global',
   fields: 'sampler-form'
@@ -138,6 +140,7 @@ export const ProgrammingPlanSettingsTabs = ({
           }
         : planSettings && {
             ...planSettings,
+            matrices: null,
             fields: planSettings.fields.map((field) => ({
               ...field,
               inheritance: 'Own' as const,
@@ -222,6 +225,7 @@ export const ProgrammingPlanSettingsTabs = ({
           programmingPlanId,
           programmingSubPlanId: subPlan.id,
           ...pickProgrammingPlanSettings(draft),
+          matrices: draft.matrices,
           fields: draft.fields,
           settingsCompleted
         }).unwrap();

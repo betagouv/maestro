@@ -6,8 +6,6 @@
 import { type ColumnType, type Expression, type Kysely, sql } from 'kysely';
 import type { Department } from 'maestro-shared/referential/Department';
 import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
-import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import type { Region } from 'maestro-shared/referential/Region';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import type { Stage } from 'maestro-shared/referential/Stage';
@@ -35,6 +33,7 @@ import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/sc
 import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanSampleSetting } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type {
   CommemoratifSigle,
   CommemoratifValueSigle,
@@ -471,8 +470,7 @@ export interface ProgrammingSubPlans extends ProgrammingPlanSettings {
   analysisPermissionRole: UserRole | null;
   contactListId: number | null;
   withSacha: boolean;
-  matrixKind: MatrixKind | null;
-  matrix: Matrix | null;
+  matrices: SubPlanMatrices | null;
 }
 
 export interface SampleDocuments {

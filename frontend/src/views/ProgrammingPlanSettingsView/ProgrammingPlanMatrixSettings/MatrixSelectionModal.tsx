@@ -9,6 +9,7 @@ import {
   MatrixKindLabels
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { isMatrixSelected } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import { useMemo, useState } from 'react';
 import { AppSelectionModal } from 'src/components/_app/AppSelectionModal/AppSelectionModal';
 import { assert, type Equals } from 'tsafe';
@@ -16,7 +17,6 @@ import './MatrixSelectionModal.scss';
 import { MatrixSelectionRows } from './MatrixSelectionRows';
 import {
   filterMatrixKinds,
-  isMatrixSelected,
   type MatrixSelection,
   subMatrices,
   toggleMatrix,

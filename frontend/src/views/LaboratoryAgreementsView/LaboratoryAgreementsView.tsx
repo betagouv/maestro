@@ -4,16 +4,15 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import { MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
+import { uniqBy } from 'lodash-es';
 import {
   type MatrixKind,
   MatrixKindLabels
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { getSubPlanMatrixTitle } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { getSubPlanMatrixKinds } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import {
   useCallback,
   useContext,
@@ -183,35 +182,27 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
     const subPlans = programmingPlans.flatMap((plan) => plan.subPlans);
 
     const kindOptions = [
-      ...new Set(subPlans.map((subPlan) => subPlan.matrixKind))
+      ...new Set(
+        subPlans.flatMap((subPlan) => getSubPlanMatrixKinds(subPlan.matrices))
+      )
     ]
-      .filter(isDefinedAndNotNull)
       .map((kind) => ({
         value: `kind:${kind}`,
         label: MatrixKindLabels[kind]
       }))
       .toSorted((a, b) => a.label.localeCompare(b.label));
 
-    const matrixToKind = new Map<string, MatrixKind>();
-    for (const subPlan of subPlans) {
-      if (subPlan.matrix && subPlan.matrixKind) {
-        matrixToKind.set(subPlan.matrix, subPlan.matrixKind);
-      }
-    }
+    const detailedMatrices = subPlans.flatMap((subPlan) =>
+      (subPlan.matrices?.items ?? []).flatMap(({ matrixKind, matrices }) =>
+        matrices.map((matrix) => ({ matrixKind, matrix }))
+      )
+    );
 
-    const specificMatrixOptions = MatrixList.filter((m) =>
-      subPlans.some((subPlan) => subPlan.matrix === m)
-    )
-      .map((m) => {
-        const kind = matrixToKind.get(m);
-        const kindLabel = kind ? MatrixKindLabels[kind] : '';
-        return {
-          value: `matrix:${m}`,
-          label: kindLabel
-            ? `${kindLabel} > ${MatrixLabels[m]}`
-            : MatrixLabels[m]
-        };
-      })
+    const specificMatrixOptions = uniqBy(detailedMatrices, 'matrix')
+      .map(({ matrixKind, matrix }) => ({
+        value: `matrix:${matrix}`,
+        label: `${MatrixKindLabels[matrixKind]} > ${MatrixLabels[matrix]}`
+      }))
       .toSorted((a, b) => a.label.localeCompare(b.label));
 
     return [...kindOptions, ...specificMatrixOptions];
@@ -233,10 +224,13 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
             matrixCombinedFilter.some(
               (v) =>
                 (v.startsWith('kind:') &&
-                  r.programmingSubPlan.matrixKind === v.slice(5)) ||
+                  r.programmingSubPlan.matrices?.items.some(
+                    (item) => item.matrixKind === v.slice(5)
+                  )) ||
                 (v.startsWith('matrix:') &&
-                  r.programmingSubPlan.matrix != null &&
-                  r.programmingSubPlan.matrix === v.slice(7))
+                  r.programmingSubPlan.matrices?.items.some((item) =>
+                    item.matrices.some((matrix) => matrix === v.slice(7))
+                  ))
             )) &&
           ((labFilter.length === 0 && labAgreementTypeFilter.length === 0) ||
             r.laboratories.some(
@@ -268,9 +262,9 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
         if (substanceCmp !== 0) {
           return substanceCmp;
         }
-        return (
-          getSubPlanMatrixTitle(a.programmingSubPlan) ?? ''
-        ).localeCompare(getSubPlanMatrixTitle(b.programmingSubPlan) ?? '');
+        return a.programmingSubPlan.label.localeCompare(
+          b.programmingSubPlan.label
+        );
       });
   }, [
     rows,
