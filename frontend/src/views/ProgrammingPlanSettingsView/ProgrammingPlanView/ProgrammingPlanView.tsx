@@ -134,6 +134,7 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                   label="Nom du plan"
                   hideLabel
                   className={clsx('flex-grow-1', cx('fr-mb-0', 'fr-mr-2w'))}
+                  classes={{ nativeInputOrTextArea: cx('fr-mt-0') }}
                   nativeInputProps={{
                     value: planTitle,
                     'aria-label': 'Nom du plan',
@@ -147,7 +148,7 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                 programmingPlans={programmingPlan ? [programmingPlan] : []}
               />
               <ProgrammingPlanSettingsActions
-                className={cx('fr-ml-auto')}
+                className={cx('fr-ml-auto', 'fr-pl-2w')}
                 target={
                   subPlan
                     ? { kind: 'subPlan', programmingPlan, subPlan }
