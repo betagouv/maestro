@@ -2484,7 +2484,8 @@ describe('Local prescriptions router', () => {
   describe('Change history lifecycle', () => {
     const changeTrackingSubPlan = genProgrammingSubPlan({
       ...PPVSubmittedSubPlanFixture,
-      id: ProgrammingSubPlanId.parse(uuidv4())
+      id: ProgrammingSubPlanId.parse(uuidv4()),
+      context: 'Exploratory'
     });
     const changeTrackingPrescription = genPrescription({
       programmingSubPlanId: changeTrackingSubPlan.id

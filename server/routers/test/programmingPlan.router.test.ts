@@ -131,6 +131,7 @@ describe('ProgrammingPlan router', () => {
       await programmingSubPlanRepository.updateSettings(subPlan.id, {
         ...pickProgrammingPlanSettings(subPlan),
         matrices: subPlan.matrices,
+        context: subPlan.context,
         settingsCompleted: false
       });
     }
@@ -2249,6 +2250,7 @@ describe('ProgrammingPlan router', () => {
           { matrixKind: 'A01QX', matrices: ['A01XF#F28.A0C0S'] }
         ]
       } satisfies SubPlanMatrices,
+      context: 'Control' as const,
       fields: []
     };
 

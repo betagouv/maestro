@@ -76,7 +76,8 @@ describe('Prescriptions router', () => {
   });
   const inProgressSurveillanceSubPlan = genProgrammingSubPlan({
     programmingPlanId: programmingPlanInProgress.id,
-    subPlanNumber: 'TEST2'
+    subPlanNumber: 'TEST2',
+    context: 'Surveillance'
   });
   const inProgressSubPlanWithoutPrescription = genProgrammingSubPlan({
     programmingPlanId: programmingPlanInProgress.id,
@@ -311,8 +312,6 @@ describe('Prescriptions router', () => {
       await badRequestTest();
       await badRequestTest({ ...validBody, programmingSubPlanId: undefined });
       await badRequestTest({ ...validBody, programmingSubPlanId: uuidv4() });
-      await badRequestTest({ ...validBody, context: undefined });
-      await badRequestTest({ ...validBody, context: 'invalid' });
     });
 
     test('should fail if the user does not have the permission to create prescriptions', async () => {
