@@ -106,6 +106,10 @@ test.each<[string, ReturnType<typeof parseSampleReference>]>([
     'GES-26-00621-A-1 BLE (FROMENT)',
     { reference: 'GES-26-00621', copyNumber: 1, itemNumber: 1 }
   ],
+  [
+    'ARA-26-00884-A-1 -Pommes de table',
+    { reference: 'ARA-26-00884', copyNumber: 1, itemNumber: 1 }
+  ],
   // formats non reconnus
   ['OCC-25', null],
   ['OCC-25-0007-AB', null],

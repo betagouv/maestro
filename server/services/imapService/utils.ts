@@ -46,11 +46,14 @@ export const sampleReferenceValidator = (
 export const parseSampleReference = (
   input: string
 ): { reference: string; copyNumber: number; itemNumber: number } | null => {
-  // collapse spaces around separators, then drop any trailing free text (e.g. "GES-26-00621-A-1 BLE (FROMENT)")
-  const [normalized] = input
-    .trim()
-    .replace(/\s*-\s*/g, '-')
-    .split(/\s+/);
+  const [firstWord, ...otherWords] = input.trim().split(/\s+/);
+  let normalized = firstWord;
+  for (const word of otherWords) {
+    const isGluedByHyphen = normalized.endsWith('-') || word.startsWith('-');
+    const isReferenceFragment = /^[-A-Z\d]+$/.test(word);
+    if (!isGluedByHyphen || !isReferenceFragment) break;
+    normalized += word;
+  }
 
   const parts = normalized.split('-');
   if (parts.length < 3) return null;
