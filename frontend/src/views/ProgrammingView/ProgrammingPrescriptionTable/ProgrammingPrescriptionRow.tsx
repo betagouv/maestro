@@ -22,6 +22,7 @@ import {
   type ProgrammingSubPlan,
   subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { memo, useState } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
@@ -221,7 +222,9 @@ const ProgrammingPrescriptionRow = ({
                 >
                   <div className="matrice-cell__content">
                     <span className="matrice-cell__title">
-                      {subPlan ? subPlanLabel(subPlan) : ''}
+                      {getSubPlanMatrixLabels(subPlan?.matrices ?? null).join(
+                        ', '
+                      )}
                     </span>
                     {showComments && rowCommentCount > 0 && (
                       <Button

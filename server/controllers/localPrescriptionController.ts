@@ -15,10 +15,8 @@ import {
   type ProgrammingPlanEchelon
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  stagesFromSubPlans,
-  subPlanLabel
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import {
   companiesIsRequired,
   userRegionsForRole
@@ -743,7 +741,7 @@ export const localPrescriptionsRouter = {
           },
           recipients,
           {
-            matrix: subPlanLabel(subPlan),
+            matrix: getSubPlanMatrixLabels(subPlan.matrices).join(', '),
             sampleCount: localPrescription.sampleCount,
             comment: draftPrescriptionComment.comment,
             author: user ? `${user.name}` : 'Anonyme'
@@ -826,7 +824,7 @@ export const localPrescriptionsRouter = {
             },
             recipients,
             {
-              matrix: subPlanLabel(subPlan),
+              matrix: getSubPlanMatrixLabels(subPlan.matrices).join(', '),
               sampleCount: localPrescription.sampleCount,
               comment: draftPrescriptionComment.comment,
               author: user ? `${user.name}` : 'Anonyme'

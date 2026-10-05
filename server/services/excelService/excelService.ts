@@ -629,7 +629,9 @@ const generatePrescriptionsExportExcel = async (
       context: prescriptionSubPlan?.context
         ? ContextLabels[prescriptionSubPlan.context]
         : '',
-      matrix: prescriptionSubPlan ? subPlanLabel(prescriptionSubPlan) : '',
+      matrix: getSubPlanMatrixLabels(
+        prescriptionSubPlan?.matrices ?? null
+      ).join(', '),
       stages: (prescriptionSubPlan?.stages ?? [])
         .map((stage) => StageLabels[stage])
         .join(', '),

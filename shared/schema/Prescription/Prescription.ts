@@ -2,9 +2,9 @@ import { z } from 'zod';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import {
   findPrescriptionSubPlan,
-  ProgrammingSubPlanId,
-  subPlanLabel
+  ProgrammingSubPlanId
 } from '../ProgrammingPlan/ProgrammingSubPlan';
+import { getSubPlanMatrixLabels } from '../ProgrammingPlan/SubPlanMatrices';
 import { hasPermission } from '../User/User';
 import type { UserRole } from '../User/UserRole';
 import { PrescriptionSubstance } from './PrescriptionSubstance';
@@ -96,7 +96,7 @@ export const hasPrescriptionPermission = (
 export const getPrescriptionTitle = (
   programmingPlans: Pick<ProgrammingPlanChecked, 'subPlans'>[],
   prescription: Pick<Prescription, 'programmingSubPlanId'>
-): string => {
-  const subPlan = findPrescriptionSubPlan(programmingPlans, prescription);
-  return subPlan ? subPlanLabel(subPlan) : '';
-};
+): string =>
+  getSubPlanMatrixLabels(
+    findPrescriptionSubPlan(programmingPlans, prescription)?.matrices ?? null
+  ).join(', ');
