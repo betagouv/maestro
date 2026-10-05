@@ -18,10 +18,7 @@ import {
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  type ProgrammingSubPlan,
-  subPlanLabel
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { memo, useState } from 'react';
