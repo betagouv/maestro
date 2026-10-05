@@ -4,12 +4,7 @@ import { z } from 'zod';
 import type { CheckFn } from 'zod/v4/core';
 import { Department } from '../../referential/Department';
 import { LegalContext } from '../../referential/LegalContext';
-import { Matrix, MatrixList } from '../../referential/Matrix/Matrix';
-import {
-  MatrixKind,
-  OtherMatrixKind
-} from '../../referential/Matrix/MatrixKind';
-import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
+import { MatrixList } from '../../referential/Matrix/Matrix';
 import { Region } from '../../referential/Region';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { maestroDateRefined, toMaestroDate } from '../../utils/date';
@@ -28,6 +23,7 @@ import { hasPermission, Sampler, type UserBase } from '../User/User';
 import type { UserRole } from '../User/UserRole';
 import { SampleCompliance } from './SampleCompliance';
 import { PartialSampleItem, SampleItem } from './SampleItem';
+import { PartialSampleMatrix, SampleMatrix } from './SampleMatrix';
 import { SampleStatus } from './SampleStatus';
 import { SampleStep } from './SampleStep';
 import { Seves, SevesNotice } from './Seves';
@@ -53,16 +49,12 @@ export const SampleContextData = z.object({
 });
 
 export const SampleMatrixData = z.object({
-  matrixKind: z.union([MatrixKind, OtherMatrixKind], {
-    error: (issue) =>
-      isNil(issue.input)
-        ? 'Veuillez renseigner la catégorie de matrice programmée.'
-        : issue.message
-  }),
-  matrix: z.union([Matrix, z.string().nonempty()], {
-    error: (issue) =>
-      isNil(issue.input) ? 'Veuillez renseigner la matrice.' : issue.message
-  }),
+  matrices: z
+    .array(SampleMatrix, {
+      error: (issue) =>
+        isNil(issue.input) ? 'Veuillez renseigner la matrice.' : issue.message
+    })
+    .min(1, { message: 'Veuillez renseigner la matrice.' }),
   notesOnMatrix: z.string().nullish(),
   prescriptionId: z.guid().nullish(),
   monoSubstances: z.array(SSD2Id).nullish(),
@@ -71,19 +63,19 @@ export const SampleMatrixData = z.object({
   specificData: SpecificData
 });
 
-export const sampleMatrixCheck: CheckFn<{
-  matrixKind: MatrixKind | 'Other';
-  matrix: Matrix | string;
+const outsideProgrammingPlanMatricesCheck: CheckFn<{
+  context: Context;
+  matrices: SampleMatrix[];
 }> = (ctx) => {
   if (
-    ctx.value.matrixKind !== 'Other' &&
-    !Matrix.safeParse(ctx.value.matrix).success
+    OutsideProgrammingPlanContext.safeParse(ctx.value.context).success &&
+    ctx.value.matrices.length > 1
   ) {
     ctx.issues.push({
       input: ctx.value,
-      code: 'invalid_value',
-      values: MatrixList,
-      path: ['matrix']
+      code: 'custom',
+      message: 'Une seule matrice est attendue hors programmation.',
+      path: ['matrices']
     });
   }
 };
@@ -199,8 +191,7 @@ export const SampleOwnerData = z.object({
 
 const PartialSampleMatrixData = z.object({
   ...SampleMatrixData.partial().shape,
-  matrixKind: z.union([MatrixKind, OtherMatrixKind]).nullish(),
-  matrix: z.union([Matrix, z.string().nonempty()]).nullish(),
+  matrices: z.array(PartialSampleMatrix).nullish(),
   specificData: SpecificData
 });
 
@@ -271,7 +262,7 @@ const sampleItemsCheck: CheckFn<{ items: SampleItem[] }> = (ctx) => {
 export const SampleChecked = checkSchema(
   SampleBase,
   prescriptionSubstancesCheck,
-  sampleMatrixCheck,
+  outsideProgrammingPlanMatricesCheck,
   sampleItemsCheck
 );
 
@@ -306,15 +297,6 @@ export const isProgrammingPlanSample = (
 export const isOutsideProgrammingPlanSample = (
   partialSample?: PartialSample | PartialSampleToCreate
 ) => OutsideProgrammingPlanContext.safeParse(partialSample?.context).success;
-
-export const getSampleMatrixLabel = (
-  partialSample: PartialSample | PartialSampleToCreate
-) =>
-  partialSample.matrixKind === OtherMatrixKind.value
-    ? (partialSample.matrix ?? '')
-    : partialSample.matrix
-      ? MatrixLabels[partialSample.matrix as Matrix]
-      : '';
 
 export const SamplePermission = z.enum(['performAnalysis']);
 

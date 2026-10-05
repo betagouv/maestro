@@ -37,7 +37,7 @@ export const generateXMLDAI = (
     | 'ownerEmail'
     | 'sampler'
     | 'department'
-    | 'matrix'
+    | 'matrices'
     | 'reference'
     | 'sentAt'
   >,
@@ -57,10 +57,19 @@ export const generateXMLDAI = (
     throw new Error(`Pas d'EDI Sacha pour ${subPlanNumber}`);
   }
 
-  const matrix = sample.matrix;
-  if (!(matrix in SigleMatrix)) {
+  const siglesMatrice = sample.matrices.map(({ matrix }) => {
+    const sigle = SigleMatrix[matrix as NotPPVMatrix];
+    if (!sigle) {
+      throw new Error(`Pas de Sigle SACHA associé à la matrice ${matrix}.`);
+    }
+    return sigle;
+  });
+  const duplicatedSigle = siglesMatrice.find(
+    (sigle, index) => siglesMatrice.indexOf(sigle) !== index
+  );
+  if (duplicatedSigle) {
     throw new Error(
-      `Pas de Sigle SACHA associé à la matrice ${sample.matrix}.`
+      `Plusieurs matrices avec le même sigle SACHA (${duplicatedSigle}) : non supporté par l’EDI Sacha.`
     );
   }
 
@@ -73,11 +82,22 @@ export const generateXMLDAI = (
     throw new Error("Pas de plan d'analyse de configuré.");
   }
 
-  const commemoratifs = getCommemoratifs(
+  const dialogueCommemoratifs = getCommemoratifs(
     sample.specificData,
     sachaFieldConfigs,
     sachaCommemoratifRecord
-  );
+  ).map((c) => {
+    if ('sigleValue' in c) {
+      return {
+        Sigle: c.sigle,
+        SigleValeur: c.sigleValue
+      };
+    }
+    return {
+      Sigle: c.sigle,
+      TexteValeur: c.textValue
+    };
+  });
 
   const { numeroDAP, numeroEtiquette } = referencesFromSample(
     SampleReference.parse(sample.reference),
@@ -112,28 +132,17 @@ export const generateXMLDAI = (
             Nom: sample.sampler.name ?? ''
           }
         },
-        DialogueEchantillonCommemoratifType: [
-          {
+        DialogueEchantillonCommemoratifType: siglesMatrice.map(
+          (sigleMatrice, index) => ({
             DialogueEchantillonComplet: {
-              NumeroEchantillon: sampleItem.itemNumber,
-              SigleMatriceSpecifique: SigleMatrix[matrix as NotPPVMatrix]!,
+              NumeroEchantillon: index + 1,
+              SigleMatriceSpecifique: sigleMatrice,
               NumeroEtiquette: numeroEtiquette,
               Commentaire: sampleItem.sealId ?? ''
             },
-            DialogueCommemoratif: commemoratifs.map((c) => {
-              if ('sigleValue' in c) {
-                return {
-                  Sigle: c.sigle,
-                  SigleValeur: c.sigleValue
-                };
-              }
-              return {
-                Sigle: c.sigle,
-                TexteValeur: c.textValue
-              };
-            })
-          }
-        ],
+            DialogueCommemoratif: dialogueCommemoratifs
+          })
+        ),
         ReferencePlanAnalyseType: siglesPlanAnalyse.map((siglePlanAnalyse) => ({
           ReferencePlanAnalyseEffectuer: {
             SiglePlanAnalyse: siglePlanAnalyse

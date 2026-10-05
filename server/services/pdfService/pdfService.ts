@@ -22,15 +22,17 @@ import {
   isPPVSubPlanNumber,
   subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import {
-  getSampleMatrixLabel,
-  type PartialSample
-} from 'maestro-shared/schema/Sample/Sample';
+import type { PartialSample } from 'maestro-shared/schema/Sample/Sample';
 import {
   getSampleItemReference,
   type PartialSampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import {
+  getSampleMatrixLabel,
+  getSampleMatrixLabels,
+  type PartialSampleMatrix
+} from 'maestro-shared/schema/Sample/SampleMatrix';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import {
   type SubstanceKind,
@@ -59,6 +61,18 @@ import {
   SampleReference
 } from '../ediSacha/sachaReferences';
 import { buildSampleItems } from '../sampleItemService';
+
+export const getMatrixSectionItems = (
+  matrices: PartialSampleMatrix[] | null | undefined
+) =>
+  matrices?.length
+    ? matrices.map((matrix) => ({
+        matrixKind: matrix.matrixKind
+          ? MatrixKindLabels[matrix.matrixKind]
+          : '',
+        matrix: getSampleMatrixLabel(matrix)
+      }))
+    : [{ matrixKind: '', matrix: '' }];
 
 export const getSubstancesSections = (
   substanceKinds: SubstanceKind[],
@@ -368,7 +382,7 @@ const generateSamplePDF = async (
         }
       : null,
     ...getSubstancesSections(currentSampleItem?.substanceKinds ?? [], {
-      matrix: getSampleMatrixLabel(sample),
+      matrix: getSampleMatrixLabels(sample.matrices).join(', '),
       monoSubstances: sample.monoSubstances,
       multiSubstances: sample.multiSubstances
     }),
@@ -378,8 +392,7 @@ const generateSamplePDF = async (
     legalContext: sample.legalContext
       ? LegalContextLabels[sample.legalContext]
       : '',
-    matrixKind: sample.matrixKind ? MatrixKindLabels[sample.matrixKind] : '',
-    matrix: getSampleMatrixLabel(sample),
+    matrices: getMatrixSectionItems(sample.matrices),
     matrixPart: matrixPartField
       ? (getFieldValueLabel(
           matrixPartField,

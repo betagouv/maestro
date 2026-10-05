@@ -45,12 +45,10 @@ import {
   subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
-import {
-  getSampleMatrixLabel,
-  type PartialSample
-} from 'maestro-shared/schema/Sample/Sample';
+import type { PartialSample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleComplianceLabels } from 'maestro-shared/schema/Sample/SampleCompliance';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import { getSampleMatrixLabels } from 'maestro-shared/schema/Sample/SampleMatrix';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import type { ProgrammingSubPlanFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
@@ -257,8 +255,12 @@ const generateSamplesExportExcel = async (
       companySiret: sample.company?.siret,
       resytalId: sample.resytalId,
       notesOnCreation: sample.notesOnCreation,
-      matrix: sample.matrix ? getSampleMatrixLabel(sample) : undefined,
-      matrixCode: sample.matrix,
+      matrix: sample.matrices?.length
+        ? getSampleMatrixLabels(sample.matrices).join(', ')
+        : undefined,
+      matrixCode: sample.matrices?.length
+        ? sample.matrices.map(({ matrix }) => matrix).join(', ')
+        : undefined,
       matrixPart: matrixPartField
         ? (getFieldValueLabel(
             matrixPartField,

@@ -1,5 +1,4 @@
 import type { Department } from 'maestro-shared/referential/Department';
-import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import {
   PartialSample,
@@ -103,9 +102,23 @@ describe('findMany samples', async () => {
 
     samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      matrixKinds: [Sample11Fixture.matrixKind as MatrixKind]
+      matrixKinds: ['A00PX', 'A00GY']
     });
-    expect(samples).toHaveLength(1);
+    expect(samples.map(({ id }) => id)).toContain(Sample11Fixture.id);
+  });
+
+  test('find with matrices option', async () => {
+    let samples = await sampleRepository.findMany({
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
+      matrices: ['A00HF']
+    });
+    expect(samples.map(({ id }) => id)).not.toContain(Sample11Fixture.id);
+
+    samples = await sampleRepository.findMany({
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
+      matrices: ['A00HF', 'A00GZ']
+    });
+    expect(samples.map(({ id }) => id)).toContain(Sample11Fixture.id);
   });
 
   test('find with compliance option', async () => {
@@ -245,22 +258,19 @@ describe('findComplianceStats', async () => {
     await insertStatsSample({
       reference: 'DAOA-69-24-101-A',
       department: '69',
-      matrixKind: 'A00GY',
-      matrix: 'A00GZ',
+      matrices: [{ matrixKind: 'A00GY', matrix: 'A00GZ' }],
       compliance: 'Compliant'
     });
     await insertStatsSample({
       reference: 'DAOA-69-24-102-A',
       department: '69',
-      matrixKind: 'A00GY',
-      matrix: 'A00GZ',
+      matrices: [{ matrixKind: 'A00GY', matrix: 'A00GZ' }],
       compliance: 'NonCompliantAndHarmful'
     });
     await insertStatsSample({
       reference: 'DAOA-69-24-103-A',
       department: '69',
-      matrixKind: 'A00GY',
-      matrix: 'A00GZ'
+      matrices: [{ matrixKind: 'A00GY', matrix: 'A00GZ' }]
     });
 
     const stats = await sampleRepository.findComplianceStats({
@@ -277,12 +287,46 @@ describe('findComplianceStats', async () => {
     });
   });
 
+  test('counts a sample with several matrices in each of its matrices', async () => {
+    await insertStatsSample({
+      reference: 'DAOA-73-24-109-A',
+      department: '73',
+      matrices: [
+        { matrixKind: 'A00QT', matrix: 'A00QV' },
+        { matrixKind: 'A01GP', matrix: 'A01GQ' }
+      ],
+      compliance: 'Compliant'
+    });
+
+    const stats = await sampleRepository.findComplianceStats({
+      programmingPlanId: DAOAInProgressProgrammingPlanFixture.id
+    });
+
+    expect(stats).toContainEqual({
+      region: statsRegion,
+      matrixKind: 'A00QT',
+      matrix: 'A00QV',
+      totalCount: 1,
+      compliantCount: 1,
+      nonCompliantCount: 0
+    });
+    expect(stats).toContainEqual({
+      region: statsRegion,
+      matrixKind: 'A01GP',
+      matrix: 'A01GQ',
+      totalCount: 1,
+      compliantCount: 1,
+      nonCompliantCount: 0
+    });
+  });
+
   test('ignores matrixKind and matrix filled as free text', async () => {
     await insertStatsSample({
       reference: 'DAOA-69-24-104-A',
       department: '69',
-      matrixKind: 'Other',
-      matrix: 'Matrice saisie en champ libre'
+      matrices: [
+        { matrixKind: 'Other', matrix: 'Matrice saisie en champ libre' }
+      ]
     });
 
     const stats = await sampleRepository.findComplianceStats({
@@ -303,8 +347,7 @@ describe('findComplianceStats', async () => {
     await insertStatsSample({
       reference: 'DAOA-69-24-105-A',
       department: '69',
-      matrixKind: null,
-      matrix: 'A00HF'
+      matrices: [{ matrixKind: null, matrix: 'A00HF' }]
     });
 
     const stats = await sampleRepository.findComplianceStats({
@@ -325,8 +368,7 @@ describe('findComplianceStats', async () => {
     await insertStatsSample({
       reference: 'DAOA-38-24-106-A',
       department: '38',
-      matrixKind: null,
-      matrix: null,
+      matrices: null,
       compliance: 'NonCompliant'
     });
 
@@ -349,16 +391,14 @@ describe('findComplianceStats', async () => {
       reference: 'DAOA-01-24-107-A',
       department: '01',
       context: 'Control',
-      matrixKind: null,
-      matrix: null,
+      matrices: null,
       compliance: 'NonCompliant'
     });
     await insertStatsSample({
       reference: 'DAOA-01-24-108-A',
       department: '01',
       context: 'Surveillance',
-      matrixKind: null,
-      matrix: null,
+      matrices: null,
       compliance: 'NonCompliant'
     });
 

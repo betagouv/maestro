@@ -41,6 +41,7 @@ import type {
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import type { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import type { PartialSampleMatrix } from 'maestro-shared/schema/Sample/SampleMatrix';
 import type { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sample/SampleStatus';
 import type { SampleStep } from 'maestro-shared/schema/Sample/SampleStep';
 import type { Seves } from 'maestro-shared/schema/Sample/Seves';
@@ -391,7 +392,11 @@ export interface Samples {
   laboratoryId: string | null;
   lastUpdatedAt: Generated<Timestamp | null>;
   legalContext: string;
-  matrix: string | null;
+  matrices: ColumnType<
+    PartialSampleMatrix[] | null,
+    string | null | undefined,
+    string | null
+  >;
   notesOnAdmissibility: string | null;
   notesOnCreation: string | null;
   notesOnItems: string | null;

@@ -6,12 +6,12 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
-  getSampleMatrixLabel,
   isCreatedPartialSample,
   isDeletableSample,
   type PartialSample,
   type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { getSampleMatrixLabel } from 'maestro-shared/schema/Sample/SampleMatrix';
 import { useState } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
@@ -231,14 +231,20 @@ const MatrixBlock = ({
 }: {
   sample: PartialSample | PartialSampleToCreate;
 }) => {
-  let matrixFullLabel: null | string = null;
-  if (sample.matrixKind) {
-    matrixFullLabel = MatrixKindLabels[sample.matrixKind];
-    const matrixLabel = getSampleMatrixLabel(sample);
-    if (matrixLabel !== '' && matrixLabel !== matrixFullLabel) {
-      matrixFullLabel += ` - ${matrixLabel}`;
-    }
-  }
+  const matrixFullLabel = (sample.matrices ?? [])
+    .flatMap((sampleMatrix) => {
+      if (!sampleMatrix.matrixKind) {
+        return [];
+      }
+      const matrixKindLabel = MatrixKindLabels[sampleMatrix.matrixKind];
+      const matrixLabel = getSampleMatrixLabel(sampleMatrix);
+      return [
+        matrixLabel !== '' && matrixLabel !== matrixKindLabel
+          ? `${matrixKindLabel} - ${matrixLabel}`
+          : matrixKindLabel
+      ];
+    })
+    .join(', ');
 
   return matrixFullLabel ? (
     <span className="icon-text">

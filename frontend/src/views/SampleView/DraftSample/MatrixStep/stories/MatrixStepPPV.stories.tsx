@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import {
   genLocalPrescription,
   genPrescription
@@ -146,7 +148,7 @@ export const MatrixStepPPVWithoutPrescriptions: Story = {
     partialSample: {
       ...story.args.partialSample,
       context: 'Surveillance',
-      matrixKind: undefined
+      matrices: undefined
     }
   },
   play: async ({ canvasElement }) => {
@@ -248,6 +250,91 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
     ).not.toBeInTheDocument();
 
     await waitFor(() => expect(createOrUpdateMock).toHaveBeenCalled());
+  }
+};
+
+const andSubPlan = {
+  ...PPVValidatedSubPlanFixture,
+  matrices: {
+    operator: 'And' as const,
+    items: [
+      {
+        matrixKind: 'A00QT' as const,
+        matrices: ['A00QV', 'A00QX'] as Matrix[]
+      },
+      { matrixKind: 'A01GP' as const, matrices: ['A01GQ'] as Matrix[] }
+    ]
+  }
+};
+const andProgrammingPlan = genProgrammingPlan({
+  subPlans: [andSubPlan],
+  distributionKind: 'REGIONAL'
+});
+const andPrescription = genPrescription({
+  programmingSubPlanId: andSubPlan.id
+});
+
+export const MatrixStepPPVAnd: Story = {
+  args: {
+    partialSample: {
+      ...genSampleContextData({
+        programmingPlanId: andProgrammingPlan.id,
+        programmingSubPlanId: andSubPlan.id,
+        context: 'Control',
+        sampler
+      }),
+      ...genCreatedSampleData()
+    }
+  },
+  parameters: {
+    preloadedState: {
+      auth: { authUser: genAuthUser(sampler) },
+      programmingPlan: {
+        programmingPlan: andProgrammingPlan
+      }
+    },
+    apiClient: getMockApi({
+      ...storyMockApi,
+      useGetProgrammingPlanQuery: { data: andProgrammingPlan },
+      useFindPrescriptionsQuery: { data: [andPrescription] },
+      useFindLocalPrescriptionsQuery: {
+        data: [
+          genLocalPrescription({
+            prescriptionId: andPrescription.id,
+            region: sampler.region
+          })
+        ]
+      },
+      useCreateOrUpdateSampleMutation: [
+        createOrUpdateMock,
+        { isSuccess: false }
+      ]
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const matrixKindInputs = canvas.getAllByTestId('matrix-kind-select');
+    await expect(matrixKindInputs).toHaveLength(2);
+    await expect(matrixKindInputs[0]).toBeDisabled();
+    await expect(matrixKindInputs[0]).toHaveValue(MatrixKindLabels.A00QT);
+    await expect(matrixKindInputs[1]).toHaveValue(MatrixKindLabels.A01GP);
+
+    await userEvent.click(canvas.getAllByTestId('matrix-select')[0]);
+    const matrixListbox = await screen.findByRole('listbox');
+    await expect(within(matrixListbox).getAllByRole('option')).toHaveLength(2);
+    await userEvent.selectOptions(matrixListbox, MatrixLabels.A00QV);
+
+    await waitFor(() =>
+      expect(createOrUpdateMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          matrices: [
+            { matrixKind: 'A00QT', matrix: 'A00QV' },
+            { matrixKind: 'A01GP', matrix: 'A01GQ' }
+          ]
+        })
+      )
+    );
   }
 };
 

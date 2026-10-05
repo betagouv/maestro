@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { getSubstancesSections } from './pdfService';
+import { getMatrixSectionItems, getSubstancesSections } from './pdfService';
 
 describe('getSubstancesSections', () => {
   const sample = {
@@ -56,6 +56,26 @@ describe('getSubstancesSections', () => {
       { label: 'Mono-résidu', substances: [], withEmptyLines: true },
       { label: 'Multi-résidus', substances: [], withEmptyLines: true },
       { label: 'Cuivre', substances: [], withEmptyLines: false }
+    ]);
+  });
+});
+
+describe('getMatrixSectionItems', () => {
+  test('rend une ligne par matrice, avec les libellés', () => {
+    expect(
+      getMatrixSectionItems([
+        { matrixKind: 'A00GY', matrix: 'A00GZ' },
+        { matrixKind: 'Other', matrix: 'Navet' }
+      ])
+    ).toEqual([
+      { matrixKind: 'Aulx et échalotes', matrix: 'Aulx' },
+      { matrixKind: 'Autre', matrix: 'Navet' }
+    ]);
+  });
+
+  test('rend une ligne vide sans matrice, pour le formulaire vierge', () => {
+    expect(getMatrixSectionItems(null)).toEqual([
+      { matrixKind: '', matrix: '' }
     ]);
   });
 });

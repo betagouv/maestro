@@ -3,12 +3,12 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
-  getSampleMatrixLabel,
   isCreatedPartialSample,
   isDeletableSample,
   type PartialSample,
   type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { getSampleMatrixLabels } from 'maestro-shared/schema/Sample/SampleMatrix';
 import { useMemo } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
@@ -44,7 +44,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
       (samples ?? []).map((sample) => [
         ...[
           isCreatedPartialSample(sample) ? sample.reference : '',
-          getSampleMatrixLabel(sample),
+          getSampleMatrixLabels(sample.matrices).join(', '),
           <div className="d-flex-align-center" key={`${sample.id}-name`}>
             {isCreatedPartialSample(sample) ? sample.sampler.name : user?.name}
           </div>,

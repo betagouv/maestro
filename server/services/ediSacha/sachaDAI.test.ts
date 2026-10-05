@@ -5,6 +5,7 @@ import type {
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import type { SampleMatrix } from 'maestro-shared/schema/Sample/SampleMatrix';
 import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
@@ -128,7 +129,9 @@ const daiSample = {
   lastUpdatedAt: new Date(1765876056798),
   sentAt: new Date(1765876056798),
   department: '72',
-  matrix: 'A01SN#F26.A07XE',
+  matrices: [
+    { matrixKind: 'A01SN', matrix: 'A01SN#F26.A07XE' }
+  ] as SampleMatrix[],
   specificData: {
     sampling: 'Aléatoire',
     animalBatchIdentifier: '',
@@ -356,6 +359,77 @@ test('refuse un exemplaire dont un analyte n’a pas de plan d’analyse', () =>
       laboratory
     )
   ).toThrow("Pas de plan d'analyse de configuré.");
+});
+
+test('génère un échantillon par matrice, avec la même étiquette et le même scellé', async () => {
+  const xmlFile = await generateXMLDAI(
+    {
+      ...daiSample,
+      matrices: [
+        { matrixKind: 'A01SN', matrix: 'A01SN#F26.A07XE' },
+        { matrixKind: 'A01SN', matrix: 'A01SQ#F28.A0C0S' }
+      ]
+    },
+    'M01',
+    daiSampleItem,
+    1765876056798,
+    daiFieldConfigs,
+    daiCommemoratifRecord,
+    sachaConf,
+    laboratory
+  );
+
+  expect(
+    [
+      ...xmlFile.content.matchAll(
+        /<DialogueEchantillonComplet>([\s\S]*?)<\/DialogueEchantillonComplet>/g
+      )
+    ].map(([, echantillon]) => echantillon.replace(/\s+/g, ''))
+  ).toEqual([
+    '<NumeroEchantillon>1</NumeroEchantillon><SigleMatriceSpecifique>MSCL_VOL</SigleMatriceSpecifique><NumeroEtiquette>022025840000732025350001</NumeroEtiquette><Commentaire>sealId</Commentaire>',
+    '<NumeroEchantillon>2</NumeroEchantillon><SigleMatriceSpecifique>VDE_FRA_DIND</SigleMatriceSpecifique><NumeroEtiquette>022025840000732025350001</NumeroEtiquette><Commentaire>sealId</Commentaire>'
+  ]);
+});
+
+test('numérote les échantillons à partir de 1, quel que soit le numéro de l’exemplaire', async () => {
+  const xmlFile = await generateXMLDAI(
+    daiSample,
+    'M01',
+    { ...daiSampleItem, itemNumber: 2 },
+    1765876056798,
+    daiFieldConfigs,
+    daiCommemoratifRecord,
+    sachaConf,
+    laboratory
+  );
+
+  expect(xmlFile.content).toContain('<NumeroEchantillon>1</NumeroEchantillon>');
+  expect(xmlFile.content).toContain(
+    '<NumeroEtiquette>022025840000732025350002</NumeroEtiquette>'
+  );
+});
+
+test('refuse deux matrices de même sigle SACHA', () => {
+  expect(() =>
+    generateXMLDAI(
+      {
+        ...daiSample,
+        matrices: [
+          { matrixKind: 'A01SN', matrix: 'A01SN#F26.A07XE' },
+          { matrixKind: 'A01SN', matrix: 'A01SP#F31.A0CSD' }
+        ]
+      },
+      'M01',
+      daiSampleItem,
+      1765876056798,
+      daiFieldConfigs,
+      daiCommemoratifRecord,
+      sachaConf,
+      laboratory
+    )
+  ).toThrow(
+    'Plusieurs matrices avec le même sigle SACHA (MSCL_VOL) : non supporté par l’EDI Sacha.'
+  );
 });
 
 describe('getCommemoratifs', () => {
