@@ -1257,7 +1257,7 @@ export const SubPlanSamplesIncompleteCannotComplete: Story = {
     await expect(completionModal(canvasElement)).not.toBeVisible();
 
     await userEvent.click(
-      canvas.getByRole('button', { name: 'Ajouter un échantillon' })
+      await canvas.findByRole('button', { name: 'Ajouter un échantillon' })
     );
     await userEvent.click(
       within(canvas.getByTestId('sample-0')).getByRole('button', {
@@ -1313,7 +1313,9 @@ export const SubPlanSampleAnalyteMovedToAnotherSample: Story = {
       });
 
     await userEvent.click(canvas.getByRole('tab', { name: 'Échantillons' }));
-    await userEvent.click(addSample());
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Ajouter un échantillon' })
+    );
     await userEvent.click(monoTag(1));
 
     await expect(monoTag(1)).toHaveAttribute('aria-pressed', 'true');
