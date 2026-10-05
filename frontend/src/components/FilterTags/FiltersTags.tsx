@@ -226,12 +226,12 @@ const filtersConfig = {
       renderArrayTags(
         'programmingSubPlanIds',
         value,
-        (id) =>
-          programmingPlans
+        (id) => {
+          const subPlan = programmingPlans
             ?.flatMap((plan) => plan.subPlans)
-            .flatMap((subPlan) =>
-              subPlan.id === id ? [subPlanLabel(subPlan)] : []
-            )[0],
+            .find((subPlan) => subPlan.id === id);
+          return subPlan ? subPlanLabel(subPlan) : id;
+        },
         onChange
       )
   }
