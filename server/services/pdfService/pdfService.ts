@@ -405,7 +405,8 @@ const generateSamplePDF = async (
       ) || sampleItems.length === 0,
     sampleDocuments,
     barcodeSvg,
-    plan: planLabel
+    plan: planLabel,
+    isPPVSubPlan: isPPVSubPlanNumber(subPlanNumber)
   });
 };
 

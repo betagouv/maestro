@@ -33,7 +33,7 @@
             <td>
               <div class='fr-container'>
                 {{> contextSection isFullVersion=false}}
-                {{#unless (eq subPlanNumber 'PPV')}}
+                {{#unless isPPVSubPlan}}
                   {{> sampleProcedureSection}}
                 {{/unless}}
                 {{> matrixSection isFullVersion=false}}
