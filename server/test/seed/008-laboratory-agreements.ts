@@ -6,11 +6,14 @@ import { knexInstance as db } from '../../repositories/db';
 
 export const seed = async (): Promise<void> => {
   await db('laboratory_agreements').insert([
-    ...[...PPVDummyLaboratoryIds, LaboratoryFixture.id].map((laboratoryId) => ({
-      programmingSubPlanId: PPVValidatedSubPlanId,
-      laboratoryId,
-      substanceKind: 'Any'
-    })),
+    ...[...PPVDummyLaboratoryIds, LaboratoryFixture.id].flatMap(
+      (laboratoryId) =>
+        ['Mono', 'Multi'].map((substanceKind) => ({
+          programmingSubPlanId: PPVValidatedSubPlanId,
+          laboratoryId,
+          substanceKind
+        }))
+    ),
     DAOALaboratoryAgreementFixture
   ]);
 };

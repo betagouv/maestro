@@ -269,7 +269,7 @@ describe('ProgrammingPlanSettingsForm', () => {
 
     test('should refuse to complete a sample with an analyte outside the level', () => {
       const result = form({
-        samples: [sample('Mono'), sample('Multi', 'Copper', 'Any')],
+        samples: [sample('Mono'), sample('Multi', 'Copper', 'ANALYTE1')],
         settingsCompleted: true
       });
 
@@ -277,7 +277,7 @@ describe('ProgrammingPlanSettingsForm', () => {
         expect.objectContaining({
           path: ['samples', 1, 'substanceKinds'],
           message:
-            'L’analyte « Mono-résidu et multi-résidus » de l’échantillon 2 ne fait pas partie des analytes.'
+            'L’analyte « Acide carminique (e120) » de l’échantillon 2 ne fait pas partie des analytes.'
         })
       ]);
     });

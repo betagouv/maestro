@@ -699,7 +699,7 @@ describe('Sample router', () => {
           itemNumber: 1,
           copyNumber: 1,
           recipientKind: 'Laboratory',
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           laboratoryId: LaboratoryFixture.id
         }
       ];
@@ -810,7 +810,7 @@ describe('Sample router', () => {
         prescriptionId: prescription.id,
         region: localPrescription.region,
         department: 'None',
-        substanceKind: 'Any',
+        substanceKind: 'Mono',
         laboratoryId: newLaboratoryId
       });
 
@@ -834,7 +834,7 @@ describe('Sample router', () => {
         copyNumber: 1,
         quantity: 42,
         sealId: '654321',
-        substanceKinds: ['Any'],
+        substanceKinds: ['Mono', 'Multi'],
         laboratoryId: LaboratoryFixture.id
       });
       await Samples().insert(formatPartialSample(sample));

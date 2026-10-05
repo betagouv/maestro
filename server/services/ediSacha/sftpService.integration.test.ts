@@ -90,7 +90,7 @@ describe('sftpService pipeline (decode, process, respond)', () => {
         copyNumber: 1,
         recipientKind: 'Laboratory',
         laboratoryId: LaboratoryFixture.id,
-        substanceKinds: ['Any']
+        substanceKinds: ['Mono', 'Multi']
       })
     ]);
   });

@@ -2417,7 +2417,7 @@ describe('ProgrammingPlan router', () => {
         .values({
           programmingSubPlanId: deletablePlan.subPlans[0].id,
           laboratoryId: LaboratoryFixture.id,
-          substanceKind: 'Any',
+          substanceKind: 'Mono',
           referenceLaboratory: false,
           detectionAnalysis: true,
           confirmationAnalysis: false

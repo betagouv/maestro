@@ -612,13 +612,16 @@ export const seed = async () => {
 
   await LocalPrescriptionSubstanceKindsLaboratories().insert(
     prescriptions.flatMap((prescription) =>
-      RegionList.map((region) => ({
-        prescriptionId: prescription.id,
-        region,
-        department: 'None',
-        substanceKind: 'Any',
-        laboratoryId: oneOf(PPVDummyLaboratoryIds)
-      }))
+      RegionList.flatMap((region) => {
+        const laboratoryId = oneOf(PPVDummyLaboratoryIds);
+        return (['Mono', 'Multi'] as const).map((substanceKind) => ({
+          prescriptionId: prescription.id,
+          region,
+          department: 'None',
+          substanceKind,
+          laboratoryId
+        }));
+      })
     )
   );
 };

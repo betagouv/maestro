@@ -69,7 +69,7 @@ describe('groupSubstanceKindsLaboratoriesBySample', () => {
   test('should ignore the analytes of a sample that are not to be assigned', () => {
     expect(
       groupSubstanceKindsLaboratoriesBySample(
-        [{ substanceKinds: ['Mono', 'Any'] }, { substanceKinds: ['Copper'] }],
+        [{ substanceKinds: ['Mono', 'Multi'] }, { substanceKinds: ['Copper'] }],
         [{ substanceKind: 'Mono', laboratoryId }]
       )
     ).toStrictEqual([{ substanceKinds: ['Mono'], laboratoryId }]);

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 
 const assignedLaboratories = [
-  { substanceKind: 'Any' as const, laboratoryId: 'lab-1' }
+  { substanceKind: 'Mono' as const, laboratoryId: 'lab-1' }
 ];
 
 import {

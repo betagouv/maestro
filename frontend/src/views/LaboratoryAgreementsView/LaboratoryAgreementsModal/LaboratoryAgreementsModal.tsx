@@ -96,6 +96,14 @@ const LaboratoryAgreementsModal = ({
     }));
   };
 
+  const selectedSubPlanIds = [
+    ...new Set(
+      laboratoryAgreementRowKeys.map(
+        ({ programmingSubPlanId }) => programmingSubPlanId
+      )
+    )
+  ];
+
   const handleSave = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (laboratoryAgreementRowKeys.length === 0) {
@@ -151,15 +159,17 @@ const LaboratoryAgreementsModal = ({
       ]}
       listHeader={
         <p className={cx('fr-text--md')}>
-          {laboratoryAgreementRowKeys.length === 1 ? (
+          {selectedSubPlanIds.length === 1 ? (
             <>
               N°
               {programmingSubPlan?.subPlanNumber}
               {' | '}
-              {SubstanceKindLabels[laboratoryAgreementRowKeys[0].substanceKind]}
+              {laboratoryAgreementRowKeys
+                .map(({ substanceKind }) => SubstanceKindLabels[substanceKind])
+                .join(', ')}
             </>
           ) : (
-            pluralize(laboratoryAgreementRowKeys.length, {
+            pluralize(selectedSubPlanIds.length, {
               preserveCount: true
             })('plan sélectionné')
           )}

@@ -14,14 +14,18 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ColumnFilterHeader from 'src/components/ColumnFilterHeader/ColumnFilterHeader';
 import LaboratoryAgreementButtons from 'src/components/LaboratoryAgreement/LaboratoryAgreementButtons/LaboratoryAgreementButtons';
 import SelectionActionBar from 'src/components/SelectionActionBar/SelectionActionBar';
-import type { AgreementRow } from './AgreementTableRow';
-import AgreementTableRow from './AgreementTableRow';
+import AgreementTableRow, {
+  type AgreementRow,
+  isRowChecked,
+  substanceKindsLabel
+} from './AgreementTableRow';
 
 export type { AgreementRow };
+export { isRowChecked, substanceKindsLabel };
 
 export const toRowKey = (
-  row: Pick<AgreementRow, 'programmingSubPlan' | 'substanceKind'>
-) => `${row.programmingSubPlan.id}_${row.substanceKind}`;
+  row: Pick<AgreementRow, 'programmingSubPlan' | 'substanceKinds'>
+) => `${row.programmingSubPlan.id}_${row.substanceKinds.join('-')}`;
 
 const ROW_HEIGHT = 100;
 const OVERSCAN = 10;
@@ -362,7 +366,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     rowKey={rowKey}
                     isSelected={selectedStringRowKeys.includes(rowKey)}
                     isExpanded={expandedRowKeys.includes(rowKey)}
-                    isChecked={checksSet.has(rowKey)}
+                    isChecked={isRowChecked(checksSet, row)}
                     isPending={pendingCheckRowKeys.includes(rowKey)}
                     isAnimating={animatingRowKeys.includes(rowKey)}
                     isLabsExpanded={expandedLabRowKeys.includes(rowKey)}

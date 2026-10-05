@@ -8,22 +8,19 @@ type SampleLaboratory = {
   laboratoryId: string | null;
 };
 
-export const groupSubstanceKindsLaboratoriesBySample = (
+export const groupSubstanceKindsBySample = (
   samples: Pick<ProgrammingPlanSampleSetting, 'substanceKinds'>[] | null,
-  substanceKindsLaboratories: SubstanceKindLaboratory[]
-): SampleLaboratory[] => {
-  const assignableSubstanceKinds = substanceKindsLaboratories.map(
-    ({ substanceKind }) => substanceKind
-  );
+  groupableSubstanceKinds: SubstanceKind[]
+): SubstanceKind[][] => {
   const assigned = new Set<SubstanceKind>();
   const groups: SubstanceKind[][] = [];
   for (const substanceKinds of [
     ...(samples ?? []).map((sample) => sample.substanceKinds),
-    ...assignableSubstanceKinds.map((substanceKind) => [substanceKind])
+    ...groupableSubstanceKinds.map((substanceKind) => [substanceKind])
   ]) {
     const group = substanceKinds.filter(
       (substanceKind) =>
-        assignableSubstanceKinds.includes(substanceKind) &&
+        groupableSubstanceKinds.includes(substanceKind) &&
         !assigned.has(substanceKind)
     );
     for (const substanceKind of group) {
@@ -34,14 +31,23 @@ export const groupSubstanceKindsLaboratoriesBySample = (
     }
   }
 
-  return groups.map((substanceKinds) => ({
+  return groups;
+};
+
+export const groupSubstanceKindsLaboratoriesBySample = (
+  samples: Pick<ProgrammingPlanSampleSetting, 'substanceKinds'>[] | null,
+  substanceKindsLaboratories: SubstanceKindLaboratory[]
+): SampleLaboratory[] =>
+  groupSubstanceKindsBySample(
+    samples,
+    substanceKindsLaboratories.map(({ substanceKind }) => substanceKind)
+  ).map((substanceKinds) => ({
     substanceKinds,
     laboratoryId: resolveSubstanceKindsLaboratoryId(
       substanceKinds,
       substanceKindsLaboratories
     )
   }));
-};
 
 export const assignSampleLaboratory = (
   substanceKindsLaboratories: SubstanceKindLaboratory[],

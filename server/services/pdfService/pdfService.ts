@@ -72,11 +72,7 @@ export const getSubstancesSections = (
     multiSubstances?: SSD2Id[] | null;
   }
 ) => {
-  const substancesSections = uniq(
-    substanceKinds.flatMap((substanceKind) =>
-      substanceKind === 'Any' ? (['Mono', 'Multi'] as const) : [substanceKind]
-    )
-  ).map((substanceKind) => {
+  const substancesSections = uniq(substanceKinds).map((substanceKind) => {
     if (substanceKind !== 'Mono' && substanceKind !== 'Multi') {
       return {
         label: SubstanceKindLabels[substanceKind],

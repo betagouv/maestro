@@ -103,7 +103,7 @@ describe('Local prescriptions router', () => {
   const laboratory = genLaboratory();
   const substanceKindsLaboratories = [
     {
-      substanceKind: 'Any' as const,
+      substanceKind: 'Mono' as const,
       laboratoryId: laboratory.id
     }
   ];
@@ -853,7 +853,7 @@ describe('Local prescriptions router', () => {
           prescriptionId: validatedLocalPrescription.prescriptionId,
           region: validatedLocalPrescription.region,
           department: 'None',
-          substanceKind: 'Any',
+          substanceKind: 'Mono',
           laboratoryId: laboratory.id
         }
       ]);
@@ -946,7 +946,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 1,
         copyNumber: 1,
-        substanceKinds: ['Any'],
+        substanceKinds: ['Mono', 'Multi'],
         recipientKind: 'Laboratory',
         laboratoryId: undefined
       });
@@ -955,7 +955,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 2,
         copyNumber: 1,
-        substanceKinds: ['Any'],
+        substanceKinds: ['Mono', 'Multi'],
         recipientKind: 'Sampler',
         laboratoryId: undefined
       });
@@ -1079,7 +1079,7 @@ describe('Local prescriptions router', () => {
           sampleId: sampleOtherRegion.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1130,7 +1130,7 @@ describe('Local prescriptions router', () => {
           sampleId: otherPrescriptionSample.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1183,7 +1183,7 @@ describe('Local prescriptions router', () => {
           sampleId: sentSample.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1642,7 +1642,7 @@ describe('Local prescriptions router', () => {
           prescriptionId: departmentalLocalPrescription.prescriptionId,
           region: departmentalLocalPrescription.region,
           department: departmentalLocalPrescription.department,
-          substanceKind: 'Any',
+          substanceKind: 'Mono',
           laboratoryId: laboratory.id
         }
       ];
@@ -1702,7 +1702,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 1,
         copyNumber: 1,
-        substanceKinds: ['Any'],
+        substanceKinds: ['Mono', 'Multi'],
         recipientKind: 'Laboratory',
         laboratoryId: null
       });
@@ -1711,7 +1711,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 2,
         copyNumber: 1,
-        substanceKinds: ['Any'],
+        substanceKinds: ['Mono', 'Multi'],
         recipientKind: 'Sampler',
         laboratoryId: null
       });
@@ -1811,7 +1811,7 @@ describe('Local prescriptions router', () => {
           sampleId: sampleOtherDepartment.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1859,7 +1859,7 @@ describe('Local prescriptions router', () => {
           sampleId: sentSample.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -2572,7 +2572,7 @@ describe('Local prescriptions router', () => {
           programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
           key: 'laboratories',
           substanceKindsLaboratories: [
-            { substanceKind: 'Any', laboratoryId: laboratoryForRegion.id }
+            { substanceKind: 'Mono', laboratoryId: laboratoryForRegion.id }
           ]
         })
         .use(tokenProvider(RegionalCoordinator))

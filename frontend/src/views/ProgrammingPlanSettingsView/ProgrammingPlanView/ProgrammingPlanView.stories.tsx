@@ -1040,10 +1040,11 @@ export const PlanSubstanceKindsSwitch: Story = {
     ).not.toBeInTheDocument();
 
     await userEvent.click(managedSwitch);
-    await userEvent.selectOptions(
-      await canvas.findByRole('combobox', { name: /Analyte\(s\)/ }),
-      'Any'
-    );
+    const substanceKindsSelect = await canvas.findByRole('combobox', {
+      name: /Analyte\(s\)/
+    });
+    await userEvent.selectOptions(substanceKindsSelect, 'Mono');
+    await userEvent.selectOptions(substanceKindsSelect, 'Multi');
 
     await userEvent.click(
       canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
@@ -1052,7 +1053,7 @@ export const PlanSubstanceKindsSwitch: Story = {
       expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
         programmingPlanId: PPVPlanId,
         ...planSettings,
-        substanceKinds: ['Any'],
+        substanceKinds: ['Mono', 'Multi'],
         substanceKindsManaged: true
       })
     );

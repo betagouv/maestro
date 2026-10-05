@@ -159,9 +159,7 @@ const MatrixStepSummary = ({
       )}
       {sample.items
         .flatMap(({ substanceKinds }) => substanceKinds)
-        .filter(
-          (substanceKind) => !['Any', 'Multi', 'Mono'].includes(substanceKind)
-        )
+        .filter((substanceKind) => !['Multi', 'Mono'].includes(substanceKind))
         .map((substanceKind) => (
           <div key={substanceKind} className="summary-item icon-text">
             <div className={cx('fr-icon-list-ordered')}></div>
