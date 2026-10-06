@@ -22,7 +22,7 @@ import { localPrescriptionCommentsTable } from './localPrescriptionCommentReposi
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { prescriptionsTable } from './prescriptionRepository';
 import { programmingPlansTable } from './programmingPlanRepository';
-import { programmingSubPlansRawTable } from './programmingSubPlanRepository';
+import { programmingSubPlansTable } from './programmingSubPlanRepository';
 import { sampleStatusView, samplesTable } from './sampleRepository';
 
 const localPrescriptionsTable = 'local_prescriptions';
@@ -168,19 +168,19 @@ const findMany = async (
       `${prescriptionsTable}.id`
     )
     .join(
-      programmingSubPlansRawTable,
-      `${programmingSubPlansRawTable}.id`,
+      programmingSubPlansTable,
+      `${programmingSubPlansTable}.id`,
       `${prescriptionsTable}.programming_sub_plan_id`
     )
     .join(
       programmingPlansTable,
-      `${programmingSubPlansRawTable}.programming_plan_id`,
+      `${programmingSubPlansTable}.programming_plan_id`,
       `${programmingPlansTable}.id`
     )
     .modify((builder) => {
       if (findOptions.programmingPlanIds?.length) {
         builder.whereIn(
-          `${programmingSubPlansRawTable}.programming_plan_id`,
+          `${programmingSubPlansTable}.programming_plan_id`,
           findOptions.programmingPlanIds
         );
       }
@@ -194,7 +194,7 @@ const findMany = async (
       }
       if (findOptions.contexts) {
         builder.whereIn(
-          `${programmingSubPlansRawTable}.context`,
+          `${programmingSubPlansTable}.context`,
           findOptions.contexts
         );
       }

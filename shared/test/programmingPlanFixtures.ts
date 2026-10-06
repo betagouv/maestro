@@ -161,6 +161,7 @@ export const genProgrammingSubPlan = (
   matrices: null,
   matricesManaged: true,
   context: 'Control',
+  contextManaged: true,
   ...data
 });
 
@@ -279,6 +280,8 @@ export const genProgrammingPlan = (
     samplesManaged: false,
     matrices: null,
     matricesManaged: false,
+    context: null,
+    contextManaged: false,
     settingsCompleted: true,
     createdAt: new Date(),
     createdBy: uuidv4(),

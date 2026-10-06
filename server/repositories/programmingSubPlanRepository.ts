@@ -15,7 +15,7 @@ import {
 } from './programmingPlanSettingsRow';
 
 export const programmingSubPlansTable = 'programming_sub_plans';
-export const programmingSubPlansRawTable = 'programming_sub_plans_raw';
+const programmingSubPlansRawTable = 'programming_sub_plans_raw';
 
 export const ProgrammingSubPlansRaw = (transaction = db) =>
   transaction<ProgrammingPlanSettingsRow<ProgrammingSubPlan>>(
@@ -70,8 +70,7 @@ const findMany = async (
 const updateSettings = async (
   id: ProgrammingSubPlanId,
   settings: Partial<
-    ProgrammingPlanSettings &
-      Pick<ProgrammingSubPlan, 'settingsCompleted' | 'context'>
+    ProgrammingPlanSettings & Pick<ProgrammingSubPlan, 'settingsCompleted'>
   >,
   executor: KyselyMaestro = kysely
 ): Promise<void> => {

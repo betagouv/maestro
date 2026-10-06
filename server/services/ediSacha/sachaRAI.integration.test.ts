@@ -149,7 +149,7 @@ describe('processSachaRAI', () => {
         copyNumber: 1,
         recipientKind: 'Laboratory',
         laboratoryId: LaboratoryFixture.id,
-        substanceKinds: ['Any']
+        substanceKinds: ['Mono', 'Multi']
       })
     ]);
     const multiMatricesRai: SachaResultats = structuredClone(rai);

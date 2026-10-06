@@ -5,7 +5,6 @@ import {
   ProgrammingPlanFieldSetting,
   ProgrammingSubPlanFieldSetting
 } from '../SpecificData/FieldConfigInput';
-import { ProgrammingPlanContext } from './Context';
 import { samplesCoverageIssues } from './completedSubPlanSettings';
 import { ProgrammingPlanNationalCoordinator } from './ProgrammingPlanNationalCoordinator';
 import {
@@ -29,7 +28,8 @@ const missingSettingMessages: Record<ProgrammingPlanSettingKey, string> = {
   stages: 'Veuillez renseigner au moins un stade de prélèvement.',
   substanceKinds: 'Veuillez renseigner au moins un analyte.',
   samples: 'Veuillez configurer au moins un échantillon.',
-  matrices: 'Veuillez renseigner au moins une catégorie de matrice.'
+  matrices: 'Veuillez renseigner au moins une catégorie de matrice.',
+  context: 'Veuillez renseigner le contexte.'
 };
 
 const inheritedMissingSettingMessage =
@@ -58,22 +58,6 @@ const checkCompleteness =
       }
     }
   };
-
-const checkContextCompleteness = (
-  ctx: z.core.ParsePayload<{
-    settingsCompleted: boolean;
-    context: ProgrammingPlanContext | null;
-  }>
-) => {
-  if (ctx.value.settingsCompleted && !ctx.value.context) {
-    ctx.issues.push({
-      input: ctx.value,
-      code: 'custom',
-      message: 'Veuillez renseigner le contexte.',
-      path: ['context']
-    });
-  }
-};
 
 const checkSamplesCoverSubstanceKinds =
   (level: 'plan' | 'subPlan') =>
@@ -123,7 +107,6 @@ export type ProgrammingPlanTechnicalInstruction = z.infer<
 >;
 
 const SubPlanSettingsFormShape = SettingsFormBase.extend({
-  context: ProgrammingPlanContext.nullable(),
   fields: refineSchema(
     z.array(ProgrammingSubPlanFieldSetting),
     hasUniqueFields,
@@ -157,8 +140,7 @@ export type ProgrammingPlanSettingsForm = z.infer<
 export const ProgrammingSubPlanSettingsForm = checkSchema(
   SubPlanSettingsFormShape,
   checkCompleteness('subPlan'),
-  checkSamplesCoverSubstanceKinds('subPlan'),
-  checkContextCompleteness
+  checkSamplesCoverSubstanceKinds('subPlan')
 );
 export type ProgrammingSubPlanSettingsForm = z.infer<
   typeof ProgrammingSubPlanSettingsForm
@@ -182,6 +164,5 @@ export type ProgrammingLevelSettingsForm = z.infer<
 export const ProgrammingSubPlanLevelSettingsForm = checkSchema(
   ProgrammingLevelSettingsFormShape,
   checkCompleteness('subPlan'),
-  checkSamplesCoverSubstanceKinds('subPlan'),
-  checkContextCompleteness
+  checkSamplesCoverSubstanceKinds('subPlan')
 );

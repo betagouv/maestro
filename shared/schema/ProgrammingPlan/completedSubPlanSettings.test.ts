@@ -30,7 +30,9 @@ const planSettings: ProgrammingPlanSettings = {
   samples: [sample('Mono', 'Multi')],
   samplesManaged: true,
   matrices: genSubPlanMatrices('A00GY'),
-  matricesManaged: true
+  matricesManaged: true,
+  context: 'Surveillance',
+  contextManaged: true
 };
 
 const inheritingSubPlan = {
@@ -39,6 +41,7 @@ const inheritingSubPlan = {
   substanceKindsManaged: false,
   samplesManaged: false,
   matricesManaged: false,
+  contextManaged: false,
   subPlanNumber: 'M01',
   settingsCompleted: true
 };
@@ -52,6 +55,8 @@ const ownSubPlan = {
   samplesManaged: true,
   matrices: genSubPlanMatrices('A01QX'),
   matricesManaged: true,
+  context: 'Control' as const,
+  contextManaged: true,
   subPlanNumber: 'M02',
   settingsCompleted: true
 };
