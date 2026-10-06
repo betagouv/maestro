@@ -5,12 +5,12 @@ import {
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
+import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useEffect, useMemo, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import PrescriptionBreadcrumb from '../PrescriptionBreadcrumb/PrescriptionBreadcrumb';
 import PrescriptionEditSubstances from '../PrescriptionEditSubstances/PrescriptionEditSubstances';
-import PrescriptionNotes from '../PrescriptionNotes/PrescriptionNotes';
 import PrescriptionSubstances from '../PrescriptionSubstances/PrescriptionSubstances';
 import './PrescriptionModal.scss';
 
@@ -41,6 +41,14 @@ const PrescriptionModal = ({ onUpdatePrescriptionSubstances }: Props) => {
       return `Info prélèvement sur la matrice ${getPrescriptionTitle([prescriptionModalData.programmingPlan], prescriptionModalData.prescription)}`;
     }
   }, [prescriptionModalData]);
+
+  const notes =
+    prescriptionModalData?.mode === 'details'
+      ? findPrescriptionSubPlan(
+          [prescriptionModalData.programmingPlan],
+          prescriptionModalData.prescription
+        )?.notes
+      : null;
 
   useEffect(() => {
     if (prescriptionModalData) {
@@ -115,17 +123,9 @@ const PrescriptionModal = ({ onUpdatePrescriptionSubstances }: Props) => {
                   )
                 },
                 {
-                  iconId:
-                    (prescriptionModalData.prescription.notes ?? '').length > 0
-                      ? 'fr-icon-quote-line'
-                      : undefined,
+                  iconId: notes ? 'fr-icon-quote-line' : undefined,
                   label: 'Note',
-                  content: (
-                    <PrescriptionNotes
-                      programmingPlan={prescriptionModalData.programmingPlan}
-                      value={prescriptionModalData.prescription.notes ?? ''}
-                    />
-                  )
+                  content: notes
                 }
               ]}
               classes={{

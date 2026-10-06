@@ -516,7 +516,6 @@ export const prescriptionsRouter = {
 
       const updatedPrescription = {
         ...prescription,
-        notes: prescriptionUpdate.notes ?? prescription.notes,
         programmingInstruction:
           prescriptionUpdate.programmingInstruction ??
           prescription.programmingInstruction

@@ -388,7 +388,6 @@ describe('Prescriptions router', () => {
   describe('PUT /prescriptions/{prescriptionId}', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
       programmingPlanId: programmingPlanInProgress.id,
-      notes: fakerFR.string.alphanumeric(32),
       programmingInstruction: fakerFR.string.alphanumeric(32)
     };
     const testRoute = (
@@ -475,7 +474,6 @@ describe('Prescriptions router', () => {
 
       expect(res.body).toMatchObject({
         ...inProgressControlPrescription,
-        notes: prescriptionUpdate.notes,
         programmingInstruction: prescriptionUpdate.programmingInstruction
       });
 
@@ -483,7 +481,6 @@ describe('Prescriptions router', () => {
         Prescriptions().where({ id: inProgressControlPrescription.id }).first()
       ).resolves.toMatchObject({
         ...inProgressControlPrescription,
-        notes: prescriptionUpdate.notes,
         programmingInstruction: prescriptionUpdate.programmingInstruction
       });
     });

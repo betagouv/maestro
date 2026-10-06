@@ -672,7 +672,7 @@ const ProgrammingPrescriptionRow = ({
                   <span className={cx('fr-icon-chat-quote-line', 'fr-pr-1v')} />
                   <b>Notes</b>
                 </div>
-                {prescription.notes ?? 'Aucune note'}
+                {subPlan?.notes ?? 'Aucune note'}
               </div>
               <div>
                 <div className="d-flex-align-center">

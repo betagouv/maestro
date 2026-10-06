@@ -14,10 +14,17 @@ export const ProgrammingPlanSettingKey = z.enum([
   'substanceKinds',
   'samples',
   'matrices',
-  'context'
+  'context',
+  'notes'
 ]);
 export type ProgrammingPlanSettingKey = z.infer<
   typeof ProgrammingPlanSettingKey
+>;
+
+export const ProgrammingPlanRequiredSettingKey =
+  ProgrammingPlanSettingKey.exclude(['notes']);
+export type ProgrammingPlanRequiredSettingKey = z.infer<
+  typeof ProgrammingPlanRequiredSettingKey
 >;
 
 export const ProgrammingPlanSettings = z.object({
@@ -33,7 +40,9 @@ export const ProgrammingPlanSettings = z.object({
   matrices: SubPlanMatrices.nullable(),
   matricesManaged: z.boolean(),
   context: ProgrammingPlanContext.nullable(),
-  contextManaged: z.boolean()
+  contextManaged: z.boolean(),
+  notes: z.string().nullable(),
+  notesManaged: z.boolean()
 } satisfies Record<ProgrammingPlanSettingKey, z.ZodType> &
   Record<`${ProgrammingPlanSettingKey}Managed`, z.ZodType>);
 

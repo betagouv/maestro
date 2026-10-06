@@ -15,7 +15,6 @@ export const Prescription = z.object({
   sampleCount: z.coerce.number().int().min(0).default(0),
   monoAnalysisCount: z.coerce.number().nullish(),
   multiAnalysisCount: z.coerce.number().nullish(),
-  notes: z.string().nullish(),
   programmingInstruction: z.string().nullish()
 });
 
@@ -26,7 +25,6 @@ export const PrescriptionToCreate = Prescription.omit({
 export const PrescriptionUpdate = z.object({
   programmingPlanId: z.guid(),
   ...Prescription.pick({
-    notes: true,
     programmingInstruction: true,
     sampleCount: true
   }).partial().shape,

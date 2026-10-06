@@ -147,6 +147,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     matricesManaged: true,
     context: 'Control',
     contextManaged: true,
+    notes: null,
+    notesManaged: true,
     fields: [matriceField, quantiteField].map(({ id }) => ({
       fieldId: id,
       required: false,
@@ -167,6 +169,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     matricesManaged: true,
     context: 'Control',
     contextManaged: true,
+    notes: null,
+    notesManaged: true,
     fields: []
   },
   [AnimauxSubPlanId]: {
@@ -181,6 +185,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     matricesManaged: true,
     context: 'Control',
     contextManaged: true,
+    notes: null,
+    notesManaged: true,
     fields: [
       {
         fieldId: especeField.id,
@@ -222,6 +228,8 @@ const planSettings: ProgrammingPlanSettingsForm = {
   matricesManaged: false,
   context: null,
   contextManaged: false,
+  notes: null,
+  notesManaged: false,
   settingsCompleted: false,
   nationalCoordinators: [nationalCoordinator],
   technicalInstruction: null,
@@ -1095,6 +1103,41 @@ export const PlanContext: Story = {
         ...planSettings,
         context: 'Surveillance',
         contextManaged: true
+      })
+    );
+  }
+};
+
+export const PlanNotes: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    const managedSwitch = canvas.getByTitle(
+      'Paramétrer « Note additionnelle » au niveau du plan'
+    );
+
+    await expect(managedSwitch).not.toBeChecked();
+    await expect(
+      canvas.queryByRole('textbox', { name: /Note additionnelle/ })
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(managedSwitch);
+    await userEvent.type(
+      await canvas.findByRole('textbox', { name: /Note additionnelle/ }),
+      'Prélever hors période de traitement'
+    );
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        ...planSettings,
+        notes: 'Prélever hors période de traitement',
+        notesManaged: true
       })
     );
   }

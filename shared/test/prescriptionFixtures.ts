@@ -71,7 +71,6 @@ export const FoieDeBovinPrescriptionFixture = genPrescription({
   id: '177e280f-7fc5-499f-9dcb-4970dc00af36',
   programmingSubPlanId: DAOAInProgressBovinSubPlanId,
   sampleCount: 80,
-  notes: 'Prescription pour le foie de bovin',
   programmingInstruction: 'Instructions pour le foie de bovin'
 });
 export const VolaillePrescriptionFixture = genPrescription({

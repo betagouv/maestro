@@ -10,7 +10,7 @@ import { defaultProgrammingPlanSample } from './ProgrammingPlanSampleSetting';
 import {
   emptyProgrammingPlanSettings,
   managedKey,
-  ProgrammingPlanSettingKey,
+  ProgrammingPlanRequiredSettingKey,
   ProgrammingPlanSettings
 } from './ProgrammingPlanSettings';
 import {
@@ -23,7 +23,7 @@ import {
 const matrices = genSubPlanMatrices('A00GY');
 
 const completedSettings: {
-  [K in ProgrammingPlanSettingKey]: {
+  [K in ProgrammingPlanRequiredSettingKey]: {
     value: NonNullable<ProgrammingPlanSettings[K]>;
     message: string;
     context?: Partial<ProgrammingPlanSettings>;
@@ -108,101 +108,114 @@ describe('ProgrammingPlanSettingsForm', () => {
         fields: []
       });
 
-    describe.each(ProgrammingPlanSettingKey.options)('%s', (settingKey) => {
-      const { value, message, context } = completedSettings[settingKey];
-      const emptyValues = [null, []].filter(
-        (emptyValue) =>
-          ProgrammingPlanSettings.shape[settingKey].safeParse(emptyValue)
-            .success
-      );
+    test('should accept a completed level managing an empty note', () => {
+      expect(
+        form({
+          notes: null,
+          notesManaged: true,
+          settingsCompleted: true
+        }).success
+      ).toBe(true);
+    });
 
-      test.each(emptyValues)(
-        'should accept a draft managing it with %j',
-        (emptyValue) => {
-          expect(
-            form({
+    describe.each(ProgrammingPlanRequiredSettingKey.options)(
+      '%s',
+      (settingKey) => {
+        const { value, message, context } = completedSettings[settingKey];
+        const emptyValues = [null, []].filter(
+          (emptyValue) =>
+            ProgrammingPlanSettings.shape[settingKey].safeParse(emptyValue)
+              .success
+        );
+
+        test.each(emptyValues)(
+          'should accept a draft managing it with %j',
+          (emptyValue) => {
+            expect(
+              form({
+                [settingKey]: emptyValue,
+                [managedKey(settingKey)]: true,
+                settingsCompleted: false
+              }).success
+            ).toBe(true);
+          }
+        );
+
+        test.each(emptyValues)(
+          'should refuse to complete a level managing it with %j',
+          (emptyValue) => {
+            const result = form({
               [settingKey]: emptyValue,
               [managedKey(settingKey)]: true,
-              settingsCompleted: false
-            }).success
-          ).toBe(true);
-        }
-      );
-
-      test.each(emptyValues)(
-        'should refuse to complete a level managing it with %j',
-        (emptyValue) => {
-          const result = form({
-            [settingKey]: emptyValue,
-            [managedKey(settingKey)]: true,
-            settingsCompleted: true
-          });
-
-          expect(result.success).toBe(false);
-          expect(result.error?.issues).toContainEqual(
-            expect.objectContaining({ path: [settingKey], message })
-          );
-        }
-      );
-
-      test('should accept a completed level managing it', () => {
-        expect(
-          form({
-            ...context,
-            [settingKey]: value,
-            [managedKey(settingKey)]: true,
-            settingsCompleted: true
-          }).success
-        ).toBe(true);
-      });
-
-      test.runIf(level === 'plan')(
-        'should accept a completed plan that does not manage it',
-        () => {
-          expect(
-            form({
-              [settingKey]: null,
-              [managedKey(settingKey)]: false,
               settingsCompleted: true
-            }).success
-          ).toBe(true);
-        }
-      );
+            });
 
-      test.runIf(level === 'subPlan')(
-        'should refuse to complete a sub-plan inheriting it empty',
-        () => {
-          const result = form({
-            [settingKey]: null,
-            [managedKey(settingKey)]: false,
-            settingsCompleted: true
-          });
+            expect(result.success).toBe(false);
+            expect(result.error?.issues).toContainEqual(
+              expect.objectContaining({ path: [settingKey], message })
+            );
+          }
+        );
 
-          expect(result.success).toBe(false);
-          expect(result.error?.issues).toContainEqual(
-            expect.objectContaining({
-              path: [settingKey],
-              message:
-                'Ce paramètre est hérité du plan, qui ne l’a pas encore renseigné.'
-            })
-          );
-        }
-      );
-
-      test.runIf(level === 'subPlan')(
-        'should accept a completed sub-plan inheriting it filled',
-        () => {
+        test('should accept a completed level managing it', () => {
           expect(
             form({
               ...context,
               [settingKey]: value,
-              [managedKey(settingKey)]: false,
+              [managedKey(settingKey)]: true,
               settingsCompleted: true
             }).success
           ).toBe(true);
-        }
-      );
-    });
+        });
+
+        test.runIf(level === 'plan')(
+          'should accept a completed plan that does not manage it',
+          () => {
+            expect(
+              form({
+                [settingKey]: null,
+                [managedKey(settingKey)]: false,
+                settingsCompleted: true
+              }).success
+            ).toBe(true);
+          }
+        );
+
+        test.runIf(level === 'subPlan')(
+          'should refuse to complete a sub-plan inheriting it empty',
+          () => {
+            const result = form({
+              [settingKey]: null,
+              [managedKey(settingKey)]: false,
+              settingsCompleted: true
+            });
+
+            expect(result.success).toBe(false);
+            expect(result.error?.issues).toContainEqual(
+              expect.objectContaining({
+                path: [settingKey],
+                message:
+                  'Ce paramètre est hérité du plan, qui ne l’a pas encore renseigné.'
+              })
+            );
+          }
+        );
+
+        test.runIf(level === 'subPlan')(
+          'should accept a completed sub-plan inheriting it filled',
+          () => {
+            expect(
+              form({
+                ...context,
+                [settingKey]: value,
+                [managedKey(settingKey)]: false,
+                settingsCompleted: true
+              }).success
+            ).toBe(true);
+          }
+        );
+      }
+    );
   });
 
   describe('samples covering the analytes', () => {

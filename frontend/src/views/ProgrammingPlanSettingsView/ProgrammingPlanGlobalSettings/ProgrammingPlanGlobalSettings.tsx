@@ -18,6 +18,7 @@ import {
 import { AppMultiSelect } from 'src/components/_app/AppMultiSelect/AppMultiSelect';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import type { UseForm } from 'src/hooks/useForm';
 import { assert, type Equals } from 'tsafe';
 import { ProgrammingPlanDocuments } from '../ProgrammingPlanDocuments/ProgrammingPlanDocuments';
@@ -154,6 +155,27 @@ export const ProgrammingPlanGlobalSettings = <
             errorMessage={inputForm.message('matrices')}
             onChange={(matrices) => onChange({ ...settings, matrices })}
             {...props}
+          />
+        )}
+      </ProgrammingPlanSettingInheritance>
+      <ProgrammingPlanSettingInheritance
+        settingKey="notes"
+        label="Note additionnelle"
+        settings={settings}
+        planSettings={planSettings}
+        onChange={onChange}
+      >
+        {({ disabled, label }) => (
+          <AppTextAreaInput
+            value={settings.notes ?? ''}
+            onChange={(event) =>
+              onChange({ ...settings, notes: event.target.value || null })
+            }
+            inputForm={inputForm}
+            inputKey="notes"
+            label={label}
+            hintText="Cette note sera visible par tous les utilisateurs et utilisatrices de Maestro"
+            disabled={disabled}
           />
         )}
       </ProgrammingPlanSettingInheritance>
