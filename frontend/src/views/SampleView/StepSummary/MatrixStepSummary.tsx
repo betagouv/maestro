@@ -4,12 +4,12 @@ import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
-  getSampleMatrixLabel,
   isProgrammingPlanSample,
   type SampleChecked,
   type SampleOwnerData,
   type SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { getSampleMatrixLabel } from 'maestro-shared/schema/Sample/SampleMatrix';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import {
   type SpecificData,
@@ -52,18 +52,23 @@ const MatrixStepSummary = ({
 
   return (
     <StepSummary title="Matrice contrôlée" onEdit={onEdit} mode={mode}>
-      <div className="summary-item icon-text">
-        <div className={cx('fr-icon-restaurant-line')}></div>
-        <div>
+      {sample.matrices.map((sampleMatrix) => (
+        <div
+          key={`${sampleMatrix.matrixKind}-${sampleMatrix.matrix}`}
+          className="summary-item icon-text"
+        >
+          <div className={cx('fr-icon-restaurant-line')}></div>
           <div>
-            Catégorie de matrice programmée :{' '}
-            <b>{MatrixKindLabels[sample.matrixKind]}</b>
-          </div>
-          <div>
-            Matrice : <b>{getSampleMatrixLabel(sample)}</b>
+            <div>
+              Catégorie de matrice programmée :{' '}
+              <b>{MatrixKindLabels[sampleMatrix.matrixKind]}</b>
+            </div>
+            <div>
+              Matrice : <b>{getSampleMatrixLabel(sampleMatrix)}</b>
+            </div>
           </div>
         </div>
-      </div>
+      ))}
       {fieldConfigs.map((fc) => {
         const { field } = fc;
         const inputKey = field.key;

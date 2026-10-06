@@ -13,7 +13,7 @@ import { beforeAll, describe, expect, test } from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
-import { RaiLabError } from './sachaErrors';
+import { RaiLabError, RaiMaestroError } from './sachaErrors';
 import { processSachaRAI } from './sachaRAI';
 import { NumeroEtiquette, referencesFromEtiquette } from './sachaReferences';
 import type { SachaResultats } from './sachaValidator';
@@ -116,6 +116,57 @@ describe('processSachaRAI', () => {
       .executeTakeFirstOrThrow();
 
     expect(sampleItem.receiptDate).toBe('2026-05-12');
+  });
+
+  test('lève une RaiMaestroError pour un prélèvement à plusieurs matrices', async () => {
+    const multiMatricesEtiquette = NumeroEtiquette.parse(
+      '022026440009982026113002'
+    );
+    const multiMatricesSampleId = 'aaaaaaaa-bbbb-cccc-dddd-000000000098';
+    await sampleRepository.insert(
+      genCreatedPartialSample({
+        id: multiMatricesSampleId,
+        sampler: Sampler1Fixture,
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+        programmingSubPlanId: PPVValidatedSubPlanId,
+        context: 'Surveillance',
+        company: CompanyFixture,
+        step: 'Sent',
+        status: 'Sent',
+        region: '44',
+        department: '08',
+        reference: referencesFromEtiquette(multiMatricesEtiquette).reference,
+        matrices: [
+          { matrixKind: 'A01SN', matrix: 'A01SN#F26.A07XE' },
+          { matrixKind: 'A01SN', matrix: 'A01SQ#F28.A0C0S' }
+        ]
+      })
+    );
+    await SampleItems().insert([
+      genSampleItem({
+        sampleId: multiMatricesSampleId,
+        itemNumber,
+        copyNumber: 1,
+        recipientKind: 'Laboratory',
+        laboratoryId: LaboratoryFixture.id,
+        substanceKinds: ['Any']
+      })
+    ]);
+    const multiMatricesRai: SachaResultats = structuredClone(rai);
+    multiMatricesRai.DialogueResultatType
+      .DialogueEchantillonCommemoratifType![0]
+      .DialogueEchantillonComplet!.NumeroEtiquette = multiMatricesEtiquette;
+
+    await expect(processSachaRAI(multiMatricesRai)).rejects.toThrow(
+      RaiMaestroError
+    );
+
+    const analysis = await kysely
+      .selectFrom('analysis')
+      .select('id')
+      .where('sampleId', '=', multiMatricesSampleId)
+      .executeTakeFirst();
+    expect(analysis).toBeUndefined();
   });
 
   test('lève une RaiLabError quand l’échantillon est introuvable', async () => {

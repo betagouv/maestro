@@ -49,7 +49,8 @@ const PartialSampleDbo = z.object({
   geolocation: z.any().nullish(),
   sampledBy: z.guid(),
   additionalSampledBy: z.guid().nullish(),
-  sentAt: z.string().nullish()
+  sentAt: z.string().nullish(),
+  matrices: z.any().nullish()
 });
 
 const PartialSampleJoinedDbo = PartialSampleDbo.merge(
@@ -193,10 +194,16 @@ const findRequest = (findOptions: FindSampleOptions) =>
         builder.whereIn(`${samplesTable}.region`, findOptions.regions);
       }
       if (findOptions.matrixKinds?.length) {
-        builder.whereIn(`${samplesTable}.matrixKind`, findOptions.matrixKinds);
+        builder.whereRaw(
+          `exists (select 1 from jsonb_array_elements(${samplesTable}.matrices) m where m->>'matrixKind' = any(?))`,
+          [findOptions.matrixKinds]
+        );
       }
       if (findOptions.matrices?.length) {
-        builder.whereIn(`${samplesTable}.matrix`, findOptions.matrices);
+        builder.whereRaw(
+          `exists (select 1 from jsonb_array_elements(${samplesTable}.matrices) m where m->>'matrix' = any(?))`,
+          [findOptions.matrices]
+        );
       }
       if (findOptions.sampledBy?.length) {
         builder.whereIn(`${samplesTable}.sampledBy`, findOptions.sampledBy);
@@ -695,6 +702,7 @@ export const formatPartialSample = (
     'seves',
     'sevesNotice'
   ]),
+  matrices: partialSample.matrices && JSON.stringify(partialSample.matrices),
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
         partialSample.geolocation.x,
@@ -747,17 +755,15 @@ const findComplianceStats = async (
 ): Promise<ComplianceStat[]> => {
   const groupByDepartment = options.byDepartment === true;
 
-  const groupByFields = groupByDepartment
-    ? [`${samplesTable}.region`, `${samplesTable}.department`]
-    : [
-        `${samplesTable}.region`,
-        `${samplesTable}.matrixKind`,
-        `${samplesTable}.matrix`
-      ];
-
   const query = Samples()
     .select(
-      ...groupByFields,
+      `${samplesTable}.region`,
+      ...(groupByDepartment
+        ? [`${samplesTable}.department`]
+        : [
+            db.raw(`sample_matrix->>'matrixKind' as matrix_kind`),
+            db.raw(`sample_matrix->>'matrix' as matrix`)
+          ]),
       db.raw(`count(distinct ${samplesTable}.id) as total_count`),
       db.raw(
         `count(distinct ${samplesTable}.id) filter(where ${samplesTable}.compliance = 'Compliant') as compliant_count`
@@ -767,14 +773,21 @@ const findComplianceStats = async (
       )
     )
     .whereIn(`${samplesTable}.programmingPlanId`, [options.programmingPlanId])
-    .groupBy(...groupByFields);
+    .groupBy(`${samplesTable}.region`);
+
+  if (groupByDepartment) {
+    query.groupBy(`${samplesTable}.department`);
+  } else {
+    query
+      .joinRaw(
+        `cross join lateral jsonb_array_elements(${samplesTable}.matrices) as sample_matrix`
+      )
+      .whereRaw(`sample_matrix->>'matrix' is not null`)
+      .groupByRaw(`sample_matrix->>'matrixKind', sample_matrix->>'matrix'`);
+  }
 
   if (options.context) {
     query.where(`${samplesTable}.context`, options.context);
-  }
-
-  if (!groupByDepartment) {
-    query.whereNotNull(`${samplesTable}.matrix`);
   }
 
   const rows = await query;

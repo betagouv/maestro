@@ -2,8 +2,7 @@ import { fakerFR } from '@faker-js/faker';
 import { pick } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
 import { LegalContextList } from '../referential/LegalContext';
-import { type Matrix, MatrixEffective } from '../referential/Matrix/Matrix';
-import type { MatrixKind } from '../referential/Matrix/MatrixKind';
+import { MatrixListByKind } from '../referential/Matrix/MatrixListByKind';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
 import type { Company } from '../schema/Company/Company';
@@ -16,6 +15,7 @@ import {
   SampleContextData
 } from '../schema/Sample/Sample';
 import type { SampleItem } from '../schema/Sample/SampleItem';
+import type { SampleMatrix } from '../schema/Sample/SampleMatrix';
 import { DummyLaboratoryIds } from '../schema/User/User';
 import { formatWithTz, type MaestroDate, toMaestroDate } from '../utils/date';
 import {
@@ -84,7 +84,7 @@ export const genCreatedPartialSample = (
     ...contextData,
     ...genCreatedSampleData(data),
     company: genCompany(),
-    matrix: oneOf(MatrixEffective.options),
+    matrices: [{ matrixKind: 'A00GY', matrix: oneOf(MatrixListByKind.A00GY) }],
     monoSubstances: [],
     multiSubstances: [],
     programmingSubPlanId: PPVValidatedSubPlanId,
@@ -117,8 +117,7 @@ export const genCreatedSample = (
     ...sample,
     geolocation: sample.geolocation as Geolocation,
     company: sample.company as Company,
-    matrixKind: sample.matrixKind as MatrixKind,
-    matrix: sample.matrix as Matrix,
+    matrices: sample.matrices as SampleMatrix[],
     prescriptionId: uuidv4(),
     items: sample.items as SampleItem[],
     ownerAgreement: fakerFR.datatype.boolean(),
@@ -170,8 +169,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   lastUpdatedAt: new Date('2024-03-04'),
   step: 'DraftMatrix' as const,
   status: 'Draft' as const,
-  matrixKind: 'A00GY',
-  matrix: 'A00GZ',
+  matrices: [{ matrixKind: 'A00GY', matrix: 'A00GZ' }],
   programmingSubPlanId: PPVValidatedSubPlanId,
   specificData: {
     stage: 'STADE1',

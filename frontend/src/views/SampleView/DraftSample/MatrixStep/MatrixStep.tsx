@@ -38,9 +38,12 @@ import {
   type PartialSample,
   type PartialSampleToCreate,
   prescriptionSubstancesCheck,
-  SampleMatrixData,
-  sampleMatrixCheck
+  SampleMatrixData
 } from 'maestro-shared/schema/Sample/Sample';
+import {
+  type PartialSampleMatrix,
+  sampleMatricesIssues
+} from 'maestro-shared/schema/Sample/SampleMatrix';
 import {
   type SampleStep,
   SampleSteps
@@ -49,7 +52,14 @@ import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buil
 import { isDefined, toArray } from 'maestro-shared/utils/utils';
 import { checkSchema } from 'maestro-shared/utils/zod';
 import type React from 'react';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Fragment,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
@@ -86,8 +96,9 @@ const MatrixStep = ({ partialSample }: Props) => {
   const { trackEvent } = useAnalytics();
 
   const isSubmittingRef = useRef<boolean>(false);
-  const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
-  const [matrix, setMatrix] = useState(partialSample.matrix);
+  const [matrices, setMatrices] = useState<PartialSampleMatrix[]>(
+    partialSample.matrices ?? []
+  );
   const [notesOnMatrix, setNotesOnMatrix] = useState(
     partialSample.notesOnMatrix
   );
@@ -157,6 +168,38 @@ const MatrixStep = ({ partialSample }: Props) => {
     [prescriptionsData, localPrescriptions, planSubPlans]
   );
 
+  const subPlanMatrices = prescriptionSubPlans?.find(
+    (subPlan) => subPlan.id === programmingSubPlanId
+  )?.matrices;
+
+  const andItems =
+    isProgrammingPlanSample(partialSample) &&
+    subPlanMatrices?.operator === 'And'
+      ? subPlanMatrices.items
+      : undefined;
+
+  const toFormMatrices = (
+    current: PartialSampleMatrix[]
+  ): PartialSampleMatrix[] =>
+    andItems
+      ? andItems.map(
+          ({ matrixKind }) =>
+            current.find((m) => m.matrixKind === matrixKind) ?? {
+              matrixKind,
+              matrix: null
+            }
+        )
+      : [current[0] ?? { matrixKind: null, matrix: null }];
+
+  const formMatrices = toFormMatrices(matrices);
+
+  const changeMatrix = (index: number, change: PartialSampleMatrix) =>
+    setMatrices((current) =>
+      toFormMatrices(current).map((sampleMatrix, i) =>
+        i === index ? { ...sampleMatrix, ...change } : sampleMatrix
+      )
+    );
+
   const subPlanNumber =
     planSubPlans.find((sp) => sp.id === programmingSubPlanId)?.subPlanNumber ??
     '';
@@ -213,8 +256,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     await createOrUpdateSample({
       ...partialSample,
       programmingSubPlanId: programmingSubPlanId,
-      matrixKind,
-      matrix,
+      matrices: formMatrices.filter(({ matrixKind }) => !isNil(matrixKind)),
       specificData,
       notesOnMatrix,
       monoSubstances,
@@ -235,11 +277,24 @@ const MatrixStep = ({ partialSample }: Props) => {
         specificData: specificDataSchema
       }),
       prescriptionSubstancesCheck,
-      sampleMatrixCheck
+      (ctx) => {
+        if (isProgrammingPlanSample(partialSample)) {
+          sampleMatricesIssues(
+            ctx.value.matrices,
+            subPlanMatrices ?? null
+          ).forEach(({ path, message }) => {
+            ctx.issues.push({
+              code: 'custom' as const,
+              path,
+              input: ctx.value.matrices,
+              message
+            });
+          });
+        }
+      }
     ),
     {
-      matrixKind,
-      matrix,
+      matrices: formMatrices,
       specificData,
       notesOnMatrix,
       prescriptionId: partialSample.prescriptionId,
@@ -349,36 +404,33 @@ const MatrixStep = ({ partialSample }: Props) => {
     [prescriptionSubPlans, partialSample, programmingSubPlanId]
   );
 
-  const matrixOptions = useMemo(
-    () =>
-      selectOptionsFromList(
-        matrixKind === OtherMatrixKind.value
-          ? []
-          : matrixKind
-            ? (MatrixListByKind[matrixKind]?.filter((m) =>
-                isProgrammingPlanSample(partialSample)
-                  ? prescriptionSubPlans?.some(
-                      (subPlan) =>
-                        (!programmingSubPlanId ||
-                          subPlan.id === programmingSubPlanId) &&
-                        isMatrixSelected(
-                          subPlan.matrices?.items.find(
-                            (item) => item.matrixKind === matrixKind
-                          ),
-                          m
-                        )
-                    )
-                  : true
-              ) ?? matrixKind)
-            : [],
-        {
-          labels: MatrixLabels,
-          withSort: true,
-          withDefault: false
-        }
-      ),
-    [matrixKind, prescriptionSubPlans, partialSample, programmingSubPlanId]
-  );
+  const matrixOptions = (matrixKind?: MatrixKind | OtherMatrixKind | null) =>
+    selectOptionsFromList(
+      matrixKind === OtherMatrixKind.value
+        ? []
+        : matrixKind
+          ? (MatrixListByKind[matrixKind]?.filter((m) =>
+              isProgrammingPlanSample(partialSample)
+                ? prescriptionSubPlans?.some(
+                    (subPlan) =>
+                      (!programmingSubPlanId ||
+                        subPlan.id === programmingSubPlanId) &&
+                      isMatrixSelected(
+                        subPlan.matrices?.items.find(
+                          (item) => item.matrixKind === matrixKind
+                        ),
+                        m
+                      )
+                  )
+                : true
+            ) ?? matrixKind)
+          : [],
+      {
+        labels: MatrixLabels,
+        withSort: true,
+        withDefault: false
+      }
+    );
 
   return (
     <form data-testid="draft_sample_matrix_form" className="sample-form">
@@ -429,93 +481,123 @@ const MatrixStep = ({ partialSample }: Props) => {
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12', 'fr-pb-0')}>
               <span className={cx('fr-text--md', 'fr-text--bold')}>
-                La matrice à prélever
+                {andItems ? 'Les matrices à prélever' : 'La matrice à prélever'}
               </span>
             </div>
-            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppSearchInput
-                value={matrixKind ?? ''}
-                options={matrixKindOptions}
-                placeholder="Sélectionner une catégorie"
-                onSelect={(value) => {
-                  setMatrixKind(value as MatrixKind);
-                  setMatrix(null);
-                }}
-                state={form.messageType('matrixKind')}
-                stateRelatedMessage={form.message('matrixKind')}
-                whenValid="Type de matrice correctement renseignée."
-                label="Catégorie de matrice programmée"
-                required={matrixKind !== OtherMatrixKind.value}
-                inputProps={{
-                  disabled: readonly || matrixKind === OtherMatrixKind.value,
-                  'data-testid': 'matrix-kind-select'
-                }}
-                renderOption={(props, option) => (
-                  <li {...props} key={option.value}>
-                    {option.label}
-                  </li>
-                )}
-              />
-              {isOutsideProgrammingPlanSample(partialSample) && (
-                <Checkbox
-                  options={[
-                    {
-                      label: 'Autre matrice non répertoriée',
-                      nativeInputProps: {
-                        checked: matrixKind === OtherMatrixKind.value,
-                        onChange: (e) => {
-                          if (e.target.checked) {
-                            setMatrixKind(OtherMatrixKind.value);
-                            setMatrix(null);
-                          } else {
-                            setMatrixKind(null);
-                            setMatrix(null);
+            {formMatrices.map((sampleMatrix, index) => (
+              <Fragment key={`matrix-${index}`}>
+                <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                  <AppSearchInput
+                    value={sampleMatrix.matrixKind ?? ''}
+                    options={
+                      andItems
+                        ? selectOptionsFromList([andItems[index].matrixKind], {
+                            labels: MatrixKindLabels,
+                            withDefault: false
+                          })
+                        : matrixKindOptions
+                    }
+                    placeholder="Sélectionner une catégorie"
+                    onSelect={(value) =>
+                      changeMatrix(index, {
+                        matrixKind: value as MatrixKind,
+                        matrix: null
+                      })
+                    }
+                    state={form.messageType('matrices', [index, 'matrixKind'])}
+                    stateRelatedMessage={form.message('matrices', [
+                      index,
+                      'matrixKind'
+                    ])}
+                    whenValid="Type de matrice correctement renseignée."
+                    label="Catégorie de matrice programmée"
+                    required={sampleMatrix.matrixKind !== OtherMatrixKind.value}
+                    inputProps={{
+                      disabled:
+                        readonly ||
+                        !!andItems ||
+                        sampleMatrix.matrixKind === OtherMatrixKind.value,
+                      'data-testid': 'matrix-kind-select'
+                    }}
+                    renderOption={(props, option) => (
+                      <li {...props} key={option.value}>
+                        {option.label}
+                      </li>
+                    )}
+                  />
+                  {isOutsideProgrammingPlanSample(partialSample) && (
+                    <Checkbox
+                      options={[
+                        {
+                          label: 'Autre matrice non répertoriée',
+                          nativeInputProps: {
+                            checked:
+                              sampleMatrix.matrixKind === OtherMatrixKind.value,
+                            onChange: (e) =>
+                              changeMatrix(index, {
+                                matrixKind: e.target.checked
+                                  ? OtherMatrixKind.value
+                                  : null,
+                                matrix: null
+                              })
                           }
                         }
+                      ]}
+                      disabled={readonly}
+                    />
+                  )}
+                </div>
+                <div
+                  className={cx('fr-col-12', 'fr-col-sm-6', {
+                    'fr-mt-12w':
+                      sampleMatrix.matrixKind === OtherMatrixKind.value
+                  })}
+                >
+                  {sampleMatrix.matrixKind === OtherMatrixKind.value ? (
+                    <AppTextInput
+                      defaultValue={sampleMatrix.matrix ?? ''}
+                      onChange={(e) =>
+                        changeMatrix(index, { matrix: e.target.value })
                       }
-                    }
-                  ]}
-                  disabled={readonly}
-                />
-              )}
-            </div>
-            <div
-              className={cx('fr-col-12', 'fr-col-sm-6', {
-                'fr-mt-12w': matrixKind === OtherMatrixKind.value
-              })}
-            >
-              {matrixKind === OtherMatrixKind.value ? (
-                <AppTextInput
-                  defaultValue={matrix ?? ''}
-                  onChange={(e) => setMatrix(e.target.value)}
-                  inputForm={form}
-                  inputKey="matrix"
-                  whenValid="Matrice correctement renseignée."
-                  required
-                  label="Matrice"
-                  disabled={readonly}
-                />
-              ) : (
-                <AppSearchInput
-                  value={matrix ?? ''}
-                  options={matrixOptions}
-                  placeholder="Sélectionner une matrice"
-                  onSelect={(value) => {
-                    setMatrix(value as Matrix);
-                  }}
-                  state={form.messageType('matrix')}
-                  stateRelatedMessage={form.message('matrix')}
-                  whenValid="Matrice correctement renseignée."
-                  data-testid="matrix-select"
-                  label="Matrice"
-                  required
-                  inputProps={{
-                    disabled: readonly,
-                    'data-testid': 'matrix-select'
-                  }}
-                />
-              )}
-            </div>
+                      inputForm={form}
+                      inputKey="matrices"
+                      inputPathFromKey={[index, 'matrix']}
+                      whenValid="Matrice correctement renseignée."
+                      required
+                      label="Matrice"
+                      disabled={readonly}
+                    />
+                  ) : (
+                    <AppSearchInput
+                      value={sampleMatrix.matrix ?? ''}
+                      options={matrixOptions(sampleMatrix.matrixKind)}
+                      placeholder="Sélectionner une matrice"
+                      onSelect={(value) =>
+                        changeMatrix(index, { matrix: value as Matrix })
+                      }
+                      state={form.messageType('matrices', [index, 'matrix'])}
+                      stateRelatedMessage={form.message('matrices', [
+                        index,
+                        'matrix'
+                      ])}
+                      whenValid="Matrice correctement renseignée."
+                      data-testid="matrix-select"
+                      label="Matrice"
+                      required
+                      inputProps={{
+                        disabled: readonly,
+                        'data-testid': 'matrix-select'
+                      }}
+                    />
+                  )}
+                </div>
+              </Fragment>
+            ))}
+            {form.hasIssue('matrices') && (
+              <div className={cx('fr-col-12', 'fr-error-text', 'fr-mt-0')}>
+                {form.message('matrices')}
+              </div>
+            )}
           </div>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             {fieldConfigs.map((fc) => (

@@ -47,6 +47,7 @@ const data: AnalysisRequestData = {
   stage: '',
   department: '',
   ownerAgreement: true,
+  matrices: [{ matrixKind: 'A0D9Y', matrix: 'A031K' }],
   matrixKind: 'A0D9Y',
   matrix: 'A031K',
   programmingSubPlanId: PPVValidatedSubPlanId,

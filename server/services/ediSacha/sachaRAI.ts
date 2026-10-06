@@ -223,6 +223,7 @@ export const processSachaRAI = async (
     .select([
       'samples.id as sampleId',
       'samples.department as department',
+      'samples.matrices as matrices',
       'sampleItems.itemNumber as itemNumber',
       'sampleItems.copyNumber as copyNumber',
       'sampleItems.laboratoryId as laboratoryId',
@@ -234,6 +235,13 @@ export const processSachaRAI = async (
   if (!sampleItem) {
     throw new RaiLabError(
       `Échantillon introuvable pour la référence ${reference}`,
+      xmlDocumentId
+    );
+  }
+
+  if ((sampleItem.matrices?.length ?? 0) > 1) {
+    throw new RaiMaestroError(
+      `RAI d'un prélèvement à plusieurs matrices : non supportée (${reference})`,
       xmlDocumentId
     );
   }

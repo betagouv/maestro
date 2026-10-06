@@ -12,14 +12,12 @@ import { getAnalysisReportDocumentFilename } from 'maestro-shared/schema/Documen
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import {
-  getSampleMatrixLabel,
-  type SampleChecked
-} from 'maestro-shared/schema/Sample/Sample';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getSampleItemReference,
   type SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
+import { getSampleMatrixLabels } from 'maestro-shared/schema/Sample/SampleMatrix';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import type { ProgrammingSubPlanFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { UserBase } from 'maestro-shared/schema/User/User';
@@ -117,8 +115,14 @@ export const buildAnalysisRequestData = (
       ? (getFieldValueLabel(stageField, updatedSample.specificData['stage']) ??
         '')
       : '',
-    matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
-    matrixLabel: getSampleMatrixLabel(updatedSample),
+    matrixKind: updatedSample.matrices
+      .map(({ matrixKind }) => matrixKind)
+      .join(', '),
+    matrixKindLabel: updatedSample.matrices
+      .map(({ matrixKind }) => MatrixKindLabels[matrixKind])
+      .join(', '),
+    matrix: updatedSample.matrices.map(({ matrix }) => matrix).join(', '),
+    matrixLabel: getSampleMatrixLabels(updatedSample.matrices).join(', '),
     matrixPart: matrixPartField
       ? (getFieldValueLabel(
           matrixPartField,

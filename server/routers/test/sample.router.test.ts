@@ -2,10 +2,6 @@ import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
 import { addDays, format } from 'date-fns';
 import { omit } from 'lodash-es';
-import {
-  type Matrix,
-  MatrixEffective
-} from 'maestro-shared/referential/Matrix/Matrix';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
@@ -28,7 +24,6 @@ import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAInProgressVolailleSubPlanId,
   genProgrammingSubPlan,
-  genSubPlanMatrices,
   PPVInProgressProgrammingPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture,
@@ -44,7 +39,6 @@ import {
   Sample13Fixture,
   SampleDAOA1Fixture
 } from 'maestro-shared/test/sampleFixtures';
-import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
   LaboratoryOfficeUserFixture,
@@ -585,7 +579,9 @@ describe('Sample router', () => {
           .use(tokenProvider(Sampler1Fixture))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
-      await badRequestTest({ matrix: 123 });
+      await badRequestTest({
+        matrices: [{ matrixKind: 'A00GY', matrix: 123 }]
+      });
       await badRequestTest({
         items: [
           {
@@ -622,7 +618,7 @@ describe('Sample router', () => {
 
     const validBody = {
       ...Sample11Fixture,
-      matrix: oneOf(MatrixEffective.options),
+      matrices: [{ matrixKind: 'A00GY', matrix: 'A00HF' }],
       items: [
         genSampleItem({
           sampleId: Sample11Fixture.id,
@@ -659,7 +655,7 @@ describe('Sample router', () => {
             ...Sample11Fixture,
             createdAt: Sample11Fixture.createdAt,
             lastUpdatedAt: expect.any(String),
-            matrix: validBody.matrix,
+            matrices: validBody.matrices,
             items: validBody.items.map((item) => ({
               ...item,
               laboratoryId: LaboratoryFixture.id
@@ -671,10 +667,8 @@ describe('Sample router', () => {
         );
 
         await expect(
-          Samples()
-            .where({ id: Sample11Fixture.id, matrix: validBody.matrix })
-            .first()
-        ).resolves.toBeDefined();
+          Samples().where({ id: Sample11Fixture.id }).first()
+        ).resolves.toMatchObject({ matrices: validBody.matrices });
 
         await expect(
           SampleItems()
@@ -709,16 +703,12 @@ describe('Sample router', () => {
       ).resolves.toMatchObject(expectedItems);
     });
 
-    test('should derive prescriptionId when a prescription has a matching specific matrix value', async () => {
-      const specificMatrix: Matrix = 'A00GZ';
+    test('should derive prescriptionId from the sample sub-plan', async () => {
       const prescription = genPrescription({
         programmingSubPlanId: specificMatrixSubPlan.id
       });
       await ProgrammingSubPlansRaw().insert(
-        toProgrammingPlanSettingsRow({
-          ...specificMatrixSubPlan,
-          matrices: genSubPlanMatrices('A00GY', [specificMatrix])
-        })
+        toProgrammingPlanSettingsRow(specificMatrixSubPlan)
       );
       await Prescriptions().insert(prescription);
 
@@ -729,9 +719,8 @@ describe('Sample router', () => {
         region: Sample11Fixture.region,
         department: Sample11Fixture.department,
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+        programmingSubPlanId: specificMatrixSubPlan.id,
         context: 'Control',
-        matrixKind: 'A00GY',
-        matrix: specificMatrix,
         company: CompanyFixture
       });
       await Samples().insert(formatPartialSample(sample));
@@ -753,36 +742,7 @@ describe('Sample router', () => {
         .delete();
     });
 
-    test('should derive prescriptionId from a catch-all prescription (matrix=null) when sample has a specific matrix', async () => {
-      const sampleId = uuidv4();
-      const sample = genCreatedPartialSample({
-        id: sampleId,
-        sampler: Sampler1Fixture,
-        region: Sample11Fixture.region,
-        department: Sample11Fixture.department,
-        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        context: 'Control',
-        matrixKind: 'A00GY',
-        matrix: 'A00GZ',
-        company: CompanyFixture
-      });
-      await Samples().insert(formatPartialSample(sample));
-
-      const res = await request(app)
-        .put(testRoute(sampleId))
-        .send(sample)
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_OK);
-
-      expect(res.body).toMatchObject({
-        prescriptionId: PrescriptionFixture.id,
-        monoSubstances: [],
-        multiSubstances: []
-      });
-    });
-
-    test('should update the laboratory from the local prescription when the matrix changes', async () => {
-      const newMatrix: Matrix = 'A00HF';
+    test('should update the laboratory from the local prescription when the sub-plan changes', async () => {
       const newLaboratoryId = DummyLaboratoryIds[0];
       const prescription = genPrescription({
         programmingSubPlanId: specificMatrixSubPlan.id
@@ -792,10 +752,7 @@ describe('Sample router', () => {
         region: Sample11Fixture.region
       });
       await ProgrammingSubPlansRaw().insert(
-        toProgrammingPlanSettingsRow({
-          ...specificMatrixSubPlan,
-          matrices: genSubPlanMatrices('A00GY', [newMatrix])
-        })
+        toProgrammingPlanSettingsRow(specificMatrixSubPlan)
       );
       await Prescriptions().insert(prescription);
       await LocalPrescriptions().insert(
@@ -823,8 +780,6 @@ describe('Sample router', () => {
         department: Sample11Fixture.department,
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
         context: 'Control',
-        matrixKind: 'A00GY',
-        matrix: 'A00GZ',
         prescriptionId: PrescriptionFixture.id,
         company: CompanyFixture
       });
@@ -842,7 +797,11 @@ describe('Sample router', () => {
 
       await request(app)
         .put(testRoute(sampleId))
-        .send({ ...sample, matrix: newMatrix, items: [sampleItem] })
+        .send({
+          ...sample,
+          programmingSubPlanId: specificMatrixSubPlan.id,
+          items: [sampleItem]
+        })
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -894,8 +853,7 @@ describe('Sample router', () => {
         company: SlaughterhouseCompanyFixture1,
         step: 'Submitted',
         ownerAgreement: true,
-        matrixKind: 'A0C0Z',
-        matrix: 'A0BAV',
+        matrices: [{ matrixKind: 'A0C0Z', matrix: 'A0BAV' }],
         programmingSubPlanId: DAOAInProgressBovinSubPlanId,
         geolocation: { x: 46.642117, y: -0.734475 },
         specificData: {
@@ -931,8 +889,7 @@ describe('Sample router', () => {
         department: SamplerDaoaFixture.department,
         company: SlaughterhouseCompanyFixture1,
         step: 'Draft',
-        matrixKind: 'A0C0Z',
-        matrix: 'A0BAV',
+        matrices: [{ matrixKind: 'A0C0Z', matrix: 'A0BAV' }],
         programmingSubPlanId: DAOAInProgressBovinSubPlanId,
         geolocation: { x: 46.642117, y: -0.734475 }
       });
@@ -985,14 +942,15 @@ describe('Sample router', () => {
     });
 
     test('should trigger processor when sending a DAOA sample (Submitted → Sent)', async () => {
-      await Samples().where({ id: SampleDAOA1Fixture.id }).update({
-        step: 'Submitted',
-        matrixKind: 'A0C0Z',
-        matrix: 'A01GL',
-        ownerAgreement: true,
-        sentAt: null,
-        programmingSubPlanId: DAOAInProgressVolailleSubPlanId
-      });
+      await Samples()
+        .where({ id: SampleDAOA1Fixture.id })
+        .update({
+          step: 'Submitted',
+          matrices: JSON.stringify([{ matrixKind: 'A0C0Z', matrix: 'A01GL' }]),
+          ownerAgreement: true,
+          sentAt: null,
+          programmingSubPlanId: DAOAInProgressVolailleSubPlanId
+        });
 
       mockTriggerProcessing.mockClear();
 

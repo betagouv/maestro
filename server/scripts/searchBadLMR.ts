@@ -1,3 +1,4 @@
+import { sql } from 'kysely';
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
@@ -15,7 +16,6 @@ const searchBadLMR = async () => {
       .leftJoin('samples', 'analysis.sampleId', 'samples.id')
       .leftJoin('laboratories', 'samples.laboratoryId', 'laboratories.id')
       .select([
-        'samples.matrix',
         'analysisResidues.reference',
         'analysisResidues.lmr',
         'analysis.sampleId',
@@ -26,7 +26,9 @@ const searchBadLMR = async () => {
         'RF-0225-001-PPP',
         'RF-00004675-PAR'
       ])
-      .where('matrix', '=', matrix)
+      .where(
+        sql<boolean>`samples.matrices @> ${JSON.stringify([{ matrix }])}::jsonb`
+      )
       .execute();
 
     if (samples.length) {

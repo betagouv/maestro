@@ -3,18 +3,13 @@ import { isEqual, isNil, omit } from 'lodash-es';
 import NoRegionError from 'maestro-shared/errors/noRegionError';
 import SampleItemMissingError from 'maestro-shared/errors/sampleItemMissingError';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
-import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { getSupportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
-import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { hasNewerLaunchedCampaign } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  findPrescriptionSubPlan,
-  isPPVSubPlan
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   hasSamplePermission,
@@ -33,6 +28,7 @@ import {
   withFirstCopyLaboratory,
   withSubstanceKindLaboratories
 } from 'maestro-shared/schema/Sample/SampleItem';
+import { sampleMatricesIssues } from 'maestro-shared/schema/Sample/SampleMatrix';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import type { MaestroDate } from 'maestro-shared/utils/date';
@@ -545,6 +541,13 @@ export const sampleRouter = {
         ) {
           return { status: HttpStatus.BAD_REQUEST };
         }
+        if (
+          isProgrammingPlanSample(sampleUpdate) &&
+          sampleMatricesIssues(sampleUpdate.matrices ?? [], subPlan.matrices)
+            .length > 0
+        ) {
+          return { status: HttpStatus.BAD_REQUEST };
+        }
       }
 
       const mustBeSent =
@@ -573,43 +576,19 @@ export const sampleRouter = {
         //Les matrices sont différentes en fonction du contexte de prélèvement,
         // donc si le contexte change il faut réinitialiser la matrice qui est dans l'étape d'après.
         //Sinon l'utilisateur bloque tout le formulaire
-        sampleUpdate.matrixKind = null;
-        sampleUpdate.matrix = null;
+        sampleUpdate.matrices = null;
       }
-
-      const programmedMatrixKind = MatrixKind.safeParse(
-        sampleUpdate.matrixKind
-      ).data;
 
       const prescription =
         isProgrammingPlanSample(sampleUpdate) &&
         !isNil(sampleUpdate.context) &&
-        programmedMatrixKind
-          ? await Promise.all([
-              prescriptionRepository.findMany({
-                programmingPlanId: sampleUpdate.programmingPlanId,
-                contexts: [sampleUpdate.context as ProgrammingPlanContext],
-                matrixKinds: [programmedMatrixKind]
-              }),
-              programmingSubPlanRepository.findMany({
-                programmingPlanId: sampleUpdate.programmingPlanId
+        !isNil(sampleUpdate.programmingSubPlanId)
+          ? (
+              await prescriptionRepository.findMany({
+                programmingSubPlanIds: [sampleUpdate.programmingSubPlanId],
+                contexts: [sampleUpdate.context as ProgrammingPlanContext]
               })
-            ]).then(([prescriptions, subPlans]) => {
-              const matricesOf = (p: Prescription) =>
-                findPrescriptionSubPlan(
-                  [{ subPlans }],
-                  p
-                )?.matrices?.items.find(
-                  (item) => item.matrixKind === programmedMatrixKind
-                )?.matrices;
-              return (
-                prescriptions.find((p) =>
-                  matricesOf(p)?.some(
-                    (matrix) => matrix === sampleUpdate.matrix
-                  )
-                ) ?? prescriptions.find((p) => matricesOf(p)?.length === 0)
-              );
-            })
+            )[0]
           : undefined;
 
       const prescriptionSubstances = prescription

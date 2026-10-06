@@ -44,7 +44,7 @@ const partialSample = {
   }),
   ...genCreatedSampleData(),
   sampler: Sampler1Fixture as Sampler,
-  matrixKind: 'A0D9Y' as MatrixKind,
+  matrices: [{ matrixKind: 'A0D9Y' as MatrixKind }],
   prescriptionId: prescription1.id,
   programmingPlanId: programmingPlan.id,
   sampledDate: toMaestroDate(new Date()),

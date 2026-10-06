@@ -6,26 +6,31 @@
           <span class="uppercase">Matrice contrôlée{{#if isFullVersion}} et analyses{{/if}}</span>
         </div>
       </div>
-      <div class='fr-col-4'>
-        <div class='sample-section-item'>
-          <div class='label'>
-            Catégorie de matrice
-          </div>
-          <div class='value {{#if (isEmpty matrixKind)}}empty{{/if}}'>
-            {{matrixKind}}
-          </div>
-        </div>
-      </div>
-      <div class='fr-col-4'>
-        <div class='sample-section-item'>
-          <div class='label'>
-            Matrice
-          </div>
-          <div class='value {{#if (isEmpty matrix)}}empty{{/if}}'>
-            {{matrix}}
+      {{#each matrices}}
+        <div class='fr-col-4'>
+          <div class='sample-section-item'>
+            <div class='label'>
+              Catégorie de matrice
+            </div>
+            <div class='value {{#if (isEmpty this.matrixKind)}}empty{{/if}}'>
+              {{this.matrixKind}}
+            </div>
           </div>
         </div>
-      </div>
+        <div class='fr-col-4'>
+          <div class='sample-section-item'>
+            <div class='label'>
+              Matrice
+            </div>
+            <div class='value {{#if (isEmpty this.matrix)}}empty{{/if}}'>
+              {{this.matrix}}
+            </div>
+          </div>
+        </div>
+        {{#unless @last}}
+          <div class='fr-col-4'></div>
+        {{/unless}}
+      {{/each}}
       {{#each specificDataItems}}
         <div class='fr-col-4'>
           <div class='sample-section-item'>

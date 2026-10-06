@@ -1,4 +1,4 @@
-import type { Insertable } from 'kysely';
+import { type Insertable, sql } from 'kysely';
 import { ResidueDetectionStat } from 'maestro-shared/schema/Analysis/ResidueDetectionStat';
 import { kysely } from './kysely';
 import type { DB, KyselyMaestro } from './kysely.type';
@@ -27,9 +27,16 @@ const findTopResiduesDetected = async (
     .selectFrom('analysisResidues as ar')
     .innerJoin('analysis as a', 'a.id', 'ar.analysisId')
     .innerJoin('samples as s', 's.id', 'a.sampleId')
+    .crossJoinLateral(
+      sql<{
+        matrix: string | null;
+      }>`(select m->>'matrix' as matrix from jsonb_array_elements(s.matrices) m)`.as(
+        'sm'
+      )
+    )
     .select(({ fn }) => [
       'ar.reference as residueReference',
-      's.matrix',
+      'sm.matrix',
       's.region',
       fn.count<number>('s.id').$castTo<number>().as('sampleCount'),
       fn
@@ -40,8 +47,8 @@ const findTopResiduesDetected = async (
     ])
     .where('ar.resultKind', '!=', 'ND' as never)
     .where('ar.reference', 'is not', null)
-    .where('s.matrix', 'is not', null)
-    .groupBy(['ar.reference', 's.matrix', 's.region'])
+    .where('sm.matrix', 'is not', null)
+    .groupBy(['ar.reference', 'sm.matrix', 's.region'])
     .orderBy('sampleCount', 'desc')
     .limit(10);
 
