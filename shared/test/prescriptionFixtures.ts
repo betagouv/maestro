@@ -6,14 +6,12 @@ import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
 import type { LocalPrescription } from '../schema/LocalPrescription/LocalPrescription';
 import type { Prescription } from '../schema/Prescription/Prescription';
 import type { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
-import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import { LaboratoryFixture } from './laboratoryFixtures';
 import {
   DAOABovinValidatedSubPlanId,
   DAOAInProgressBovinSubPlanId,
   DAOAInProgressVolailleSubPlanId,
   DAOAVolailleValidatedSubPlanId,
-  PPVValidatedProgrammingPlanFixture,
   PPVValidatedSubPlanId
 } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
@@ -23,7 +21,6 @@ export const genPrescription = (
 ): Prescription => ({
   id: uuidv4(),
   programmingSubPlanId: PPVValidatedSubPlanId,
-  context: oneOf(ProgrammingPlanContextList),
   sampleCount: 0,
   ...data
 });
@@ -51,8 +48,7 @@ export const genPrescriptionSubstance = (
 
 export const PrescriptionFixture = genPrescription({
   id: '11111111-1111-1111-1111-111111111111',
-  programmingSubPlanId: PPVValidatedSubPlanId,
-  context: PPVValidatedProgrammingPlanFixture.contexts[0]
+  programmingSubPlanId: PPVValidatedSubPlanId
 });
 
 export const LocalPrescriptionFixture = genLocalPrescription({
@@ -70,7 +66,6 @@ export const LocalPrescriptionFixture = genLocalPrescription({
 export const FoieDeBovinPrescriptionFixture = genPrescription({
   id: '177e280f-7fc5-499f-9dcb-4970dc00af36',
   programmingSubPlanId: DAOAInProgressBovinSubPlanId,
-  context: 'Surveillance',
   sampleCount: 80,
   notes: 'Prescription pour le foie de bovin',
   programmingInstruction: 'Instructions pour le foie de bovin'
@@ -78,7 +73,6 @@ export const FoieDeBovinPrescriptionFixture = genPrescription({
 export const VolaillePrescriptionFixture = genPrescription({
   id: '608d0973-b472-4964-a8d7-246f91ad4d39',
   programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
-  context: 'Surveillance',
   sampleCount: 77
 });
 export const FoieDeBovinValidatedPrescriptionFixture = {

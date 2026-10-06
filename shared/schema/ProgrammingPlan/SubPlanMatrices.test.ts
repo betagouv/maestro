@@ -3,7 +3,8 @@ import {
   getSubPlanMatrixKinds,
   getSubPlanMatrixLabels,
   isMatrixSelected,
-  SubPlanMatrices
+  SubPlanMatrices,
+  subPlanMatrixNameParts
 } from './SubPlanMatrices';
 
 describe('SubPlanMatrices', () => {
@@ -86,5 +87,53 @@ describe('getSubPlanMatrixLabels', () => {
         ]
       })
     ).toStrictEqual(['Radis et similaires', 'Mirabelles', 'Plumcots']);
+  });
+});
+
+describe('subPlanMatrixNameParts', () => {
+  test('should name a single detailed matrix by that matrix', () => {
+    expect(
+      subPlanMatrixNameParts({
+        operator: 'Or',
+        items: [{ matrixKind: 'A01GP', matrices: ['A01GS'] }]
+      })
+    ).toStrictEqual(['Mirabelles']);
+  });
+
+  test('should fall back to the category when several matrices are detailed', () => {
+    expect(
+      subPlanMatrixNameParts({
+        operator: 'Or',
+        items: [{ matrixKind: 'A01GP', matrices: ['A01GS', 'A0DVG'] }]
+      })
+    ).toStrictEqual(['Prunes et similaires']);
+  });
+
+  test('should keep every category when several are detailed across items', () => {
+    expect(
+      subPlanMatrixNameParts({
+        operator: 'Or',
+        items: [
+          { matrixKind: 'A00QT', matrices: ['A00QV'] },
+          { matrixKind: 'A01GP', matrices: ['A01GS'] }
+        ]
+      })
+    ).toStrictEqual(['Radis et similaires', 'Prunes et similaires']);
+  });
+
+  test('should keep the untouched categories alongside a single detailed matrix', () => {
+    expect(
+      subPlanMatrixNameParts({
+        operator: 'Or',
+        items: [
+          { matrixKind: 'A00QT', matrices: [] },
+          { matrixKind: 'A01GP', matrices: ['A01GS'] }
+        ]
+      })
+    ).toStrictEqual(['Radis et similaires', 'Mirabelles']);
+  });
+
+  test('should name nothing without matrices', () => {
+    expect(subPlanMatrixNameParts(null)).toStrictEqual([]);
   });
 });

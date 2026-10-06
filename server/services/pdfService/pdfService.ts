@@ -18,7 +18,10 @@ import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { isPPVSubPlanNumber } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  isPPVSubPlanNumber,
+  subPlanLabel
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   getSampleMatrixLabel,
   type PartialSample
@@ -317,7 +320,7 @@ const generateSamplePDF = async (
     programmingPlan.domainId
   );
 
-  const planLabel = `${subPlanNumber} / ${domain?.label ?? ''} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan?.label}`;
+  const planLabel = `${subPlanNumber} / ${domain?.label ?? ''} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan ? subPlanLabel(subPlan) : ''}`;
 
   return generatePDF(template, {
     fullVersion,

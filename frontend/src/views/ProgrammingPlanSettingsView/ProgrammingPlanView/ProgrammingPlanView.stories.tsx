@@ -5,7 +5,10 @@ import type {
   ProgrammingPlanSettingsForm,
   ProgrammingSubPlanSettingsForm
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
-import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  ProgrammingSubPlanId,
+  subPlanLabel
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { SpecificDataFieldId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
@@ -100,6 +103,37 @@ const especeField = genAdminField(
   '9f215b9c-4a1e-2d33-0c0f-6a417a3d4d6e'
 );
 
+const cerealesSubPlan = genProgrammingSubPlan({
+  id: CerealesSubPlanId,
+  subPlanNumber: '101',
+  stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+  matrices: genSubPlanMatrices('A00GY'),
+  context: 'Control',
+  settingsCompleted: false
+});
+
+const fruitsSubPlan = genProgrammingSubPlan({
+  id: FruitsSubPlanId,
+  subPlanNumber: '102',
+  stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'TRANSFORMATION'],
+  matrices: genSubPlanMatrices('A0DVX'),
+  context: 'Control',
+  settingsCompleted: false
+});
+
+const animauxSubPlan = genProgrammingSubPlan({
+  id: AnimauxSubPlanId,
+  subPlanNumber: '103',
+  stages: ['ELEVAGE'],
+  matrices: genSubPlanMatrices('A01SN'),
+  context: 'Control',
+  settingsCompleted: true
+});
+
+const cerealesName = subPlanLabel(cerealesSubPlan);
+const fruitsName = subPlanLabel(fruitsSubPlan);
+const animauxName = subPlanLabel(animauxSubPlan);
+
 const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
   [CerealesSubPlanId]: {
     stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
@@ -111,6 +145,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     settingsCompleted: false,
     matrices: genSubPlanMatrices('A00GY'),
     matricesManaged: true,
+    context: 'Control',
     fields: [matriceField, quantiteField].map(({ id }) => ({
       fieldId: id,
       required: false,
@@ -129,6 +164,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     settingsCompleted: false,
     matrices: genSubPlanMatrices('A0DVX'),
     matricesManaged: true,
+    context: 'Control',
     fields: []
   },
   [AnimauxSubPlanId]: {
@@ -141,6 +177,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     settingsCompleted: true,
     matrices: genSubPlanMatrices('A00GY'),
     matricesManaged: true,
+    context: 'Control',
     fields: [
       {
         fieldId: especeField.id,
@@ -239,29 +276,7 @@ const mockApiConf: Partial<MockApi> = {
         stages: ['TRANSFORMATION'],
         stagesManaged: true,
         settingsCompleted: false,
-        subPlans: [
-          genProgrammingSubPlan({
-            id: FruitsSubPlanId,
-            subPlanNumber: '102',
-            label: 'Fruits et légumes',
-            stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'TRANSFORMATION'],
-            settingsCompleted: false
-          }),
-          genProgrammingSubPlan({
-            id: CerealesSubPlanId,
-            subPlanNumber: '101',
-            label: 'Céréales',
-            stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
-            settingsCompleted: false
-          }),
-          genProgrammingSubPlan({
-            id: AnimauxSubPlanId,
-            subPlanNumber: '103',
-            label: 'Animaux',
-            stages: ['ELEVAGE'],
-            settingsCompleted: true
-          })
-        ]
+        subPlans: [fruitsSubPlan, cerealesSubPlan, animauxSubPlan]
       }),
       genProgrammingPlan({
         year: 2026,
@@ -389,12 +404,9 @@ export const PlanSaveBlockedByCompletedSubPlan: Story = {
             settingsCompleted: false,
             subPlans: [
               genProgrammingSubPlan({
-                id: AnimauxSubPlanId,
-                subPlanNumber: '103',
-                label: 'Animaux',
+                ...animauxSubPlan,
                 stages: ['TRANSFORMATION'],
-                stagesManaged: false,
-                settingsCompleted: true
+                stagesManaged: false
               })
             ]
           })
@@ -438,9 +450,9 @@ export const SubPlanList: Story = {
     const subPlans = within(
       canvas.getByRole('list', { name: 'Liste des sous-plans' })
     ).getAllByRole('listitem');
-    await expect(subPlans[0]).toHaveTextContent('101 - Céréales');
-    await expect(subPlans[1]).toHaveTextContent('102 - Fruits et légumes');
-    await expect(subPlans[2]).toHaveTextContent('103 - Animaux');
+    await expect(subPlans[0]).toHaveTextContent(`101 - ${cerealesName}`);
+    await expect(subPlans[1]).toHaveTextContent(`102 - ${fruitsName}`);
+    await expect(subPlans[2]).toHaveTextContent(`103 - ${animauxName}`);
 
     await expect(canvas.getAllByTitle('Paramétrage terminé')).toHaveLength(1);
     await expect(
@@ -450,12 +462,12 @@ export const SubPlanList: Story = {
     // La recherche filtre la liste
     await userEvent.type(
       canvas.getByRole('searchbox', { name: 'Rechercher un sous-plan' }),
-      'légumes'
+      'abricots'
     );
+    await expect(canvas.getByText(`102 - ${fruitsName}`)).toBeInTheDocument();
     await expect(
-      canvas.getByText('102 - Fruits et légumes')
-    ).toBeInTheDocument();
-    await expect(canvas.queryByText('101 - Céréales')).not.toBeInTheDocument();
+      canvas.queryByText(`101 - ${cerealesName}`)
+    ).not.toBeInTheDocument();
   }
 };
 
@@ -472,7 +484,7 @@ export const SubPlan: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.getByRole('heading', { name: '101 - Céréales' })
+      canvas.getByRole('heading', { name: `101 - ${cerealesName}` })
     ).toBeInTheDocument();
 
     await expect(
@@ -485,7 +497,7 @@ export const SubPlan: Story = {
 
     await expect(
       canvas.getByRole('link', { current: 'page' })
-    ).toHaveTextContent('101 - Céréales');
+    ).toHaveTextContent(`101 - ${cerealesName}`);
 
     await expect(
       canvas.getByRole('tab', { name: 'Paramétrage global' })
@@ -877,10 +889,10 @@ export const SubPlanErrorsClearedOnNavigation: Story = {
       )
     ).toBeInTheDocument();
 
-    await userEvent.click(canvas.getByText('102 - Fruits et légumes'));
+    await userEvent.click(canvas.getByText(`102 - ${fruitsName}`));
     await discardUnsavedChanges(canvasElement);
     await expect(
-      await canvas.findByRole('heading', { name: '102 - Fruits et légumes' })
+      await canvas.findByRole('heading', { name: `102 - ${fruitsName}` })
     ).toBeInTheDocument();
     await userEvent.click(canvas.getByRole('tab', { name: 'Échantillons' }));
 
@@ -1840,14 +1852,7 @@ export const PlanDelete: Story = {
             domainId: pesticide2026.id,
             title: 'Production primaire végétale',
             settingsCompleted: false,
-            subPlans: [
-              genProgrammingSubPlan({
-                id: CerealesSubPlanId,
-                subPlanNumber: '101',
-                label: 'Céréales',
-                settingsCompleted: false
-              })
-            ]
+            subPlans: [cerealesSubPlan]
           })
         ]
       },
@@ -1913,7 +1918,7 @@ export const SubPlanDelete: Story = {
     );
 
     await waitFor(() =>
-      expect(modal.getByText('101 - Céréales')).toBeVisible()
+      expect(modal.getByText(`101 - ${cerealesName}`)).toBeVisible()
     );
     await userEvent.click(modal.getByText('Supprimer'));
 

@@ -9,7 +9,10 @@ import type {
   LaboratoryAgreement,
   LaboratoryAgreementCheckUpdate
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
-import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  type ProgrammingSubPlan,
+  subPlanLabel
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
@@ -306,7 +309,8 @@ const AgreementTableRow = memo(function AgreementTableRow({
                 }}
               >
                 <div>
-                  Type de plan : <strong>{row.programmingSubPlan.label}</strong>
+                  Type de plan :{' '}
+                  <strong>{subPlanLabel(row.programmingSubPlan)}</strong>
                 </div>
                 {planStages.length > 0 && (
                   <div

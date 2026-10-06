@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import {
   findPrescriptionSubPlan,
   ProgrammingSubPlanId
 } from '../ProgrammingPlan/ProgrammingSubPlan';
+import { getSubPlanMatrixLabels } from '../ProgrammingPlan/SubPlanMatrices';
 import { hasPermission } from '../User/User';
 import type { UserRole } from '../User/UserRole';
 import { PrescriptionSubstance } from './PrescriptionSubstance';
@@ -12,7 +12,6 @@ import { PrescriptionSubstance } from './PrescriptionSubstance';
 export const Prescription = z.object({
   id: z.guid(),
   programmingSubPlanId: ProgrammingSubPlanId,
-  context: ProgrammingPlanContext,
   sampleCount: z.coerce.number().int().min(0).default(0),
   monoAnalysisCount: z.coerce.number().nullish(),
   multiAnalysisCount: z.coerce.number().nullish(),
@@ -98,4 +97,6 @@ export const getPrescriptionTitle = (
   programmingPlans: Pick<ProgrammingPlanChecked, 'subPlans'>[],
   prescription: Pick<Prescription, 'programmingSubPlanId'>
 ): string =>
-  findPrescriptionSubPlan(programmingPlans, prescription)?.label ?? '';
+  getSubPlanMatrixLabels(
+    findPrescriptionSubPlan(programmingPlans, prescription)?.matrices ?? null
+  ).join(', ');

@@ -1,5 +1,6 @@
 import { genUser } from 'maestro-shared/test/userFixtures';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import config from '../utils/config';
 import { mailService } from './mailService';
 import { userService } from './userService';
 
@@ -32,11 +33,10 @@ describe('userService.insert', () => {
 
     expect(mailService.send).toHaveBeenCalledExactlyOnceWith({
       templateName: 'GenericTemplate',
-      recipients: ['contact@maestro.beta.gouv.fr'],
+      recipients: [config.mail.from],
       params: {
         object: '[Support] Nouvel utilisateur à former',
-        content:
-          'Un nouvel utilisateur doit être formé avant de pouvoir accéder à Maestro : http://localhost:3000/utilisateurs'
+        content: `Un nouvel utilisateur doit être formé avant de pouvoir accéder à Maestro : ${config.application.host}/utilisateurs`
       }
     });
   });

@@ -1,13 +1,13 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
+import { subPlanLabel } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import type React from 'react';
 import { useContext } from 'react';
 import AppServiceErrorAlert from 'src/components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
-
 import type { ProgrammingPlanDeletionTarget } from '../ProgrammingPlanDeleteModal/ProgrammingPlanDeleteModal';
 
 const withDuplicationLabels = (target: ProgrammingPlanDeletionTarget) => {
@@ -32,9 +32,9 @@ const withDuplicationLabels = (target: ProgrammingPlanDeletionTarget) => {
       return {
         ...target,
         article: 'le sous-plan',
-        name: `${target.subPlan.subPlanNumber} - ${target.subPlan.label}`,
+        name: `${target.subPlan.subPlanNumber} - ${subPlanLabel(target.subPlan)}`,
         year: target.programmingPlan.year,
-        cascade: `le sous-plan ${target.subPlan.label}`
+        cascade: `le sous-plan ${subPlanLabel(target.subPlan)}`
       };
     default:
       return assertUnreachable(target);

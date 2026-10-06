@@ -6,6 +6,7 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import clsx from 'clsx';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
+import { subPlanLabel } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
@@ -42,7 +43,7 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   const subPlan = programmingPlan?.subPlans.find((_) => _.id === subPlanId);
 
   const title = subPlan
-    ? `${subPlan.subPlanNumber} - ${subPlan.label}`
+    ? `${subPlan.subPlanNumber} - ${subPlanLabel(subPlan)}`
     : programmingPlan?.title;
 
   const { user, account } = useAuthentication();

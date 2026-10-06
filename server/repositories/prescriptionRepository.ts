@@ -455,7 +455,10 @@ const buildFindQuery = (
         );
       }
       if (findOptions.contexts) {
-        builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
+        builder.whereIn(
+          `${programmingSubPlansTable}.context`,
+          findOptions.contexts
+        );
       }
       if (subPlanIds) {
         builder.whereIn(
@@ -497,7 +500,7 @@ interface PrescriptionCountRow {
   planId: string;
   subPlanId: ProgrammingSubPlanId;
   matrixKinds: MatrixKind[];
-  context: ProgrammingPlanContext;
+  context: ProgrammingPlanContext | null;
   sampleCount: number;
   missingDistribution: boolean;
   missingLaboratory: boolean;
@@ -601,7 +604,7 @@ const findCounts = async (
       `${programmingPlanIdColumn} as planId`,
       `${prescriptionsTable}.programming_sub_plan_id as subPlanId`,
       `${programmingSubPlansTable}.matrices as matrices`,
-      `${prescriptionsTable}.context as context`,
+      `${programmingSubPlansTable}.context as context`,
       db.raw(
         `${scopedSampleCount(countOptions, visibility)} as "sampleCount"`,
         bindings

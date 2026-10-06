@@ -712,8 +712,7 @@ describe('Sample router', () => {
     test('should derive prescriptionId when a prescription has a matching specific matrix value', async () => {
       const specificMatrix: Matrix = 'A00GZ';
       const prescription = genPrescription({
-        programmingSubPlanId: specificMatrixSubPlan.id,
-        context: PrescriptionFixture.context
+        programmingSubPlanId: specificMatrixSubPlan.id
       });
       await ProgrammingSubPlansRaw().insert(
         toProgrammingPlanSettingsRow({
@@ -730,7 +729,7 @@ describe('Sample router', () => {
         region: Sample11Fixture.region,
         department: Sample11Fixture.department,
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        context: PrescriptionFixture.context,
+        context: 'Control',
         matrixKind: 'A00GY',
         matrix: specificMatrix,
         company: CompanyFixture
@@ -762,7 +761,7 @@ describe('Sample router', () => {
         region: Sample11Fixture.region,
         department: Sample11Fixture.department,
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        context: PrescriptionFixture.context,
+        context: 'Control',
         matrixKind: 'A00GY',
         matrix: 'A00GZ',
         company: CompanyFixture
@@ -786,8 +785,7 @@ describe('Sample router', () => {
       const newMatrix: Matrix = 'A00HF';
       const newLaboratoryId = DummyLaboratoryIds[0];
       const prescription = genPrescription({
-        programmingSubPlanId: specificMatrixSubPlan.id,
-        context: PrescriptionFixture.context
+        programmingSubPlanId: specificMatrixSubPlan.id
       });
       const localPrescription = genLocalPrescription({
         prescriptionId: prescription.id,
@@ -824,7 +822,7 @@ describe('Sample router', () => {
         region: Sample11Fixture.region,
         department: Sample11Fixture.department,
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        context: PrescriptionFixture.context,
+        context: 'Control',
         matrixKind: 'A00GY',
         matrix: 'A00GZ',
         prescriptionId: PrescriptionFixture.id,

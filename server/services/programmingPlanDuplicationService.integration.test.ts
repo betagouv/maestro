@@ -132,7 +132,8 @@ describe('duplicateSubPlan', () => {
       programmingSubPlanRepository.findUnique(copiedSubPlanId)
     ).resolves.toMatchObject({
       subPlanNumber: 'M03',
-      label: DAOAVolailleInProgressSubPlanFixture.label,
+      matrices: DAOAVolailleInProgressSubPlanFixture.matrices,
+      context: DAOAVolailleInProgressSubPlanFixture.context,
       programmingPlanId: sourcePlanId
     });
   });

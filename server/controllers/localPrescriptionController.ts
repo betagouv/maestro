@@ -16,6 +16,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import {
   companiesIsRequired,
   userRegionsForRole
@@ -726,25 +727,27 @@ export const localPrescriptionsRouter = {
               disabled: false
             });
 
-      await notificationService.sendNotification(
-        {
-          category: prescription.context,
-          author: user,
-          link: AppRouteLinks.ProgrammingRoute.link({
-            year: programmingPlan.year,
-            contexts: [prescription.context],
-            prescriptionId: prescription.id,
-            commentsRegion: localPrescription.region
-          })
-        },
-        recipients,
-        {
-          matrix: subPlan.label,
-          sampleCount: localPrescription.sampleCount,
-          comment: draftPrescriptionComment.comment,
-          author: user ? `${user.name}` : 'Anonyme'
-        }
-      );
+      if (subPlan.context) {
+        await notificationService.sendNotification(
+          {
+            category: subPlan.context,
+            author: user,
+            link: AppRouteLinks.ProgrammingRoute.link({
+              year: programmingPlan.year,
+              contexts: [subPlan.context],
+              prescriptionId: prescription.id,
+              commentsRegion: localPrescription.region
+            })
+          },
+          recipients,
+          {
+            matrix: getSubPlanMatrixLabels(subPlan.matrices).join(', '),
+            sampleCount: localPrescription.sampleCount,
+            comment: draftPrescriptionComment.comment,
+            author: user ? `${user.name}` : 'Anonyme'
+          }
+        );
+      }
 
       return {
         status: HttpStatus.CREATED,
@@ -807,25 +810,27 @@ export const localPrescriptionsRouter = {
               })
         });
 
-        await notificationService.sendNotification(
-          {
-            category: prescription.context,
-            author: user,
-            link: AppRouteLinks.ProgrammingRoute.link({
-              year: programmingPlan.year,
-              contexts: [prescription.context],
-              prescriptionId: prescription.id,
-              commentsRegion: localPrescription.region
-            })
-          },
-          recipients,
-          {
-            matrix: subPlan.label,
-            sampleCount: localPrescription.sampleCount,
-            comment: draftPrescriptionComment.comment,
-            author: user ? `${user.name}` : 'Anonyme'
-          }
-        );
+        if (subPlan.context) {
+          await notificationService.sendNotification(
+            {
+              category: subPlan.context,
+              author: user,
+              link: AppRouteLinks.ProgrammingRoute.link({
+                year: programmingPlan.year,
+                contexts: [subPlan.context],
+                prescriptionId: prescription.id,
+                commentsRegion: localPrescription.region
+              })
+            },
+            recipients,
+            {
+              matrix: getSubPlanMatrixLabels(subPlan.matrices).join(', '),
+              sampleCount: localPrescription.sampleCount,
+              comment: draftPrescriptionComment.comment,
+              author: user ? `${user.name}` : 'Anonyme'
+            }
+          );
+        }
 
         return {
           status: HttpStatus.CREATED,

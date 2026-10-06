@@ -47,12 +47,10 @@ const pastProgrammingPlan = {
   year: new Date().getFullYear() - 1
 };
 const prescription1 = genPrescription({
-  programmingSubPlanId: programmingPlan.subPlans[0].id,
-  context: 'Control'
+  programmingSubPlanId: programmingPlan.subPlans[0].id
 });
 const prescription2 = genPrescription({
-  programmingSubPlanId: programmingPlan.subPlans[1].id,
-  context: 'Control'
+  programmingSubPlanId: programmingPlan.subPlans[1].id
 });
 
 const programmingPlans = [programmingPlan, pastProgrammingPlan];
