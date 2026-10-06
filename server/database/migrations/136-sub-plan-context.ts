@@ -16,7 +16,8 @@ const subPlansView = (labelColumns: string) => `
     sp.settings_completed,
     CASE WHEN sp.samples_managed THEN sp.samples ELSE pp.samples END AS samples,
     sp.samples_managed,
-    sp.matrices
+    CASE WHEN sp.matrices_managed THEN sp.matrices ELSE pp.matrices END AS matrices,
+    sp.matrices_managed
   FROM programming_sub_plans_raw sp
   JOIN programming_plans pp ON pp.id = sp.programming_plan_id
 `;
