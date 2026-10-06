@@ -806,13 +806,15 @@ describe('Sample router', () => {
           'inProgressSampleCount'
         ])
       );
-      await LocalPrescriptionSubstanceKindsLaboratories().insert({
-        prescriptionId: prescription.id,
-        region: localPrescription.region,
-        department: 'None',
-        substanceKind: 'Mono',
-        laboratoryId: newLaboratoryId
-      });
+      await LocalPrescriptionSubstanceKindsLaboratories().insert(
+        (['Mono', 'Multi'] as const).map((substanceKind) => ({
+          prescriptionId: prescription.id,
+          region: localPrescription.region,
+          department: 'None',
+          substanceKind,
+          laboratoryId: newLaboratoryId
+        }))
+      );
 
       const sampleId = uuidv4();
       const sample = genCreatedPartialSample({

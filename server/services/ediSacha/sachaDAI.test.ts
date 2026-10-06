@@ -348,7 +348,7 @@ test('refuse un exemplaire dont un analyte n’a pas de plan d’analyse', () =>
     generateXMLDAI(
       daiSample,
       'M01',
-      { ...daiSampleItem, substanceKinds: ['Copper', 'Mono', 'Multi'] },
+      { ...daiSampleItem, substanceKinds: ['Copper', 'ANALYTE1'] },
       1765876056798,
       daiFieldConfigs,
       daiCommemoratifRecord,

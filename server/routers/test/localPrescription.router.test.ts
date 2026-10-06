@@ -101,12 +101,12 @@ describe('Local prescriptions router', () => {
   const { app } = createServer();
 
   const laboratory = genLaboratory();
-  const substanceKindsLaboratories = [
-    {
-      substanceKind: 'Mono' as const,
+  const substanceKindsLaboratories = (['Mono', 'Multi'] as const).map(
+    (substanceKind) => ({
+      substanceKind,
       laboratoryId: laboratory.id
-    }
-  ];
+    })
+  );
   const validatedControlSubPlan = genProgrammingSubPlan({
     ...PPVValidatedSubPlanFixture,
     id: ProgrammingSubPlanId.parse(uuidv4())
@@ -848,15 +848,17 @@ describe('Local prescriptions router', () => {
         LocalPrescriptionSubstanceKindsLaboratories().where(
           LocalPrescriptionKey.parse(validatedLocalPrescription)
         )
-      ).resolves.toEqual([
-        {
-          prescriptionId: validatedLocalPrescription.prescriptionId,
-          region: validatedLocalPrescription.region,
-          department: 'None',
-          substanceKind: 'Mono',
-          laboratoryId: laboratory.id
-        }
-      ]);
+      ).resolves.toEqual(
+        expect.arrayContaining(
+          (['Mono', 'Multi'] as const).map((substanceKind) => ({
+            prescriptionId: validatedLocalPrescription.prescriptionId,
+            region: validatedLocalPrescription.region,
+            department: 'None',
+            substanceKind,
+            laboratoryId: laboratory.id
+          }))
+        )
+      );
     });
 
     test('should refuse different laboratories for the analytes of a same sample', async () => {
@@ -1637,15 +1639,15 @@ describe('Local prescriptions router', () => {
     });
 
     test('should update the substances laboratories for a departmental coordinator', async () => {
-      const seededLaboratories = [
-        {
+      const seededLaboratories = substanceKindsLaboratories.map(
+        ({ substanceKind }) => ({
           prescriptionId: departmentalLocalPrescription.prescriptionId,
           region: departmentalLocalPrescription.region,
           department: departmentalLocalPrescription.department,
-          substanceKind: 'Mono',
+          substanceKind,
           laboratoryId: laboratory.id
-        }
-      ];
+        })
+      );
 
       await request(app)
         .put(testRoute())

@@ -117,7 +117,7 @@ describe('AnalysisDai router', () => {
       });
       expect(group.analysis).toEqual({ itemNumber: 1, copyNumber: 1 });
       expect(group.sampleItem).toMatchObject({
-        substanceKinds: [expect.any(String)]
+        substanceKinds: expect.arrayContaining([expect.any(String)])
       });
       expect(group.attempts).toHaveLength(3);
 

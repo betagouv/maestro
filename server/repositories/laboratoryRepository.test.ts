@@ -277,6 +277,15 @@ describe('findMany', () => {
 
   beforeAll(async () => {
     await kysely
+      .deleteFrom('laboratoryAgreements')
+      .where('programmingSubPlanId', '=', PPVValidatedSubPlanId)
+      .where('laboratoryId', 'in', [
+        fullyAgreedLaboratoryId,
+        partlyAgreedLaboratoryId
+      ])
+      .execute();
+
+    await kysely
       .insertInto('laboratoryAgreements')
       .values([
         ...(['Mono', 'Multi'] as const).map((substanceKind) => ({
