@@ -304,10 +304,13 @@ export const replayRai = async (
   try {
     const emails: EmailWithMessageUid[] = [];
     for (const messageUid of messageUids) {
-      const downloadObject = await client.download(messageUid, undefined, {
+      const { content } = await client.download(messageUid, undefined, {
         uid: true
       });
-      const parsed = await simpleParser(downloadObject.content);
+      if (!content) {
+        throw new Error(`Email ${messageUid} introuvable.`);
+      }
+      const parsed = await simpleParser(content);
       emails.push({ ...parsed, messageUid });
     }
 
@@ -457,14 +460,17 @@ export const checkEmails = async () => {
           const parsedEmails: EmailWithMessageUid[] = [];
           for (const messageUid of messagesByLaboratory[laboratoryName]) {
             //undefined permet de récupérer tout l'email
-            const downloadObject = await client.download(
+            const { content } = await client.download(
               `${messageUid}`,
               undefined,
               {
                 uid: true
               }
             );
-            const parsed = await simpleParser(downloadObject.content);
+            if (!content) {
+              throw new ExtractError("Impossible d'ouvrir l'email");
+            }
+            const parsed = await simpleParser(content);
             parsedEmails.push({
               ...parsed,
               messageUid: `${messageUid}`
