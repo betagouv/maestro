@@ -11,6 +11,7 @@ import {
   emptyProgrammingPlanSettings,
   managedKey,
   ProgrammingPlanRequiredSettingKey,
+  ProgrammingPlanSettingKey,
   ProgrammingPlanSettings
 } from './ProgrammingPlanSettings';
 import {
@@ -108,11 +109,15 @@ describe('ProgrammingPlanSettingsForm', () => {
         fields: []
       });
 
-    test('should accept a completed level managing an empty note', () => {
+    test.each(
+      ProgrammingPlanSettingKey.exclude(
+        ProgrammingPlanRequiredSettingKey.options
+      ).options
+    )('should accept a completed level managing an empty %s', (settingKey) => {
       expect(
         form({
-          notes: null,
-          notesManaged: true,
+          [settingKey]: null,
+          [managedKey(settingKey)]: true,
           settingsCompleted: true
         }).success
       ).toBe(true);

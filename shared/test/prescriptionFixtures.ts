@@ -70,8 +70,7 @@ export const LocalPrescriptionFixture = genLocalPrescription({
 export const FoieDeBovinPrescriptionFixture = genPrescription({
   id: '177e280f-7fc5-499f-9dcb-4970dc00af36',
   programmingSubPlanId: DAOAInProgressBovinSubPlanId,
-  sampleCount: 80,
-  programmingInstruction: 'Instructions pour le foie de bovin'
+  sampleCount: 80
 });
 export const VolaillePrescriptionFixture = genPrescription({
   id: '608d0973-b472-4964-a8d7-246f91ad4d39',

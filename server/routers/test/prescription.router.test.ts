@@ -28,6 +28,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionChangeRepository';
 import { LocalPrescriptions } from '../../repositories/localPrescriptionRepository';
+import { PrescriptionChanges } from '../../repositories/prescriptionChangeRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
@@ -388,7 +389,7 @@ describe('Prescriptions router', () => {
   describe('PUT /prescriptions/{prescriptionId}', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
       programmingPlanId: programmingPlanInProgress.id,
-      programmingInstruction: fakerFR.string.alphanumeric(32)
+      sampleCount: 42
     };
     const testRoute = (
       prescriptionId: string = inProgressControlPrescription.id
@@ -474,14 +475,16 @@ describe('Prescriptions router', () => {
 
       expect(res.body).toMatchObject({
         ...inProgressControlPrescription,
-        programmingInstruction: prescriptionUpdate.programmingInstruction
+        sampleCount: 42
       });
 
       await expect(
-        Prescriptions().where({ id: inProgressControlPrescription.id }).first()
+        PrescriptionChanges()
+          .where({ prescriptionId: inProgressControlPrescription.id })
+          .first()
       ).resolves.toMatchObject({
-        ...inProgressControlPrescription,
-        programmingInstruction: prescriptionUpdate.programmingInstruction
+        sampleCount: 42,
+        previousSampleCount: inProgressControlPrescription.sampleCount
       });
     });
   });

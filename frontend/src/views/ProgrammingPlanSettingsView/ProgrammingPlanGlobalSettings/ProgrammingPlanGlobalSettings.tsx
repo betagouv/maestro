@@ -159,6 +159,29 @@ export const ProgrammingPlanGlobalSettings = <
         )}
       </ProgrammingPlanSettingInheritance>
       <ProgrammingPlanSettingInheritance
+        settingKey="programmingInstruction"
+        label="Clé de répartition conseillée"
+        settings={settings}
+        planSettings={planSettings}
+        onChange={onChange}
+      >
+        {({ disabled, label }) => (
+          <AppTextAreaInput
+            value={settings.programmingInstruction ?? ''}
+            onChange={(event) =>
+              onChange({
+                ...settings,
+                programmingInstruction: event.target.value || null
+              })
+            }
+            inputForm={inputForm}
+            inputKey="programmingInstruction"
+            label={label}
+            disabled={disabled}
+          />
+        )}
+      </ProgrammingPlanSettingInheritance>
+      <ProgrammingPlanSettingInheritance
         settingKey="notes"
         label="Note additionnelle"
         settings={settings}

@@ -15,6 +15,7 @@ export const ProgrammingPlanSettingKey = z.enum([
   'samples',
   'matrices',
   'context',
+  'programmingInstruction',
   'notes'
 ]);
 export type ProgrammingPlanSettingKey = z.infer<
@@ -22,7 +23,7 @@ export type ProgrammingPlanSettingKey = z.infer<
 >;
 
 export const ProgrammingPlanRequiredSettingKey =
-  ProgrammingPlanSettingKey.exclude(['notes']);
+  ProgrammingPlanSettingKey.exclude(['programmingInstruction', 'notes']);
 export type ProgrammingPlanRequiredSettingKey = z.infer<
   typeof ProgrammingPlanRequiredSettingKey
 >;
@@ -41,6 +42,8 @@ export const ProgrammingPlanSettings = z.object({
   matricesManaged: z.boolean(),
   context: ProgrammingPlanContext.nullable(),
   contextManaged: z.boolean(),
+  programmingInstruction: z.string().nullable(),
+  programmingInstructionManaged: z.boolean(),
   notes: z.string().nullable(),
   notesManaged: z.boolean()
 } satisfies Record<ProgrammingPlanSettingKey, z.ZodType> &

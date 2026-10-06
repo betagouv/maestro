@@ -679,7 +679,7 @@ const ProgrammingPrescriptionRow = ({
                   <span className={cx('fr-icon-chat-quote-line', 'fr-pr-1v')} />
                   <b>Consignes</b>
                 </div>
-                {prescription.programmingInstruction ?? 'Aucune consigne'}
+                {subPlan?.programmingInstruction ?? 'Aucune consigne'}
               </div>
             </div>
             <div className={cx('fr-col-3')}>

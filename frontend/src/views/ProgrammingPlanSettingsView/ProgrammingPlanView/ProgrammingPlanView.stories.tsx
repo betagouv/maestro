@@ -147,6 +147,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     matricesManaged: true,
     context: 'Control',
     contextManaged: true,
+    programmingInstruction: null,
+    programmingInstructionManaged: true,
     notes: null,
     notesManaged: true,
     fields: [matriceField, quantiteField].map(({ id }) => ({
@@ -169,6 +171,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     matricesManaged: true,
     context: 'Control',
     contextManaged: true,
+    programmingInstruction: null,
+    programmingInstructionManaged: true,
     notes: null,
     notesManaged: true,
     fields: []
@@ -185,6 +189,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     matricesManaged: true,
     context: 'Control',
     contextManaged: true,
+    programmingInstruction: null,
+    programmingInstructionManaged: true,
     notes: null,
     notesManaged: true,
     fields: [
@@ -228,6 +234,8 @@ const planSettings: ProgrammingPlanSettingsForm = {
   matricesManaged: false,
   context: null,
   contextManaged: false,
+  programmingInstruction: null,
+  programmingInstructionManaged: false,
   notes: null,
   notesManaged: false,
   settingsCompleted: false,
@@ -1103,6 +1111,43 @@ export const PlanContext: Story = {
         ...planSettings,
         context: 'Surveillance',
         contextManaged: true
+      })
+    );
+  }
+};
+
+export const PlanProgrammingInstruction: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    const managedSwitch = canvas.getByTitle(
+      'Paramétrer « Clé de répartition conseillée » au niveau du plan'
+    );
+
+    await expect(managedSwitch).not.toBeChecked();
+    await expect(
+      canvas.queryByRole('textbox', { name: /Clé de répartition conseillée/ })
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(managedSwitch);
+    await userEvent.type(
+      await canvas.findByRole('textbox', {
+        name: /Clé de répartition conseillée/
+      }),
+      'Au prorata de la population'
+    );
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        ...planSettings,
+        programmingInstruction: 'Au prorata de la population',
+        programmingInstructionManaged: true
       })
     );
   }
