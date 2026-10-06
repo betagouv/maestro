@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
+import { uniq } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -49,6 +50,10 @@ const MatrixStepSummary = ({
       },
       { skip: !sample.programmingSubPlanId }
     );
+
+  const substanceKinds = uniq(
+    sample.items.flatMap(({ substanceKinds }) => substanceKinds)
+  );
 
   return (
     <StepSummary title="Matrice contrôlée" onEdit={onEdit} mode={mode}>
@@ -128,51 +133,44 @@ const MatrixStepSummary = ({
           </div>
         );
       })}
-      {isProgrammingPlanSample(sample) &&
-        !sample.monoSubstances?.length &&
-        !sample.multiSubstances?.length && (
-          <div className="summary-item icon-text">
-            <div className={cx('fr-icon-list-ordered')}></div>
-            <div className="missing-data">Méthode d'analyse non disponible</div>
-          </div>
-        )}
-      {sample.monoSubstances && sample.monoSubstances.length > 0 && (
+      {isProgrammingPlanSample(sample) && substanceKinds.length === 0 && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-list-ordered')}></div>
-          <div>
-            {pluralize(sample.monoSubstances.length)('Analyse')} mono-résidu :
-            <ul>
-              {sample.monoSubstances.map((substance) => (
-                <li key={`Mono_${substance}`}>{SSD2IdLabel[substance]}</li>
-              ))}
-            </ul>
-          </div>
+          <div className="missing-data">Méthode d'analyse non disponible</div>
         </div>
       )}
-      {sample.multiSubstances && (
-        <div className="summary-item icon-text">
-          <div className={cx('fr-icon-list-ordered')}></div>
-          <div>
-            Analyses multi-résidus dont :
-            <ul>
-              {sample.multiSubstances.map((substance) => (
-                <li key={`Multi_${substance}`}>{SSD2IdLabel[substance]}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
-      {sample.items
-        .flatMap(({ substanceKinds }) => substanceKinds)
-        .filter(
-          (substanceKind) => !['Any', 'Multi', 'Mono'].includes(substanceKind)
-        )
-        .map((substanceKind) => (
+      {substanceKinds.map((substanceKind) => {
+        const substances =
+          substanceKind === 'Mono'
+            ? (sample.monoSubstances ?? [])
+            : substanceKind === 'Multi'
+              ? (sample.multiSubstances ?? [])
+              : [];
+
+        return (
           <div key={substanceKind} className="summary-item icon-text">
             <div className={cx('fr-icon-list-ordered')}></div>
-            <div>{SubstanceKindLabels[substanceKind]}</div>
+            <div>
+              {substanceKind === 'Mono' &&
+                `${pluralize(substances.length)('Analyse')} mono-résidu${substances.length > 0 ? ' :' : ''}`}
+              {substanceKind === 'Multi' &&
+                `Analyses multi-résidus${substances.length > 0 ? ' dont :' : ''}`}
+              {substanceKind !== 'Mono' &&
+                substanceKind !== 'Multi' &&
+                SubstanceKindLabels[substanceKind]}
+              {substances.length > 0 && (
+                <ul>
+                  {substances.map((substance) => (
+                    <li key={`${substanceKind}_${substance}`}>
+                      {SSD2IdLabel[substance]}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
-        ))}
+        );
+      })}
       {sample.documentIds?.map((documentId) => (
         <div className="summary-item icon-text" key={documentId}>
           <div className={cx('fr-icon-attachment-line')}></div>

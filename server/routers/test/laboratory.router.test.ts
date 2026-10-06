@@ -334,7 +334,7 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
 
     test('should filter aggregated laboratories by programmingPlanId and substanceKinds', async () => {
       const res = await request(app)
-        .get(testRoute(PPVValidatedProgrammingPlanFixture.id, 'Any'))
+        .get(testRoute(PPVValidatedProgrammingPlanFixture.id, 'Mono'))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -466,7 +466,7 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
           expect.objectContaining({
             laboratoryId,
             programmingSubPlanId: PPVValidatedSubPlanId,
-            substanceKind: 'Any'
+            substanceKind: 'Mono'
           })
         ),
         expect.objectContaining({
@@ -638,7 +638,7 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
       laboratoryAgreementRowKey: {
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
         programmingSubPlanId: PPVValidatedSubPlanId,
-        substanceKind: 'Any'
+        substanceKind: 'Mono'
       },
       referenceLaboratory: true,
       detectionAnalysis: true,
@@ -731,7 +731,7 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
         expect.objectContaining({
           laboratoryId: LaboratoryFixture.id,
           programmingSubPlanId: PPVValidatedSubPlanId,
-          substanceKind: 'Any',
+          substanceKind: 'Mono',
           referenceLaboratory: true,
           detectionAnalysis: true,
           confirmationAnalysis: false

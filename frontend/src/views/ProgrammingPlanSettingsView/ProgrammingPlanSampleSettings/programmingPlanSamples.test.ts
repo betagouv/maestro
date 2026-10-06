@@ -69,9 +69,9 @@ describe('unassignedSubstanceKinds', () => {
     expect(
       unassignedSubstanceKinds(
         [sample(['Multi']), sample([]), sample(['Copper'])],
-        ['Mono', 'Multi', 'Copper', 'Any']
+        ['Mono', 'Multi', 'Copper', 'ANALYTE1']
       )
-    ).toStrictEqual(['Mono', 'Any']);
+    ).toStrictEqual(['Mono', 'ANALYTE1']);
   });
 
   test('should return nothing when every analyte is assigned', () => {

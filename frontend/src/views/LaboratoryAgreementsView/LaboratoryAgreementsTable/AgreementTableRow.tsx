@@ -26,9 +26,24 @@ const MATRIX_DISPLAY_LIMIT = 3;
 export type AgreementRow = {
   programmingSubPlan: ProgrammingSubPlan;
   programmingPlanYear: number;
-  substanceKind: SubstanceKind;
+  substanceKinds: SubstanceKind[];
   laboratories: LaboratoryAgreement[];
 };
+
+export const substanceKindsLabel = (
+  row: Pick<AgreementRow, 'substanceKinds'>
+): string =>
+  row.substanceKinds
+    .map((substanceKind) => SubstanceKindLabels[substanceKind])
+    .join(', ');
+
+export const isRowChecked = (
+  checksSet: Set<string>,
+  row: Pick<AgreementRow, 'programmingSubPlan' | 'substanceKinds'>
+): boolean =>
+  row.substanceKinds.every((substanceKind) =>
+    checksSet.has(`${row.programmingSubPlan.id}_${substanceKind}`)
+  );
 
 interface Props {
   row: AgreementRow;
@@ -116,20 +131,24 @@ const AgreementTableRow = memo(function AgreementTableRow({
       onPendingStart(rowKey);
       setTimeout(() => onAnimatingStart(rowKey), 700);
       setTimeout(() => {
-        onUpdateCheck({
-          programmingSubPlanId: row.programmingSubPlan.id,
-          substanceKind: row.substanceKind,
-          checked: true
-        });
+        for (const substanceKind of row.substanceKinds) {
+          onUpdateCheck({
+            programmingSubPlanId: row.programmingSubPlan.id,
+            substanceKind,
+            checked: true
+          });
+        }
         onPendingEnd(rowKey);
         onAnimatingEnd(rowKey);
       }, 1000);
     } else {
-      onUpdateCheck({
-        programmingSubPlanId: row.programmingSubPlan.id,
-        substanceKind: row.substanceKind,
-        checked: false
-      });
+      for (const substanceKind of row.substanceKinds) {
+        onUpdateCheck({
+          programmingSubPlanId: row.programmingSubPlan.id,
+          substanceKind,
+          checked: false
+        });
+      }
     }
   };
 
@@ -170,9 +189,7 @@ const AgreementTableRow = memo(function AgreementTableRow({
         </td>
 
         <td>
-          <div className="border-left">
-            {SubstanceKindLabels[row.substanceKind]}
-          </div>
+          <div className="border-left">{substanceKindsLabel(row)}</div>
         </td>
 
         <td>

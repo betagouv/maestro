@@ -693,7 +693,7 @@ describe('Sample router', () => {
           itemNumber: 1,
           copyNumber: 1,
           recipientKind: 'Laboratory',
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           laboratoryId: LaboratoryFixture.id
         }
       ];
@@ -763,13 +763,15 @@ describe('Sample router', () => {
           'inProgressSampleCount'
         ])
       );
-      await LocalPrescriptionSubstanceKindsLaboratories().insert({
-        prescriptionId: prescription.id,
-        region: localPrescription.region,
-        department: 'None',
-        substanceKind: 'Any',
-        laboratoryId: newLaboratoryId
-      });
+      await LocalPrescriptionSubstanceKindsLaboratories().insert(
+        (['Mono', 'Multi'] as const).map((substanceKind) => ({
+          prescriptionId: prescription.id,
+          region: localPrescription.region,
+          department: 'None',
+          substanceKind,
+          laboratoryId: newLaboratoryId
+        }))
+      );
 
       const sampleId = uuidv4();
       const sample = genCreatedPartialSample({
@@ -789,7 +791,7 @@ describe('Sample router', () => {
         copyNumber: 1,
         quantity: 42,
         sealId: '654321',
-        substanceKinds: ['Any'],
+        substanceKinds: ['Mono', 'Multi'],
         laboratoryId: LaboratoryFixture.id
       });
       await Samples().insert(formatPartialSample(sample));

@@ -151,9 +151,9 @@ export const genProgrammingSubPlan = (
   stagesManaged: true,
   settingsCompleted: true,
   withSacha: (data?.id && SachaSubPlanIds.includes(data.id)) ?? false,
-  substanceKinds: ['Any'],
+  substanceKinds: ['Mono', 'Multi'],
   substanceKindsManaged: true,
-  samples: (data?.substanceKinds ?? ['Any']).map((substanceKind) => ({
+  samples: (data?.substanceKinds ?? ['Mono', 'Multi']).map((substanceKind) => ({
     ...defaultProgrammingPlanSample,
     substanceKinds: [substanceKind]
   })),
@@ -176,7 +176,10 @@ export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
   analysisPermissionRole: 'Sampler',
   contactListId: 7,
   withSacha: false,
-  substanceKinds: ['Any'],
+  substanceKinds: ['Mono', 'Multi'],
+  samples: [
+    { ...defaultProgrammingPlanSample, substanceKinds: ['Mono', 'Multi'] }
+  ],
   matrices: genSubPlanMatrices('A00GY')
 });
 export const PPVValidatedDromSubPlanFixture = genProgrammingSubPlan({

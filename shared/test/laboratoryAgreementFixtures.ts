@@ -13,7 +13,7 @@ export const DAOALaboratoryAgreementFixture = {
 
 export const LaboratoryAgreementCheckFixture = {
   programmingSubPlanId: PPVValidatedSubPlanId,
-  substanceKind: 'Any'
+  substanceKind: 'Mono'
 };
 
 export const LaboratoryAgreementCheckSeedFixture = {

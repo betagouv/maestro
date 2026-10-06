@@ -9,11 +9,13 @@ export const seed = async () => {
     .where('subPlanNumber', 'like', `${PPVSubPlanNumberPrefix}%`);
 
   await db('laboratory_agreement_checks').insert(
-    ppvSubPlans.map(({ id }) => ({
-      programming_sub_plan_id: id,
-      substance_kind: 'Any',
-      checked_by: AdminFixture.id,
-      checked_at: new Date()
-    }))
+    ppvSubPlans.flatMap(({ id }) =>
+      ['Mono', 'Multi'].map((substanceKind) => ({
+        programming_sub_plan_id: id,
+        substance_kind: substanceKind,
+        checked_by: AdminFixture.id,
+        checked_at: new Date()
+      }))
+    )
   );
 };

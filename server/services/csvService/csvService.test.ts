@@ -16,7 +16,7 @@ const data: AnalysisRequestData = {
   },
   copyNumber: 1,
   itemNumber: 1,
-  substanceKinds: ['Any'],
+  substanceKinds: ['Mono', 'Multi'],
   laboratory: {
     emails: [''],
     id: '',

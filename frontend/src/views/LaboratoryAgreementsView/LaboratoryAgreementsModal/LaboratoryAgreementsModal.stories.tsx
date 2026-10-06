@@ -21,7 +21,7 @@ const agreements = [
   {
     laboratoryId: laboratories[0].id,
     programmingSubPlanId,
-    substanceKind: 'Any' as const,
+    substanceKind: 'Mono' as const,
     referenceLaboratory: true,
     detectionAnalysis: true,
     confirmationAnalysis: false
@@ -29,7 +29,7 @@ const agreements = [
   {
     laboratoryId: laboratories[1].id,
     programmingSubPlanId,
-    substanceKind: 'Any' as const,
+    substanceKind: 'Mono' as const,
     referenceLaboratory: false,
     detectionAnalysis: true,
     confirmationAnalysis: true
@@ -51,7 +51,7 @@ const meta = {
     laboratoryAgreementRowKeys: [
       {
         programmingSubPlanId,
-        substanceKind: 'Any' as const
+        substanceKind: 'Mono' as const
       }
     ],
     agreements,

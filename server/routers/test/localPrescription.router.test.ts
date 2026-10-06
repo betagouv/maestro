@@ -101,12 +101,12 @@ describe('Local prescriptions router', () => {
   const { app } = createServer();
 
   const laboratory = genLaboratory();
-  const substanceKindsLaboratories = [
-    {
-      substanceKind: 'Any' as const,
+  const substanceKindsLaboratories = (['Mono', 'Multi'] as const).map(
+    (substanceKind) => ({
+      substanceKind,
       laboratoryId: laboratory.id
-    }
-  ];
+    })
+  );
   const validatedControlSubPlan = genProgrammingSubPlan({
     ...PPVValidatedSubPlanFixture,
     id: ProgrammingSubPlanId.parse(uuidv4())
@@ -848,15 +848,17 @@ describe('Local prescriptions router', () => {
         LocalPrescriptionSubstanceKindsLaboratories().where(
           LocalPrescriptionKey.parse(validatedLocalPrescription)
         )
-      ).resolves.toEqual([
-        {
-          prescriptionId: validatedLocalPrescription.prescriptionId,
-          region: validatedLocalPrescription.region,
-          department: 'None',
-          substanceKind: 'Any',
-          laboratoryId: laboratory.id
-        }
-      ]);
+      ).resolves.toEqual(
+        expect.arrayContaining(
+          (['Mono', 'Multi'] as const).map((substanceKind) => ({
+            prescriptionId: validatedLocalPrescription.prescriptionId,
+            region: validatedLocalPrescription.region,
+            department: 'None',
+            substanceKind,
+            laboratoryId: laboratory.id
+          }))
+        )
+      );
     });
 
     test('should refuse different laboratories for the analytes of a same sample', async () => {
@@ -946,7 +948,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 1,
         copyNumber: 1,
-        substanceKinds: ['Any'],
+        substanceKinds: ['Mono', 'Multi'],
         recipientKind: 'Laboratory',
         laboratoryId: undefined
       });
@@ -955,7 +957,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 2,
         copyNumber: 1,
-        substanceKinds: ['Any'],
+        substanceKinds: ['Mono', 'Multi'],
         recipientKind: 'Sampler',
         laboratoryId: undefined
       });
@@ -1079,7 +1081,7 @@ describe('Local prescriptions router', () => {
           sampleId: sampleOtherRegion.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1130,7 +1132,7 @@ describe('Local prescriptions router', () => {
           sampleId: otherPrescriptionSample.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1183,7 +1185,7 @@ describe('Local prescriptions router', () => {
           sampleId: sentSample.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1637,15 +1639,15 @@ describe('Local prescriptions router', () => {
     });
 
     test('should update the substances laboratories for a departmental coordinator', async () => {
-      const seededLaboratories = [
-        {
+      const seededLaboratories = substanceKindsLaboratories.map(
+        ({ substanceKind }) => ({
           prescriptionId: departmentalLocalPrescription.prescriptionId,
           region: departmentalLocalPrescription.region,
           department: departmentalLocalPrescription.department,
-          substanceKind: 'Any',
+          substanceKind,
           laboratoryId: laboratory.id
-        }
-      ];
+        })
+      );
 
       await request(app)
         .put(testRoute())
@@ -1702,7 +1704,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 1,
         copyNumber: 1,
-        substanceKinds: ['Any'],
+        substanceKinds: ['Mono', 'Multi'],
         recipientKind: 'Laboratory',
         laboratoryId: null
       });
@@ -1711,7 +1713,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 2,
         copyNumber: 1,
-        substanceKinds: ['Any'],
+        substanceKinds: ['Mono', 'Multi'],
         recipientKind: 'Sampler',
         laboratoryId: null
       });
@@ -1811,7 +1813,7 @@ describe('Local prescriptions router', () => {
           sampleId: sampleOtherDepartment.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1859,7 +1861,7 @@ describe('Local prescriptions router', () => {
           sampleId: sentSample.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -2572,7 +2574,7 @@ describe('Local prescriptions router', () => {
           programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
           key: 'laboratories',
           substanceKindsLaboratories: [
-            { substanceKind: 'Any', laboratoryId: laboratoryForRegion.id }
+            { substanceKind: 'Mono', laboratoryId: laboratoryForRegion.id }
           ]
         })
         .use(tokenProvider(RegionalCoordinator))

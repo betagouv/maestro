@@ -40,7 +40,7 @@ describe('getSubstancesSections', () => {
 
   test('affiche Any comme Mono et Multi', () => {
     expect(
-      getSubstancesSections(['Any', 'Mono'], sample).substancesSections.map(
+      getSubstancesSections(['Mono', 'Multi'], sample).substancesSections.map(
         ({ label }) => label
       )
     ).toEqual(['Mono-résidu', 'Multi-résidus dont :']);

@@ -57,7 +57,11 @@ export const LocalPrescriptionFixture = genLocalPrescription({
   sampleCount: 1,
   substanceKindsLaboratories: [
     {
-      substanceKind: 'Any',
+      substanceKind: 'Mono',
+      laboratoryId: LaboratoryFixture.id
+    },
+    {
+      substanceKind: 'Multi',
       laboratoryId: LaboratoryFixture.id
     }
   ]

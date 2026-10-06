@@ -57,12 +57,14 @@ export const seed = async () => {
     ...ppvSubPlans
       .map((_) => _.id)
       .flatMap((programmingSubPlanId) =>
-        PPVLaboratoryIds.map((laboratoryId) => ({
-          laboratory_id: laboratoryId,
-          programming_sub_plan_id: programmingSubPlanId,
-          substance_kind: 'Any',
-          detection_analysis: true
-        }))
+        PPVLaboratoryIds.flatMap((laboratoryId) =>
+          ['Mono', 'Multi'].map((substanceKind) => ({
+            laboratory_id: laboratoryId,
+            programming_sub_plan_id: programmingSubPlanId,
+            substance_kind: substanceKind,
+            detection_analysis: true
+          }))
+        )
       ),
     ...[DAOAVolailleValidatedSubPlanId].flatMap((programmingSubPlanId) => [
       ...DAOAMonoLaboratoryIds.map((laboratoryId) => ({

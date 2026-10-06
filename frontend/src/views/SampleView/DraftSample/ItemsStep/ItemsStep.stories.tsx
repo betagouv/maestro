@@ -188,7 +188,7 @@ const configuredProgrammingPlan = genProgrammingPlan({
       ...programmingPlan.subPlans[0],
       samples: [
         {
-          substanceKinds: ['Any'],
+          substanceKinds: ['Mono', 'Multi'],
           copies: [
             laboratoryCopy,
             { required: true, recipientKinds: ['Operator'] },
@@ -311,7 +311,7 @@ export const SubmittingSuccess: Story = {
           recipientKind: 'Laboratory',
           compliance200263: false,
           laboratoryId: LaboratoryFixture.id,
-          substanceKinds: ['Any']
+          substanceKinds: ['Mono', 'Multi']
         }
       ]
     } as SampleChecked
@@ -347,7 +347,7 @@ export const SubmittingSuccess: Story = {
             recipientKind: 'Laboratory',
             compliance200263: false,
             laboratoryId: LaboratoryFixture.id,
-            substanceKinds: ['Any']
+            substanceKinds: ['Mono', 'Multi']
           })
         ]),
         step: 'Submitted'

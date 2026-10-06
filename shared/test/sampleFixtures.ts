@@ -134,7 +134,7 @@ export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
   sealId: fakerFR.string.alphanumeric(32),
   recipientKind: 'Laboratory',
   laboratoryId: oneOf(DummyLaboratoryIds),
-  substanceKinds: ['Any'],
+  substanceKinds: ['Mono', 'Multi'],
   ...data
 });
 const Sample11FixtureId = '11111111-1111-1111-1111-111111111111';
@@ -146,7 +146,7 @@ export const Sample1Item1Fixture = genSampleItem({
   quantityUnit: 'G185A',
   compliance200263: true,
   sealId: '123456',
-  substanceKinds: ['Any'],
+  substanceKinds: ['Mono', 'Multi'],
   laboratoryId: LaboratoryFixture.id
 });
 export const Sample11Fixture = genCreatedPartialSample({

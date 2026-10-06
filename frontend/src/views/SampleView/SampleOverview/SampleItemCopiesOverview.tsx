@@ -70,11 +70,13 @@ const SampleItemCopiesOverview = ({
           status={getItemStatus(sampleItemCopies)}
           compliance={isItemCompliant(sampleItemCopies)}
         />
-        {sampleItemCopies[0].substanceKinds.map((substanceKind) => (
-          <Tag key={substanceKind} className={cx('fr-mx-1w')}>
-            {SubstanceKindLabels[substanceKind]}
-          </Tag>
-        ))}
+        <div className="d-flex-align-center">
+          {sampleItemCopies[0].substanceKinds.map((substanceKind) => (
+            <Tag key={substanceKind} className={cx('fr-ml-1w')}>
+              {SubstanceKindLabels[substanceKind]}
+            </Tag>
+          ))}
+        </div>
       </div>
       {isItemAchieved(sampleItemCopies) && (
         <div className="d-flex-align-center">

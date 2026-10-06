@@ -26,10 +26,13 @@ import BackToTopButton from 'src/components/BackToTopButton/BackToTopButton';
 import { LaboratoryAgreementDetailProvider } from 'src/components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
 import { ApiClientContext } from '../../services/apiClient';
 import { getLaboratoryAgreementsExportURL } from '../../services/laboratory.service';
+import { groupSubstanceKindsBySample } from '../../utils/sampleLaboratories';
 import { pluralize } from '../../utils/stringUtils';
 import LaboratoryAgreementsModal from './LaboratoryAgreementsModal/LaboratoryAgreementsModal';
 import LaboratoryAgreementsTable, {
   type AgreementRow,
+  isRowChecked,
+  substanceKindsLabel,
   toRowKey
 } from './LaboratoryAgreementsTable/LaboratoryAgreementsTable';
 import './LaboratoryAgreementsView.scss';
@@ -106,14 +109,17 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
     () =>
       programmingPlans.flatMap((plan) =>
         plan.subPlans.flatMap((subPlan) =>
-          (subPlan.substanceKinds ?? []).map((substanceKind) => ({
+          groupSubstanceKindsBySample(
+            subPlan.samples,
+            subPlan.substanceKinds ?? []
+          ).map((substanceKinds) => ({
             programmingSubPlan: subPlan,
             programmingPlanYear: plan.year,
-            substanceKind,
+            substanceKinds,
             laboratories: agreements.filter(
               (a) =>
                 a.programmingSubPlanId === subPlan.id &&
-                a.substanceKind === substanceKind
+                substanceKinds.includes(a.substanceKind)
             )
           }))
         )
@@ -152,7 +158,7 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
 
   const substanceOptions = useMemo(
     () =>
-      [...new Set(rows.map((r) => r.substanceKind))]
+      [...new Set(rows.flatMap((r) => r.substanceKinds))]
         .map((value) => ({
           value,
           label: SubstanceKindLabels[value]
@@ -220,7 +226,9 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
           (subPlanFilter.length === 0 ||
             subPlanFilter.includes(r.programmingSubPlan.id)) &&
           (substanceFilter.length === 0 ||
-            substanceFilter.includes(r.substanceKind)) &&
+            r.substanceKinds.some((substanceKind) =>
+              substanceFilter.includes(substanceKind)
+            )) &&
           (matrixCombinedFilter.length === 0 ||
             matrixCombinedFilter.some(
               (v) =>
@@ -250,15 +258,13 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
             ))
       )
       .sort((a, b) => {
-        const aKey = `${a.programmingSubPlan.id}_${a.substanceKind}`;
-        const bKey = `${b.programmingSubPlan.id}_${b.substanceKind}`;
-        const aChecked = checksSet.has(aKey);
-        const bChecked = checksSet.has(bKey);
+        const aChecked = isRowChecked(checksSet, a);
+        const bChecked = isRowChecked(checksSet, b);
         if (aChecked !== bChecked) {
           return aChecked ? 1 : -1;
         }
-        const substanceCmp = SubstanceKindLabels[a.substanceKind].localeCompare(
-          SubstanceKindLabels[b.substanceKind]
+        const substanceCmp = substanceKindsLabel(a).localeCompare(
+          substanceKindsLabel(b)
         );
         if (substanceCmp !== 0) {
           return substanceCmp;
@@ -313,10 +319,12 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
     const firstRow = selectedRows[0];
     setModalAgreements(firstRow?.laboratories ?? []);
     setModalRowKeys(
-      selectedRows.map((row) => ({
-        programmingSubPlanId: row.programmingSubPlan.id,
-        substanceKind: row.substanceKind
-      }))
+      selectedRows.flatMap((row) =>
+        row.substanceKinds.map((substanceKind) => ({
+          programmingSubPlanId: row.programmingSubPlan.id,
+          substanceKind
+        }))
+      )
     );
     setModalProgrammingSubPlan(firstRow.programmingSubPlan);
     agreementsModal.open();
@@ -324,12 +332,12 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
 
   const handleOpenModalForRow = useCallback((row: AgreementRow) => {
     setModalAgreements(row.laboratories);
-    setModalRowKeys([
-      {
+    setModalRowKeys(
+      row.substanceKinds.map((substanceKind) => ({
         programmingSubPlanId: row.programmingSubPlan.id,
-        substanceKind: row.substanceKind
-      }
-    ]);
+        substanceKind
+      }))
+    );
     setModalProgrammingSubPlan(row.programmingSubPlan);
     agreementsModal.open();
   }, []);
