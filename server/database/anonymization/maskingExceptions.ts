@@ -94,6 +94,7 @@ export const maskingExceptions: Record<string, string[]> = {
   programming_plan_national_coordinators: ['programming_plan_id', 'user_id'],
   programming_plans: [
     'closed_by',
+    'context',
     'contexts',
     'created_by',
     'distribution_kind',

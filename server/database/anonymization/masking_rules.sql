@@ -92,9 +92,13 @@ SECURITY LABEL FOR anon ON COLUMN analysis_residues.notes_on_contamination_sourc
 SECURITY LABEL FOR anon ON COLUMN analysis_residues.unknown_label
   IS 'MASKED WITH VALUE NULL';
 
-SECURITY LABEL FOR anon ON COLUMN prescriptions.notes
+SECURITY LABEL FOR anon ON COLUMN programming_plans.notes
   IS 'MASKED WITH VALUE NULL';
-SECURITY LABEL FOR anon ON COLUMN prescriptions.programming_instruction
+SECURITY LABEL FOR anon ON COLUMN programming_plans.programming_instruction
+  IS 'MASKED WITH VALUE NULL';
+SECURITY LABEL FOR anon ON COLUMN programming_sub_plans_raw.notes
+  IS 'MASKED WITH VALUE NULL';
+SECURITY LABEL FOR anon ON COLUMN programming_sub_plans_raw.programming_instruction
   IS 'MASKED WITH VALUE NULL';
 
 SECURITY LABEL FOR anon ON COLUMN local_prescription_comments.comment
