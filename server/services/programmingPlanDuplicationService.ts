@@ -1,7 +1,6 @@
 import type { Transaction } from 'kysely';
 import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import { v4 as uuidv4 } from 'uuid';
 import { executeTransaction } from '../repositories/kysely';
 import type { DB } from '../repositories/kysely.type';
 import { toProgrammingPlanSettingsRow } from '../repositories/programmingPlanSettingsRow';
@@ -160,7 +159,7 @@ const duplicateSubPlanWithin = async (
     .where('id', '=', sourceSubPlanId)
     .executeTakeFirstOrThrow();
 
-  const copiedSubPlanId = uuidv4() as ProgrammingSubPlanId;
+  const copiedSubPlanId = crypto.randomUUID() as ProgrammingSubPlanId;
 
   await trx
     .insertInto('programmingSubPlansRaw')
@@ -192,7 +191,7 @@ const duplicatePlanWithin = async (
     .where('id', '=', sourcePlanId)
     .executeTakeFirstOrThrow();
 
-  const copiedPlanId = uuidv4();
+  const copiedPlanId = crypto.randomUUID();
 
   await trx
     .insertInto('programmingPlans')
@@ -328,7 +327,7 @@ const duplicateDomain = async (
       .where('id', '=', programmingPlanDomainId)
       .executeTakeFirstOrThrow();
 
-    const copiedDomainId = uuidv4() as ProgrammingPlanDomainId;
+    const copiedDomainId = crypto.randomUUID() as ProgrammingPlanDomainId;
 
     await trx
       .insertInto('programmingPlanDomains')

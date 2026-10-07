@@ -18,7 +18,6 @@ import {
   pendingChangeVisibilityForRole
 } from 'maestro-shared/schema/User/UserRole';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
@@ -130,7 +129,7 @@ export const prescriptionsRouter = {
 
       const createdPrescription = {
         ...body,
-        id: uuidv4()
+        id: crypto.randomUUID()
       };
 
       await prescriptionRepository.insert(createdPrescription);

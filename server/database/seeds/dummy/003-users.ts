@@ -13,7 +13,6 @@ import {
   NationalCoordinatorDaoaFixture,
   SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
-import { v4 as uuidv4 } from 'uuid';
 import { UserCompanies, Users } from '../../../repositories/userRepository';
 import { AVIVOL, CHARAL } from './001-companies';
 
@@ -42,7 +41,7 @@ export const seed = async () => {
       roles: ['AdministratorBGIR']
     },
     {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       email: 'laboratory@maestro.beta.gouv.fr',
       name: `Laboratoire - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
@@ -51,7 +50,7 @@ export const seed = async () => {
       laboratoryId: CER30Id
     },
     {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       email: 'bureau.laboratoires@maestro.beta.gouv.fr',
       name: `Bureau des laboratoires - ${fakerFR.person.fullName()}`,
       stages: [],
@@ -69,7 +68,7 @@ export const seed = async () => {
       roles: ['NationalCoordinator']
     },
     {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       email: 'coordinateur.regional@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
@@ -78,7 +77,7 @@ export const seed = async () => {
       region: '44'
     },
     {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       email: 'coordinateur.regional.drom@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
@@ -87,7 +86,7 @@ export const seed = async () => {
       region: '01'
     },
     {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       email: 'preleveur@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
@@ -96,7 +95,7 @@ export const seed = async () => {
       region: '44'
     },
     {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       email: 'preleveur.drom@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
@@ -105,7 +104,7 @@ export const seed = async () => {
       region: '01'
     },
     {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       email: 'suivi.national@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
@@ -113,7 +112,7 @@ export const seed = async () => {
       roles: ['NationalObserver']
     },
     {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       email: 'suivi.regional@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
@@ -132,7 +131,7 @@ export const seed = async () => {
       roles: ['NationalCoordinator']
     },
     {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       email: 'coordinateur.regional.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
       stages: sachaStages,
@@ -141,7 +140,7 @@ export const seed = async () => {
       region: '52'
     },
     {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       email: 'coordinateur.departemental.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
       stages: sachaStages,

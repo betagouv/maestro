@@ -1,6 +1,5 @@
 import type { Knex } from 'knex';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { v4 as uuidv4 } from 'uuid';
 export const up = async (knex: Knex) => {
   await knex.schema.alterTable('prescriptions', (table) => {
     table.enum('context', Context.options);
@@ -100,7 +99,7 @@ export const down = async (knex: Knex) => {
     controlProgrammingPlans.map(async (controlProgrammingPlan) => {
       const surveillanceProgrammingPlan = {
         ...controlProgrammingPlan,
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         kind: 'Surveillance'
       };
       await knex('programming_plans').insert(surveillanceProgrammingPlan);

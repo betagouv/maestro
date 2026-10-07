@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import {
   type ProgrammingSubPlanFieldConfig,
   ProgrammingSubPlanFieldId
@@ -13,7 +12,7 @@ import {
 
 export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: PPVValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -35,7 +34,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: PPVValidatedSubPlanId,
     inheritance: 'Own',
     required: false,
@@ -49,7 +48,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: PPVValidatedSubPlanId,
     inheritance: 'Own',
     required: false,
@@ -78,7 +77,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: PPVValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -96,7 +95,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: PPVValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -121,7 +120,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: PPVValidatedSubPlanId,
     inheritance: 'Own',
     required: false,
@@ -138,7 +137,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
 
 export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -152,7 +151,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -166,7 +165,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -180,7 +179,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -194,7 +193,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -213,7 +212,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -231,7 +230,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -252,7 +251,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
 
 export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -266,7 +265,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -280,7 +279,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -294,7 +293,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -308,7 +307,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -335,7 +334,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -355,7 +354,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -369,7 +368,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -388,7 +387,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -406,7 +405,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   },
   {
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
@@ -461,12 +460,12 @@ export const AllFieldConfigs = [
   ...DAOABovinFieldConfigs,
   ...DAOAVolailleFieldConfigs.map((c) => ({
     ...c,
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOAInProgressVolailleSubPlanId
   })),
   ...DAOABovinFieldConfigs.map((c) => ({
     ...c,
-    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
     programmingSubPlanId: DAOAInProgressBovinSubPlanId
   }))
 ];

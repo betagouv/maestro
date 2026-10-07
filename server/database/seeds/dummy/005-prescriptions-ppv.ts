@@ -22,7 +22,6 @@ import {
   PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
-import { v4 as uuidv4 } from 'uuid';
 import { LocalPrescriptions } from '../../../repositories/localPrescriptionRepository';
 import { LocalPrescriptionSubstanceKindsLaboratories } from '../../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
@@ -285,7 +284,7 @@ const buildSubPlans = (
 ): ProgrammingSubPlan[] =>
   prescriptions.map((prescription, index) => ({
     ...base,
-    id: index === 0 ? base.id : ProgrammingSubPlanId.parse(uuidv4()),
+    id: index === 0 ? base.id : ProgrammingSubPlanId.parse(crypto.randomUUID()),
     subPlanNumber: `PPV${String(index + 1).padStart(2, '0')}`,
     matrices: genSubPlanMatrices(prescription.matrixKind),
     context: prescription.context
@@ -330,7 +329,7 @@ const basePrescriptions = [
 const baseInProgressPrescriptions = basePrescriptions.map(
   (prescription, index) => ({
     ...prescription,
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     programmingSubPlanId: PPVInProgressSubPlanId,
     sampleCount:
       index === basePrescriptions.length - 1 ? 0 : prescription.sampleCount

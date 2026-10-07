@@ -6,7 +6,6 @@ import {
 } from 'maestro-shared/schema/Notification/NotificationCategory';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import type { OmitDistributive } from 'maestro-shared/utils/typescript';
-import { v4 as uuidv4 } from 'uuid';
 import type { z } from 'zod';
 import notificationRepository from '../repositories/notificationRepository';
 import config from '../utils/config';
@@ -81,7 +80,7 @@ const sendNotification = async <
   await Promise.all(
     recipients.map(async (recipient) => {
       await notificationRepository.insert({
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         recipientId: recipient.id,
         createdAt: new Date(),
         read: false,

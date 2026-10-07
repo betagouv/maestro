@@ -3,13 +3,12 @@ import type { AnalysisDaiId } from 'maestro-shared/schema/AnalysisDai/AnalysisDa
 import type { AnalysisDaiAnalysisGroup } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiAnalysisGroup';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { fn } from 'storybook/test';
-import { v4 as uuidv4 } from 'uuid';
 import { getMockApi } from '../../../../services/mockApiClient';
 import { AnalysisDaiHistory } from './AnalysisDaiHistory';
 
-const sampleId = uuidv4();
-const analysisId = uuidv4();
-const analysisId2 = uuidv4();
+const sampleId = crypto.randomUUID();
+const analysisId = crypto.randomUUID();
+const analysisId2 = crypto.randomUUID();
 
 const groupPending: AnalysisDaiAnalysisGroup = {
   analysisId,
@@ -20,7 +19,7 @@ const groupPending: AnalysisDaiAnalysisGroup = {
   latestAttemptAt: new Date('2025-03-10T09:00:00'),
   attempts: [
     {
-      id: uuidv4() as AnalysisDaiId,
+      id: crypto.randomUUID() as AnalysisDaiId,
       analysisId,
       createdAt: new Date('2025-03-10T09:00:00'),
       state: 'PENDING',
@@ -38,7 +37,7 @@ const groupWithMultipleAttempts: AnalysisDaiAnalysisGroup = {
   latestAttemptAt: new Date('2025-03-12T14:00:00'),
   attempts: [
     {
-      id: uuidv4() as AnalysisDaiId,
+      id: crypto.randomUUID() as AnalysisDaiId,
       analysisId: analysisId2,
       createdAt: new Date('2025-03-11T10:30:00'),
       state: 'ERROR',
@@ -49,7 +48,7 @@ const groupWithMultipleAttempts: AnalysisDaiAnalysisGroup = {
       documents: []
     },
     {
-      id: uuidv4() as AnalysisDaiId,
+      id: crypto.randomUUID() as AnalysisDaiId,
       analysisId: analysisId2,
       createdAt: new Date('2025-03-12T14:00:00'),
       state: 'SENT',
@@ -58,12 +57,12 @@ const groupWithMultipleAttempts: AnalysisDaiAnalysisGroup = {
       sentAt: new Date('2025-03-12T14:01:00'),
       documents: [
         {
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           filename: 'rapport-analyse.pdf',
           kind: 'AnalysisReportDocument'
         },
         {
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           filename: 'certificat-conformite.pdf',
           kind: 'AnalysisReportDocument'
         }
@@ -73,7 +72,7 @@ const groupWithMultipleAttempts: AnalysisDaiAnalysisGroup = {
 };
 
 const groupError: AnalysisDaiAnalysisGroup = {
-  analysisId: uuidv4(),
+  analysisId: crypto.randomUUID(),
   sample: { id: sampleId, reference: 'GES-08-24-313-A' },
   analysis: { itemNumber: 2, copyNumber: 1 },
   sampleItem: { substanceKinds: ['Mono'] },
@@ -81,8 +80,8 @@ const groupError: AnalysisDaiAnalysisGroup = {
   latestAttemptAt: new Date('2025-03-11T10:30:00'),
   attempts: [
     {
-      id: uuidv4() as AnalysisDaiId,
-      analysisId: uuidv4(),
+      id: crypto.randomUUID() as AnalysisDaiId,
+      analysisId: crypto.randomUUID(),
       createdAt: new Date('2025-03-11T10:30:00'),
       state: 'ERROR',
       message: 'Connexion SFTP échouée : timeout après 30s',

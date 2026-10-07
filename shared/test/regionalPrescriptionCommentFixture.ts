@@ -1,5 +1,4 @@
 import { fakerFR } from '@faker-js/faker';
-import { v4 as uuidv4 } from 'uuid';
 import { RegionList } from '../referential/Region';
 import type { LocalPrescriptionComment } from '../schema/LocalPrescription/LocalPrescriptionComment';
 import { oneOf } from './testFixtures';
@@ -7,11 +6,11 @@ import { oneOf } from './testFixtures';
 export const genLocalPrescriptionComment = (
   data?: Partial<LocalPrescriptionComment>
 ): LocalPrescriptionComment => ({
-  id: uuidv4(),
-  prescriptionId: uuidv4(),
+  id: crypto.randomUUID(),
+  prescriptionId: crypto.randomUUID(),
   region: oneOf(RegionList),
   comment: fakerFR.food.description(),
   createdAt: new Date(),
-  createdBy: uuidv4(),
+  createdBy: crypto.randomUUID(),
   ...data
 });

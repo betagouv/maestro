@@ -6,7 +6,6 @@ import express, {
   type Response
 } from 'express';
 import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import { describe, test } from 'vitest';
 import { type ZodObject, z } from 'zod';
 import { validateRequest } from '../validator';
@@ -30,7 +29,7 @@ const validate =
 
 describe('Validator middleware', () => {
   describe('Integration test', () => {
-    const testRoute = `/validate/${uuidv4()}`;
+    const testRoute = `/validate/${crypto.randomUUID()}`;
     const app = express();
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));

@@ -20,7 +20,6 @@ import {
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { analysisReportDocumentsRepository } from '../../repositories/analysisReportDocumentsRepository';
 import { Analysis } from '../../repositories/analysisRepository';
@@ -99,7 +98,7 @@ describe('Analysis Report Documents router', () => {
 
     test('should fail if the analysis does not exist', async () => {
       await request(app)
-        .get(testRoute(uuidv4()))
+        .get(testRoute(crypto.randomUUID()))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });

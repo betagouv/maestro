@@ -1,5 +1,4 @@
 import { fakerFR } from '@faker-js/faker';
-import { v4 as uuidv4 } from 'uuid';
 import { SSD2Ids } from '../referential/Residue/SSD2Id';
 import { AnalysisMethod } from '../schema/Analysis/AnalysisMethod';
 import type {
@@ -14,7 +13,7 @@ import { oneOf } from './testFixtures';
 export const genLaboratory = (
   data?: Partial<Laboratory>
 ): LaboratoryWithSacha => ({
-  id: uuidv4(),
+  id: crypto.randomUUID(),
   shortName: 'GIR 49',
   name: fakerFR.company.name(),
   address: fakerFR.location.streetAddress(),
@@ -71,8 +70,8 @@ export const LaboratoryListFixture: Laboratory[] = labData.map((lab) =>
 export const genLaboratoryAnalyticalCompetence = (
   data?: Partial<LaboratoryAnalyticalCompetence>
 ): LaboratoryAnalyticalCompetence => ({
-  id: uuidv4(),
-  laboratoryId: uuidv4(),
+  id: crypto.randomUUID(),
+  laboratoryId: crypto.randomUUID(),
   residueReference: oneOf(SSD2Ids),
   analyteReference: oneOf(SSD2Ids),
   analyticalMethod: oneOf(LaboratoryAnalyticalMethod.options),

@@ -54,7 +54,6 @@ import {
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { toMaestroDate, withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import { kysely } from '../../repositories/kysely';
@@ -109,7 +108,7 @@ describe('Sample router', () => {
 
     test('should fail if the sample does not exist', async () => {
       await request(app)
-        .get(`${testRoute(uuidv4())}`)
+        .get(`${testRoute(crypto.randomUUID())}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -176,7 +175,7 @@ describe('Sample router', () => {
 
     test('should fail if the sample does not exist', async () => {
       await request(app)
-        .get(`${testRoute(uuidv4(), 1, 1)}`)
+        .get(`${testRoute(crypto.randomUUID(), 1, 1)}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -468,7 +467,7 @@ describe('Sample router', () => {
     });
 
     test('should fallback on the user department when the sample has no geolocation', async () => {
-      const sampleId = uuidv4();
+      const sampleId = crypto.randomUUID();
       const res = await request(app)
         .post(testRoute)
         .send({
@@ -495,7 +494,7 @@ describe('Sample router', () => {
         user: UserRefined,
         expectedIncrement: string
       ) => {
-        const sampleId = uuidv4();
+        const sampleId = crypto.randomUUID();
         const res = await request(app)
           .post(testRoute)
           .send({
@@ -532,7 +531,7 @@ describe('Sample router', () => {
     const testRoute = (sampleId: string) => `/api/samples/${sampleId}`;
     const specificMatrixSubPlan = genProgrammingSubPlan({
       ...PPVValidatedSubPlanFixture,
-      id: ProgrammingSubPlanId.parse(uuidv4())
+      id: ProgrammingSubPlanId.parse(crypto.randomUUID())
     });
 
     test('should fail if the user is not authenticated', async () => {
@@ -552,7 +551,7 @@ describe('Sample router', () => {
 
     test('should fail if the sample does not exist', async () => {
       await request(app)
-        .put(`${testRoute(uuidv4())}`)
+        .put(`${testRoute(crypto.randomUUID())}`)
         .send(genCreatedPartialSample())
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
@@ -711,7 +710,7 @@ describe('Sample router', () => {
       );
       await Prescriptions().insert(prescription);
 
-      const sampleId = uuidv4();
+      const sampleId = crypto.randomUUID();
       const sample = genCreatedPartialSample({
         id: sampleId,
         sampler: Sampler1Fixture,
@@ -772,7 +771,7 @@ describe('Sample router', () => {
         }))
       );
 
-      const sampleId = uuidv4();
+      const sampleId = crypto.randomUUID();
       const sample = genCreatedPartialSample({
         id: sampleId,
         reference: 'GS-08-24-999-A',
@@ -844,7 +843,7 @@ describe('Sample router', () => {
     });
 
     test('should be forbidden to send a DAOA_BOVIN sample without seizure', async () => {
-      const sampleId = uuidv4();
+      const sampleId = crypto.randomUUID();
       const sample = genCreatedPartialSample({
         id: sampleId,
         sampler: SamplerDaoaFixture,
@@ -881,7 +880,7 @@ describe('Sample router', () => {
     });
 
     test('should be forbidden to move a DAOA_BOVIN sample to DraftItems with incomplete specificData', async () => {
-      const sampleId = uuidv4();
+      const sampleId = crypto.randomUUID();
       const sample = genCreatedPartialSample({
         id: sampleId,
         sampler: SamplerDaoaFixture,
@@ -1050,7 +1049,7 @@ describe('Sample router', () => {
 
     test('should fail if the sample does not exist', async () => {
       await request(app)
-        .put(testRoute(uuidv4()))
+        .put(testRoute(crypto.randomUUID()))
         .send(complianceData)
         .use(tokenProvider(SamplerDaoaFixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
@@ -1123,7 +1122,7 @@ describe('Sample router', () => {
 
     test('should fail if the sample does not exist', async () => {
       await request(app)
-        .delete(testRoute(uuidv4()))
+        .delete(testRoute(crypto.randomUUID()))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -1157,7 +1156,7 @@ describe('Sample router', () => {
     });
 
     test('should delete a sample that is submitted but not sent yet', async () => {
-      const sampleId = uuidv4();
+      const sampleId = crypto.randomUUID();
       await Samples().insert([
         formatPartialSample(
           genCreatedPartialSample({
@@ -1185,7 +1184,7 @@ describe('Sample router', () => {
 
     test('should delete the sample', async () => {
       const successRequestTest = async (user: UserRefined) => {
-        const sampleId = uuidv4();
+        const sampleId = crypto.randomUUID();
         await Samples().insert([
           formatPartialSample(
             genCreatedPartialSample({

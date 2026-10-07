@@ -2,7 +2,6 @@ import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks
 import type { LaboratoryAgreementRowKey } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { laboratoryAgreementCheckRepository } from '../repositories/laboratoryAgreementCheckRepository';
 import { laboratoryAgreementRepository } from '../repositories/laboratoryAgreementRepository';
@@ -249,13 +248,13 @@ export const laboratoriesRouter = {
       const competencesToCreate = [
         {
           ...analyteCompetence,
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           laboratoryId,
           lastUpdatedAt: new Date()
         },
         ...(analyteAnalyticalCompetences || []).map((analyticalCompetence) => ({
           ...analyticalCompetence,
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           laboratoryId,
           lastUpdatedAt: new Date()
         }))
@@ -292,7 +291,7 @@ export const laboratoriesRouter = {
           ...(analyteAnalyticalCompetences || []).map(
             (analyticalCompetence) => ({
               ...analyticalCompetence,
-              id: analyticalCompetence.id ?? uuidv4(),
+              id: analyticalCompetence.id ?? crypto.randomUUID(),
               laboratoryId,
               lastUpdatedAt: new Date()
             })

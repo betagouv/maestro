@@ -6,7 +6,6 @@ import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Resi
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { hasSamplePermission } from 'maestro-shared/schema/Sample/Sample';
-import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckSample } from '../middlewares/checks/sampleCheck';
 import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
@@ -57,7 +56,7 @@ export const analysisRouter = {
       console.info('Create analysis for sampleId', sample.id, analysisToCreate);
 
       const analysis: PartialAnalysis = {
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         createdAt: new Date(),
         createdBy: user.id,
         status: 'Analysis',

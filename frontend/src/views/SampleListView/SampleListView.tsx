@@ -37,7 +37,6 @@ import { getURLQuery } from 'src/utils/fetchUtils';
 import SampleListHeader from 'src/views/SampleListView/SampleListHeader';
 import SamplePrimaryFilters from 'src/views/SampleListView/SamplePrimaryFilters';
 import SampleSecondaryFilters from 'src/views/SampleListView/SampleSecondaryFilters';
-import { v4 as uuidv4 } from 'uuid';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import food from '../../assets/illustrations/food.svg';
 import { ApiClientContext } from '../../services/apiClient';
@@ -219,7 +218,7 @@ const SampleListView = () => {
     setSearchParams(urlSearchParams, { replace: true });
   };
 
-  const newPartialSampleId = useMemo(() => uuidv4(), []);
+  const newPartialSampleId = useMemo(() => crypto.randomUUID(), []);
 
   if (!year || !user) {
     return null;

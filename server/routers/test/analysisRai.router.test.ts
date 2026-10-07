@@ -6,7 +6,6 @@ import {
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Analysis } from '../../repositories/analysisRepository';
 import { kysely } from '../../repositories/kysely';
@@ -199,7 +198,7 @@ describe('AnalysisRai router', () => {
 
     test('should return 404 for unknown RAI', async () => {
       await request(app)
-        .post(replayRoute(uuidv4()))
+        .post(replayRoute(crypto.randomUUID()))
         .send({})
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);

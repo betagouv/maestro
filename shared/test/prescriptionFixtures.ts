@@ -1,5 +1,4 @@
 import { fakerFR } from '@faker-js/faker';
-import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
 import { SSD2Ids } from '../referential/Residue/SSD2Id';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
@@ -19,7 +18,7 @@ import { oneOf } from './testFixtures';
 export const genPrescription = (
   data?: Partial<Prescription>
 ): Prescription => ({
-  id: uuidv4(),
+  id: crypto.randomUUID(),
   programmingSubPlanId: PPVValidatedSubPlanId,
   sampleCount: 0,
   ...data
@@ -28,7 +27,7 @@ export const genPrescription = (
 export const genLocalPrescription = (
   data?: Partial<LocalPrescription>
 ): LocalPrescription => ({
-  prescriptionId: uuidv4(),
+  prescriptionId: crypto.randomUUID(),
   region: oneOf(RegionList),
   sampleCount: fakerFR.number.int({
     min: 1,
@@ -40,7 +39,7 @@ export const genLocalPrescription = (
 export const genPrescriptionSubstance = (
   data?: Partial<PrescriptionSubstance>
 ): PrescriptionSubstance => ({
-  prescriptionId: uuidv4(),
+  prescriptionId: crypto.randomUUID(),
   analysisMethod: oneOf(AnalysisMethodList),
   substance: oneOf(SSD2Ids),
   ...data

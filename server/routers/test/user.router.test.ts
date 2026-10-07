@@ -23,7 +23,6 @@ import {
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import {
   UserCompanies,
@@ -85,7 +84,7 @@ describe('User router', () => {
 
     test('should fail if the user does not exist', async () => {
       await request(app)
-        .get(`/api/users/${uuidv4()}`)
+        .get(`/api/users/${crypto.randomUUID()}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });

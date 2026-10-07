@@ -24,7 +24,6 @@ import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import config from 'src/utils/config';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
-import { v4 as uuidv4 } from 'uuid';
 import { SampleStatusBadge } from '../../../components/SampleStatusBadge/SampleStatusBadge';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { usePartialSample } from '../../../hooks/usePartialSample';
@@ -142,7 +141,7 @@ const SampleOverview = ({ sample }: Props) => {
       sentAt,
       ...rest
     } = sample;
-    const newSampleId = uuidv4();
+    const newSampleId = crypto.randomUUID();
     const items = rest.items.map((item) => ({
       ...item,
       sampleId: newSampleId,

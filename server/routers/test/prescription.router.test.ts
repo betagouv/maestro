@@ -23,7 +23,6 @@ import {
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionChangeRepository';
@@ -312,7 +311,10 @@ describe('Prescriptions router', () => {
 
       await badRequestTest();
       await badRequestTest({ ...validBody, programmingSubPlanId: undefined });
-      await badRequestTest({ ...validBody, programmingSubPlanId: uuidv4() });
+      await badRequestTest({
+        ...validBody,
+        programmingSubPlanId: crypto.randomUUID()
+      });
     });
 
     test('should fail if the user does not have the permission to create prescriptions', async () => {
@@ -421,7 +423,7 @@ describe('Prescriptions router', () => {
 
     test('should fail if the prescription does not exist', async () => {
       await request(app)
-        .put(testRoute(uuidv4()))
+        .put(testRoute(crypto.randomUUID()))
         .send(prescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
@@ -501,7 +503,7 @@ describe('Prescriptions router', () => {
 
     test('should fail if the prescription does not exist', async () => {
       await request(app)
-        .get(testRoute(uuidv4()))
+        .get(testRoute(crypto.randomUUID()))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -528,7 +530,7 @@ describe('Prescriptions router', () => {
 
     test('should fail if the prescription does not exist', async () => {
       await request(app)
-        .delete(testRoute(uuidv4()))
+        .delete(testRoute(crypto.randomUUID()))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });

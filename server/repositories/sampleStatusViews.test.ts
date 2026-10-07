@@ -7,7 +7,6 @@ import {
   Sample13Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
-import { v4 as uuidv4 } from 'uuid';
 import { afterEach, describe, expect, test } from 'vitest';
 import { analysisRepository } from './analysisRepository';
 import { kysely } from './kysely';
@@ -132,7 +131,7 @@ describe('sample_item_status view', () => {
 describe('sample_status view', () => {
   test('returns the sample status directly when not Sent', async () => {
     // Sample13Fixture a le statut 'Sent', on utilise un autre sample avec le statut Draft
-    const sampleId = uuidv4();
+    const sampleId = crypto.randomUUID();
     const sample = genCreatedPartialSample({
       id: sampleId,
       sampler: Sampler1Fixture,
@@ -172,7 +171,7 @@ describe('sample_status view', () => {
   });
 
   test('does NOT return NotAdmissible when only some items are NotAdmissible', async () => {
-    const sampleId = uuidv4();
+    const sampleId = crypto.randomUUID();
     const sample = genCreatedPartialSample({
       id: sampleId,
       sampler: Sampler1Fixture,
@@ -212,7 +211,7 @@ describe('sample_status view', () => {
   });
 
   test('returns Analysis when sample is Sent and at least one item is in Analysis', async () => {
-    const sampleId = uuidv4();
+    const sampleId = crypto.randomUUID();
     const sample = genCreatedPartialSample({
       id: sampleId,
       sampler: Sampler1Fixture,
@@ -252,7 +251,7 @@ describe('sample_status view', () => {
   });
 
   test('returns InReview when all items are Completed and sample compliance is empty', async () => {
-    const sampleId = uuidv4();
+    const sampleId = crypto.randomUUID();
     const sample = genCreatedPartialSample({
       id: sampleId,
       sampler: Sampler1Fixture,
@@ -293,7 +292,7 @@ describe('sample_status view', () => {
   });
 
   test('returns Completed when all items are Completed and sample compliance is not empty', async () => {
-    const sampleId = uuidv4();
+    const sampleId = crypto.randomUUID();
     const sample = genCreatedPartialSample({
       id: sampleId,
       sampler: Sampler1Fixture,
@@ -334,7 +333,7 @@ describe('sample_status view', () => {
   });
 
   test('returns InReview when all items are at least InReview but one is InReview', async () => {
-    const sampleId = uuidv4();
+    const sampleId = crypto.randomUUID();
     const sample = genCreatedPartialSample({
       id: sampleId,
       sampler: Sampler1Fixture,
