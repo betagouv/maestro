@@ -1,9 +1,9 @@
 import { beforeAll, expect, test } from 'vitest';
-import { departmentsSeed } from '../database/seeds/departments/departmentsSeed';
+import { seedTestDepartments } from '../test/testUtils';
 import { departmentRepository } from './departmentRepository';
 
 beforeAll(async () => {
-  await departmentsSeed();
+  await seedTestDepartments();
 });
 test('getDepartment', async () => {
   const department = await departmentRepository.getDepartment(

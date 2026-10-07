@@ -17,11 +17,8 @@ const geojsonValidator = z.object({
   )
 });
 
-export const departmentsSeed = async (withBestPrecision: boolean = false) => {
-  const query = await fetch(
-    `https://etalab-datasets.geo.data.gouv.fr/contours-administratifs/latest/geojson/departements-${withBestPrecision ? '5' : '1000'}m.geojson`
-  );
-  const result = geojsonValidator.parse(await query.json());
+export const insertDepartments = async (geojson: unknown) => {
+  const result = geojsonValidator.parse(geojson);
 
   await kysely.deleteFrom('departments').execute();
   for (const feature of result.features.filter((f) =>
@@ -42,6 +39,13 @@ export const departmentsSeed = async (withBestPrecision: boolean = false) => {
       ])
       .execute();
   }
+};
+
+export const departmentsSeed = async (withBestPrecision: boolean = false) => {
+  const query = await fetch(
+    `https://etalab-datasets.geo.data.gouv.fr/contours-administratifs/latest/geojson/departements-${withBestPrecision ? '5' : '1000'}m.geojson`
+  );
+  await insertDepartments(await query.json());
 
   // const samples = await kysely
   //   .selectFrom('samples')

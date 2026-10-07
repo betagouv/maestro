@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import jwt from 'jsonwebtoken';
 import {
   COOKIE_MAESTRO_ACCESS_TOKEN,
@@ -7,6 +9,7 @@ import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import type { Plugin } from 'superagent';
+import { insertDepartments } from '../database/seeds/departments/departmentsSeed';
 import config from '../utils/config';
 
 export const accessTokenTest = (payload: TokenPayload) =>
@@ -28,3 +31,10 @@ export const tokenProvider = (
     );
   };
 };
+
+export const seedTestDepartments = async () =>
+  insertDepartments(
+    JSON.parse(
+      await readFile(join(import.meta.dirname, 'departments.geojson'), 'utf8')
+    )
+  );

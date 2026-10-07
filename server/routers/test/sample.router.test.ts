@@ -56,7 +56,6 @@ import { toMaestroDate, withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
-import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import { kysely } from '../../repositories/kysely';
 import {
@@ -79,10 +78,10 @@ import {
   mockTchapSend,
   mockTriggerProcessing
 } from '../../test/setupTests';
-import { tokenProvider } from '../../test/testUtils';
+import { seedTestDepartments, tokenProvider } from '../../test/testUtils';
 
 beforeAll(async () => {
-  await departmentsSeed();
+  await seedTestDepartments();
 });
 describe('Sample router', () => {
   const { app } = createServer();
