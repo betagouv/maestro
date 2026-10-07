@@ -146,6 +146,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     matrices: genSubPlanMatrices('A00GY'),
     matricesManaged: true,
     context: 'Control',
+    contextManaged: true,
     fields: [matriceField, quantiteField].map(({ id }) => ({
       fieldId: id,
       required: false,
@@ -165,6 +166,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     matrices: genSubPlanMatrices('A0DVX'),
     matricesManaged: true,
     context: 'Control',
+    contextManaged: true,
     fields: []
   },
   [AnimauxSubPlanId]: {
@@ -178,6 +180,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     matrices: genSubPlanMatrices('A00GY'),
     matricesManaged: true,
     context: 'Control',
+    contextManaged: true,
     fields: [
       {
         fieldId: especeField.id,
@@ -217,6 +220,8 @@ const planSettings: ProgrammingPlanSettingsForm = {
   samplesManaged: false,
   matrices: null,
   matricesManaged: false,
+  context: null,
+  contextManaged: false,
   settingsCompleted: false,
   nationalCoordinators: [nationalCoordinator],
   technicalInstruction: null,
@@ -1055,6 +1060,41 @@ export const PlanSubstanceKindsSwitch: Story = {
         ...planSettings,
         substanceKinds: ['Mono', 'Multi'],
         substanceKindsManaged: true
+      })
+    );
+  }
+};
+
+export const PlanContext: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    const managedSwitch = canvas.getByTitle(
+      'Paramétrer « Contexte » au niveau du plan'
+    );
+
+    await expect(managedSwitch).not.toBeChecked();
+    await expect(
+      canvas.queryByRole('combobox', { name: /Contexte/ })
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(managedSwitch);
+    await userEvent.selectOptions(
+      await canvas.findByRole('combobox', { name: /Contexte/ }),
+      'Surveillance'
+    );
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        ...planSettings,
+        context: 'Surveillance',
+        contextManaged: true
       })
     );
   }

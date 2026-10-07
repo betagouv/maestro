@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { type Stage, StageLabels } from '../../referential/Stage';
 import { SubstanceKindLabels } from '../Substance/SubstanceKind';
 import { UserRole } from '../User/UserRole';
-import { ContextLabels, ProgrammingPlanContext } from './Context';
+import { ContextLabels } from './Context';
 import { ProgrammingPlanSettings } from './ProgrammingPlanSettings';
 import { subPlanMatrixNameParts } from './SubPlanMatrices';
 
@@ -18,8 +18,7 @@ export const ProgrammingSubPlan = z.object({
   settingsCompleted: z.boolean(),
   analysisPermissionRole: UserRole.nullish(),
   contactListId: z.number().int().nullish(),
-  withSacha: z.boolean(),
-  context: ProgrammingPlanContext.nullable()
+  withSacha: z.boolean()
 });
 
 export type ProgrammingSubPlan = z.infer<typeof ProgrammingSubPlan>;

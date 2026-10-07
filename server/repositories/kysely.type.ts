@@ -309,6 +309,8 @@ interface ProgrammingPlanSettings {
   samplesManaged: Generated<boolean>;
   matrices: SubPlanMatrices | null;
   matricesManaged: Generated<boolean>;
+  context: ProgrammingPlanContext | null;
+  contextManaged: Generated<boolean>;
 }
 
 export interface ProgrammingPlans extends ProgrammingPlanSettings {
@@ -476,8 +478,17 @@ export interface ProgrammingSubPlans extends ProgrammingPlanSettings {
   analysisPermissionRole: UserRole | null;
   contactListId: number | null;
   withSacha: boolean;
-  context: ProgrammingPlanContext | null;
 }
+
+type ProgrammingSubPlanManagedColumns = {
+  [K in keyof ProgrammingPlanSettings as K extends `${string}Managed`
+    ? K
+    : never]: boolean;
+};
+
+export interface ProgrammingSubPlansRaw
+  extends Omit<ProgrammingSubPlans, keyof ProgrammingSubPlanManagedColumns>,
+    ProgrammingSubPlanManagedColumns {}
 
 export interface SampleDocuments {
   documentId: string;
@@ -595,7 +606,7 @@ export interface DB {
   prescriptionSubstances: PrescriptionSubstances;
   programmingPlanDomains: ProgrammingPlanDomains;
   programmingSubPlans: ProgrammingSubPlans;
-  programmingSubPlansRaw: ProgrammingSubPlans;
+  programmingSubPlansRaw: ProgrammingSubPlansRaw;
   programmingPlans: ProgrammingPlans;
   localPrescriptionComments: LocalPrescriptionComments;
   localPrescriptions: LocalPrescriptions;

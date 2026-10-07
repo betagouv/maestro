@@ -2,6 +2,7 @@ import { isNil, pick } from 'lodash-es';
 import { z } from 'zod';
 import { Stage } from '../../referential/Stage';
 import { SubstanceKind } from '../Substance/SubstanceKind';
+import { ProgrammingPlanContext } from './Context';
 import {
   ProgrammingPlanSampleMaxCount,
   ProgrammingPlanSampleSetting
@@ -12,7 +13,8 @@ export const ProgrammingPlanSettingKey = z.enum([
   'stages',
   'substanceKinds',
   'samples',
-  'matrices'
+  'matrices',
+  'context'
 ]);
 export type ProgrammingPlanSettingKey = z.infer<
   typeof ProgrammingPlanSettingKey
@@ -29,7 +31,9 @@ export const ProgrammingPlanSettings = z.object({
     .nullable(),
   samplesManaged: z.boolean(),
   matrices: SubPlanMatrices.nullable(),
-  matricesManaged: z.boolean()
+  matricesManaged: z.boolean(),
+  context: ProgrammingPlanContext.nullable(),
+  contextManaged: z.boolean()
 } satisfies Record<ProgrammingPlanSettingKey, z.ZodType> &
   Record<`${ProgrammingPlanSettingKey}Managed`, z.ZodType>);
 
@@ -69,7 +73,7 @@ export const inheritsUnmanagedSetting = (
   );
 
 export const isMissingSetting = (
-  value: unknown[] | SubPlanMatrices | null
+  value: unknown[] | SubPlanMatrices | ProgrammingPlanContext | null
 ): boolean => isNil(value) || (Array.isArray(value) && value.length === 0);
 
 export const managesSamplesAboveSubstanceKinds = {

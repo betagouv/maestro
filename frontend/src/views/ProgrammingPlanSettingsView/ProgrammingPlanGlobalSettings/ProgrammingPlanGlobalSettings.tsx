@@ -30,7 +30,6 @@ type Props<
   T extends ProgrammingPlanSettings & {
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
     technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
-    context: ProgrammingPlanContext | null;
   }
 > = {
   settings: T;
@@ -46,7 +45,6 @@ export const ProgrammingPlanGlobalSettings = <
   T extends ProgrammingPlanSettings & {
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
     technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
-    context: ProgrammingPlanContext | null;
   }
 >({
   settings,
@@ -115,27 +113,34 @@ export const ProgrammingPlanGlobalSettings = <
           />
         )}
       </ProgrammingPlanSettingInheritance>
-      {planSettings !== undefined && (
-        <AppSelect
-          label="Contexte"
-          value={settings.context ?? ''}
-          options={selectOptionsFromList(contexts, {
-            labels: ContextLabels,
-            withDefault: 'auto',
-            defaultLabel: 'Choisir un contexte'
-          })}
-          onChange={(event) =>
-            onChange({
-              ...settings,
-              context: (event.target.value ||
-                null) as ProgrammingPlanContext | null
-            })
-          }
-          inputForm={inputForm}
-          inputKey="context"
-          required
-        />
-      )}
+      <ProgrammingPlanSettingInheritance
+        settingKey="context"
+        label="Contexte"
+        settings={settings}
+        planSettings={planSettings}
+        onChange={onChange}
+      >
+        {(props) => (
+          <AppSelect
+            value={settings.context ?? ''}
+            options={selectOptionsFromList(contexts, {
+              labels: ContextLabels,
+              withDefault: 'auto',
+              defaultLabel: 'Choisir un contexte'
+            })}
+            onChange={(event) =>
+              onChange({
+                ...settings,
+                context: (event.target.value ||
+                  null) as ProgrammingPlanContext | null
+              })
+            }
+            inputForm={inputForm}
+            inputKey="context"
+            {...props}
+          />
+        )}
+      </ProgrammingPlanSettingInheritance>
       <ProgrammingPlanSettingInheritance
         settingKey="matrices"
         label="Matrice(s)"
