@@ -294,6 +294,11 @@
     width: fit-content;
     max-width: 100%;
 
+    .prescription-expanded-content {
+      width: 0;
+      min-width: 100%;
+    }
+
     .fr-table table {
       min-width: 0;
     }
