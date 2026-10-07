@@ -1,6 +1,6 @@
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { PrescriptionSubstances } from '../../../repositories/prescriptionSubstanceRepository';
+import { kysely } from '../../../repositories/kysely';
 import {
   abricotsEtSimilaires,
   avocats,
@@ -32,6 +32,7 @@ import {
   pechesEtSimilaires,
   poireauxEtSimilaires,
   poires,
+  ppvSubPlanIdByPrescriptionId,
   rizEtSimilaires
 } from './005-prescriptions-ppv';
 
@@ -40,12 +41,11 @@ export const seed = async () => {
     prescriptionId: string,
     analysisMethod: AnalysisMethod,
     ...substances: SSD2Id[]
-  ) =>
-    substances.map((substance) => ({
-      prescriptionId,
-      substance,
-      analysisMethod
-    }));
+  ) => ({
+    prescriptionId,
+    analysisMethod,
+    substances
+  });
 
   const substanceAnalysis = [
     genSubstanceAnalysis(abricotsEtSimilaires.id, 'Mono'),
@@ -497,5 +497,26 @@ export const seed = async () => {
     )
   ];
 
-  await PrescriptionSubstances().insert(substanceAnalysis.flat());
+  for (const [prescriptionId, subPlanId] of ppvSubPlanIdByPrescriptionId) {
+    const analyses = substanceAnalysis.filter(
+      (analysis) =>
+        analysis.prescriptionId === prescriptionId &&
+        analysis.substances.length > 0
+    );
+
+    if (analyses.length > 0) {
+      await kysely
+        .updateTable('programmingSubPlansRaw')
+        .set({
+          substances: Object.fromEntries(
+            analyses.map(({ analysisMethod, substances }) => [
+              analysisMethod,
+              substances
+            ])
+          )
+        })
+        .where('id', '=', subPlanId)
+        .execute();
+    }
+  }
 };

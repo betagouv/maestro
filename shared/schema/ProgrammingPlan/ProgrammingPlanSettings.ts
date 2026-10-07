@@ -8,6 +8,7 @@ import {
   ProgrammingPlanSampleSetting
 } from './ProgrammingPlanSampleSetting';
 import { SubPlanMatrices } from './SubPlanMatrices';
+import { SubPlanSubstances } from './SubPlanSubstances';
 
 export const ProgrammingPlanSettingKey = z.enum([
   'stages',
@@ -16,14 +17,19 @@ export const ProgrammingPlanSettingKey = z.enum([
   'matrices',
   'context',
   'programmingInstruction',
-  'notes'
+  'notes',
+  'substances'
 ]);
 export type ProgrammingPlanSettingKey = z.infer<
   typeof ProgrammingPlanSettingKey
 >;
 
 export const ProgrammingPlanRequiredSettingKey =
-  ProgrammingPlanSettingKey.exclude(['programmingInstruction', 'notes']);
+  ProgrammingPlanSettingKey.exclude([
+    'programmingInstruction',
+    'notes',
+    'substances'
+  ]);
 export type ProgrammingPlanRequiredSettingKey = z.infer<
   typeof ProgrammingPlanRequiredSettingKey
 >;
@@ -45,7 +51,9 @@ export const ProgrammingPlanSettings = z.object({
   programmingInstruction: z.string().nullable(),
   programmingInstructionManaged: z.boolean(),
   notes: z.string().nullable(),
-  notesManaged: z.boolean()
+  notesManaged: z.boolean(),
+  substances: SubPlanSubstances.nullable(),
+  substancesManaged: z.boolean()
 } satisfies Record<ProgrammingPlanSettingKey, z.ZodType> &
   Record<`${ProgrammingPlanSettingKey}Managed`, z.ZodType>);
 
@@ -88,25 +96,52 @@ export const isMissingSetting = (
   value: unknown[] | SubPlanMatrices | ProgrammingPlanContext | null
 ): boolean => isNil(value) || (Array.isArray(value) && value.length === 0);
 
-export const managesSamplesAboveSubstanceKinds = {
+export const SubstanceKindsDependentSettingKey =
+  ProgrammingPlanSettingKey.extract(['samples', 'substances']);
+
+export const managesAboveSubstanceKinds = {
   plan: (planSettings: ProgrammingPlanSettings): boolean =>
-    planSettings.samplesManaged && !planSettings.substanceKindsManaged,
+    !planSettings.substanceKindsManaged &&
+    SubstanceKindsDependentSettingKey.options.some(
+      (settingKey) => planSettings[managedKey(settingKey)]
+    ),
   subPlan: (subPlanSettings: ProgrammingPlanSettings): boolean =>
-    subPlanSettings.substanceKindsManaged && !subPlanSettings.samplesManaged
+    subPlanSettings.substanceKindsManaged &&
+    SubstanceKindsDependentSettingKey.options.some(
+      (settingKey) => !subPlanSettings[managedKey(settingKey)]
+    )
 };
 
-export const withSamplesBelowSubstanceKinds = <
+export const withSettingsBelowSubstanceKinds = <
   T extends ProgrammingPlanSettings
 >(
   settings: T,
   planSettings: ProgrammingPlanSettings | undefined
 ): T => {
   if (!planSettings) {
-    return managesSamplesAboveSubstanceKinds.plan(settings)
-      ? { ...settings, samplesManaged: false }
+    return managesAboveSubstanceKinds.plan(settings)
+      ? {
+          ...settings,
+          ...Object.fromEntries(
+            SubstanceKindsDependentSettingKey.options.map((settingKey) => [
+              managedKey(settingKey),
+              false
+            ])
+          )
+        }
       : settings;
   }
-  return managesSamplesAboveSubstanceKinds.subPlan(settings)
-    ? { ...settings, samples: planSettings.samples, samplesManaged: true }
+  return managesAboveSubstanceKinds.subPlan(settings)
+    ? {
+        ...settings,
+        ...Object.fromEntries(
+          SubstanceKindsDependentSettingKey.options
+            .filter((settingKey) => !settings[managedKey(settingKey)])
+            .flatMap((settingKey) => [
+              [settingKey, planSettings[settingKey]],
+              [managedKey(settingKey), true]
+            ])
+        )
+      }
     : settings;
 };

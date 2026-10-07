@@ -59,18 +59,10 @@ const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
   })
 ]);
 
-const PrescriptionModalData = z.object({
-  mode: z.enum(['analysis', 'details']),
-  programmingPlan: ProgrammingPlanChecked,
-  prescription: Prescription
-});
-
 type PrescriptionCommentsData = z.infer<typeof PrescriptionCommentsData>;
-type PrescriptionModalData = z.infer<typeof PrescriptionModalData>;
 
 type PrescriptionsState = {
   prescriptionFilters: PrescriptionFilters;
-  prescriptionModalData?: PrescriptionModalData;
   prescriptionCommentsData?: PrescriptionCommentsData;
 };
 
@@ -91,12 +83,6 @@ const prescriptionsSlice = createSlice({
       action: PayloadAction<PrescriptionFilters>
     ) => {
       state.prescriptionFilters = action.payload;
-    },
-    setPrescriptionModalData: (
-      state,
-      action: PayloadAction<PrescriptionModalData | undefined>
-    ) => {
-      state.prescriptionModalData = action.payload;
     },
     setPrescriptionCommentsData: (
       state,

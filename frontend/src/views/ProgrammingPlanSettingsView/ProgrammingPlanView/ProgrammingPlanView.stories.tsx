@@ -151,6 +151,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     programmingInstructionManaged: true,
     notes: null,
     notesManaged: true,
+    substances: null,
+    substancesManaged: true,
     fields: [matriceField, quantiteField].map(({ id }) => ({
       fieldId: id,
       required: false,
@@ -175,6 +177,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     programmingInstructionManaged: true,
     notes: null,
     notesManaged: true,
+    substances: null,
+    substancesManaged: true,
     fields: []
   },
   [AnimauxSubPlanId]: {
@@ -193,6 +197,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     programmingInstructionManaged: true,
     notes: null,
     notesManaged: true,
+    substances: null,
+    substancesManaged: true,
     fields: [
       {
         fieldId: especeField.id,
@@ -238,6 +244,8 @@ const planSettings: ProgrammingPlanSettingsForm = {
   programmingInstructionManaged: false,
   notes: null,
   notesManaged: false,
+  substances: null,
+  substancesManaged: false,
   settingsCompleted: false,
   nationalCoordinators: [nationalCoordinator],
   technicalInstruction: null,

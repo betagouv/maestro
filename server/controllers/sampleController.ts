@@ -46,7 +46,6 @@ import { analysisResidueRepository } from '../repositories/analysisResidueReposi
 import companyRepository from '../repositories/companyRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
-import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import { programmingPlanDomainRepository } from '../repositories/programmingPlanDomainRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
@@ -591,7 +590,11 @@ export const sampleRouter = {
           : undefined;
 
       const prescriptionSubstances = prescription
-        ? await prescriptionSubstanceRepository.findMany(prescription.id)
+        ? ((
+            await programmingSubPlanRepository.findUnique(
+              prescription.programmingSubPlanId
+            )
+          )?.substances ?? {})
         : undefined;
 
       const prescriptionData: Pick<
@@ -602,14 +605,12 @@ export const sampleRouter = {
         sample.context !== sampleUpdate.context
           ? {
               prescriptionId: prescription?.id || null,
-              monoSubstances:
-                prescriptionSubstances
-                  ?.filter((substance) => substance.analysisMethod === 'Mono')
-                  .map((_) => _.substance) || null,
-              multiSubstances:
-                prescriptionSubstances
-                  ?.filter((substance) => substance.analysisMethod === 'Multi')
-                  .map((_) => _.substance) || null
+              monoSubstances: prescriptionSubstances
+                ? (prescriptionSubstances.Mono ?? [])
+                : null,
+              multiSubstances: prescriptionSubstances
+                ? (prescriptionSubstances.Multi ?? [])
+                : null
             }
           : sampleUpdate;
 

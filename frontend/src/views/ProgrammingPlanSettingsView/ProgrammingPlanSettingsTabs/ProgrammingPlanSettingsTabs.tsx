@@ -7,7 +7,7 @@ import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/Programm
 import {
   emptyProgrammingPlanSettings,
   pickProgrammingPlanSettings,
-  withSamplesBelowSubstanceKinds
+  withSettingsBelowSubstanceKinds
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import {
   ProgrammingLevelSettingsForm,
@@ -83,6 +83,7 @@ const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   context: 'global',
   programmingInstruction: 'global',
   notes: 'global',
+  substances: 'analyses',
   nationalCoordinators: 'global',
   technicalInstruction: 'global',
   fields: 'sampler-form'
@@ -302,7 +303,7 @@ export const ProgrammingPlanSettingsTabs = ({
 
   const changeDraft = (draft: ProgrammingLevelSettingsForm) =>
     setDraft(
-      withSamplesBelowSubstanceKinds(
+      withSettingsBelowSubstanceKinds(
         draft,
         subPlan ? programmingPlan : undefined
       )

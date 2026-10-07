@@ -1,10 +1,7 @@
 import type { Knex } from 'knex';
-import { intersection, isArray, isNil, omit, omitBy, uniq } from 'lodash-es';
+import { intersection, isNil, omit, omitBy, uniq } from 'lodash-es';
 import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
-import type {
-  FindPrescriptionOptions,
-  PrescriptionOptionsInclude
-} from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
+import type { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -15,7 +12,6 @@ import {
 import type { PendingChangeVisibility } from 'maestro-shared/schema/User/UserRole';
 import { knexInstance as db } from './db';
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
-import { prescriptionSubstanceTable } from './prescriptionSubstanceRepository';
 import { programmingPlansTable } from './programmingPlanRepository';
 import { programmingSubPlansTable } from './programmingSubPlanRepository';
 import { userRepository } from './userRepository';
@@ -488,7 +484,6 @@ const findMany = async (
 
   return buildFindQuery(findOptions, resolved, visibility)
     .select(`${prescriptionsTable}.*`)
-    .modify(include(findOptions))
     .then((prescriptions: Prescription[]) =>
       prescriptions.map((_: Prescription) =>
         Prescription.parse(omitBy(_, isNil))
@@ -633,42 +628,6 @@ const findCounts = async (
           hasNovelty: row.hasNovelty
         }))
     );
-};
-
-const include = (opts?: FindPrescriptionOptions) => {
-  const joins: Record<
-    PrescriptionOptionsInclude,
-    (query: Knex.QueryBuilder) => void
-  > = {
-    substanceCount: (query) => {
-      query
-        .select(
-          db.raw(
-            `count(substance) filter (where analysis_method = 'Mono') as mono_analysis_count`
-          ),
-          db.raw(
-            `count(substance) filter (where analysis_method = 'Multi') as multi_analysis_count`
-          )
-        )
-        .leftJoin(
-          prescriptionSubstanceTable,
-          'prescription_id',
-          `${prescriptionsTable}.id`
-        )
-        .groupBy(`${prescriptionsTable}.id`);
-    }
-  };
-
-  return (query: Knex.QueryBuilder) => {
-    const includes = opts?.includes
-      ? isArray(opts.includes)
-        ? opts.includes
-        : [opts.includes]
-      : [];
-    uniq(includes).forEach((include) => {
-      joins[include as PrescriptionOptionsInclude](query);
-    });
-  };
 };
 
 const insert = async (prescription: Prescription): Promise<void> => {

@@ -12,7 +12,9 @@ import {
 } from './ProgrammingPlanSampleSetting';
 import {
   emptyProgrammingPlanSettings,
-  type ProgrammingPlanSettings
+  managedKey,
+  type ProgrammingPlanSettings,
+  SubstanceKindsDependentSettingKey
 } from './ProgrammingPlanSettings';
 
 const sample = (
@@ -36,7 +38,9 @@ const planSettings: ProgrammingPlanSettings = {
   programmingInstruction: null,
   programmingInstructionManaged: true,
   notes: null,
-  notesManaged: true
+  notesManaged: true,
+  substances: { Mono: ['RF-1020-001-PPP'] },
+  substancesManaged: true
 };
 
 const inheritingSubPlan = {
@@ -48,6 +52,7 @@ const inheritingSubPlan = {
   contextManaged: false,
   programmingInstructionManaged: false,
   notesManaged: false,
+  substancesManaged: false,
   subPlanNumber: 'M01',
   settingsCompleted: true
 };
@@ -67,6 +72,8 @@ const ownSubPlan = {
   programmingInstructionManaged: true,
   notes: null,
   notesManaged: true,
+  substances: null,
+  substancesManaged: true,
   subPlanNumber: 'M02',
   settingsCompleted: true
 };
@@ -98,14 +105,17 @@ describe('subPlanSettingsAfterPlanSave', () => {
     ).toMatchObject({ stagesManaged: false });
   });
 
-  test('laisse ses échantillons à un sous-plan qui gère ses analytes', () => {
-    expect(
-      subPlanSettingsAfterPlanSave(ownSubPlan, unmanagedPlan, {
-        ...unmanagedPlan,
-        samplesManaged: true
-      })
-    ).toMatchObject({ samplesManaged: true });
-  });
+  test.each(SubstanceKindsDependentSettingKey.options)(
+    'laisse le paramètre %s à un sous-plan qui gère ses analytes',
+    (settingKey) => {
+      expect(
+        subPlanSettingsAfterPlanSave(ownSubPlan, unmanagedPlan, {
+          ...unmanagedPlan,
+          [managedKey(settingKey)]: true
+        })
+      ).toMatchObject({ [managedKey(settingKey)]: true });
+    }
+  );
 
   test('recopie la valeur du plan dans les sous-plans qui en héritaient quand le plan la rend', () => {
     expect(

@@ -9,12 +9,6 @@ import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanDomainId } from '../ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 
-export const PrescriptionOptionsInclude = z.enum(['substanceCount']);
-
-export type PrescriptionOptionsInclude = z.infer<
-  typeof PrescriptionOptionsInclude
->;
-
 export const FindPrescriptionOptions = z.object({
   programmingPlanId: z.guid().nullish(),
   programmingPlanIds: z.array(z.guid()).min(1).nullish(),
@@ -31,14 +25,13 @@ export const FindPrescriptionOptions = z.object({
   missingDistribution: z.boolean().nullish(),
   missingLaboratory: z.boolean().nullish(),
   withNovelty: z.boolean().nullish(),
-  withSampleCountOnly: z.boolean().nullish(),
-  includes: z.array(PrescriptionOptionsInclude).nullish()
+  withSampleCountOnly: z.boolean().nullish()
 });
 
 export type FindPrescriptionOptions = z.infer<typeof FindPrescriptionOptions>;
 
 export const ExportPrescriptionOptions = refineSchema(
-  FindPrescriptionOptions.omit({ includes: true }),
+  FindPrescriptionOptions,
   (options) =>
     !isNil(options.programmingPlanId) ||
     (options.programmingPlanIds ?? []).length > 0,

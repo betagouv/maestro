@@ -4,7 +4,8 @@ import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import type { ProgrammingPlanNationalCoordinator } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   managedKey,
-  ProgrammingPlanSettingKey
+  ProgrammingPlanSettingKey,
+  SubstanceKindsDependentSettingKey
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type {
   ProgrammingPlanSettingsForm,
@@ -272,8 +273,9 @@ const savePlanSettings = (
           .updateTable('programmingSubPlansRaw')
           .set(managedKey(settingKey), false)
           .where('programmingPlanId', '=', programmingPlanId)
-          .$if(settingKey === 'samples', (qb) =>
-            qb.where('substanceKindsManaged', '=', false)
+          .$if(
+            SubstanceKindsDependentSettingKey.safeParse(settingKey).success,
+            (qb) => qb.where('substanceKindsManaged', '=', false)
           )
           .execute();
       } else {

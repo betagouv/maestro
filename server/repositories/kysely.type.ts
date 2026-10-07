@@ -35,6 +35,7 @@ import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingP
 import type { ProgrammingPlanSampleSetting } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
+import type { SubPlanSubstances } from 'maestro-shared/schema/ProgrammingPlan/SubPlanSubstances';
 import type {
   CommemoratifSigle,
   CommemoratifValueSigle,
@@ -288,12 +289,6 @@ export interface Prescriptions {
   sampleCount: number;
 }
 
-export interface PrescriptionSubstances {
-  analysisMethod: string;
-  prescriptionId: string;
-  substance: string;
-}
-
 interface ProgrammingPlanSettings {
   stages: Stage[] | null;
   stagesManaged: Generated<boolean>;
@@ -313,6 +308,8 @@ interface ProgrammingPlanSettings {
   programmingInstructionManaged: Generated<boolean>;
   notes: string | null;
   notesManaged: Generated<boolean>;
+  substances: SubPlanSubstances | null;
+  substancesManaged: Generated<boolean>;
 }
 
 export interface ProgrammingPlans extends ProgrammingPlanSettings {
@@ -605,7 +602,6 @@ export interface DB {
   localPrescriptionSubstanceKindsLaboratories: LocalPrescriptionSubstanceKindLaboratory;
   notices: Notices;
   prescriptions: Prescriptions;
-  prescriptionSubstances: PrescriptionSubstances;
   programmingPlanDomains: ProgrammingPlanDomains;
   programmingSubPlans: ProgrammingSubPlans;
   programmingSubPlansRaw: ProgrammingSubPlansRaw;

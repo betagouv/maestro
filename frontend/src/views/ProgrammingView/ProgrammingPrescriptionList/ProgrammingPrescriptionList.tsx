@@ -8,7 +8,6 @@ import {
   isEqual,
   isNil,
   mapValues,
-  omit,
   omitBy,
   uniq
 } from 'lodash-es';
@@ -59,7 +58,6 @@ import PrescriptionImportModal, {
 } from 'src/views/ProgrammingView/ProgrammingPrescriptionList/PrescriptionImportModal';
 import ProgrammingPrescriptionListHeader from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListHeader';
 import { assert, type Equals } from 'tsafe';
-import PrescriptionModal from '../../../components/Prescription/PrescriptionModal/PrescriptionModal';
 import { ApiClientContext } from '../../../services/apiClient';
 import { getApiUrl } from '../../../utils/fetchUtils';
 import { groupSubstanceKindsLaboratoriesBySample } from '../../../utils/sampleLaboratories';
@@ -192,7 +190,7 @@ const ProgrammingPrescriptionList = ({
     [yearProgrammingPlans]
   );
 
-  const findPrescriptionCountsOptions = useMemo(
+  const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanIds: planIds,
       year: prescriptionFilters.year,
@@ -230,19 +228,6 @@ const ProgrammingPrescriptionList = ({
       department,
       hasNationalView
     ]
-  );
-
-  const findPrescriptionOptions = useMemo(
-    () => ({
-      ...findPrescriptionCountsOptions,
-      includes: ['substanceCount' as const]
-    }),
-    [findPrescriptionCountsOptions]
-  );
-
-  const exportPrescriptionOptions = useMemo(
-    () => omit(findPrescriptionOptions, 'includes'),
-    [findPrescriptionOptions]
   );
 
   const {
@@ -423,7 +408,7 @@ const ProgrammingPrescriptionList = ({
     isFetching: isFetchingPrescriptionCounts,
     refetch: refetchPrescriptionCounts,
     isUninitialized: isPrescriptionCountsUninitialized
-  } = apiClient.useFindPrescriptionCountsQuery(findPrescriptionCountsOptions, {
+  } = apiClient.useFindPrescriptionCountsQuery(findPrescriptionOptions, {
     skip: !planIds.length
   });
 
@@ -1053,7 +1038,7 @@ const ProgrammingPrescriptionList = ({
               counts={prescriptionCounts}
               exportURL={getApiUrl(
                 '/prescriptions/export',
-                exportPrescriptionOptions
+                findPrescriptionOptions
               )}
               onImport={
                 canImport ? () => prescriptionImportModal.open() : undefined
@@ -1137,13 +1122,6 @@ const ProgrammingPrescriptionList = ({
           )}
         </>
       )}
-      <PrescriptionModal
-        onUpdatePrescriptionSubstances={(prescription, substances) =>
-          changePrescription(prescription, {
-            substances
-          })
-        }
-      />
       {canBulkAssignLaboratories && (
         <BulkAssignLaboratoriesModal
           programmingSubPlanIds={uniq(

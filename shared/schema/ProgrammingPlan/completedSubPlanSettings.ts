@@ -9,7 +9,8 @@ import {
   managedKey,
   ProgrammingPlanRequiredSettingKey,
   ProgrammingPlanSettingKey,
-  type ProgrammingPlanSettings
+  type ProgrammingPlanSettings,
+  SubstanceKindsDependentSettingKey
 } from './ProgrammingPlanSettings';
 
 type Issue = { path: (string | number)[]; message: string };
@@ -85,10 +86,11 @@ export const subPlanSettingsAfterPlanSave = (
       nextPlanSettings[managed] && !storedPlanSettings[managed];
     const planReleases =
       !nextPlanSettings[managed] && storedPlanSettings[managed];
-    const keepsOwnSamples =
-      settingKey === 'samples' && settings.substanceKindsManaged;
+    const keepsOwnDependentSetting =
+      SubstanceKindsDependentSettingKey.safeParse(settingKey).success &&
+      settings.substanceKindsManaged;
 
-    if (planTakesOver && !keepsOwnSamples) {
+    if (planTakesOver && !keepsOwnDependentSetting) {
       settings[managed] = false;
     }
     if (planReleases && !settings[managed]) {
