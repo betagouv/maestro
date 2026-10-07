@@ -1,4 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import {
   type ProgrammingPlanSettings,
@@ -49,6 +50,14 @@ export const ProgrammingPlanAnalysisSettings = <
           key={settingKey}
           settingKey={settingKey}
           label={`Spécification des substances actives ${SubstanceKindLabels[substanceKind]}`}
+          labelContent={
+            <span>
+              Spécification des substances actives{' '}
+              <Tag small as="span">
+                {SubstanceKindLabels[substanceKind]}
+              </Tag>
+            </span>
+          }
           settings={settings}
           planSettings={planSettings}
           inheritanceDisabledReason={inheritanceDisabledReason}

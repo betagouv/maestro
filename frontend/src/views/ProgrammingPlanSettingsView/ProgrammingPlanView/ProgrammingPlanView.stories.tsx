@@ -1233,7 +1233,9 @@ export const PlanMonoSubstances: Story = {
       )
     );
     await expect(
-      canvas.queryByText('Spécification des substances actives Multi-résidus')
+      canvas.queryByTitle(
+        'Paramétrer « Spécification des substances actives Multi-résidus » au niveau du plan'
+      )
     ).not.toBeInTheDocument();
     await userEvent.type(
       await canvas.findByPlaceholderText('Rechercher par libellé'),

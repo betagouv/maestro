@@ -79,6 +79,7 @@ export const useSettingInheritance = <T extends ProgrammingPlanSettings>({
 };
 
 type Props<T extends ProgrammingPlanSettings> = SettingInheritanceOptions<T> & {
+  labelContent?: ReactNode;
   children: (props: {
     disabled: boolean;
     label: ReactNode;
@@ -91,6 +92,7 @@ export const ProgrammingPlanSettingInheritance = <
 >({
   settingKey,
   label,
+  labelContent = label,
   settings,
   planSettings,
   inheritanceDisabledReason,
@@ -122,7 +124,7 @@ export const ProgrammingPlanSettingInheritance = <
       style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
     >
       {lockButton}
-      {label}
+      {labelContent}
     </span>
   );
 
@@ -145,7 +147,9 @@ export const ProgrammingPlanSettingInheritance = <
             required
           })
         ) : (
-          <span className={cx('fr-label', 'fr-label--disabled')}>{label}</span>
+          <span className={cx('fr-label', 'fr-label--disabled')}>
+            {labelContent}
+          </span>
         )}
         {disabledReasonHint}
       </div>
