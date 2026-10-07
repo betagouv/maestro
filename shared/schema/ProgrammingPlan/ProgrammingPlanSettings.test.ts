@@ -126,7 +126,7 @@ describe('ProgrammingPlanSettings', () => {
     const planSamples = [
       { ...defaultProgrammingPlanSample, substanceKinds: ['Mono' as const] }
     ];
-    const planSubstances = { Mono: ['RF-1020-001-PPP'] };
+    const planMonoSubstances = ['RF-1020-001-PPP'];
 
     test('should stop a plan managing the settings depending on the analytes once it stops managing the analytes', () => {
       expect(
@@ -135,15 +135,15 @@ describe('ProgrammingPlanSettings', () => {
             ...emptyProgrammingPlanSettings(false),
             samples: planSamples,
             samplesManaged: true,
-            substances: planSubstances,
-            substancesManaged: true
+            monoSubstances: planMonoSubstances,
+            monoSubstancesManaged: true
           },
           undefined
         )
       ).toStrictEqual({
         ...emptyProgrammingPlanSettings(false),
         samples: planSamples,
-        substances: planSubstances
+        monoSubstances: planMonoSubstances
       });
     });
 
@@ -157,7 +157,7 @@ describe('ProgrammingPlanSettings', () => {
           {
             ...emptyProgrammingPlanSettings(true),
             samples: planSamples,
-            substances: planSubstances
+            monoSubstances: planMonoSubstances
           }
         )
       ).toStrictEqual({
@@ -165,33 +165,34 @@ describe('ProgrammingPlanSettings', () => {
         substanceKindsManaged: true,
         samples: planSamples,
         samplesManaged: true,
-        substances: planSubstances,
-        substancesManaged: true
+        monoSubstances: planMonoSubstances,
+        monoSubstancesManaged: true,
+        multiSubstancesManaged: true
       });
     });
 
     test('should keep the own value of a setting the sub-plan already manages', () => {
-      const ownSubstances = { Multi: ['RF-0440-001-PPP'] };
+      const ownMonoSubstances = ['RF-0440-001-PPP'];
 
       expect(
         withSettingsBelowSubstanceKinds(
           {
             ...emptyProgrammingPlanSettings(false),
             substanceKindsManaged: true,
-            substances: ownSubstances,
-            substancesManaged: true
+            monoSubstances: ownMonoSubstances,
+            monoSubstancesManaged: true
           },
           {
             ...emptyProgrammingPlanSettings(true),
             samples: planSamples,
-            substances: planSubstances
+            monoSubstances: planMonoSubstances
           }
         )
       ).toMatchObject({
         samples: planSamples,
         samplesManaged: true,
-        substances: ownSubstances,
-        substancesManaged: true
+        monoSubstances: ownMonoSubstances,
+        monoSubstancesManaged: true
       });
     });
 

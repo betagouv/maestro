@@ -20,8 +20,8 @@ interface Props {
 
 const PrescriptionSubstances = ({ programmingPlan, prescription }: Props) => {
   const subPlan = findPrescriptionSubPlan([programmingPlan], prescription);
-  const monoSubstances = subPlan?.substances?.Mono ?? [];
-  const multiSubstances = subPlan?.substances?.Multi ?? [];
+  const monoSubstances = subPlan?.monoSubstances ?? [];
+  const multiSubstances = subPlan?.multiSubstances ?? [];
 
   return (
     <div>

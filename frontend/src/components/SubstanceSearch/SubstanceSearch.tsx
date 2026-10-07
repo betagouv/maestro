@@ -15,7 +15,7 @@ import {
   type AnalysisMethod,
   AnalysisMethodLabels
 } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { type SyntheticEvent, useState } from 'react';
+import { type ReactNode, type SyntheticEvent, useState } from 'react';
 
 interface Props {
   analysisMethod: AnalysisMethod;
@@ -23,7 +23,7 @@ interface Props {
   onChangeSubstances: (substances: SSD2Id[]) => void | Promise<void>;
   readonly?: boolean;
   addButtonMode?: 'icon' | 'none';
-  label?: string;
+  label?: ReactNode;
 }
 
 const SubstanceSearch = ({

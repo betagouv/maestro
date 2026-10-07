@@ -1,5 +1,6 @@
 import { isNil, pick } from 'lodash-es';
 import { z } from 'zod';
+import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { Stage } from '../../referential/Stage';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import { ProgrammingPlanContext } from './Context';
@@ -8,7 +9,6 @@ import {
   ProgrammingPlanSampleSetting
 } from './ProgrammingPlanSampleSetting';
 import { SubPlanMatrices } from './SubPlanMatrices';
-import { SubPlanSubstances } from './SubPlanSubstances';
 
 export const ProgrammingPlanSettingKey = z.enum([
   'stages',
@@ -18,7 +18,8 @@ export const ProgrammingPlanSettingKey = z.enum([
   'context',
   'programmingInstruction',
   'notes',
-  'substances'
+  'monoSubstances',
+  'multiSubstances'
 ]);
 export type ProgrammingPlanSettingKey = z.infer<
   typeof ProgrammingPlanSettingKey
@@ -28,7 +29,8 @@ export const ProgrammingPlanRequiredSettingKey =
   ProgrammingPlanSettingKey.exclude([
     'programmingInstruction',
     'notes',
-    'substances'
+    'monoSubstances',
+    'multiSubstances'
   ]);
 export type ProgrammingPlanRequiredSettingKey = z.infer<
   typeof ProgrammingPlanRequiredSettingKey
@@ -52,8 +54,10 @@ export const ProgrammingPlanSettings = z.object({
   programmingInstructionManaged: z.boolean(),
   notes: z.string().nullable(),
   notesManaged: z.boolean(),
-  substances: SubPlanSubstances.nullable(),
-  substancesManaged: z.boolean()
+  monoSubstances: z.array(SSD2Id).nullable(),
+  monoSubstancesManaged: z.boolean(),
+  multiSubstances: z.array(SSD2Id).nullable(),
+  multiSubstancesManaged: z.boolean()
 } satisfies Record<ProgrammingPlanSettingKey, z.ZodType> &
   Record<`${ProgrammingPlanSettingKey}Managed`, z.ZodType>);
 
@@ -97,7 +101,11 @@ export const isMissingSetting = (
 ): boolean => isNil(value) || (Array.isArray(value) && value.length === 0);
 
 export const SubstanceKindsDependentSettingKey =
-  ProgrammingPlanSettingKey.extract(['samples', 'substances']);
+  ProgrammingPlanSettingKey.extract([
+    'samples',
+    'monoSubstances',
+    'multiSubstances'
+  ]);
 
 export const managesAboveSubstanceKinds = {
   plan: (planSettings: ProgrammingPlanSettings): boolean =>

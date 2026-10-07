@@ -25,82 +25,95 @@ const subPlansView = (substancesManaged: boolean) => `
     sp.notes_managed${
       substancesManaged
         ? `,
-    CASE WHEN sp.substances_managed THEN sp.substances ELSE pp.substances END AS substances,
-    sp.substances_managed`
+    CASE WHEN sp.mono_substances_managed THEN sp.mono_substances ELSE pp.mono_substances END AS mono_substances,
+    sp.mono_substances_managed,
+    CASE WHEN sp.multi_substances_managed THEN sp.multi_substances ELSE pp.multi_substances END AS multi_substances,
+    sp.multi_substances_managed`
         : ''
     }
   FROM programming_sub_plans_raw sp
   JOIN programming_plans pp ON pp.id = sp.programming_plan_id
 `;
 
-export const up = async (knex: Knex) => {
-  await knex.raw('DROP VIEW programming_sub_plans');
+const columns = [
+  { column: 'mono_substances', analysisMethod: 'Mono' },
+  { column: 'multi_substances', analysisMethod: 'Multi' }
+];
 
+const moveToSubPlan = async (
+  knex: Knex,
+  column: string,
+  analysisMethod: string
+) => {
   await knex.schema.alterTable('programming_plans', (table) => {
-    table.jsonb('substances');
-    table.boolean('substances_managed').notNullable().defaultTo(false);
+    table.specificType(column, 'text[]');
+    table.boolean(`${column}_managed`).notNullable().defaultTo(false);
   });
 
   await knex.schema.alterTable('programming_sub_plans_raw', (table) => {
-    table.jsonb('substances');
-    table.boolean('substances_managed').notNullable().defaultTo(true);
+    table.specificType(column, 'text[]');
+    table.boolean(`${column}_managed`).notNullable().defaultTo(true);
   });
 
-  await knex.raw(`
-    WITH by_method AS (
-      SELECT prescription_id, analysis_method,
-        jsonb_agg(substance ORDER BY substance) AS substances
-      FROM prescription_substances
-      GROUP BY prescription_id, analysis_method
-    ),
-    by_prescription AS (
-      SELECT prescription_id,
-        jsonb_object_agg(analysis_method, substances) AS substances
-      FROM by_method
-      GROUP BY prescription_id
-    )
+  await knex.raw(
+    `
     UPDATE programming_sub_plans_raw sp
-    SET substances = bp.substances
-    FROM by_prescription bp
-    JOIN prescriptions p ON p.id = bp.prescription_id
+    SET ${column} = ps.substances
+    FROM (
+      SELECT prescription_id, array_agg(substance ORDER BY substance) AS substances
+      FROM prescription_substances
+      WHERE analysis_method = ?
+      GROUP BY prescription_id
+    ) ps
+    JOIN prescriptions p ON p.id = ps.prescription_id
     WHERE p.programming_sub_plan_id = sp.id
-  `);
+  `,
+    [analysisMethod]
+  );
 
   await knex.raw(`
     WITH common AS (
       SELECT sp.programming_plan_id
       FROM programming_sub_plans_raw sp
       JOIN programming_plans pp ON pp.id = sp.programming_plan_id
-      WHERE NOT pp.substances_managed AND pp.substance_kinds_managed
+      WHERE NOT pp.${column}_managed AND pp.substance_kinds_managed
       GROUP BY sp.programming_plan_id
-      HAVING count(DISTINCT sp.substances) = 1
-        AND count(sp.substances) = count(*)
-        AND bool_and(sp.substances_managed)
+      HAVING count(DISTINCT sp.${column}) = 1
+        AND count(sp.${column}) = count(*)
+        AND bool_and(sp.${column}_managed)
     ),
     plans AS (
       UPDATE programming_plans pp
-      SET substances = (
-        SELECT sp.substances
+      SET ${column} = (
+        SELECT sp.${column}
         FROM programming_sub_plans_raw sp
         WHERE sp.programming_plan_id = pp.id
         LIMIT 1
       ),
-      substances_managed = true
+      ${column}_managed = true
       FROM common c
       WHERE pp.id = c.programming_plan_id
       RETURNING pp.id
     )
     UPDATE programming_sub_plans_raw sp
-    SET substances_managed = false
+    SET ${column}_managed = false
     FROM plans p
     WHERE sp.programming_plan_id = p.id AND NOT sp.substance_kinds_managed
   `);
 
-  await knex.schema.dropTable('prescription_substances');
-
   await knex.raw(
-    'ALTER TABLE programming_sub_plans_raw ALTER COLUMN substances_managed DROP DEFAULT'
+    `ALTER TABLE programming_sub_plans_raw ALTER COLUMN ${column}_managed DROP DEFAULT`
   );
+};
+
+export const up = async (knex: Knex) => {
+  await knex.raw('DROP VIEW programming_sub_plans');
+
+  for (const { column, analysisMethod } of columns) {
+    await moveToSubPlan(knex, column, analysisMethod);
+  }
+
+  await knex.schema.dropTable('prescription_substances');
 
   await knex.raw(`CREATE VIEW programming_sub_plans AS ${subPlansView(true)}`);
 };
@@ -125,27 +138,33 @@ export const down = async (knex: Knex) => {
     CHECK (analysis_method = ANY (ARRAY['Mono'::text, 'Multi'::text]))
   `);
 
-  await knex.raw(`
-    INSERT INTO prescription_substances (prescription_id, analysis_method, substance)
-    SELECT p.id, s.key, substance
-    FROM prescriptions p
-    JOIN programming_sub_plans sp ON sp.id = p.programming_sub_plan_id
-    CROSS JOIN LATERAL jsonb_each(sp.substances) s
-    CROSS JOIN LATERAL jsonb_array_elements_text(s.value) substance
-    WHERE s.key IN ('Mono', 'Multi')
-    ON CONFLICT DO NOTHING
-  `);
+  for (const { column, analysisMethod } of columns) {
+    await knex.raw(
+      `
+      INSERT INTO prescription_substances (prescription_id, analysis_method, substance)
+      SELECT p.id, ?, unnest(sp.${column})
+      FROM prescriptions p
+      JOIN programming_sub_plans sp ON sp.id = p.programming_sub_plan_id
+      ON CONFLICT DO NOTHING
+    `,
+      [analysisMethod]
+    );
+  }
 
   await knex.raw('DROP VIEW programming_sub_plans');
 
   await knex.schema.alterTable('programming_sub_plans_raw', (table) => {
-    table.dropColumn('substances');
-    table.dropColumn('substances_managed');
+    for (const { column } of columns) {
+      table.dropColumn(column);
+      table.dropColumn(`${column}_managed`);
+    }
   });
 
   await knex.schema.alterTable('programming_plans', (table) => {
-    table.dropColumn('substances');
-    table.dropColumn('substances_managed');
+    for (const { column } of columns) {
+      table.dropColumn(column);
+      table.dropColumn(`${column}_managed`);
+    }
   });
 
   await knex.raw(`CREATE VIEW programming_sub_plans AS ${subPlansView(false)}`);

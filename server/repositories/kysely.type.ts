@@ -35,7 +35,6 @@ import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingP
 import type { ProgrammingPlanSampleSetting } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
-import type { SubPlanSubstances } from 'maestro-shared/schema/ProgrammingPlan/SubPlanSubstances';
 import type {
   CommemoratifSigle,
   CommemoratifValueSigle,
@@ -308,8 +307,10 @@ interface ProgrammingPlanSettings {
   programmingInstructionManaged: Generated<boolean>;
   notes: string | null;
   notesManaged: Generated<boolean>;
-  substances: SubPlanSubstances | null;
-  substancesManaged: Generated<boolean>;
+  monoSubstances: SSD2Id[] | null;
+  monoSubstancesManaged: Generated<boolean>;
+  multiSubstances: SSD2Id[] | null;
+  multiSubstancesManaged: Generated<boolean>;
 }
 
 export interface ProgrammingPlans extends ProgrammingPlanSettings {

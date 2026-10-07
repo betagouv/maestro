@@ -165,8 +165,10 @@ export const genProgrammingSubPlan = (
   programmingInstructionManaged: true,
   notes: null,
   notesManaged: true,
-  substances: null,
-  substancesManaged: true,
+  monoSubstances: null,
+  monoSubstancesManaged: true,
+  multiSubstances: null,
+  multiSubstancesManaged: true,
   ...data
 });
 
@@ -187,7 +189,7 @@ export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
     { ...defaultProgrammingPlanSample, substanceKinds: ['Mono', 'Multi'] }
   ],
   matrices: genSubPlanMatrices('A00GY'),
-  substances: { Mono: ['RF-1020-001-PPP'] }
+  monoSubstances: ['RF-1020-001-PPP']
 });
 export const PPVValidatedDromSubPlanFixture = genProgrammingSubPlan({
   ...PPVValidatedSubPlanFixture,
@@ -294,8 +296,10 @@ export const genProgrammingPlan = (
     programmingInstructionManaged: false,
     notes: null,
     notesManaged: false,
-    substances: null,
-    substancesManaged: false,
+    monoSubstances: null,
+    monoSubstancesManaged: false,
+    multiSubstances: null,
+    multiSubstancesManaged: false,
     settingsCompleted: true,
     createdAt: new Date(),
     createdBy: crypto.randomUUID(),

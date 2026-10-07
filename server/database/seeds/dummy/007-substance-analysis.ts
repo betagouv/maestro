@@ -498,22 +498,24 @@ export const seed = async () => {
   ];
 
   for (const [prescriptionId, subPlanId] of ppvSubPlanIdByPrescriptionId) {
-    const analyses = substanceAnalysis.filter(
-      (analysis) =>
-        analysis.prescriptionId === prescriptionId &&
-        analysis.substances.length > 0
-    );
+    const substances = (analysisMethod: AnalysisMethod) =>
+      substanceAnalysis
+        .filter(
+          (analysis) =>
+            analysis.prescriptionId === prescriptionId &&
+            analysis.analysisMethod === analysisMethod
+        )
+        .flatMap((analysis) => analysis.substances);
 
-    if (analyses.length > 0) {
+    const monoSubstances = substances('Mono');
+    const multiSubstances = substances('Multi');
+
+    if (monoSubstances.length > 0 || multiSubstances.length > 0) {
       await kysely
         .updateTable('programmingSubPlansRaw')
         .set({
-          substances: Object.fromEntries(
-            analyses.map(({ analysisMethod, substances }) => [
-              analysisMethod,
-              substances
-            ])
-          )
+          monoSubstances: monoSubstances.length > 0 ? monoSubstances : null,
+          multiSubstances: multiSubstances.length > 0 ? multiSubstances : null
         })
         .where('id', '=', subPlanId)
         .execute();

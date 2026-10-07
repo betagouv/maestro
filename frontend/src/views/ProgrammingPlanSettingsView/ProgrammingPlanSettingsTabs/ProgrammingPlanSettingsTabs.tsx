@@ -36,6 +36,7 @@ import { useForm } from 'src/hooks/useForm';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 import type { z } from 'zod';
+import { ProgrammingPlanAnalysisSettings } from '../ProgrammingPlanAnalysisSettings/ProgrammingPlanAnalysisSettings';
 import { ProgrammingPlanGlobalSettings } from '../ProgrammingPlanGlobalSettings/ProgrammingPlanGlobalSettings';
 import { ProgrammingPlanSamplerFormSettings } from '../ProgrammingPlanSamplerFormSettings/ProgrammingPlanSamplerFormSettings';
 import { ProgrammingPlanSampleSettings } from '../ProgrammingPlanSampleSettings/ProgrammingPlanSampleSettings';
@@ -83,7 +84,8 @@ const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   context: 'global',
   programmingInstruction: 'global',
   notes: 'global',
-  substances: 'analyses',
+  monoSubstances: 'analyses',
+  multiSubstances: 'analyses',
   nationalCoordinators: 'global',
   technicalInstruction: 'global',
   fields: 'sampler-form'
@@ -340,7 +342,13 @@ export const ProgrammingPlanSettingsTabs = ({
           />
         );
       case 'analyses':
-        return null;
+        return (
+          <ProgrammingPlanAnalysisSettings
+            settings={draft}
+            planSettings={subPlan ? programmingPlan : undefined}
+            onChange={changeDraft}
+          />
+        );
       default:
         assertUnreachable(tabId);
     }

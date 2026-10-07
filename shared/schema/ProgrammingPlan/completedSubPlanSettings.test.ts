@@ -39,8 +39,10 @@ const planSettings: ProgrammingPlanSettings = {
   programmingInstructionManaged: true,
   notes: null,
   notesManaged: true,
-  substances: { Mono: ['RF-1020-001-PPP'] },
-  substancesManaged: true
+  monoSubstances: ['RF-1020-001-PPP'],
+  monoSubstancesManaged: true,
+  multiSubstances: null,
+  multiSubstancesManaged: true
 };
 
 const inheritingSubPlan = {
@@ -52,7 +54,8 @@ const inheritingSubPlan = {
   contextManaged: false,
   programmingInstructionManaged: false,
   notesManaged: false,
-  substancesManaged: false,
+  monoSubstancesManaged: false,
+  multiSubstancesManaged: false,
   subPlanNumber: 'M01',
   settingsCompleted: true
 };
@@ -72,8 +75,10 @@ const ownSubPlan = {
   programmingInstructionManaged: true,
   notes: null,
   notesManaged: true,
-  substances: null,
-  substancesManaged: true,
+  monoSubstances: null,
+  monoSubstancesManaged: true,
+  multiSubstances: null,
+  multiSubstancesManaged: true,
   subPlanNumber: 'M02',
   settingsCompleted: true
 };

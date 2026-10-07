@@ -151,8 +151,10 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     programmingInstructionManaged: true,
     notes: null,
     notesManaged: true,
-    substances: null,
-    substancesManaged: true,
+    monoSubstances: null,
+    monoSubstancesManaged: true,
+    multiSubstances: null,
+    multiSubstancesManaged: true,
     fields: [matriceField, quantiteField].map(({ id }) => ({
       fieldId: id,
       required: false,
@@ -177,8 +179,10 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     programmingInstructionManaged: true,
     notes: null,
     notesManaged: true,
-    substances: null,
-    substancesManaged: true,
+    monoSubstances: null,
+    monoSubstancesManaged: true,
+    multiSubstances: null,
+    multiSubstancesManaged: true,
     fields: []
   },
   [AnimauxSubPlanId]: {
@@ -197,8 +201,10 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     programmingInstructionManaged: true,
     notes: null,
     notesManaged: true,
-    substances: null,
-    substancesManaged: true,
+    monoSubstances: null,
+    monoSubstancesManaged: true,
+    multiSubstances: null,
+    multiSubstancesManaged: true,
     fields: [
       {
         fieldId: especeField.id,
@@ -244,8 +250,10 @@ const planSettings: ProgrammingPlanSettingsForm = {
   programmingInstructionManaged: false,
   notes: null,
   notesManaged: false,
-  substances: null,
-  substancesManaged: false,
+  monoSubstances: null,
+  monoSubstancesManaged: false,
+  multiSubstances: null,
+  multiSubstancesManaged: false,
   settingsCompleted: false,
   nationalCoordinators: [nationalCoordinator],
   technicalInstruction: null,
@@ -1191,6 +1199,71 @@ export const PlanNotes: Story = {
         ...planSettings,
         notes: 'Prélever hors période de traitement',
         notesManaged: true
+      })
+    );
+  }
+};
+
+export const PlanMonoSubstances: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    await userEvent.click(canvas.getByRole('tab', { name: 'Analyses' }));
+    await expect(
+      canvas.queryByText(/Spécification des substances actives/)
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole('tab', { name: 'Paramétrage global' })
+    );
+    await userEvent.click(
+      await canvas.findByTitle('Paramétrer « Analyte(s) » au niveau du plan')
+    );
+    await userEvent.selectOptions(
+      await canvas.findByRole('combobox', { name: /Analyte\(s\)/ }),
+      'Mono'
+    );
+
+    await userEvent.click(canvas.getByRole('tab', { name: 'Analyses' }));
+    await userEvent.click(
+      await canvas.findByTitle(
+        'Paramétrer « Spécification des substances actives Mono-résidu » au niveau du plan'
+      )
+    );
+    await expect(
+      canvas.queryByText('Spécification des substances actives Multi-résidus')
+    ).not.toBeInTheDocument();
+    await userEvent.type(
+      await canvas.findByPlaceholderText('Rechercher par libellé'),
+      'Glyphosate'
+    );
+    await userEvent.click(
+      await within(canvasElement.ownerDocument.body).findByRole('option', {
+        name: 'Glyphosate'
+      })
+    );
+
+    await userEvent.click(
+      canvas.getByRole('tab', { name: 'Paramétrage global' })
+    );
+    await userEvent.selectOptions(
+      await canvas.findByRole('combobox', { name: /Analyte\(s\)/ }),
+      'Multi'
+    );
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        ...planSettings,
+        substanceKinds: ['Mono', 'Multi'],
+        substanceKindsManaged: true,
+        monoSubstances: ['RF-1020-001-PPP'],
+        monoSubstancesManaged: true
       })
     );
   }

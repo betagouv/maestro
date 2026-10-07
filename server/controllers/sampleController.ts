@@ -589,12 +589,10 @@ export const sampleRouter = {
             )[0]
           : undefined;
 
-      const prescriptionSubstances = prescription
-        ? ((
-            await programmingSubPlanRepository.findUnique(
-              prescription.programmingSubPlanId
-            )
-          )?.substances ?? {})
+      const prescriptionSubPlan = prescription
+        ? await programmingSubPlanRepository.findUnique(
+            prescription.programmingSubPlanId
+          )
         : undefined;
 
       const prescriptionData: Pick<
@@ -605,11 +603,11 @@ export const sampleRouter = {
         sample.context !== sampleUpdate.context
           ? {
               prescriptionId: prescription?.id || null,
-              monoSubstances: prescriptionSubstances
-                ? (prescriptionSubstances.Mono ?? [])
+              monoSubstances: prescription
+                ? (prescriptionSubPlan?.monoSubstances ?? [])
                 : null,
-              multiSubstances: prescriptionSubstances
-                ? (prescriptionSubstances.Multi ?? [])
+              multiSubstances: prescription
+                ? (prescriptionSubPlan?.multiSubstances ?? [])
                 : null
             }
           : sampleUpdate;
