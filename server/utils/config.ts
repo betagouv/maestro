@@ -1,11 +1,12 @@
+import { existsSync } from 'node:fs';
 import path from 'node:path';
-import dotenv from 'dotenv';
 import { type ZodType, z } from 'zod';
 
 type NoUndefined<T> = T extends undefined ? never : T;
 
-if (!process.env.API_PORT) {
-  dotenv.config({ path: path.join(import.meta.dirname, '../../.env') });
+const envFile = path.join(import.meta.dirname, '../../.env');
+if (!process.env.API_PORT && existsSync(envFile)) {
+  process.loadEnvFile(envFile);
 }
 const isProduction = process.env.NODE_ENV === 'production';
 const MailProvider = z.enum(['fake', 'brevo', 'nodemailer']);
