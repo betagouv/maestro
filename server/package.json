@@ -53,7 +53,7 @@
     "kysely": "^0.29.6",
     "libxml2-wasm": "^0.7.2",
     "maestro-shared": "^0.0.1",
-    "mailparser": "^3.9.31",
+    "mailparser": "^3.9.32",
     "nodemailer": "^10.0.10",
     "openid-client": "^6.8.8",
     "pdf-lib": "^1.17.1",
