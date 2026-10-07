@@ -30,7 +30,6 @@ import {
   Sampler2Fixture
 } from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import {
   Analysis,
@@ -160,7 +159,7 @@ describe('Analysis router', () => {
       await request(app)
         .get(
           testRoute({
-            sampleId: uuidv4(),
+            sampleId: crypto.randomUUID(),
             itemNumber: 1,
             copyNumber: 1
           })
@@ -319,7 +318,7 @@ describe('Analysis router', () => {
 
     test('should fail if the analysis does not exist', async () => {
       await request(app)
-        .put(testRoute(uuidv4()))
+        .put(testRoute(crypto.randomUUID()))
         .send(genPartialAnalysis())
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);

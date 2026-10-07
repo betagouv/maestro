@@ -1,5 +1,4 @@
 import { fakerFR } from '@faker-js/faker';
-import { v4 as uuidv4 } from 'uuid';
 import type { Notification } from '../schema/Notification/Notification';
 import { NotificationCategoryList } from '../schema/Notification/NotificationCategory';
 import { oneOf } from './testFixtures';
@@ -7,9 +6,9 @@ import { oneOf } from './testFixtures';
 export const genNotification = (
   data?: Partial<Notification>
 ): Notification => ({
-  id: uuidv4(),
+  id: crypto.randomUUID(),
   createdAt: new Date(),
-  recipientId: uuidv4(),
+  recipientId: crypto.randomUUID(),
   category: oneOf(NotificationCategoryList),
   message: fakerFR.lorem.words(10),
   link: fakerFR.internet.url(),

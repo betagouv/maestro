@@ -1,5 +1,4 @@
 import { fakerFR } from '@faker-js/faker';
-import { v4 as uuidv4 } from 'uuid';
 import { OptionalBooleanList } from '../referential/OptionnalBoolean';
 import { AnalyteList } from '../referential/Residue/Analyte';
 import type {
@@ -19,7 +18,7 @@ import { oneOf } from './testFixtures';
 export const genAnalysisToCreate = (
   data?: Partial<AnalysisToCreate>
 ): AnalysisToCreate => ({
-  sampleId: uuidv4(),
+  sampleId: crypto.randomUUID(),
   itemNumber: 1,
   copyNumber: 1,
   ...data
@@ -30,9 +29,9 @@ export const genPartialAnalysis = (
     Pick<PartialAnalysis, 'residues'>
 ): PartialAnalysis => ({
   ...genAnalysisToCreate(),
-  id: uuidv4(),
+  id: crypto.randomUUID(),
   createdAt: new Date(),
-  createdBy: uuidv4(),
+  createdBy: crypto.randomUUID(),
   status: oneOf(AnalysisStatusList),
   compliance: null,
   notesOnCompliance: null,
@@ -45,7 +44,7 @@ export const genPartialResidue = (
     unknownLabel?: string;
   }
 ): PartialResidue => ({
-  analysisId: uuidv4(),
+  analysisId: crypto.randomUUID(),
   residueNumber: fakerFR.number.int(99),
   analysisMethod: oneOf(AnalysisMethodList),
   result: fakerFR.number.int(99),
@@ -60,7 +59,7 @@ export const genPartialResidue = (
 });
 
 export const genPartialAnalyte = (data?: Partial<Analyte>): PartialAnalyte => ({
-  analysisId: uuidv4(),
+  analysisId: crypto.randomUUID(),
   residueNumber: fakerFR.number.int(99),
   analyteNumber: fakerFR.number.int(99),
   reference: oneOf(AnalyteList),

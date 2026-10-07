@@ -1,5 +1,4 @@
 import { fakerFR } from '@faker-js/faker';
-import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
 import {
   type ProgrammingSubPlan,
@@ -67,7 +66,7 @@ export const genUser = <T extends Partial<UserRefined>>(
       : []);
 
   return {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     email: fakerFR.internet.email().toLowerCase(),
     name: fakerFR.person.fullName(),
     stages,

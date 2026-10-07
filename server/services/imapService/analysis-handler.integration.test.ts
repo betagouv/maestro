@@ -1,5 +1,4 @@
 import { Sample13Fixture } from 'maestro-shared/test/sampleFixtures';
-import { v4 as uuidv4 } from 'uuid';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import { s3Service } from '../s3Service';
@@ -11,14 +10,14 @@ import { ExtractLabError } from './extractError';
 
 let spyDeleteDocument = vi.spyOn(s3Service, 'deleteDocument');
 let spyUploadDocument = vi.spyOn(s3Service, 'uploadDocument');
-let documentId = uuidv4();
+let documentId = crypto.randomUUID();
 
 beforeEach(() => {
   vi.resetAllMocks();
   spyDeleteDocument = vi
     .spyOn(s3Service, 'deleteDocument')
     .mockResolvedValue(undefined);
-  documentId = uuidv4();
+  documentId = crypto.randomUUID();
   spyUploadDocument = vi
     .spyOn(s3Service, 'uploadDocument')
     .mockResolvedValue({ documentId, valid: true });

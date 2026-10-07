@@ -34,7 +34,6 @@ import { hasPermission } from 'maestro-shared/schema/User/User';
 import type { MaestroDate } from 'maestro-shared/utils/date';
 import { checkSchema } from 'maestro-shared/utils/zod';
 import { PDFDocument } from 'pdf-lib';
-import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import {
@@ -393,7 +392,7 @@ export const sampleRouter = {
 
         if (!analysis) {
           const analysis: PartialAnalysis = {
-            id: uuidv4(),
+            id: crypto.randomUUID(),
             sampleId,
             itemNumber,
             copyNumber,
@@ -688,7 +687,7 @@ export const sampleRouter = {
         for (const sampleItem of sampleItems) {
           if (sampleItem.copyNumber === 1) {
             const analysis: PartialAnalysis = {
-              id: uuidv4(),
+              id: crypto.randomUUID(),
               sampleId,
               itemNumber: sampleItem.itemNumber,
               copyNumber: sampleItem.copyNumber,

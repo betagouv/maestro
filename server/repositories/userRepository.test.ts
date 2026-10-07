@@ -6,7 +6,6 @@ import {
   PPVValidatedSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genUser } from 'maestro-shared/test/userFixtures';
-import { v4 as uuidv4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
 import { userRepository } from './userRepository';
 
@@ -140,7 +139,7 @@ test('peut ajouter et supprimer un logged secret', async () => {
 
   await userRepository.insert(user1);
 
-  const newSecret = uuidv4();
+  const newSecret = crypto.randomUUID();
 
   await userRepository.addLoggedSecret(newSecret, user1.id);
 
@@ -148,7 +147,7 @@ test('peut ajouter et supprimer un logged secret', async () => {
 
   expect(user1InDb?.loggedSecrets).toEqual([newSecret]);
 
-  const newSecret2 = uuidv4();
+  const newSecret2 = crypto.randomUUID();
   await userRepository.addLoggedSecret(newSecret2, user1.id);
   await userRepository.deleteLoggedSecret(newSecret, user1.id);
 

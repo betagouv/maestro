@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import type { Matrix } from '../referential/Matrix/Matrix';
 import {
   type MatrixKind,
@@ -43,7 +42,7 @@ const PesticideResidueInTenYearsDomainId = ProgrammingPlanDomainId.parse(
 export const genProgrammingPlanDomain = (
   data?: Partial<ProgrammingPlanDomain>
 ): ProgrammingPlanDomain => ({
-  id: ProgrammingPlanDomainId.parse(uuidv4()),
+  id: ProgrammingPlanDomainId.parse(crypto.randomUUID()),
   label: 'Résidus de pesticides',
   year: currentYear,
   ...data
@@ -144,8 +143,8 @@ export const genSubPlanMatrices = (
 export const genProgrammingSubPlan = (
   data?: Partial<ProgrammingSubPlan>
 ): ProgrammingSubPlan => ({
-  id: ProgrammingSubPlanId.parse(uuidv4()),
-  programmingPlanId: uuidv4(),
+  id: ProgrammingSubPlanId.parse(crypto.randomUUID()),
+  programmingPlanId: crypto.randomUUID(),
   subPlanNumber: 'TEST',
   stages: [],
   stagesManaged: true,
@@ -255,7 +254,7 @@ export const DAOABovinInProgressSubPlanFixture = genProgrammingSubPlan({
 export const genProgrammingPlan = (
   data?: Partial<ProgrammingPlanChecked>
 ): ProgrammingPlanChecked => {
-  const planId = data?.id ?? uuidv4();
+  const planId = data?.id ?? crypto.randomUUID();
   return {
     id: planId,
     domainId: PesticideResidueDomainId,
@@ -263,7 +262,7 @@ export const genProgrammingPlan = (
     subPlans: [
       {
         ...PPVValidatedSubPlanFixture,
-        id: ProgrammingSubPlanId.parse(uuidv4()),
+        id: ProgrammingSubPlanId.parse(crypto.randomUUID()),
         programmingPlanId: planId
       }
     ],
@@ -294,7 +293,7 @@ export const genProgrammingPlan = (
     notesManaged: false,
     settingsCompleted: true,
     createdAt: new Date(),
-    createdBy: uuidv4(),
+    createdBy: crypto.randomUUID(),
     launchedAt: new Date(),
     launchedBy: NationalCoordinatorId,
     nationalStatus: { status: oneOf(ProgrammingPlanStatusList) },
@@ -320,7 +319,7 @@ export const withMatrixKindSubPlans = <T extends ProgrammingPlanChecked>(
     id:
       index === 0
         ? programmingPlan.subPlans[0].id
-        : ProgrammingSubPlanId.parse(uuidv4()),
+        : ProgrammingSubPlanId.parse(crypto.randomUUID()),
     subPlanNumber: `PPV${String(index + 1).padStart(2, '0')}`,
     label: MatrixKindLabels[matrixKind],
     matrices: genSubPlanMatrices(matrixKind)
@@ -330,7 +329,7 @@ export const withMatrixKindSubPlans = <T extends ProgrammingPlanChecked>(
 export const genDeletableProgrammingPlan = (
   data?: Partial<ProgrammingPlanChecked>
 ): ProgrammingPlanChecked => {
-  const planId = data?.id ?? uuidv4();
+  const planId = data?.id ?? crypto.randomUUID();
   return genProgrammingPlan({
     settingsCompleted: false,
     createdBy: NationalCoordinatorId,

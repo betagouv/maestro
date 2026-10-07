@@ -3,7 +3,6 @@ import { rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import { v4 as uuidv4 } from 'uuid';
 import { kysely } from '../repositories/kysely';
 
 const exec = promisify(child_process.exec);
@@ -23,7 +22,7 @@ export const initGpgForSacha = async (): Promise<void> => {
 };
 
 export const importPublicKey = async (publicKey: string) => {
-  const fileName = `${uuidv4()}.gpg`;
+  const fileName = `${crypto.randomUUID()}.gpg`;
 
   const filePath = path.join(tmpdir(), fileName);
 

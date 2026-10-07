@@ -52,7 +52,6 @@ import {
 } from 'maestro-shared/test/userFixtures';
 import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import {
   afterAll,
   afterEach,
@@ -605,7 +604,7 @@ describe('ProgrammingPlan router', () => {
 
     test('should fail if the programmingPlan does not exist', async () => {
       await request(app)
-        .get(testRoute(uuidv4()))
+        .get(testRoute(crypto.randomUUID()))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -850,7 +849,7 @@ describe('ProgrammingPlan router', () => {
 
     test('should fail if the programming plan does not exist', async () => {
       await request(app)
-        .put(testRoute(uuidv4()))
+        .put(testRoute(crypto.randomUUID()))
         .send(validBody)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
@@ -985,7 +984,7 @@ describe('ProgrammingPlan router', () => {
 
     test('should fail if the programming plan does not exist', async () => {
       await request(app)
-        .put(testRoute(uuidv4()))
+        .put(testRoute(crypto.randomUUID()))
         .send({ programmingPlanLocalStatusList })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
@@ -2107,11 +2106,11 @@ describe('ProgrammingPlan router', () => {
 
     test('should fail if the programming plan does not exist', async () => {
       await request(app)
-        .get(testRoute(uuidv4()))
+        .get(testRoute(crypto.randomUUID()))
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
       await request(app)
-        .put(testRoute(uuidv4()))
+        .put(testRoute(crypto.randomUUID()))
         .send(validBody)
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
@@ -2166,7 +2165,10 @@ describe('ProgrammingPlan router', () => {
         ]
       });
       await documentRepository.insert(previousTechnicalInstruction);
-      const technicalInstruction = { id: uuidv4(), filename: 'it.pdf' };
+      const technicalInstruction = {
+        id: crypto.randomUUID(),
+        filename: 'it.pdf'
+      };
 
       await request(app)
         .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
@@ -2494,7 +2496,7 @@ describe('ProgrammingPlan router', () => {
     let deletablePlan: ProgrammingPlanChecked;
 
     beforeEach(async () => {
-      const planId = uuidv4();
+      const planId = crypto.randomUUID();
       deletablePlan = genDeletableProgrammingPlan({
         id: planId,
         subPlans: [

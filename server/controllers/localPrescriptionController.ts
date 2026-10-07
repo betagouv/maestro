@@ -30,7 +30,6 @@ import {
   seesUnappliedLocalPrescriptionChanges,
   type UserRole
 } from 'maestro-shared/schema/User/UserRole';
-import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckLocalPrescription } from '../middlewares/checks/localPrescriptionCheck';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
@@ -704,7 +703,7 @@ export const localPrescriptionsRouter = {
       }
 
       const prescriptionComment: LocalPrescriptionComment = {
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         prescriptionId: localPrescription.prescriptionId,
         region: localPrescription.region,
         comment: draftPrescriptionComment.comment,
@@ -784,7 +783,7 @@ export const localPrescriptionsRouter = {
         }
 
         const prescriptionComment: LocalPrescriptionComment = {
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           prescriptionId: localPrescription.prescriptionId,
           region: localPrescription.region,
           department: localPrescription.department,

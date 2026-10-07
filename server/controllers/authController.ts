@@ -10,7 +10,6 @@ import {
 } from 'maestro-shared/schema/User/AuthUser';
 import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { canSignIn } from 'maestro-shared/schema/User/User';
-import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getUser } from '../middlewares/checks/authCheck';
 import { userRepository } from '../repositories/userRepository';
@@ -50,7 +49,7 @@ export const authUnprotectedRouter = {
           await userRepository.update({ name }, user.id);
         }
 
-        const loggedSecret = uuidv4();
+        const loggedSecret = crypto.randomUUID();
         const tokenPayload: TokenPayload = {
           userId: user?.id ?? null,
           loggedSecret: user?.id ? loggedSecret : null,

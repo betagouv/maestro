@@ -1,6 +1,5 @@
 import { fakerFR } from '@faker-js/faker';
 import { pick } from 'lodash-es';
-import { v4 as uuidv4 } from 'uuid';
 import { LegalContextList } from '../referential/LegalContext';
 import { MatrixListByKind } from '../referential/Matrix/MatrixListByKind';
 import { QuantityUnitList } from '../referential/QuantityUnit';
@@ -44,16 +43,16 @@ import {
 export const genSampleContextData = (
   data?: Partial<SampleContextData>
 ): SampleContextData => ({
-  id: uuidv4(),
+  id: crypto.randomUUID(),
   sampler: {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     name: fakerFR.person.fullName()
   },
   geolocation: {
     x: 49.788805,
     y: 4.731044
   },
-  programmingPlanId: uuidv4(),
+  programmingPlanId: crypto.randomUUID(),
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: oneOf(ProgrammingPlanContextList),
   legalContext: oneOf(LegalContextList),
@@ -118,14 +117,14 @@ export const genCreatedSample = (
     geolocation: sample.geolocation as Geolocation,
     company: sample.company as Company,
     matrices: sample.matrices as SampleMatrix[],
-    prescriptionId: uuidv4(),
+    prescriptionId: crypto.randomUUID(),
     items: sample.items as SampleItem[],
     ownerAgreement: fakerFR.datatype.boolean(),
     ...data
   });
 };
 export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
-  sampleId: uuidv4(),
+  sampleId: crypto.randomUUID(),
   itemNumber: 1,
   copyNumber: 1,
   quantity: fakerFR.number.int(999),

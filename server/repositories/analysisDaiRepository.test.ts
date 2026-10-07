@@ -4,7 +4,6 @@ import {
   Sample13Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
-import { v4 as uuidv4 } from 'uuid';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { analysisDaiRepository } from './analysisDaiRepository';
 import { analysisRepository } from './analysisRepository';
@@ -272,7 +271,7 @@ describe('analysisDaiRepository', () => {
 
       const result = await analysisDaiRepository.findManyGrouped({
         sampleIds: [Sample13Fixture.id],
-        laboratoryIds: [uuidv4()]
+        laboratoryIds: [crypto.randomUUID()]
       });
       expect(result.total).toBe(0);
     });

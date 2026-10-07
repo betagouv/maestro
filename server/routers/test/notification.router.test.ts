@@ -9,7 +9,6 @@ import {
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import {
   formatNotification,
@@ -111,7 +110,7 @@ describe('Notification router', () => {
 
     test('should fail if the notification does not exist', async () => {
       await request(app)
-        .put(testRoute(uuidv4()))
+        .put(testRoute(crypto.randomUUID()))
         .use(tokenProvider(Sampler1Fixture))
         .send({ read: true })
         .expect(constants.HTTP_STATUS_NOT_FOUND);

@@ -3,7 +3,6 @@ import { isNil } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { v4 as uuidv4 } from 'uuid';
 
 const PPVPrefix = 'PPV';
 type PrescriptionRow = {
@@ -112,7 +111,7 @@ export const up = async (knex: Knex) => {
         continue;
       }
 
-      const id = uuidv4();
+      const id = crypto.randomUUID();
       await knex('programming_sub_plans_raw').insert({
         id,
         programmingPlanId: plan.id,

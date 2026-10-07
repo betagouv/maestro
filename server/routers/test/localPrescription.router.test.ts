@@ -62,7 +62,6 @@ import {
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import { Laboratories } from '../../repositories/laboratoryRepository';
@@ -109,11 +108,11 @@ describe('Local prescriptions router', () => {
   );
   const validatedControlSubPlan = genProgrammingSubPlan({
     ...PPVValidatedSubPlanFixture,
-    id: ProgrammingSubPlanId.parse(uuidv4())
+    id: ProgrammingSubPlanId.parse(crypto.randomUUID())
   });
   const submittedControlSubPlan2 = genProgrammingSubPlan({
     ...PPVSubmittedSubPlanFixture,
-    id: ProgrammingSubPlanId.parse(uuidv4())
+    id: ProgrammingSubPlanId.parse(crypto.randomUUID())
   });
   const closedControlPrescription = genPrescription({
     programmingSubPlanId: PPVClosedSubPlanFixture.id
@@ -161,7 +160,7 @@ describe('Local prescriptions router', () => {
       })
     }));
   const closedControlPrescriptionComment1: LocalPrescriptionComment = {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     prescriptionId: closedControlPrescription.id,
     region: RegionalCoordinator.region as Region,
     comment: fakerFR.string.alphanumeric(32),
@@ -169,7 +168,7 @@ describe('Local prescriptions router', () => {
     createdAt: new Date()
   };
   const closedControlPrescriptionComment2: LocalPrescriptionComment = {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     prescriptionId: closedControlPrescription.id,
     region: RegionalCoordinator.region as Region,
     comment: fakerFR.string.alphanumeric(32),
@@ -667,7 +666,7 @@ describe('Local prescriptions router', () => {
 
     test('should fail if the prescription does not exist', async () => {
       await request(app)
-        .put(testRoute(uuidv4()))
+        .put(testRoute(crypto.randomUUID()))
         .send(submittedLocalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
@@ -1452,7 +1451,7 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(
           testRoute(
-            uuidv4(),
+            crypto.randomUUID(),
             RegionalCoordinator.region as string,
             DepartmentalCoordinator.department as string
           )
@@ -2067,7 +2066,7 @@ describe('Local prescriptions router', () => {
 
     test('should fail if the prescription does not exist', async () => {
       await request(app)
-        .post(testRoute(uuidv4()))
+        .post(testRoute(crypto.randomUUID()))
         .send(validComment)
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
@@ -2320,7 +2319,7 @@ describe('Local prescriptions router', () => {
 
     test('should fail if the prescription does not exist', async () => {
       await request(app)
-        .get(testRoute(uuidv4()))
+        .get(testRoute(crypto.randomUUID()))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -2438,7 +2437,7 @@ describe('Local prescriptions router', () => {
       await request(app)
         .get(
           testRoute(
-            uuidv4(),
+            crypto.randomUUID(),
             RegionalCoordinator.region as string,
             '01',
             SlaughterhouseCompanyFixture1.siret
@@ -2486,7 +2485,7 @@ describe('Local prescriptions router', () => {
   describe('Change history lifecycle', () => {
     const changeTrackingSubPlan = genProgrammingSubPlan({
       ...PPVSubmittedSubPlanFixture,
-      id: ProgrammingSubPlanId.parse(uuidv4()),
+      id: ProgrammingSubPlanId.parse(crypto.randomUUID()),
       context: 'Exploratory'
     });
     const changeTrackingPrescription = genPrescription({

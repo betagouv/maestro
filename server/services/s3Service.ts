@@ -7,7 +7,6 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
 import type { DocumentToCreateChecked } from 'maestro-shared/schema/Document/Document';
-import { v4 as uuidv4 } from 'uuid';
 import config from '../utils/config';
 
 const getKey = (documentId: string, filename: string): string =>
@@ -26,7 +25,7 @@ const getUploadSignedUrlS3 = async (
   console.log('Get signed url for file', filename);
 
   const client = getS3Client();
-  const id = uuidv4();
+  const id = crypto.randomUUID();
 
   const command = new PutObjectCommand({
     Bucket: config.s3.bucket,

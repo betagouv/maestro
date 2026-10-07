@@ -16,7 +16,6 @@ import {
   Sampler1Fixture,
   SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
-import { v4 as uuidv4 } from 'uuid';
 import { Companies } from '../../../repositories/companyRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
 import { SampleItems } from '../../../repositories/sampleItemRepository';
@@ -175,7 +174,7 @@ export const seed = async () => {
     ),
     faker.helpers.multiple<SampleChecked>(
       () => {
-        const sampleId = uuidv4();
+        const sampleId = crypto.randomUUID();
         return genCreatedSample({
           id: sampleId,
           sampler: SamplerDaoaFixture,

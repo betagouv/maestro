@@ -1,5 +1,4 @@
 import { fakerFR } from '@faker-js/faker';
-import { v4 as uuidv4 } from 'uuid';
 import type {
   DocumentChecked,
   DocumentToCreateChecked
@@ -9,7 +8,7 @@ import { oneOf } from './testFixtures';
 import { NationalCoordinator } from './userFixtures';
 
 export const genDocumentToCreate = (): DocumentToCreateChecked => ({
-  id: uuidv4(),
+  id: crypto.randomUUID(),
   filename: fakerFR.string.alphanumeric(32),
   kind: oneOf(DocumentKindList)
 });
@@ -17,10 +16,10 @@ export const genDocumentToCreate = (): DocumentToCreateChecked => ({
 export const genDocument = (
   data?: Partial<DocumentChecked>
 ): DocumentChecked => ({
-  id: uuidv4(),
+  id: crypto.randomUUID(),
   filename: fakerFR.string.alphanumeric(32),
   createdAt: new Date(),
-  createdBy: uuidv4(),
+  createdBy: crypto.randomUUID(),
   name: fakerFR.string.alphanumeric(32),
   kind: oneOf(DocumentKindList),
   year: new Date().getFullYear(),

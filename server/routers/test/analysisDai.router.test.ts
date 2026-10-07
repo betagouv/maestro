@@ -6,7 +6,6 @@ import {
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { Analysis } from '../../repositories/analysisRepository';
 import { kysely } from '../../repositories/kysely';
@@ -155,7 +154,7 @@ describe('AnalysisDai router', () => {
     test('should fail if the analysisId does not exist', async () => {
       await request(app)
         .post(testRoute)
-        .send({ analysisId: uuidv4() })
+        .send({ analysisId: crypto.randomUUID() })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -228,7 +227,7 @@ describe('AnalysisDai router', () => {
 
     test('should return 404 if the DAI does not exist', async () => {
       await request(app)
-        .post(testRoute(uuidv4()))
+        .post(testRoute(crypto.randomUUID()))
         .send({ message: 'Erreur manuelle' })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);

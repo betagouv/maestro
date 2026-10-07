@@ -1,6 +1,5 @@
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { Sample13Fixture } from 'maestro-shared/test/sampleFixtures';
-import { v4 as uuidv4 } from 'uuid';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { analysisRepository } from './analysisRepository';
 import { kysely } from './kysely';
@@ -130,7 +129,7 @@ describe('update', () => {
 });
 describe('findUnique', () => {
   test('find only residues without ND result_kind', async () => {
-    const analysisId = uuidv4();
+    const analysisId = crypto.randomUUID();
     await kysely
       .insertInto('analysis')
       .values([

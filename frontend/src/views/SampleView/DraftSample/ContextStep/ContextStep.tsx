@@ -58,7 +58,6 @@ import { useForm } from 'src/hooks/useForm';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import SampleCompany from 'src/views/SampleView/DraftSample/ContextStep/SampleCompany';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
-import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
@@ -295,7 +294,10 @@ const ContextStep = ({ partialSample }: Props) => {
     }
   );
 
-  const id = useMemo(() => partialSample?.id ?? uuidv4(), [partialSample]);
+  const id = useMemo(
+    () => partialSample?.id ?? crypto.randomUUID(),
+    [partialSample]
+  );
 
   const formData = {
     id,

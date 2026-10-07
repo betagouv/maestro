@@ -1,5 +1,4 @@
 import { intersection, isNil } from 'lodash-es';
-import { v4 as uuidv4 } from 'uuid';
 import { type RefinementCtx, z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region, RegionList, Regions } from '../../referential/Region';
@@ -168,21 +167,21 @@ export const hasAccountPermission = (
   ...permissions: UserPermission[]
 ) => userRoles.some((userRole) => hasPermission(userRole, ...permissions));
 
-export const ANS94ALnrEtmId = uuidv4();
-export const ANS94ALnrPestId = uuidv4();
-export const CAP29Id = uuidv4();
-export const CER30Id = uuidv4();
-export const GIR49Id = uuidv4();
-export const LDA17Id = uuidv4();
-export const LDA21Id = uuidv4();
-export const LDA22Id = uuidv4();
-export const LDA31Id = uuidv4();
-export const LDA66Id = uuidv4();
-export const LDA72Id = uuidv4();
-export const LDA85Id = uuidv4();
-export const LDA87Id = uuidv4();
-export const SCL34Id = uuidv4();
-export const SCL91Id = uuidv4();
+export const ANS94ALnrEtmId = crypto.randomUUID();
+export const ANS94ALnrPestId = crypto.randomUUID();
+export const CAP29Id = crypto.randomUUID();
+export const CER30Id = crypto.randomUUID();
+export const GIR49Id = crypto.randomUUID();
+export const LDA17Id = crypto.randomUUID();
+export const LDA21Id = crypto.randomUUID();
+export const LDA22Id = crypto.randomUUID();
+export const LDA31Id = crypto.randomUUID();
+export const LDA66Id = crypto.randomUUID();
+export const LDA72Id = crypto.randomUUID();
+export const LDA85Id = crypto.randomUUID();
+export const LDA87Id = crypto.randomUUID();
+export const SCL34Id = crypto.randomUUID();
+export const SCL91Id = crypto.randomUUID();
 
 export const DummyLaboratoryIds = [
   ANS94ALnrEtmId,
