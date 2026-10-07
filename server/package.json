@@ -33,7 +33,6 @@
     "@sentry/node": "^10.75.2",
     "bwip-js": "^4.11.4",
     "carbone": "^3.8.2",
-    "compose-middleware": "^5.0.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "csv-parse": "^7.0.3",
