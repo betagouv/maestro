@@ -52,6 +52,7 @@ const SubstanceSearch = ({
     if (value.length > 3) {
       setSubstanceSearchResults(
         searchSSD2IdByLabel(value)
+          .filter((ssd2Id) => !substances.includes(ssd2Id))
           .sort(SSD2IdSort)
           .map((ssd2Id) => ({
             code: ssd2Id,

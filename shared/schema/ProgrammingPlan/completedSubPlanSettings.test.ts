@@ -178,6 +178,22 @@ describe('completedSubPlanSettingIssues', () => {
       })
     ).toStrictEqual([{ settingKey: 'samples', reason: 'incoherent' }]);
   });
+
+  test.each([
+    [true, 'monoSubstances'],
+    [false, 'multiSubstances']
+  ])(
+    'impute la même substance en mono et en multi-résidus, sous-plan gérant le multi-résidus : %s, à %s',
+    (multiSubstancesManaged, settingKey) => {
+      expect(
+        completedSubPlanSettingIssues({
+          ...planSettings,
+          multiSubstances: ['RF-1020-001-PPP'],
+          multiSubstancesManaged
+        })
+      ).toStrictEqual([{ settingKey, reason: 'incoherent' }]);
+    }
+  );
 });
 
 describe('planSaveConflicts', () => {

@@ -181,6 +181,42 @@ describe('ProgrammingPlan settings inheritance', () => {
     });
   });
 
+  describe('when the plan removes an analyte', () => {
+    const glyphosate = 'RF-1020-001-PPP';
+
+    test('should empty its substances on the sub-plans inheriting the analytes only', async () => {
+      await savePlanSettings({
+        substanceKinds: ['Mono', 'Multi'],
+        substanceKindsManaged: true
+      });
+      await programmingSubPlanRepository.updateSettings(
+        DAOABovinInProgressSubPlanFixture.id,
+        { monoSubstances: [glyphosate], monoSubstancesManaged: true }
+      );
+      await programmingSubPlanRepository.updateSettings(
+        DAOAVolailleInProgressSubPlanFixture.id,
+        {
+          substanceKinds: ['Mono'],
+          substanceKindsManaged: true,
+          monoSubstances: [glyphosate],
+          monoSubstancesManaged: true
+        }
+      );
+
+      await savePlanSettings({
+        substanceKinds: ['Multi'],
+        substanceKindsManaged: true
+      });
+
+      await expect(
+        findOwnSettings(DAOABovinInProgressSubPlanFixture.id)
+      ).resolves.toMatchObject({ monoSubstances: null });
+      await expect(
+        findOwnSettings(DAOAVolailleInProgressSubPlanFixture.id)
+      ).resolves.toMatchObject({ monoSubstances: [glyphosate] });
+    });
+  });
+
   describe('when the plan manages the samples', () => {
     const samples: ProgrammingPlanSampleSetting[] = [
       { ...defaultProgrammingPlanSample, substanceKinds: ['Mono'] },

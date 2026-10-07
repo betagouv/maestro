@@ -328,6 +328,90 @@ describe('ProgrammingPlanSettingsForm', () => {
     });
   });
 
+  describe('substances', () => {
+    const glyphosate = 'RF-1020-001-PPP';
+    const subPlanForm = (
+      settings: Partial<ProgrammingPlanSettings> & {
+        settingsCompleted: boolean;
+      }
+    ) =>
+      ProgrammingSubPlanSettingsForm.safeParse({
+        ...inheritedSettings,
+        ...settings,
+        fields: []
+      });
+    const planForm = (settings: Partial<ProgrammingPlanSettings>) =>
+      ProgrammingLevelSettingsForm.safeParse({
+        ...emptyProgrammingPlanSettings(false),
+        ...settings,
+        settingsCompleted: true,
+        nationalCoordinators: null,
+        technicalInstruction: null,
+        fields: []
+      });
+
+    test('should refuse the same substance twice in a block, even in a draft', () => {
+      expect(
+        subPlanForm({
+          monoSubstances: [glyphosate, glyphosate],
+          settingsCompleted: false
+        }).error?.issues
+      ).toStrictEqual([
+        expect.objectContaining({
+          path: ['monoSubstances'],
+          message: 'Une substance ne peut apparaître qu’une fois.'
+        })
+      ]);
+    });
+
+    test('should accept a draft with the same substance in mono and multi residues', () => {
+      expect(
+        subPlanForm({
+          monoSubstances: [glyphosate],
+          multiSubstances: [glyphosate],
+          settingsCompleted: false
+        }).success
+      ).toBe(true);
+    });
+
+    test('should refuse to complete a sub-plan with the same substance in mono and multi residues', () => {
+      expect(
+        subPlanForm({
+          monoSubstances: [glyphosate],
+          multiSubstances: [glyphosate],
+          settingsCompleted: true
+        }).error?.issues
+      ).toStrictEqual([
+        expect.objectContaining({
+          path: ['multiSubstances'],
+          message:
+            'Glyphosate est à la fois en mono-résidu et en multi-résidus.'
+        })
+      ]);
+    });
+
+    test('should refuse to complete a plan managing both lists with the same substance', () => {
+      expect(
+        planForm({
+          monoSubstances: [glyphosate],
+          monoSubstancesManaged: true,
+          multiSubstances: [glyphosate],
+          multiSubstancesManaged: true
+        }).success
+      ).toBe(false);
+    });
+
+    test('should leave to its sub-plans the overlap of a plan managing a single list', () => {
+      expect(
+        planForm({
+          monoSubstances: [glyphosate],
+          monoSubstancesManaged: true,
+          multiSubstances: [glyphosate]
+        }).success
+      ).toBe(true);
+    });
+  });
+
   describe('national coordinators', () => {
     const planForm = (
       nationalCoordinators: (typeof nationalCoordinator)[],

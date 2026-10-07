@@ -5,7 +5,8 @@ import type { ProgrammingPlanNationalCoordinator } from 'maestro-shared/schema/P
 import {
   managedKey,
   ProgrammingPlanSettingKey,
-  SubstanceKindsDependentSettingKey
+  SubstanceKindsDependentSettingKey,
+  SubstancesSettings
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type {
   ProgrammingPlanSettingsForm,
@@ -286,6 +287,20 @@ const savePlanSettings = (
           .where('programmingPlanId', '=', programmingPlanId)
           .where(managedKey(settingKey), '=', false)
           .execute();
+      }
+    }
+
+    if (settings.substanceKindsManaged) {
+      for (const { settingKey, substanceKind } of SubstancesSettings) {
+        if (!(settings.substanceKinds ?? []).includes(substanceKind)) {
+          await trx
+            .updateTable('programmingSubPlansRaw')
+            .set(settingKey, null)
+            .where('programmingPlanId', '=', programmingPlanId)
+            .where('substanceKindsManaged', '=', false)
+            .where(managedKey(settingKey), '=', true)
+            .execute();
+        }
       }
     }
 

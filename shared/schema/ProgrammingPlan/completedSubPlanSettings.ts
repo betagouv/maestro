@@ -7,6 +7,7 @@ import type { ProgrammingPlanSampleSetting } from './ProgrammingPlanSampleSettin
 import {
   isMissingSetting,
   managedKey,
+  overlappingSubstances,
   ProgrammingPlanRequiredSettingKey,
   ProgrammingPlanSettingKey,
   type ProgrammingPlanSettings,
@@ -126,6 +127,15 @@ export const completedSubPlanSettingIssues = (
   ) {
     issues.push({
       settingKey: samplesManaged ? 'substanceKinds' : 'samples',
+      reason: 'incoherent'
+    });
+  }
+
+  if (overlappingSubstances(settings).length > 0) {
+    issues.push({
+      settingKey: settings.multiSubstancesManaged
+        ? 'monoSubstances'
+        : 'multiSubstances',
       reason: 'incoherent'
     });
   }

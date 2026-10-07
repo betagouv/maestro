@@ -1,7 +1,8 @@
-import { isNil, pick } from 'lodash-es';
+import { intersection, isNil, pick, uniq } from 'lodash-es';
 import { z } from 'zod';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { Stage } from '../../referential/Stage';
+import { refineSchema } from '../../utils/zod';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import { ProgrammingPlanContext } from './Context';
 import {
@@ -36,6 +37,12 @@ export type ProgrammingPlanRequiredSettingKey = z.infer<
   typeof ProgrammingPlanRequiredSettingKey
 >;
 
+const Substances = refineSchema(
+  z.array(SSD2Id),
+  (substances) => uniq(substances).length === substances.length,
+  'Une substance ne peut apparaître qu’une fois.'
+);
+
 export const ProgrammingPlanSettings = z.object({
   stages: z.array(Stage).nullable(),
   stagesManaged: z.boolean(),
@@ -54,9 +61,9 @@ export const ProgrammingPlanSettings = z.object({
   programmingInstructionManaged: z.boolean(),
   notes: z.string().nullable(),
   notesManaged: z.boolean(),
-  monoSubstances: z.array(SSD2Id).nullable(),
+  monoSubstances: Substances.nullable(),
   monoSubstancesManaged: z.boolean(),
-  multiSubstances: z.array(SSD2Id).nullable(),
+  multiSubstances: Substances.nullable(),
   multiSubstancesManaged: z.boolean()
 } satisfies Record<ProgrammingPlanSettingKey, z.ZodType> &
   Record<`${ProgrammingPlanSettingKey}Managed`, z.ZodType>);
@@ -153,3 +160,39 @@ export const withSettingsBelowSubstanceKinds = <
       }
     : settings;
 };
+
+export const SubstancesSettings = [
+  { settingKey: 'monoSubstances', substanceKind: 'Mono' },
+  { settingKey: 'multiSubstances', substanceKind: 'Multi' }
+] as const satisfies readonly {
+  settingKey: ProgrammingPlanSettingKey;
+  substanceKind: SubstanceKind;
+}[];
+
+export const orphanSubstancesSettingKeys = (
+  settings: ProgrammingPlanSettings
+) =>
+  SubstancesSettings.filter(
+    ({ settingKey, substanceKind }) =>
+      settings[managedKey(settingKey)] &&
+      !isMissingSetting(settings[settingKey]) &&
+      !(settings.substanceKinds ?? []).includes(substanceKind)
+  ).map(({ settingKey }) => settingKey);
+
+export const withoutOrphanSubstances = <T extends ProgrammingPlanSettings>(
+  settings: T
+): T => ({
+  ...settings,
+  ...Object.fromEntries(
+    orphanSubstancesSettingKeys(settings).map((settingKey) => [
+      settingKey,
+      null
+    ])
+  )
+});
+
+export const overlappingSubstances = ({
+  monoSubstances,
+  multiSubstances
+}: Pick<ProgrammingPlanSettings, 'monoSubstances' | 'multiSubstances'>) =>
+  intersection(monoSubstances ?? [], multiSubstances ?? []);

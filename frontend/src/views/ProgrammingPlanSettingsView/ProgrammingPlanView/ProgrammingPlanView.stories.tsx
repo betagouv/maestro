@@ -1515,6 +1515,57 @@ export const SubPlanSamplesIncompleteCannotComplete: Story = {
   }
 };
 
+export const SubPlanOverlappingSubstancesCannotComplete: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ],
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useFindProgrammingSubPlanSettingsQuery: {
+        data: {
+          ...subPlanSettings[CerealesSubPlanId],
+          substanceKinds: ['Mono', 'Multi'],
+          samples: [
+            {
+              ...defaultProgrammingPlanSample,
+              substanceKinds: ['Mono', 'Multi']
+            }
+          ],
+          monoSubstances: ['RF-1020-001-PPP'],
+          multiSubstances: ['RF-1020-001-PPP']
+        }
+      }
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    );
+
+    await waitFor(() =>
+      expect(canvas.getByRole('tab', { name: 'Analyses' })).toHaveAttribute(
+        'aria-selected',
+        'true'
+      )
+    );
+    await expect(
+      await canvas.findByText(
+        'Glyphosate est à la fois en mono-résidu et en multi-résidus.'
+      )
+    ).toBeVisible();
+    await expect(completionModal(canvasElement)).not.toBeVisible();
+    await expect(updateProgrammingSubPlanSettings).not.toHaveBeenCalled();
+  }
+};
+
 export const SubPlanSampleAnalyteMovedToAnotherSample: Story = {
   parameters: {
     initialEntries: [

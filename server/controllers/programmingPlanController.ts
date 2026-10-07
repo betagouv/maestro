@@ -25,6 +25,7 @@ import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/Programm
 import {
   inheritsUnmanagedSetting,
   managesAboveSubstanceKinds,
+  orphanSubstancesSettingKeys,
   pickProgrammingPlanSettings
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import {
@@ -1079,6 +1080,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
 
       if (
         managesAboveSubstanceKinds.plan(body) ||
+        orphanSubstancesSettingKeys(body).length > 0 ||
         resumesDraft(programmingPlan, body) ||
         planSaveConflicts(programmingPlan.subPlans, programmingPlan, body)
           .length > 0
@@ -1188,6 +1190,9 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
               effectiveSubPlanSettings(body, programmingPlan)
             ).length > 0) ||
           managesAboveSubstanceKinds.subPlan(body) ||
+          orphanSubstancesSettingKeys(
+            effectiveSubPlanSettings(body, programmingPlan)
+          ).length > 0 ||
           resumesDraft(programmingSubPlan, body)
         ) {
           return { status: HttpStatus.CONFLICT };

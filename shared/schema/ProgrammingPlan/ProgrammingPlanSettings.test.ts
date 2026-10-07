@@ -9,6 +9,7 @@ import {
   type ProgrammingPlanSettings,
   pickProgrammingPlanSettings,
   SubstanceKindsDependentSettingKey,
+  withoutOrphanSubstances,
   withSettingsBelowSubstanceKinds
 } from './ProgrammingPlanSettings';
 
@@ -215,5 +216,34 @@ describe('ProgrammingPlanSettings', () => {
         );
       }
     );
+  });
+
+  describe('withoutOrphanSubstances', () => {
+    const glyphosate = 'RF-1020-001-PPP';
+
+    test('should empty the substances managed at this level whose analyte is not retained', () => {
+      expect(
+        withoutOrphanSubstances({
+          ...emptyProgrammingPlanSettings(true),
+          substanceKinds: ['Multi'],
+          monoSubstances: [glyphosate],
+          multiSubstances: [glyphosate]
+        })
+      ).toStrictEqual({
+        ...emptyProgrammingPlanSettings(true),
+        substanceKinds: ['Multi'],
+        multiSubstances: [glyphosate]
+      });
+    });
+
+    test('should leave the inherited substances to the level managing them', () => {
+      const settings = {
+        ...emptyProgrammingPlanSettings(false),
+        substanceKinds: ['Multi' as const],
+        monoSubstances: [glyphosate]
+      };
+
+      expect(withoutOrphanSubstances(settings)).toStrictEqual(settings);
+    });
   });
 });

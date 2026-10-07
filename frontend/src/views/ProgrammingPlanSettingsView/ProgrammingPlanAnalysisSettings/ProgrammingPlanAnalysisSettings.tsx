@@ -1,19 +1,21 @@
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import type { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
+import {
+  type ProgrammingPlanSettings,
+  SubstancesSettings
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
+import type { ProgrammingLevelSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
+import type { UseForm } from 'src/hooks/useForm';
 import { assert, type Equals } from 'tsafe';
 import SubstanceSearch from '../../../components/SubstanceSearch/SubstanceSearch';
 import { ProgrammingPlanSettingInheritance } from '../ProgrammingPlanSettingInheritance/ProgrammingPlanSettingInheritance';
 import './ProgrammingPlanAnalysisSettings.scss';
 
-const substanceSettings = [
-  { settingKey: 'monoSubstances', substanceKind: 'Mono' },
-  { settingKey: 'multiSubstances', substanceKind: 'Multi' }
-] as const;
-
 type Props<T extends ProgrammingPlanSettings> = {
   settings: T;
   planSettings: ProgrammingPlanSettings | undefined;
+  inputForm: UseForm<typeof ProgrammingLevelSettingsForm>;
   onChange: (settings: T) => void;
 };
 
@@ -22,6 +24,7 @@ export const ProgrammingPlanAnalysisSettings = <
 >({
   settings,
   planSettings,
+  inputForm,
   onChange,
   ..._rest
 }: Props<T>) => {
@@ -39,21 +42,20 @@ export const ProgrammingPlanAnalysisSettings = <
     <div
       className={clsx('programming-plan-analysis-settings', 'd-flex-column')}
     >
-      {substanceSettings
-        .filter(({ substanceKind }) =>
-          settings.substanceKinds?.includes(substanceKind)
-        )
-        .map(({ settingKey, substanceKind }) => (
-          <ProgrammingPlanSettingInheritance
-            key={settingKey}
-            settingKey={settingKey}
-            label={`Spécification des substances actives ${SubstanceKindLabels[substanceKind]}`}
-            settings={settings}
-            planSettings={planSettings}
-            inheritanceDisabledReason={inheritanceDisabledReason}
-            onChange={onChange}
-          >
-            {({ disabled, label }) => (
+      {SubstancesSettings.filter(({ substanceKind }) =>
+        settings.substanceKinds?.includes(substanceKind)
+      ).map(({ settingKey, substanceKind }) => (
+        <ProgrammingPlanSettingInheritance
+          key={settingKey}
+          settingKey={settingKey}
+          label={`Spécification des substances actives ${SubstanceKindLabels[substanceKind]}`}
+          settings={settings}
+          planSettings={planSettings}
+          inheritanceDisabledReason={inheritanceDisabledReason}
+          onChange={onChange}
+        >
+          {({ disabled, label }) => (
+            <>
               <SubstanceSearch
                 label={label}
                 analysisMethod={substanceKind}
@@ -64,9 +66,15 @@ export const ProgrammingPlanAnalysisSettings = <
                 readonly={disabled}
                 addButtonMode="none"
               />
-            )}
-          </ProgrammingPlanSettingInheritance>
-        ))}
+              {inputForm.hasIssue(settingKey) && (
+                <div className={cx('fr-error-text')}>
+                  {inputForm.message(settingKey)}
+                </div>
+              )}
+            </>
+          )}
+        </ProgrammingPlanSettingInheritance>
+      ))}
     </div>
   );
 };
