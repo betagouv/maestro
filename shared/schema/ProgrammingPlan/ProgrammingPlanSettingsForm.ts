@@ -10,7 +10,7 @@ import { ProgrammingPlanNationalCoordinator } from './ProgrammingPlanNationalCoo
 import {
   isMissingSetting,
   managedKey,
-  ProgrammingPlanSettingKey,
+  ProgrammingPlanRequiredSettingKey,
   ProgrammingPlanSettings
 } from './ProgrammingPlanSettings';
 
@@ -24,7 +24,10 @@ const SettingsFormBase = ProgrammingPlanSettings.extend({
   settingsCompleted: z.boolean()
 });
 
-const missingSettingMessages: Record<ProgrammingPlanSettingKey, string> = {
+const missingSettingMessages: Record<
+  ProgrammingPlanRequiredSettingKey,
+  string
+> = {
   stages: 'Veuillez renseigner au moins un stade de prélèvement.',
   substanceKinds: 'Veuillez renseigner au moins un analyte.',
   samples: 'Veuillez configurer au moins un échantillon.',
@@ -41,7 +44,7 @@ const checkCompleteness =
     if (!ctx.value.settingsCompleted) {
       return;
     }
-    for (const settingKey of ProgrammingPlanSettingKey.options) {
+    for (const settingKey of ProgrammingPlanRequiredSettingKey.options) {
       const managed = ctx.value[managedKey(settingKey)];
       if (
         (managed || level === 'subPlan') &&

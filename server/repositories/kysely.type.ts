@@ -284,8 +284,6 @@ export interface Notices {
 
 export interface Prescriptions {
   id: Generated<string>;
-  notes: string | null;
-  programmingInstruction: string | null;
   programmingSubPlanId: ProgrammingSubPlanId;
   sampleCount: number;
 }
@@ -311,6 +309,10 @@ interface ProgrammingPlanSettings {
   matricesManaged: Generated<boolean>;
   context: ProgrammingPlanContext | null;
   contextManaged: Generated<boolean>;
+  programmingInstruction: string | null;
+  programmingInstructionManaged: Generated<boolean>;
+  notes: string | null;
+  notesManaged: Generated<boolean>;
 }
 
 export interface ProgrammingPlans extends ProgrammingPlanSettings {

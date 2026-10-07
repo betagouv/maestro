@@ -7,6 +7,7 @@ import type { ProgrammingPlanSampleSetting } from './ProgrammingPlanSampleSettin
 import {
   isMissingSetting,
   managedKey,
+  ProgrammingPlanRequiredSettingKey,
   ProgrammingPlanSettingKey,
   type ProgrammingPlanSettings
 } from './ProgrammingPlanSettings';
@@ -109,7 +110,7 @@ export const completedSubPlanSettingIssues = (
 ): CompletedSubPlanSettingIssue[] => {
   const issues: CompletedSubPlanSettingIssue[] = [];
 
-  for (const settingKey of ProgrammingPlanSettingKey.options) {
+  for (const settingKey of ProgrammingPlanRequiredSettingKey.options) {
     if (isMissingSetting(settings[settingKey])) {
       issues.push({ settingKey, reason: 'missing' });
     }

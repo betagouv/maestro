@@ -514,16 +514,6 @@ export const prescriptionsRouter = {
 
       console.info('Update prescription with id', prescription.id);
 
-      const updatedPrescription = {
-        ...prescription,
-        notes: prescriptionUpdate.notes ?? prescription.notes,
-        programmingInstruction:
-          prescriptionUpdate.programmingInstruction ??
-          prescription.programmingInstruction
-      };
-
-      await prescriptionRepository.update(updatedPrescription);
-
       if (prescriptionUpdate.substances) {
         const substances = prescriptionUpdate.substances.map((substance) => ({
           prescriptionId: prescription.id,
@@ -551,7 +541,7 @@ export const prescriptionsRouter = {
 
       return {
         status: HttpStatus.OK,
-        response: { ...updatedPrescription, sampleCount: pendingSampleCount }
+        response: { ...prescription, sampleCount: pendingSampleCount }
       };
     },
     delete: async ({ userRole }, { prescriptionId }) => {

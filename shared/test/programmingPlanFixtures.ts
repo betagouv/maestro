@@ -162,6 +162,10 @@ export const genProgrammingSubPlan = (
   matricesManaged: true,
   context: 'Control',
   contextManaged: true,
+  programmingInstruction: null,
+  programmingInstructionManaged: true,
+  notes: null,
+  notesManaged: true,
   ...data
 });
 
@@ -243,7 +247,9 @@ export const DAOABovinInProgressSubPlanFixture = genProgrammingSubPlan({
   ...DAOABovinValidatedSubPlanFixture,
   id: DAOAInProgressBovinSubPlanId,
   programmingPlanId: DAOAInProgressProgrammingPlanId,
-  settingsCompleted: false
+  settingsCompleted: false,
+  programmingInstruction: 'Instructions pour le foie de bovin',
+  notes: 'Prescription pour le foie de bovin'
 });
 
 export const genProgrammingPlan = (
@@ -282,6 +288,10 @@ export const genProgrammingPlan = (
     matricesManaged: false,
     context: null,
     contextManaged: false,
+    programmingInstruction: null,
+    programmingInstructionManaged: false,
+    notes: null,
+    notesManaged: false,
     settingsCompleted: true,
     createdAt: new Date(),
     createdBy: uuidv4(),
