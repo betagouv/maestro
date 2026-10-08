@@ -30,7 +30,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1144.0",
     "@e965/xlsx": "^0.20.3",
     "@gouvfr/dsfr": "^1.15.3",
-    "@sentry/node": "^10.75.2",
+    "@sentry/node": "^11.2.0",
     "bwip-js": "^4.11.4",
     "carbone": "^3.8.2",
     "cookie-parser": "^1.4.7",
