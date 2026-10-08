@@ -19,6 +19,7 @@ import type { UseForm } from 'src/hooks/useForm';
 import { assert, type Equals } from 'tsafe';
 import { useSettingInheritance } from '../ProgrammingPlanSettingInheritance/ProgrammingPlanSettingInheritance';
 import { ProgrammingPlanSampleCopyModal } from './ProgrammingPlanSampleCopyModal';
+import { ProgrammingPlanSampleProcedureSettings } from './ProgrammingPlanSampleProcedureSettings';
 import './ProgrammingPlanSampleSettings.scss';
 import {
   addProgrammingPlanSample,
@@ -279,6 +280,12 @@ export const ProgrammingPlanSampleSettings = <
           </>
         )}
       </div>
+      <ProgrammingPlanSampleProcedureSettings
+        settings={settings}
+        planSettings={planSettings}
+        inputForm={inputForm}
+        onChange={onChange}
+      />
       <ProgrammingPlanSampleCopyModal
         modal={copyModal}
         copyNumber={editedCopy.copyIndex + 1}
