@@ -1,21 +1,21 @@
 BEGIN;
 
 SECURITY LABEL FOR anon ON COLUMN users.email
-  IS 'MASKED WITH FUNCTION anon.seeded_email(users.email)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_email(users.email)';
 SECURITY LABEL FOR anon ON COLUMN users.name
-  IS 'MASKED WITH FUNCTION anon.seeded_last_name(users.name)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_last_name(users.name)';
 
 SECURITY LABEL FOR anon ON COLUMN samples.owner_email
-  IS 'MASKED WITH FUNCTION anon.seeded_email(samples.owner_email)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_email(samples.owner_email)';
 SECURITY LABEL FOR anon ON COLUMN samples.owner_first_name
-  IS 'MASKED WITH FUNCTION anon.seeded_first_name(samples.owner_first_name)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_first_name(samples.owner_first_name)';
 SECURITY LABEL FOR anon ON COLUMN samples.owner_last_name
-  IS 'MASKED WITH FUNCTION anon.seeded_last_name(samples.owner_last_name)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_last_name(samples.owner_last_name)';
 SECURITY LABEL FOR anon ON COLUMN sample_items.carrier
-  IS 'MASKED WITH FUNCTION anon.seeded_company(sample_items.carrier)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_company(sample_items.carrier)';
 
 SECURITY LABEL FOR anon ON COLUMN users.logged_secrets
-  IS 'MASKED WITH VALUE ''{}''::uuid[]';
+  IS 'MASKED WITH VALUE ''{}''';
 
 SECURITY LABEL FOR anon ON COLUMN laboratories.sacha_recipient_email
   IS 'MASKED WITH VALUE NULL';
@@ -27,27 +27,27 @@ SECURITY LABEL FOR anon ON COLUMN laboratories.sacha_sftp_login
   IS 'MASKED WITH VALUE NULL';
 
 SECURITY LABEL FOR anon ON COLUMN laboratories.emails
-  IS 'MASKED WITH VALUE ''{}''::text[]';
+  IS 'MASKED WITH VALUE ''{}''';
 SECURITY LABEL FOR anon ON COLUMN laboratories.emails_analysis_result
-  IS 'MASKED WITH VALUE ''{}''::text[]';
+  IS 'MASKED WITH VALUE ''{}''';
 
 SECURITY LABEL FOR anon ON COLUMN companies.siret
-  IS 'MASKED WITH FUNCTION anon.seeded_siret(companies.siret)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_siret(companies.siret)';
 SECURITY LABEL FOR anon ON COLUMN samples.company_siret
-  IS 'MASKED WITH FUNCTION anon.seeded_siret(samples.company_siret)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_siret(samples.company_siret)';
 SECURITY LABEL FOR anon ON COLUMN user_companies.company_siret
-  IS 'MASKED WITH FUNCTION anon.seeded_siret(user_companies.company_siret)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_siret(user_companies.company_siret)';
 SECURITY LABEL FOR anon ON COLUMN local_prescriptions.company_siret
-  IS 'MASKED WITH FUNCTION anon.seeded_siret(local_prescriptions.company_siret)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_siret(local_prescriptions.company_siret)';
 SECURITY LABEL FOR anon ON COLUMN local_prescription_changes.company_siret
-  IS 'MASKED WITH FUNCTION anon.seeded_siret(local_prescription_changes.company_siret)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_siret(local_prescription_changes.company_siret)';
 SECURITY LABEL FOR anon ON COLUMN local_prescription_comments.company_siret
-  IS 'MASKED WITH FUNCTION anon.seeded_siret(local_prescription_comments.company_siret)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_siret(local_prescription_comments.company_siret)';
 
 SECURITY LABEL FOR anon ON COLUMN companies.name
-  IS 'MASKED WITH FUNCTION anon.seeded_company(companies.name)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_company(companies.name)';
 SECURITY LABEL FOR anon ON COLUMN companies.trade_name
-  IS 'MASKED WITH FUNCTION anon.seeded_company(companies.trade_name)';
+  IS 'MASKED WITH FUNCTION anon.pseudo_company(companies.trade_name)';
 SECURITY LABEL FOR anon ON COLUMN companies.address
   IS 'MASKED WITH VALUE NULL';
 SECURITY LABEL FOR anon ON COLUMN companies.postal_code

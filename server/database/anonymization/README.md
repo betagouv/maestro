@@ -18,30 +18,11 @@ sensibles sont masquées par l'extension PostgreSQL Anonymizer.
    configuration du rôle. L'extension n'est pas activable en libre-service.
    Vérifier au préalable que la version de l'addon est à jour.
 
-3. Poser la clé qui alimente les fonctions `seeded_*` :
-
-   ```sql
-   ALTER DATABASE <base> SET anon.salt TO '<secret>';
-   ```
-
-   Cette clé est un secret : elle se gère comme une variable d'environnement et
-   n'apparaît dans aucun fichier de ce dépôt ni dans aucune règle de masquage.
-
-4. Appliquer les règles :
+3. Appliquer les règles :
 
    ```
    psql $DATABASE_URL -f masking_rules.sql
    ```
-
-5. Brider le rôle :
-
-   ```sql
-   ALTER ROLE <utilisateur> SET statement_timeout = '30s';
-   ALTER ROLE <utilisateur> SET idle_in_transaction_session_timeout = '60s';
-   ```
-
-   Le second évite qu'une session oubliée retienne un instantané et retarde
-   l'autovacuum.
 
 ## À rejouer
 
@@ -79,11 +60,24 @@ systèmes d'information.
 
 ### Fonctions déterministes
 
-Les fonctions `seeded_*` renvoient toujours la même valeur pour une même entrée et
+Les fonctions `pseudo_*` renvoient toujours la même valeur pour une même entrée et
 une même clé. Leurs équivalents `fake_*` tirent une valeur au hasard à chaque
 appel : deux requêtes successives donneraient des résultats différents, les
 jointures sur SIRET deviendraient incohérentes et tout regroupement serait faux.
-**Ne pas les substituer.**
+**Ne pas les substituer.** La documentation déconseille aussi les `fake_*` en
+masquage dynamique, parce qu'elles lisent des tables internes auxquelles le rôle
+masqué n'a pas accès.
+
+**Les noms de ces fonctions changent entre versions de l'extension.** Les règles
+ci-dessus visent `anon` **3.1.3** ; les versions plus récentes renomment les
+`pseudo_*` en `seeded_*`, avec un argument `locale` supplémentaire. Après chaque
+montée de version, vérifier ce qui existe réellement :
+
+```sql
+SELECT p.proname, pg_get_function_arguments(p.oid)
+FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+WHERE n.nspname = 'anon' AND p.proname LIKE 'pseudo_%' ORDER BY 1;
+```
 
 ### Cohérence du SIRET
 
@@ -131,6 +125,14 @@ SELECT notes_on_creation, geolocation FROM samples LIMIT 5;
 
 Aucune valeur réelle ne doit apparaître, et la même requête répétée doit renvoyer
 les mêmes valeurs.
+
+Contrôler aussi les vues et les requêtes qualifiées, que le test de couverture ne
+couvre pas — il ne porte que sur les tables :
+
+```sql
+SELECT notes, programming_instruction FROM programming_sub_plans LIMIT 5;
+SELECT siret FROM public.companies LIMIT 5;
+```
 
 Vérifier également qu'une jointure sur un SIRET renvoie le même nombre de lignes
 que depuis le rôle propriétaire :
