@@ -169,6 +169,8 @@ export const genProgrammingSubPlan = (
   monoSubstancesManaged: true,
   multiSubstances: null,
   multiSubstancesManaged: true,
+  sampleProcedure: null,
+  sampleProcedureManaged: true,
   ...data
 });
 
@@ -216,6 +218,15 @@ export const PPVSubmittedSubPlanFixture = genProgrammingSubPlan({
   programmingPlanId: PPVSubmittedProgrammingPlanId
 });
 
+const DAOASampleProcedure = {
+  unitCount: null,
+  minQuantity: '200 grammes',
+  container: 'Contenant en plastique',
+  samplingTemperature: null,
+  storageTemperature: '-18°',
+  maxAnalysisDelay: '30 jours'
+};
+
 export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   id: DAOAVolailleValidatedSubPlanId,
   programmingPlanId: DAOAValidatedProgrammingPlanId,
@@ -225,7 +236,8 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   contactListId: 9,
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper'],
-  matrices: genSubPlanMatrices('A01SN')
+  matrices: genSubPlanMatrices('A01SN'),
+  sampleProcedure: DAOASampleProcedure
 });
 
 export const DAOAVolailleInProgressSubPlanFixture = genProgrammingSubPlan({
@@ -244,7 +256,8 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   contactListId: 9,
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper'],
-  matrices: genSubPlanMatrices('A01QX', ['A01XF#F28.A0C0S'])
+  matrices: genSubPlanMatrices('A01QX', ['A01XF#F28.A0C0S']),
+  sampleProcedure: DAOASampleProcedure
 });
 
 export const DAOABovinInProgressSubPlanFixture = genProgrammingSubPlan({
@@ -300,6 +313,8 @@ export const genProgrammingPlan = (
     monoSubstancesManaged: false,
     multiSubstances: null,
     multiSubstancesManaged: false,
+    sampleProcedure: null,
+    sampleProcedureManaged: false,
     settingsCompleted: true,
     createdAt: new Date(),
     createdBy: crypto.randomUUID(),

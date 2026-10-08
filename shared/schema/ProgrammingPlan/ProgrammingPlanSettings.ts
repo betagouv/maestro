@@ -9,6 +9,7 @@ import {
   ProgrammingPlanSampleMaxCount,
   ProgrammingPlanSampleSetting
 } from './ProgrammingPlanSampleSetting';
+import { SampleProcedure } from './SampleProcedure';
 import { SubPlanMatrices } from './SubPlanMatrices';
 
 export const ProgrammingPlanSettingKey = z.enum([
@@ -20,7 +21,8 @@ export const ProgrammingPlanSettingKey = z.enum([
   'programmingInstruction',
   'notes',
   'monoSubstances',
-  'multiSubstances'
+  'multiSubstances',
+  'sampleProcedure'
 ]);
 export type ProgrammingPlanSettingKey = z.infer<
   typeof ProgrammingPlanSettingKey
@@ -31,7 +33,8 @@ export const ProgrammingPlanRequiredSettingKey =
     'programmingInstruction',
     'notes',
     'monoSubstances',
-    'multiSubstances'
+    'multiSubstances',
+    'sampleProcedure'
   ]);
 export type ProgrammingPlanRequiredSettingKey = z.infer<
   typeof ProgrammingPlanRequiredSettingKey
@@ -64,7 +67,9 @@ export const ProgrammingPlanSettings = z.object({
   monoSubstances: Substances.nullable(),
   monoSubstancesManaged: z.boolean(),
   multiSubstances: Substances.nullable(),
-  multiSubstancesManaged: z.boolean()
+  multiSubstancesManaged: z.boolean(),
+  sampleProcedure: SampleProcedure.nullable(),
+  sampleProcedureManaged: z.boolean()
 } satisfies Record<ProgrammingPlanSettingKey, z.ZodType> &
   Record<`${ProgrammingPlanSettingKey}Managed`, z.ZodType>);
 
