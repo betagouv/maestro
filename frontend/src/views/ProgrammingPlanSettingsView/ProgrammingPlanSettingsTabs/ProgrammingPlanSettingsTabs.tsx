@@ -82,6 +82,7 @@ const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   stages: 'global',
   substanceKinds: 'global',
   samples: 'samples',
+  sampleProcedure: 'samples',
   matrices: 'global',
   context: 'global',
   programmingInstruction: 'global',

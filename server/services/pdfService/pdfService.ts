@@ -22,6 +22,7 @@ import {
   isPPVSubPlanNumber,
   subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { sampleProcedureItems } from 'maestro-shared/schema/ProgrammingPlan/SampleProcedure';
 import type { PartialSample } from 'maestro-shared/schema/Sample/Sample';
 import {
   getSampleItemReference,
@@ -389,6 +390,10 @@ const generateSamplePDF = async (
       ? LegalContextLabels[sample.legalContext]
       : '',
     matrices: getMatrixSectionItems(sample.matrices),
+    sampleProcedureItems: sampleProcedureItems(
+      subPlan?.sampleProcedure,
+      sample.matrices
+    ),
     matrixPart: matrixPartField
       ? (getFieldValueLabel(
           matrixPartField,

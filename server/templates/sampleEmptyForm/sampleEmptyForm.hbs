@@ -33,9 +33,9 @@
             <td>
               <div class='fr-container'>
                 {{> contextSection isFullVersion=false}}
-                {{#unless isPPVSubPlan}}
+                {{#if sampleProcedureItems.length}}
                   {{> sampleProcedureSection}}
-                {{/unless}}
+                {{/if}}
                 {{> matrixSection isFullVersion=false}}
                 <section class='sample-section sample-items-section {{#if fullVersion}}full-version{{/if}}'>
                   <div class='fr-grid-row fr-grid-row--gutters sample-items-container'>
