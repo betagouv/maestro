@@ -42,7 +42,6 @@ const prescriptionApi = api.injectEndpoints({
         invalidatesTags: (_result, _error, { prescriptionId }) => [
           { type: 'Prescription', id: 'LIST' },
           { type: 'Prescription', id: prescriptionId },
-          { type: 'PrescriptionSubstance', id: prescriptionId },
           { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
@@ -58,15 +57,6 @@ const prescriptionApi = api.injectEndpoints({
           { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
-    ),
-    getPrescriptionSubstances: buildTypedQuery(
-      builder,
-      '/prescriptions/:prescriptionId/substances',
-      {
-        providesTags: (_result, _error, { prescriptionId }) => [
-          { type: 'PrescriptionSubstance', id: prescriptionId }
-        ]
-      }
     )
   })
 });
@@ -78,7 +68,5 @@ export const {
   useImportPrescriptionsMutation,
   useUpdatePrescriptionMutation,
   useAddPrescriptionMutation,
-  useDeletePrescriptionMutation,
-  useGetPrescriptionSubstancesQuery,
-  useLazyGetPrescriptionSubstancesQuery
+  useDeletePrescriptionMutation
 } = prescriptionApi;

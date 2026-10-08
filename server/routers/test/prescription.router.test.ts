@@ -3,10 +3,7 @@ import { fakerFR } from '@faker-js/faker';
 import { RegionList } from 'maestro-shared/referential/Region';
 import type { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
-import {
-  genPrescription,
-  genPrescriptionSubstance
-} from 'maestro-shared/test/prescriptionFixtures';
+import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import {
   genProgrammingPlan,
   genProgrammingPlanDomain,
@@ -29,7 +26,6 @@ import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionCh
 import { LocalPrescriptions } from '../../repositories/localPrescriptionRepository';
 import { PrescriptionChanges } from '../../repositories/prescriptionChangeRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
-import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
   formatProgrammingPlan,
   ProgrammingPlanLocalStatus,
@@ -92,10 +88,6 @@ describe('Prescriptions router', () => {
   const inProgressControlPrescription = genPrescription({
     programmingSubPlanId: programmingPlanInProgress.subPlans[0].id
   });
-  const inProgressControlPrescriptionSubstance = genPrescriptionSubstance({
-    prescriptionId: inProgressControlPrescription.id,
-    analysisMethod: 'Mono'
-  });
   const inProgressSurveillancePrescription = genPrescription({
     programmingSubPlanId: inProgressSurveillanceSubPlan.id
   });
@@ -155,9 +147,6 @@ describe('Prescriptions router', () => {
       inProgressControlPrescription,
       inProgressSurveillancePrescription
     ]);
-    await PrescriptionSubstances().insert(
-      inProgressControlPrescriptionSubstance
-    );
   });
 
   afterAll(async () => {
@@ -233,26 +222,6 @@ describe('Prescriptions router', () => {
 
       expect(res.body).toEqual([inProgressControlPrescription]);
       expect(res.body).not.toMatchObject([inProgressSurveillancePrescription]);
-    });
-
-    test('should retrieve the prescription substances count if requested', async () => {
-      const res = await request(app)
-        .get(testRoute)
-        .query({
-          programmingPlanId: programmingPlanInProgress.id,
-          contexts: 'Control',
-          includes: ['substanceCount']
-        })
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_OK);
-
-      expect(res.body).toEqual([
-        {
-          ...inProgressControlPrescription,
-          monoAnalysisCount: 1,
-          multiAnalysisCount: 0
-        }
-      ]);
     });
   });
 
@@ -488,33 +457,6 @@ describe('Prescriptions router', () => {
         sampleCount: 42,
         previousSampleCount: inProgressControlPrescription.sampleCount
       });
-    });
-  });
-
-  describe('GET /prescriptions/{prescriptionId}/substances', () => {
-    const testRoute = (prescriptionId: string) =>
-      `/api/prescriptions/${prescriptionId}/substances`;
-
-    test('should fail if the user is not authenticated', async () => {
-      await request(app)
-        .get(testRoute(inProgressControlPrescription.id))
-        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    test('should fail if the prescription does not exist', async () => {
-      await request(app)
-        .get(testRoute(crypto.randomUUID()))
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
-    test('should retrieve the prescription substances', async () => {
-      const res = await request(app)
-        .get(testRoute(inProgressControlPrescription.id))
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_OK);
-
-      expect(res.body).toEqual([inProgressControlPrescriptionSubstance]);
     });
   });
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SSD2IdLabel } from '../../referential/Residue/SSD2Referential';
 import { checkSchema, refineSchema } from '../../utils/zod';
 import { DocumentBase } from '../Document/Document';
 import {
@@ -10,6 +11,7 @@ import { ProgrammingPlanNationalCoordinator } from './ProgrammingPlanNationalCoo
 import {
   isMissingSetting,
   managedKey,
+  overlappingSubstances,
   ProgrammingPlanRequiredSettingKey,
   ProgrammingPlanSettings
 } from './ProgrammingPlanSettings';
@@ -81,6 +83,27 @@ const checkSamplesCoverSubstanceKinds =
       ctx.issues.push({ input: ctx.value, code: 'custom', message, path });
     }
   };
+const checkSubstancesOverlap =
+  (level: 'plan' | 'subPlan') =>
+  (ctx: z.core.ParsePayload<z.infer<typeof SettingsFormBase>>) => {
+    const { settingsCompleted, monoSubstancesManaged, multiSubstancesManaged } =
+      ctx.value;
+    if (
+      !settingsCompleted ||
+      (level === 'plan' && !(monoSubstancesManaged && multiSubstancesManaged))
+    ) {
+      return;
+    }
+    for (const substance of overlappingSubstances(ctx.value)) {
+      ctx.issues.push({
+        input: ctx.value,
+        code: 'custom',
+        message: `${SSD2IdLabel[substance]} est à la fois en mono-résidu et en multi-résidus.`,
+        path: ['multiSubstances']
+      });
+    }
+  };
+
 // FIXME DOMAIN à décommenter quand tous les plans de la bdd de prod auront un coord et supprimer le .fail sur le test
 // const checkNationalCoordinators = (
 //   ctx: z.core.ParsePayload<{
@@ -133,7 +156,8 @@ export const ProgrammingPlanSettingsForm = checkSchema(
     )
   }),
   checkCompleteness('plan'),
-  checkSamplesCoverSubstanceKinds('plan')
+  checkSamplesCoverSubstanceKinds('plan'),
+  checkSubstancesOverlap('plan')
   // checkNationalCoordinators
 );
 export type ProgrammingPlanSettingsForm = z.infer<
@@ -143,7 +167,8 @@ export type ProgrammingPlanSettingsForm = z.infer<
 export const ProgrammingSubPlanSettingsForm = checkSchema(
   SubPlanSettingsFormShape,
   checkCompleteness('subPlan'),
-  checkSamplesCoverSubstanceKinds('subPlan')
+  checkSamplesCoverSubstanceKinds('subPlan'),
+  checkSubstancesOverlap('subPlan')
 );
 export type ProgrammingSubPlanSettingsForm = z.infer<
   typeof ProgrammingSubPlanSettingsForm
@@ -157,7 +182,8 @@ const ProgrammingLevelSettingsFormShape = SubPlanSettingsFormShape.extend({
 export const ProgrammingLevelSettingsForm = checkSchema(
   ProgrammingLevelSettingsFormShape,
   checkCompleteness('plan'),
-  checkSamplesCoverSubstanceKinds('plan')
+  checkSamplesCoverSubstanceKinds('plan'),
+  checkSubstancesOverlap('plan')
   //checkNationalCoordinators
 );
 export type ProgrammingLevelSettingsForm = z.infer<
@@ -167,5 +193,6 @@ export type ProgrammingLevelSettingsForm = z.infer<
 export const ProgrammingSubPlanLevelSettingsForm = checkSchema(
   ProgrammingLevelSettingsFormShape,
   checkCompleteness('subPlan'),
-  checkSamplesCoverSubstanceKinds('subPlan')
+  checkSamplesCoverSubstanceKinds('subPlan'),
+  checkSubstancesOverlap('subPlan')
 );

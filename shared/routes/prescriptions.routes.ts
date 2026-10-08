@@ -24,7 +24,6 @@ import {
   PrescriptionImportFile,
   PrescriptionImportResult
 } from '../schema/Prescription/PrescriptionImport';
-import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import type { SubRoutes } from './routes';
 
 export const prescriptionsRoutes = {
@@ -44,7 +43,7 @@ export const prescriptionsRoutes = {
   '/prescriptions/counts': {
     params: undefined,
     get: {
-      query: FindPrescriptionOptions.omit({ includes: true }),
+      query: FindPrescriptionOptions,
       permissions: ['readPrescriptions'],
       response: PrescriptionCounts
     }
@@ -165,15 +164,6 @@ export const prescriptionsRoutes = {
     delete: {
       permissions: ['deletePrescription'],
       response: z.undefined()
-    }
-  },
-  '/prescriptions/:prescriptionId/substances': {
-    params: {
-      prescriptionId: z.guid()
-    },
-    get: {
-      permissions: ['readPrescriptions'],
-      response: z.array(PrescriptionSubstance)
     }
   }
 } as const satisfies SubRoutes<'/prescriptions'>;

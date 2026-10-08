@@ -25,7 +25,6 @@ import localPrescriptionChangeRepository from '../repositories/localPrescription
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionChangeRepository from '../repositories/prescriptionChangeRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
-import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
@@ -513,16 +512,6 @@ export const prescriptionsRouter = {
 
       console.info('Update prescription with id', prescription.id);
 
-      if (prescriptionUpdate.substances) {
-        const substances = prescriptionUpdate.substances.map((substance) => ({
-          prescriptionId: prescription.id,
-          ...substance
-        }));
-
-        await prescriptionSubstanceRepository.deleteMany(prescription.id);
-        await prescriptionSubstanceRepository.insertMany(substances);
-      }
-
       let pendingSampleCount = prescription.sampleCount;
       if (prescriptionUpdate.sampleCount !== undefined) {
         await prescriptionChangeRepository.insert({
@@ -559,22 +548,6 @@ export const prescriptionsRouter = {
       await programmingPlanRepository.touchLocalStatus(programmingPlan.id);
 
       return { status: HttpStatus.NO_CONTENT };
-    }
-  },
-  '/prescriptions/:prescriptionId/substances': {
-    get: async (_, { prescriptionId }) => {
-      console.info('Get prescription substances', prescriptionId);
-
-      const { prescription } = await getAndCheckPrescription(
-        prescriptionId,
-        undefined
-      );
-
-      const substances = await prescriptionSubstanceRepository.findMany(
-        prescription.id
-      );
-
-      return { status: HttpStatus.OK, response: substances };
     }
   }
 } as const satisfies ProtectedSubRouter;

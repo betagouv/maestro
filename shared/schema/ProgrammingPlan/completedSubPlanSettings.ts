@@ -7,9 +7,11 @@ import type { ProgrammingPlanSampleSetting } from './ProgrammingPlanSampleSettin
 import {
   isMissingSetting,
   managedKey,
+  overlappingSubstances,
   ProgrammingPlanRequiredSettingKey,
   ProgrammingPlanSettingKey,
-  type ProgrammingPlanSettings
+  type ProgrammingPlanSettings,
+  SubstanceKindsDependentSettingKey
 } from './ProgrammingPlanSettings';
 
 type Issue = { path: (string | number)[]; message: string };
@@ -85,10 +87,11 @@ export const subPlanSettingsAfterPlanSave = (
       nextPlanSettings[managed] && !storedPlanSettings[managed];
     const planReleases =
       !nextPlanSettings[managed] && storedPlanSettings[managed];
-    const keepsOwnSamples =
-      settingKey === 'samples' && settings.substanceKindsManaged;
+    const keepsOwnDependentSetting =
+      SubstanceKindsDependentSettingKey.safeParse(settingKey).success &&
+      settings.substanceKindsManaged;
 
-    if (planTakesOver && !keepsOwnSamples) {
+    if (planTakesOver && !keepsOwnDependentSetting) {
       settings[managed] = false;
     }
     if (planReleases && !settings[managed]) {
@@ -124,6 +127,15 @@ export const completedSubPlanSettingIssues = (
   ) {
     issues.push({
       settingKey: samplesManaged ? 'substanceKinds' : 'samples',
+      reason: 'incoherent'
+    });
+  }
+
+  if (overlappingSubstances(settings).length > 0) {
+    issues.push({
+      settingKey: settings.multiSubstancesManaged
+        ? 'monoSubstances'
+        : 'multiSubstances',
       reason: 'incoherent'
     });
   }

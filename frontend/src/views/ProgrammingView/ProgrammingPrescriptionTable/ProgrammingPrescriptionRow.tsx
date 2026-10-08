@@ -689,7 +689,6 @@ const ProgrammingPrescriptionRow = ({
                   programmingPlans[0]
                 }
                 prescription={prescription}
-                renderMode="inline"
               />
             </div>
           </div>

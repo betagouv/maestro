@@ -1,6 +1,5 @@
 import type { Knex } from 'knex';
 import { prescriptionsTable } from '../../repositories/prescriptionRepository';
-import { prescriptionSubstanceTable } from '../../repositories/prescriptionSubstanceRepository';
 import { programmingPlansTable } from '../../repositories/programmingPlanRepository';
 
 export const up = async (knex: Knex) => {
@@ -18,13 +17,13 @@ export const up = async (knex: Knex) => {
   });
 
   await knex.raw(`
-    UPDATE ${prescriptionSubstanceTable}
+    UPDATE prescription_substances
         SET prescription_id = ${prescriptionsTable}.id
     FROM ${prescriptionsTable}
         JOIN ${programmingPlansTable}
             ON ${programmingPlansTable}.id = ${prescriptionsTable}.programming_plan_id
-    WHERE ${prescriptionSubstanceTable}.matrix = ${prescriptionsTable}.matrix
-      AND ${programmingPlansTable}.year = ${prescriptionSubstanceTable}.year`);
+    WHERE prescription_substances.matrix = ${prescriptionsTable}.matrix
+      AND ${programmingPlansTable}.year = prescription_substances.year`);
 
   await knex.schema.alterTable('prescription_substances', (table) => {
     table.dropPrimary('substance_analysis_pkey');
@@ -43,13 +42,13 @@ export const down = async (knex: Knex) => {
   });
 
   await knex.raw(`
-    UPDATE ${prescriptionSubstanceTable}
+    UPDATE prescription_substances
         SET year = ${programmingPlansTable}.year,
             matrix = ${prescriptionsTable}.matrix
     FROM ${prescriptionsTable}
         JOIN ${programmingPlansTable}
             ON ${programmingPlansTable}.id = ${prescriptionsTable}.programming_plan_id
-    WHERE ${prescriptionSubstanceTable}.prescription_id = ${prescriptionsTable}.id`);
+    WHERE prescription_substances.prescription_id = ${prescriptionsTable}.id`);
 
   await knex.schema.renameTable(
     'prescription_substances',

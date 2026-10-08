@@ -1,10 +1,7 @@
 import { fakerFR } from '@faker-js/faker';
 import { RegionList, Regions } from '../referential/Region';
-import { SSD2Ids } from '../referential/Residue/SSD2Id';
-import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
 import type { LocalPrescription } from '../schema/LocalPrescription/LocalPrescription';
 import type { Prescription } from '../schema/Prescription/Prescription';
-import type { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import { LaboratoryFixture } from './laboratoryFixtures';
 import {
   DAOABovinValidatedSubPlanId,
@@ -33,15 +30,6 @@ export const genLocalPrescription = (
     min: 1,
     max: 50
   }),
-  ...data
-});
-
-export const genPrescriptionSubstance = (
-  data?: Partial<PrescriptionSubstance>
-): PrescriptionSubstance => ({
-  prescriptionId: crypto.randomUUID(),
-  analysisMethod: oneOf(AnalysisMethodList),
-  substance: oneOf(SSD2Ids),
   ...data
 });
 

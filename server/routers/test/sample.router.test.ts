@@ -659,7 +659,7 @@ describe('Sample router', () => {
               laboratoryId: LaboratoryFixture.id
             })),
             prescriptionId: PrescriptionFixture.id,
-            monoSubstances: [],
+            monoSubstances: ['RF-1020-001-PPP'],
             multiSubstances: []
           })
         );

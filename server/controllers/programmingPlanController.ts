@@ -24,7 +24,8 @@ import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPla
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   inheritsUnmanagedSetting,
-  managesSamplesAboveSubstanceKinds,
+  managesAboveSubstanceKinds,
+  orphanSubstancesSettingKeys,
   pickProgrammingPlanSettings
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import {
@@ -1078,7 +1079,8 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
       }
 
       if (
-        managesSamplesAboveSubstanceKinds.plan(body) ||
+        managesAboveSubstanceKinds.plan(body) ||
+        orphanSubstancesSettingKeys(body).length > 0 ||
         resumesDraft(programmingPlan, body) ||
         planSaveConflicts(programmingPlan.subPlans, programmingPlan, body)
           .length > 0
@@ -1187,7 +1189,10 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
             completedSubPlanSettingIssues(
               effectiveSubPlanSettings(body, programmingPlan)
             ).length > 0) ||
-          managesSamplesAboveSubstanceKinds.subPlan(body) ||
+          managesAboveSubstanceKinds.subPlan(body) ||
+          orphanSubstancesSettingKeys(
+            effectiveSubPlanSettings(body, programmingPlan)
+          ).length > 0 ||
           resumesDraft(programmingSubPlan, body)
         ) {
           return { status: HttpStatus.CONFLICT };

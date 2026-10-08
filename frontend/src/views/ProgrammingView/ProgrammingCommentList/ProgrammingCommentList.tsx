@@ -42,8 +42,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
     () => ({
       programmingPlanId: programmingPlan.id,
       programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
-      contexts: prescriptionFilters.contexts,
-      includes: ['substanceCount' as const]
+      contexts: prescriptionFilters.contexts
     }),
     [programmingPlan, prescriptionFilters]
   );

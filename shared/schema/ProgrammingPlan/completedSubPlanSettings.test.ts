@@ -12,7 +12,9 @@ import {
 } from './ProgrammingPlanSampleSetting';
 import {
   emptyProgrammingPlanSettings,
-  type ProgrammingPlanSettings
+  managedKey,
+  type ProgrammingPlanSettings,
+  SubstanceKindsDependentSettingKey
 } from './ProgrammingPlanSettings';
 
 const sample = (
@@ -36,7 +38,11 @@ const planSettings: ProgrammingPlanSettings = {
   programmingInstruction: null,
   programmingInstructionManaged: true,
   notes: null,
-  notesManaged: true
+  notesManaged: true,
+  monoSubstances: ['RF-1020-001-PPP'],
+  monoSubstancesManaged: true,
+  multiSubstances: null,
+  multiSubstancesManaged: true
 };
 
 const inheritingSubPlan = {
@@ -48,6 +54,8 @@ const inheritingSubPlan = {
   contextManaged: false,
   programmingInstructionManaged: false,
   notesManaged: false,
+  monoSubstancesManaged: false,
+  multiSubstancesManaged: false,
   subPlanNumber: 'M01',
   settingsCompleted: true
 };
@@ -67,6 +75,10 @@ const ownSubPlan = {
   programmingInstructionManaged: true,
   notes: null,
   notesManaged: true,
+  monoSubstances: null,
+  monoSubstancesManaged: true,
+  multiSubstances: null,
+  multiSubstancesManaged: true,
   subPlanNumber: 'M02',
   settingsCompleted: true
 };
@@ -98,14 +110,17 @@ describe('subPlanSettingsAfterPlanSave', () => {
     ).toMatchObject({ stagesManaged: false });
   });
 
-  test('laisse ses échantillons à un sous-plan qui gère ses analytes', () => {
-    expect(
-      subPlanSettingsAfterPlanSave(ownSubPlan, unmanagedPlan, {
-        ...unmanagedPlan,
-        samplesManaged: true
-      })
-    ).toMatchObject({ samplesManaged: true });
-  });
+  test.each(SubstanceKindsDependentSettingKey.options)(
+    'laisse le paramètre %s à un sous-plan qui gère ses analytes',
+    (settingKey) => {
+      expect(
+        subPlanSettingsAfterPlanSave(ownSubPlan, unmanagedPlan, {
+          ...unmanagedPlan,
+          [managedKey(settingKey)]: true
+        })
+      ).toMatchObject({ [managedKey(settingKey)]: true });
+    }
+  );
 
   test('recopie la valeur du plan dans les sous-plans qui en héritaient quand le plan la rend', () => {
     expect(
@@ -163,6 +178,22 @@ describe('completedSubPlanSettingIssues', () => {
       })
     ).toStrictEqual([{ settingKey: 'samples', reason: 'incoherent' }]);
   });
+
+  test.each([
+    [true, 'monoSubstances'],
+    [false, 'multiSubstances']
+  ])(
+    'impute la même substance en mono et en multi-résidus, sous-plan gérant le multi-résidus : %s, à %s',
+    (multiSubstancesManaged, settingKey) => {
+      expect(
+        completedSubPlanSettingIssues({
+          ...planSettings,
+          multiSubstances: ['RF-1020-001-PPP'],
+          multiSubstancesManaged
+        })
+      ).toStrictEqual([{ settingKey, reason: 'incoherent' }]);
+    }
+  );
 });
 
 describe('planSaveConflicts', () => {

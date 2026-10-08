@@ -1,6 +1,8 @@
-import { isNil, pick } from 'lodash-es';
+import { intersection, isNil, pick, uniq } from 'lodash-es';
 import { z } from 'zod';
+import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { Stage } from '../../referential/Stage';
+import { refineSchema } from '../../utils/zod';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import { ProgrammingPlanContext } from './Context';
 import {
@@ -16,17 +18,30 @@ export const ProgrammingPlanSettingKey = z.enum([
   'matrices',
   'context',
   'programmingInstruction',
-  'notes'
+  'notes',
+  'monoSubstances',
+  'multiSubstances'
 ]);
 export type ProgrammingPlanSettingKey = z.infer<
   typeof ProgrammingPlanSettingKey
 >;
 
 export const ProgrammingPlanRequiredSettingKey =
-  ProgrammingPlanSettingKey.exclude(['programmingInstruction', 'notes']);
+  ProgrammingPlanSettingKey.exclude([
+    'programmingInstruction',
+    'notes',
+    'monoSubstances',
+    'multiSubstances'
+  ]);
 export type ProgrammingPlanRequiredSettingKey = z.infer<
   typeof ProgrammingPlanRequiredSettingKey
 >;
+
+const Substances = refineSchema(
+  z.array(SSD2Id),
+  (substances) => uniq(substances).length === substances.length,
+  'Une substance ne peut apparaître qu’une fois.'
+);
 
 export const ProgrammingPlanSettings = z.object({
   stages: z.array(Stage).nullable(),
@@ -45,7 +60,11 @@ export const ProgrammingPlanSettings = z.object({
   programmingInstruction: z.string().nullable(),
   programmingInstructionManaged: z.boolean(),
   notes: z.string().nullable(),
-  notesManaged: z.boolean()
+  notesManaged: z.boolean(),
+  monoSubstances: Substances.nullable(),
+  monoSubstancesManaged: z.boolean(),
+  multiSubstances: Substances.nullable(),
+  multiSubstancesManaged: z.boolean()
 } satisfies Record<ProgrammingPlanSettingKey, z.ZodType> &
   Record<`${ProgrammingPlanSettingKey}Managed`, z.ZodType>);
 
@@ -88,25 +107,92 @@ export const isMissingSetting = (
   value: unknown[] | SubPlanMatrices | ProgrammingPlanContext | null
 ): boolean => isNil(value) || (Array.isArray(value) && value.length === 0);
 
-export const managesSamplesAboveSubstanceKinds = {
+export const SubstanceKindsDependentSettingKey =
+  ProgrammingPlanSettingKey.extract([
+    'samples',
+    'monoSubstances',
+    'multiSubstances'
+  ]);
+
+export const managesAboveSubstanceKinds = {
   plan: (planSettings: ProgrammingPlanSettings): boolean =>
-    planSettings.samplesManaged && !planSettings.substanceKindsManaged,
+    !planSettings.substanceKindsManaged &&
+    SubstanceKindsDependentSettingKey.options.some(
+      (settingKey) => planSettings[managedKey(settingKey)]
+    ),
   subPlan: (subPlanSettings: ProgrammingPlanSettings): boolean =>
-    subPlanSettings.substanceKindsManaged && !subPlanSettings.samplesManaged
+    subPlanSettings.substanceKindsManaged &&
+    SubstanceKindsDependentSettingKey.options.some(
+      (settingKey) => !subPlanSettings[managedKey(settingKey)]
+    )
 };
 
-export const withSamplesBelowSubstanceKinds = <
+export const withSettingsBelowSubstanceKinds = <
   T extends ProgrammingPlanSettings
 >(
   settings: T,
   planSettings: ProgrammingPlanSettings | undefined
 ): T => {
   if (!planSettings) {
-    return managesSamplesAboveSubstanceKinds.plan(settings)
-      ? { ...settings, samplesManaged: false }
+    return managesAboveSubstanceKinds.plan(settings)
+      ? {
+          ...settings,
+          ...Object.fromEntries(
+            SubstanceKindsDependentSettingKey.options.map((settingKey) => [
+              managedKey(settingKey),
+              false
+            ])
+          )
+        }
       : settings;
   }
-  return managesSamplesAboveSubstanceKinds.subPlan(settings)
-    ? { ...settings, samples: planSettings.samples, samplesManaged: true }
+  return managesAboveSubstanceKinds.subPlan(settings)
+    ? {
+        ...settings,
+        ...Object.fromEntries(
+          SubstanceKindsDependentSettingKey.options
+            .filter((settingKey) => !settings[managedKey(settingKey)])
+            .flatMap((settingKey) => [
+              [settingKey, planSettings[settingKey]],
+              [managedKey(settingKey), true]
+            ])
+        )
+      }
     : settings;
 };
+
+export const SubstancesSettings = [
+  { settingKey: 'monoSubstances', substanceKind: 'Mono' },
+  { settingKey: 'multiSubstances', substanceKind: 'Multi' }
+] as const satisfies readonly {
+  settingKey: ProgrammingPlanSettingKey;
+  substanceKind: SubstanceKind;
+}[];
+
+export const orphanSubstancesSettingKeys = (
+  settings: ProgrammingPlanSettings
+) =>
+  SubstancesSettings.filter(
+    ({ settingKey, substanceKind }) =>
+      settings[managedKey(settingKey)] &&
+      !isMissingSetting(settings[settingKey]) &&
+      !(settings.substanceKinds ?? []).includes(substanceKind)
+  ).map(({ settingKey }) => settingKey);
+
+export const withoutOrphanSubstances = <T extends ProgrammingPlanSettings>(
+  settings: T
+): T => ({
+  ...settings,
+  ...Object.fromEntries(
+    orphanSubstancesSettingKeys(settings).map((settingKey) => [
+      settingKey,
+      null
+    ])
+  )
+});
+
+export const overlappingSubstances = ({
+  monoSubstances,
+  multiSubstances
+}: Pick<ProgrammingPlanSettings, 'monoSubstances' | 'multiSubstances'>) =>
+  intersection(monoSubstances ?? [], multiSubstances ?? []);

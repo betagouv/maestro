@@ -4,7 +4,9 @@ import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import type { ProgrammingPlanNationalCoordinator } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   managedKey,
-  ProgrammingPlanSettingKey
+  ProgrammingPlanSettingKey,
+  SubstanceKindsDependentSettingKey,
+  SubstancesSettings
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type {
   ProgrammingPlanSettingsForm,
@@ -272,8 +274,9 @@ const savePlanSettings = (
           .updateTable('programmingSubPlansRaw')
           .set(managedKey(settingKey), false)
           .where('programmingPlanId', '=', programmingPlanId)
-          .$if(settingKey === 'samples', (qb) =>
-            qb.where('substanceKindsManaged', '=', false)
+          .$if(
+            SubstanceKindsDependentSettingKey.safeParse(settingKey).success,
+            (qb) => qb.where('substanceKindsManaged', '=', false)
           )
           .execute();
       } else {
@@ -284,6 +287,20 @@ const savePlanSettings = (
           .where('programmingPlanId', '=', programmingPlanId)
           .where(managedKey(settingKey), '=', false)
           .execute();
+      }
+    }
+
+    if (settings.substanceKindsManaged) {
+      for (const { settingKey, substanceKind } of SubstancesSettings) {
+        if (!(settings.substanceKinds ?? []).includes(substanceKind)) {
+          await trx
+            .updateTable('programmingSubPlansRaw')
+            .set(settingKey, null)
+            .where('programmingPlanId', '=', programmingPlanId)
+            .where('substanceKindsManaged', '=', false)
+            .where(managedKey(settingKey), '=', true)
+            .execute();
+        }
       }
     }
 

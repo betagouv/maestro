@@ -226,7 +226,6 @@ const defaultMockApiClientConf: MockApi = {
   useGetLocalPrescriptionByCompanyQuery: { data: genLocalPrescription() },
   useGetLocalPrescriptionQuery: { data: genLocalPrescription() },
   useGetLaboratoryAnalyticalCompetencesQuery: { data: [] },
-  useGetPrescriptionSubstancesQuery: { data: [] },
   useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
   useGetRegionsGeoJsonQuery: {
     data: JSON.parse(JSON.stringify(regionsJson))
@@ -258,7 +257,6 @@ const defaultMockApiClientConf: MockApi = {
   }),
   useLazyFindPrescriptionsQuery: [[], {}],
   useLazyFindSamplesQuery: [[], {}],
-  useLazyGetPrescriptionSubstancesQuery: [[], {}],
   useLazyGetSampleQuery: [genCreatedPartialSample(), {}],
   useLazyGetUserQuery: [genUser({}), {}],
   useLazySearchAddressesQuery: [[], {}],

@@ -7,14 +7,11 @@ import {
 import { getSubPlanMatrixLabels } from '../ProgrammingPlan/SubPlanMatrices';
 import { hasPermission } from '../User/User';
 import type { UserRole } from '../User/UserRole';
-import { PrescriptionSubstance } from './PrescriptionSubstance';
 
 export const Prescription = z.object({
   id: z.guid(),
   programmingSubPlanId: ProgrammingSubPlanId,
-  sampleCount: z.coerce.number().int().min(0).default(0),
-  monoAnalysisCount: z.coerce.number().nullish(),
-  multiAnalysisCount: z.coerce.number().nullish()
+  sampleCount: z.coerce.number().int().min(0).default(0)
 });
 
 export const PrescriptionToCreate = Prescription.omit({
@@ -25,15 +22,7 @@ export const PrescriptionUpdate = z.object({
   programmingPlanId: z.guid(),
   ...Prescription.pick({
     sampleCount: true
-  }).partial().shape,
-  substances: z
-    .array(
-      PrescriptionSubstance.pick({
-        analysisMethod: true,
-        substance: true
-      })
-    )
-    .nullish()
+  }).partial().shape
 });
 
 export type Prescription = z.infer<typeof Prescription>;

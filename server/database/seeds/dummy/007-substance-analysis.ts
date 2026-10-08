@@ -1,6 +1,6 @@
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { PrescriptionSubstances } from '../../../repositories/prescriptionSubstanceRepository';
+import { kysely } from '../../../repositories/kysely';
 import {
   abricotsEtSimilaires,
   avocats,
@@ -32,6 +32,7 @@ import {
   pechesEtSimilaires,
   poireauxEtSimilaires,
   poires,
+  ppvSubPlanIdByPrescriptionId,
   rizEtSimilaires
 } from './005-prescriptions-ppv';
 
@@ -40,12 +41,11 @@ export const seed = async () => {
     prescriptionId: string,
     analysisMethod: AnalysisMethod,
     ...substances: SSD2Id[]
-  ) =>
-    substances.map((substance) => ({
-      prescriptionId,
-      substance,
-      analysisMethod
-    }));
+  ) => ({
+    prescriptionId,
+    analysisMethod,
+    substances
+  });
 
   const substanceAnalysis = [
     genSubstanceAnalysis(abricotsEtSimilaires.id, 'Mono'),
@@ -497,5 +497,28 @@ export const seed = async () => {
     )
   ];
 
-  await PrescriptionSubstances().insert(substanceAnalysis.flat());
+  for (const [prescriptionId, subPlanId] of ppvSubPlanIdByPrescriptionId) {
+    const substances = (analysisMethod: AnalysisMethod) =>
+      substanceAnalysis
+        .filter(
+          (analysis) =>
+            analysis.prescriptionId === prescriptionId &&
+            analysis.analysisMethod === analysisMethod
+        )
+        .flatMap((analysis) => analysis.substances);
+
+    const monoSubstances = substances('Mono');
+    const multiSubstances = substances('Multi');
+
+    if (monoSubstances.length > 0 || multiSubstances.length > 0) {
+      await kysely
+        .updateTable('programmingSubPlansRaw')
+        .set({
+          monoSubstances: monoSubstances.length > 0 ? monoSubstances : null,
+          multiSubstances: multiSubstances.length > 0 ? multiSubstances : null
+        })
+        .where('id', '=', subPlanId)
+        .execute();
+    }
+  }
 };

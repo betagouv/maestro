@@ -288,12 +288,6 @@ export interface Prescriptions {
   sampleCount: number;
 }
 
-export interface PrescriptionSubstances {
-  analysisMethod: string;
-  prescriptionId: string;
-  substance: string;
-}
-
 interface ProgrammingPlanSettings {
   stages: Stage[] | null;
   stagesManaged: Generated<boolean>;
@@ -313,6 +307,10 @@ interface ProgrammingPlanSettings {
   programmingInstructionManaged: Generated<boolean>;
   notes: string | null;
   notesManaged: Generated<boolean>;
+  monoSubstances: SSD2Id[] | null;
+  monoSubstancesManaged: Generated<boolean>;
+  multiSubstances: SSD2Id[] | null;
+  multiSubstancesManaged: Generated<boolean>;
 }
 
 export interface ProgrammingPlans extends ProgrammingPlanSettings {
@@ -605,7 +603,6 @@ export interface DB {
   localPrescriptionSubstanceKindsLaboratories: LocalPrescriptionSubstanceKindLaboratory;
   notices: Notices;
   prescriptions: Prescriptions;
-  prescriptionSubstances: PrescriptionSubstances;
   programmingPlanDomains: ProgrammingPlanDomains;
   programmingSubPlans: ProgrammingSubPlans;
   programmingSubPlansRaw: ProgrammingSubPlansRaw;

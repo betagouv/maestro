@@ -4,10 +4,13 @@ import {
   emptyProgrammingPlanSettings,
   inheritsUnmanagedSetting,
   managedKey,
-  managesSamplesAboveSubstanceKinds,
+  managesAboveSubstanceKinds,
   ProgrammingPlanSettingKey,
+  type ProgrammingPlanSettings,
   pickProgrammingPlanSettings,
-  withSamplesBelowSubstanceKinds
+  SubstanceKindsDependentSettingKey,
+  withoutOrphanSubstances,
+  withSettingsBelowSubstanceKinds
 } from './ProgrammingPlanSettings';
 
 describe('ProgrammingPlanSettings', () => {
@@ -65,87 +68,132 @@ describe('ProgrammingPlanSettings', () => {
     });
   });
 
-  describe('managesSamplesAboveSubstanceKinds', () => {
-    const settings = (
-      samplesManaged: boolean,
-      substanceKindsManaged: boolean
-    ) => ({
-      ...emptyProgrammingPlanSettings(false),
-      samplesManaged,
-      substanceKindsManaged
-    });
+  describe.each(SubstanceKindsDependentSettingKey.options)(
+    'managesAboveSubstanceKinds on %s',
+    (settingKey) => {
+      const settings = (
+        base: ProgrammingPlanSettings,
+        managed: boolean,
+        substanceKindsManaged: boolean
+      ) => ({
+        ...base,
+        [managedKey(settingKey)]: managed,
+        substanceKindsManaged
+      });
 
-    test.each([
-      [false, false, false],
-      [false, true, false],
-      [true, true, false],
-      [true, false, true]
-    ])(
-      'plan managing samples: %s, analytes: %s => %s',
-      (samplesManaged, substanceKindsManaged, expected) => {
-        expect(
-          managesSamplesAboveSubstanceKinds.plan(
-            settings(samplesManaged, substanceKindsManaged)
-          )
-        ).toBe(expected);
-      }
-    );
+      test.each([
+        [false, false, false],
+        [false, true, false],
+        [true, true, false],
+        [true, false, true]
+      ])(
+        'plan managing it: %s, analytes: %s => %s',
+        (managed, substanceKindsManaged, expected) => {
+          expect(
+            managesAboveSubstanceKinds.plan(
+              settings(
+                emptyProgrammingPlanSettings(false),
+                managed,
+                substanceKindsManaged
+              )
+            )
+          ).toBe(expected);
+        }
+      );
 
-    test.each([
-      [false, false, false],
-      [true, false, false],
-      [true, true, false],
-      [false, true, true]
-    ])(
-      'sub-plan managing samples: %s, analytes: %s => %s',
-      (samplesManaged, substanceKindsManaged, expected) => {
-        expect(
-          managesSamplesAboveSubstanceKinds.subPlan(
-            settings(samplesManaged, substanceKindsManaged)
-          )
-        ).toBe(expected);
-      }
-    );
-  });
+      test.each([
+        [false, false, false],
+        [true, false, false],
+        [true, true, false],
+        [false, true, true]
+      ])(
+        'sub-plan managing it: %s, analytes: %s => %s',
+        (managed, substanceKindsManaged, expected) => {
+          expect(
+            managesAboveSubstanceKinds.subPlan(
+              settings(
+                emptyProgrammingPlanSettings(true),
+                managed,
+                substanceKindsManaged
+              )
+            )
+          ).toBe(expected);
+        }
+      );
+    }
+  );
 
-  describe('withSamplesBelowSubstanceKinds', () => {
+  describe('withSettingsBelowSubstanceKinds', () => {
     const planSamples = [
       { ...defaultProgrammingPlanSample, substanceKinds: ['Mono' as const] }
     ];
+    const planMonoSubstances = ['RF-1020-001-PPP'];
 
-    test('should stop a plan managing the samples once it stops managing the analytes', () => {
+    test('should stop a plan managing the settings depending on the analytes once it stops managing the analytes', () => {
       expect(
-        withSamplesBelowSubstanceKinds(
+        withSettingsBelowSubstanceKinds(
           {
             ...emptyProgrammingPlanSettings(false),
             samples: planSamples,
-            samplesManaged: true
+            samplesManaged: true,
+            monoSubstances: planMonoSubstances,
+            monoSubstancesManaged: true
           },
           undefined
         )
       ).toStrictEqual({
         ...emptyProgrammingPlanSettings(false),
-        samples: planSamples
+        samples: planSamples,
+        monoSubstances: planMonoSubstances
       });
     });
 
-    test('should detach the samples of a sub-plan detaching its analytes, with the plan configuration', () => {
+    test('should detach the settings depending on the analytes of a sub-plan detaching its analytes, with the plan values', () => {
       expect(
-        withSamplesBelowSubstanceKinds(
+        withSettingsBelowSubstanceKinds(
           {
             ...emptyProgrammingPlanSettings(false),
             substanceKindsManaged: true
           },
           {
             ...emptyProgrammingPlanSettings(true),
-            samples: planSamples
+            samples: planSamples,
+            monoSubstances: planMonoSubstances
           }
         )
       ).toStrictEqual({
         ...emptyProgrammingPlanSettings(false),
         substanceKindsManaged: true,
         samples: planSamples,
-        samplesManaged: true
+        samplesManaged: true,
+        monoSubstances: planMonoSubstances,
+        monoSubstancesManaged: true,
+        multiSubstancesManaged: true
+      });
+    });
+
+    test('should keep the own value of a setting the sub-plan already manages', () => {
+      const ownMonoSubstances = ['RF-0440-001-PPP'];
+
+      expect(
+        withSettingsBelowSubstanceKinds(
+          {
+            ...emptyProgrammingPlanSettings(false),
+            substanceKindsManaged: true,
+            monoSubstances: ownMonoSubstances,
+            monoSubstancesManaged: true
+          },
+          {
+            ...emptyProgrammingPlanSettings(true),
+            samples: planSamples,
+            monoSubstances: planMonoSubstances
+          }
+        )
+      ).toMatchObject({
+        samples: planSamples,
+        samplesManaged: true,
+        monoSubstances: ownMonoSubstances,
+        monoSubstancesManaged: true
       });
     });
 
@@ -163,10 +211,39 @@ describe('ProgrammingPlanSettings', () => {
     ])(
       'should leave coherent %s settings untouched',
       (_, settings, planSettings) => {
-        expect(withSamplesBelowSubstanceKinds(settings, planSettings)).toBe(
+        expect(withSettingsBelowSubstanceKinds(settings, planSettings)).toBe(
           settings
         );
       }
     );
+  });
+
+  describe('withoutOrphanSubstances', () => {
+    const glyphosate = 'RF-1020-001-PPP';
+
+    test('should empty the substances managed at this level whose analyte is not retained', () => {
+      expect(
+        withoutOrphanSubstances({
+          ...emptyProgrammingPlanSettings(true),
+          substanceKinds: ['Multi'],
+          monoSubstances: [glyphosate],
+          multiSubstances: [glyphosate]
+        })
+      ).toStrictEqual({
+        ...emptyProgrammingPlanSettings(true),
+        substanceKinds: ['Multi'],
+        multiSubstances: [glyphosate]
+      });
+    });
+
+    test('should leave the inherited substances to the level managing them', () => {
+      const settings = {
+        ...emptyProgrammingPlanSettings(false),
+        substanceKinds: ['Multi' as const],
+        monoSubstances: [glyphosate]
+      };
+
+      expect(withoutOrphanSubstances(settings)).toStrictEqual(settings);
+    });
   });
 });

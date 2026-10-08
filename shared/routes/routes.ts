@@ -60,7 +60,6 @@ export const MaestroRoutes = [
   '/prescriptions/:prescriptionId/regions/:region/departments/:department/comments',
   '/prescriptions/:prescriptionId/regions/:region/departments/:department',
   '/prescriptions/:prescriptionId/regions/:region/departments/:department/companies/:companySiret',
-  '/prescriptions/:prescriptionId/substances',
   '/prescriptions/:prescriptionId',
   '/programming-plan-domains',
   '/programming-plan-domains/:programmingPlanDomainId',

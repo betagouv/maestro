@@ -7,7 +7,9 @@ import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/Programm
 import {
   emptyProgrammingPlanSettings,
   pickProgrammingPlanSettings,
-  withSamplesBelowSubstanceKinds
+  SubstancesSettings,
+  withoutOrphanSubstances,
+  withSettingsBelowSubstanceKinds
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import {
   ProgrammingLevelSettingsForm,
@@ -36,6 +38,7 @@ import { useForm } from 'src/hooks/useForm';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 import type { z } from 'zod';
+import { ProgrammingPlanAnalysisSettings } from '../ProgrammingPlanAnalysisSettings/ProgrammingPlanAnalysisSettings';
 import { ProgrammingPlanGlobalSettings } from '../ProgrammingPlanGlobalSettings/ProgrammingPlanGlobalSettings';
 import { ProgrammingPlanSamplerFormSettings } from '../ProgrammingPlanSamplerFormSettings/ProgrammingPlanSamplerFormSettings';
 import { ProgrammingPlanSampleSettings } from '../ProgrammingPlanSampleSettings/ProgrammingPlanSampleSettings';
@@ -83,18 +86,23 @@ const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   context: 'global',
   programmingInstruction: 'global',
   notes: 'global',
+  monoSubstances: 'analyses',
+  multiSubstances: 'analyses',
   nationalCoordinators: 'global',
   technicalInstruction: 'global',
   fields: 'sampler-form'
 };
 
 const planSaveConflictMessage = ({
+  settingKey,
   reason,
   subPlanNumbers
 }: ReturnType<typeof planSaveConflicts>[number]) =>
   reason === 'missing'
     ? `Ne peut pas être vide : les sous-plans terminés ${subPlanNumbers.join(', ')} l’utilisent.`
-    : `Les échantillons des sous-plans terminés ${subPlanNumbers.join(', ')} ne correspondraient plus à leurs analytes.`;
+    : SubstancesSettings.some((setting) => setting.settingKey === settingKey)
+      ? `Des substances des sous-plans terminés ${subPlanNumbers.join(', ')} seraient à la fois en mono-résidu et en multi-résidus.`
+      : `Les échantillons des sous-plans terminés ${subPlanNumbers.join(', ')} ne correspondraient plus à leurs analytes.`;
 
 export const ProgrammingPlanSettingsTabs = ({
   programmingPlan,
@@ -235,14 +243,14 @@ export const ProgrammingPlanSettingsTabs = ({
         await updateProgrammingSubPlanSettings({
           programmingPlanId,
           programmingSubPlanId: subPlan.id,
-          ...pickProgrammingPlanSettings(draft),
+          ...pickProgrammingPlanSettings(withoutOrphanSubstances(draft)),
           fields: draft.fields,
           settingsCompleted
         }).unwrap();
       } else {
         await updateProgrammingPlanSettings({
           programmingPlanId,
-          ...pickProgrammingPlanSettings(draft),
+          ...pickProgrammingPlanSettings(withoutOrphanSubstances(draft)),
           title: hasTitleChange ? titleDraft : undefined,
           nationalCoordinators: draft.nationalCoordinators ?? [],
           technicalInstruction: await uploadTechnicalInstruction(
@@ -302,9 +310,11 @@ export const ProgrammingPlanSettingsTabs = ({
 
   const changeDraft = (draft: ProgrammingLevelSettingsForm) =>
     setDraft(
-      withSamplesBelowSubstanceKinds(
-        draft,
-        subPlan ? programmingPlan : undefined
+      withoutOrphanSubstances(
+        withSettingsBelowSubstanceKinds(
+          draft,
+          subPlan ? programmingPlan : undefined
+        )
       )
     );
 
@@ -339,7 +349,14 @@ export const ProgrammingPlanSettingsTabs = ({
           />
         );
       case 'analyses':
-        return null;
+        return (
+          <ProgrammingPlanAnalysisSettings
+            settings={draft}
+            planSettings={subPlan ? programmingPlan : undefined}
+            inputForm={form}
+            onChange={changeDraft}
+          />
+        );
       default:
         assertUnreachable(tabId);
     }

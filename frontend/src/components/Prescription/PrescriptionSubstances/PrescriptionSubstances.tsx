@@ -1,170 +1,71 @@
-import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { SSD2IdSort } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   AdditionalSubstanceKindList,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { useCallback, useContext } from 'react';
-import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useAppDispatch } from 'src/hooks/useStore';
-import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { pluralize } from 'src/utils/stringUtils';
-import { ApiClientContext } from '../../../services/apiClient';
-import '../PrescriptionModal/PrescriptionModal.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
   prescription: Prescription;
-  renderMode: 'inline' | 'modal';
 }
 
-const PrescriptionSubstances = ({
-  programmingPlan,
-  prescription,
-  renderMode
-}: Props) => {
-  const dispatch = useAppDispatch();
-  const apiClient = useContext(ApiClientContext);
-  const { hasUserPrescriptionPermission } = useAuthentication();
-
-  const { data: prescriptionSubstances } =
-    apiClient.useGetPrescriptionSubstancesQuery(
-      { prescriptionId: prescription.id },
-      { skip: renderMode === 'modal' }
-    );
-
-  const getSubstancesByAnalysisMethod = useCallback(
-    (analysisMethod: AnalysisMethod) =>
-      (prescriptionSubstances ?? [])
-        .filter((substance) => substance.analysisMethod === analysisMethod)
-        .map((_) => _.substance),
-    [prescriptionSubstances]
-  );
+const PrescriptionSubstances = ({ programmingPlan, prescription }: Props) => {
+  const subPlan = findPrescriptionSubPlan([programmingPlan], prescription);
+  const monoSubstances = subPlan?.monoSubstances ?? [];
+  const multiSubstances = subPlan?.multiSubstances ?? [];
 
   return (
-    <div className="prescription-substance-button">
-      {renderMode === 'inline' && (
-        <div className="d-flex-align-center">
-          <span className={cx('fr-icon-test-tube-line', 'fr-pr-1v')} />
-          <b>Analyses</b>
+    <div>
+      <div className="d-flex-align-center">
+        <span className={cx('fr-icon-test-tube-line', 'fr-pr-1v')} />
+        <b>Analyses</b>
+      </div>
+      <div>
+        <div className={cx('fr-py-1v')}>
+          <span
+            className={cx('fr-icon-check-line', 'fr-icon--sm', 'fr-mr-1w')}
+          />
+          {t('analysis', {
+            count: monoSubstances.length
+          })}{' '}
+          mono résidu
+          <div className={cx('fr-ml-2w')}>
+            {[...monoSubstances].sort(SSD2IdSort).map((substance) => (
+              <Tag key={`Mono-${substance}`} small className={cx('fr-m-1v')}>
+                {SSD2IdLabel[substance]}
+              </Tag>
+            ))}
+          </div>
         </div>
-      )}
-      <div>
-        {renderMode === 'inline' ? (
-          <div className={cx('fr-py-1v')}>
-            <span
-              className={cx('fr-icon-check-line', 'fr-icon--sm', 'fr-mr-1w')}
-            />
-            {t('analysis', {
-              count: prescription.monoAnalysisCount || 0
-            })}{' '}
-            mono résidu
-            <div className={cx('fr-ml-2w')}>
-              {getSubstancesByAnalysisMethod('Mono')
-                .sort(SSD2IdSort)
-                .map((substance) => (
-                  <Tag
-                    key={`Mono-${substance}`}
-                    small
-                    className={cx('fr-m-1v')}
-                  >
-                    {SSD2IdLabel[substance]}
-                  </Tag>
-                ))}
-            </div>
-          </div>
-        ) : (
-          <Button
-            onClick={() =>
-              dispatch(
-                prescriptionsSlice.actions.setPrescriptionModalData({
-                  mode: 'analysis',
-                  programmingPlan,
-                  prescription
-                })
-              )
-            }
-            priority="tertiary no outline"
-            iconId={
-              (prescription.monoAnalysisCount ?? 0) === 0
-                ? 'fr-icon-add-line'
-                : 'fr-icon-check-line'
-            }
-            className={clsx(cx('fr-text--regular'), 'link-underline')}
-          >
-            {hasUserPrescriptionPermission(programmingPlan)?.update &&
-            (prescription.monoAnalysisCount ?? 0) === 0
-              ? `Ajouter une analyse mono résidu`
-              : `${t('analysis', {
-                  count: prescription.monoAnalysisCount || 0
-                })} mono résidu`}
-          </Button>
-        )}
       </div>
       <div>
-        {renderMode === 'inline' ? (
-          <div className={cx('fr-py-1v')}>
-            <span
-              className={cx('fr-icon-check-line', 'fr-icon--sm', 'fr-mr-1w')}
-            />
-            {`Analyse multi-résidu (${
-              prescription.multiAnalysisCount || 0
-            } ${pluralize(prescription.multiAnalysisCount || 0)('spécifiée')})`}
-            <div className={cx('fr-ml-2w')}>
-              {getSubstancesByAnalysisMethod('Multi')
-                .sort(SSD2IdSort)
-                .map((substance) => (
-                  <Tag
-                    key={`Multi-${substance}`}
-                    small
-                    className={cx('fr-m-1v')}
-                  >
-                    {SSD2IdLabel[substance]}
-                  </Tag>
-                ))}
-            </div>
+        <div className={cx('fr-py-1v')}>
+          <span
+            className={cx('fr-icon-check-line', 'fr-icon--sm', 'fr-mr-1w')}
+          />
+          {`Analyse multi-résidu (${
+            multiSubstances.length
+          } ${pluralize(multiSubstances.length)('spécifiée')})`}
+          <div className={cx('fr-ml-2w')}>
+            {[...multiSubstances].sort(SSD2IdSort).map((substance) => (
+              <Tag key={`Multi-${substance}`} small className={cx('fr-m-1v')}>
+                {SSD2IdLabel[substance]}
+              </Tag>
+            ))}
           </div>
-        ) : (
-          <Button
-            onClick={() =>
-              dispatch(
-                prescriptionsSlice.actions.setPrescriptionModalData({
-                  mode: 'analysis',
-                  programmingPlan,
-                  prescription
-                })
-              )
-            }
-            priority="tertiary no outline"
-            iconId={
-              (prescription.multiAnalysisCount ?? 0) === 0
-                ? 'fr-icon-add-line'
-                : 'fr-icon-check-line'
-            }
-            className={clsx(cx('fr-text--regular'), 'link-underline')}
-          >
-            {hasUserPrescriptionPermission(programmingPlan)?.update &&
-            (prescription.multiAnalysisCount ?? 0) === 0
-              ? `Spécifier une analyse multi résidus`
-              : `Analyse multi-résidu (${prescription.multiAnalysisCount || 0} ${pluralize(
-                  prescription.multiAnalysisCount || 0
-                )('spécifiée')})`}
-          </Button>
-        )}
+        </div>
       </div>
-      {programmingPlan.subPlans
-        .find((sp) => sp.id === prescription.programmingSubPlanId)
-        ?.substanceKinds?.filter((substance) =>
-          AdditionalSubstanceKindList.includes(substance)
-        )
+      {subPlan?.substanceKinds
+        ?.filter((substance) => AdditionalSubstanceKindList.includes(substance))
         .map((substance, index) => (
           <div
             key={`substanceKind-${index}`}
