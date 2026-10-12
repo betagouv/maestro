@@ -135,8 +135,8 @@ export function createServer(): Server {
     });
   }
 
-  app.all('/*splat', () => {
-    throw new RouteNotFoundError();
+  app.all('/*splat', (req) => {
+    throw new RouteNotFoundError(req.method, req.originalUrl);
   });
 
   // The error handler must be before any other error middleware and after all controllers.
