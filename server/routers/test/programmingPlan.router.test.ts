@@ -15,6 +15,7 @@ import {
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures.ts';
@@ -26,6 +27,7 @@ import {
   DAOAVolailleValidatedSubPlanFixture,
   genDeletableProgrammingPlan,
   genProgrammingSubPlan,
+  PesticideResidueDomainId,
   PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
   PPVInProgressSubPlanFixture,
@@ -2401,6 +2403,78 @@ describe('ProgrammingPlan router', () => {
         stages: validBody.stages,
         stagesManaged: true,
         matrices: validBody.matrices
+      });
+    });
+  });
+
+  describe('POST /programming-plans', () => {
+    const testRoute = '/api/programming-plans';
+    const createdPlanIds: string[] = [];
+
+    afterEach(async () => {
+      for (const id of createdPlanIds.splice(0)) {
+        await programmingPlanRepository.deleteOne(id);
+      }
+    });
+
+    const createPlan = async (user: UserRefined, title: string) => {
+      const res = await request(app)
+        .post(testRoute)
+        .send({ domainId: PesticideResidueDomainId, title })
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_CREATED);
+      createdPlanIds.push(res.body.id);
+      return res.body;
+    };
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({ domainId: PesticideResidueDomainId, title: 'Nouveau plan' })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have the permission', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({ domainId: PesticideResidueDomainId, title: 'Nouveau plan' })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should create an empty plan in the domain, coordinated by its national coordinator creator', async () => {
+      const body = await createPlan(NationalCoordinator, '  Nouveau plan  ');
+
+      expect(body).toMatchObject({
+        domainId: PesticideResidueDomainId,
+        year: new Date().getFullYear(),
+        title: 'Nouveau plan',
+        subPlans: [],
+        legalContexts: ['A', 'B'],
+        distributionKind: 'TO_BE_DEFINED',
+        samplesOutsidePlanAllowed: true,
+        settingsCompleted: false,
+        createdBy: NationalCoordinator.id,
+        nationalStatus: { status: 'InProgress' },
+        nationalCoordinators: [
+          expect.objectContaining({ id: NationalCoordinator.id })
+        ]
+      });
+      expect(body.regionalStatus).toHaveLength(RegionList.length);
+      expect(
+        body.regionalStatus.every(
+          ({ status }: { status: ProgrammingPlanStatus }) =>
+            status === 'InProgress'
+        )
+      ).toBe(true);
+    });
+
+    test('should create a plan without national coordinator when the creator is an administrator', async () => {
+      const body = await createPlan(AdminFixture, 'Plan administrateur');
+
+      expect(body).toMatchObject({
+        createdBy: AdminFixture.id,
+        nationalCoordinators: []
       });
     });
   });

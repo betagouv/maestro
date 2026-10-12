@@ -33,6 +33,7 @@ const regionalStatus = (status: ProgrammingPlanStatus) =>
 
 const deleteProgrammingPlanDomain = fn();
 const updateProgrammingPlanDomain = fn();
+const createProgrammingPlan = fn(async () => ({ id: PPVPlanId }));
 
 const meta = {
   title: 'Views/ProgrammingPlanSettingsView/ProgrammingPlanDomainView',
@@ -292,6 +293,54 @@ export const RenameDomainWithEnterKey: Story = {
       expect(updateProgrammingPlanDomain).toHaveBeenCalledWith({
         programmingPlanDomainId: chemical2026.id,
         label: 'Contaminants'
+      })
+    );
+  }
+};
+
+export const CreatePlan: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      useFindProgrammingPlanDomainsQuery: { data: [chemical2026] },
+      useFindProgrammingPlansQuery: { data: [] },
+      useCreateProgrammingPlanMutation: [createProgrammingPlan, {}]
+    }),
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(chemical2026.id)
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    createProgrammingPlan.mockClear();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Ajouter un plan' })
+    );
+
+    const modal = within(
+      canvasElement.querySelector<HTMLElement>(
+        '#programming-plan-create-modal'
+      ) as HTMLElement
+    );
+    const titleInput = modal.getByLabelText(/Nom du plan/);
+
+    await waitFor(() => expect(titleInput).toBeVisible());
+    await waitFor(() => expect(titleInput).toHaveFocus());
+
+    await userEvent.click(modal.getByText('Ajouter'));
+
+    await expect(
+      modal.getByText('Veuillez renseigner le nom du plan.')
+    ).toBeInTheDocument();
+    await expect(createProgrammingPlan).not.toHaveBeenCalled();
+
+    await userEvent.type(titleInput, 'Polluants organiques{Enter}');
+
+    await waitFor(() =>
+      expect(createProgrammingPlan).toHaveBeenCalledWith({
+        domainId: chemical2026.id,
+        title: 'Polluants organiques'
       })
     );
   }

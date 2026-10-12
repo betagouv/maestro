@@ -19,6 +19,14 @@ const programmingPlanApi = api.injectEndpoints({
         providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }]
       }
     ),
+    createProgrammingPlan: buildTypedMutation(
+      builder,
+      '/programming-plans',
+      'post',
+      {
+        invalidatesTags: () => [{ type: 'ProgrammingPlan', id: 'LIST' }]
+      }
+    ),
     updateProgrammingPlanStatus: buildTypedMutation(
       builder,
       '/programming-plans/:programmingPlanId',
@@ -206,6 +214,7 @@ export const useGetProgrammingPlanQuery: typeof programmingPlanApi.useGetProgram
   programmingPlanApi.useGetProgrammingPlanQuery;
 
 export const {
+  useCreateProgrammingPlanMutation,
   useUpdateProgrammingPlanStatusMutation,
   useUpdateProgrammingPlanLocalStatusMutation,
   useFindProgrammingPlanSettingsQuery,
