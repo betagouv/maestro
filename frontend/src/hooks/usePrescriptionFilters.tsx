@@ -1,5 +1,8 @@
 import { uniq } from 'lodash-es';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  type ProgrammingPlanChecked,
+  programmingPlanContexts
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useCallback, useMemo } from 'react';
 import type { PrescriptionFilters } from '../store/reducers/prescriptionsSlice';
 
@@ -42,7 +45,7 @@ export const usePrescriptionFilters = (
               !filters.programmingPlanIds?.length ||
               filters.programmingPlanIds.includes(plan.id)
           )
-          .flatMap((plan) => plan.contexts)
+          .flatMap(programmingPlanContexts)
       ),
     [programmingPlanOptions]
   );

@@ -2,7 +2,10 @@ import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { LegalContext } from '../../referential/LegalContext';
 import { checkSchema } from '../../utils/zod';
-import { ProgrammingPlanContext } from './Context';
+import {
+  type ProgrammingPlanContext,
+  ProgrammingPlanContextList
+} from './Context';
 import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomainId } from './ProgrammingPlanDomain';
 import {
@@ -22,9 +25,6 @@ export const ProgrammingPlanBase = z.object({
   domainId: ProgrammingPlanDomainId,
   title: z.string().min(1, 'Veuillez renseigner le titre.'),
   subPlans: z.array(ProgrammingSubPlan),
-  contexts: z
-    .array(ProgrammingPlanContext)
-    .min(1, 'Veuillez renseigner au moins un contexte.'),
   legalContexts: z
     .array(LegalContext)
     .min(1, 'Veuillez renseigner au moins un cadre juridique.'),
@@ -79,6 +79,13 @@ export const ProgrammingPlanChecked = checkSchema(
 );
 
 export type ProgrammingPlanChecked = z.infer<typeof ProgrammingPlanChecked>;
+
+export const programmingPlanContexts = (plan: {
+  subPlans: Pick<ProgrammingSubPlan, 'context'>[];
+}): ProgrammingPlanContext[] =>
+  ProgrammingPlanContextList.filter((context) =>
+    plan.subPlans.some((subPlan) => subPlan.context === context)
+  );
 
 export const isClosed = (plan: ProgrammingPlanChecked): boolean => {
   return !isNil(plan.closedAt);

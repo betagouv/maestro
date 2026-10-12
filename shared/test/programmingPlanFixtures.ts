@@ -237,7 +237,8 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper'],
   matrices: genSubPlanMatrices('A01SN'),
-  sampleProcedure: DAOASampleProcedure
+  sampleProcedure: DAOASampleProcedure,
+  context: 'Surveillance'
 });
 
 export const DAOAVolailleInProgressSubPlanFixture = genProgrammingSubPlan({
@@ -257,7 +258,8 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper'],
   matrices: genSubPlanMatrices('A01QX', ['A01XF#F28.A0C0S']),
-  sampleProcedure: DAOASampleProcedure
+  sampleProcedure: DAOASampleProcedure,
+  context: 'Surveillance'
 });
 
 export const DAOABovinInProgressSubPlanFixture = genProgrammingSubPlan({
@@ -285,7 +287,6 @@ export const genProgrammingPlan = (
       }
     ],
     distributionKind: 'REGIONAL',
-    contexts: ['Control', 'Surveillance'],
     legalContexts: ['A', 'B'],
     samplesOutsidePlanAllowed: true,
     nationalCoordinators: [
@@ -380,7 +381,6 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   title: 'Production primaire végétale',
   subPlans: [PPVClosedSubPlanFixture],
   distributionKind: 'REGIONAL',
-  contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
@@ -406,7 +406,6 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   title: 'Production primaire végétale',
   subPlans: [PPVValidatedSubPlanFixture],
   distributionKind: 'REGIONAL',
-  contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
@@ -430,7 +429,6 @@ export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
   title: 'Production primaire végétale - DROM',
   subPlans: [PPVValidatedDromSubPlanFixture],
   distributionKind: 'REGIONAL',
-  contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
@@ -454,7 +452,6 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   title: 'Production primaire végétale',
   subPlans: [PPVInProgressSubPlanFixture],
   distributionKind: 'REGIONAL',
-  contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
@@ -478,7 +475,6 @@ export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
   title: 'Production primaire végétale',
   subPlans: [PPVSubmittedSubPlanFixture],
   distributionKind: 'REGIONAL',
-  contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
@@ -500,7 +496,6 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
     DAOABovinValidatedSubPlanFixture
   ],
   distributionKind: 'SLAUGHTERHOUSE',
-  contexts: ['Surveillance'],
   legalContexts: ['A'],
   samplesOutsidePlanAllowed: false,
   createdAt: new Date(),
@@ -530,7 +525,6 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
     DAOABovinInProgressSubPlanFixture
   ],
   distributionKind: 'SLAUGHTERHOUSE',
-  contexts: ['Surveillance'],
   legalContexts: ['A'],
   samplesOutsidePlanAllowed: false,
   settingsCompleted: false,

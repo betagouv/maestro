@@ -32,26 +32,34 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const currentProgrammingPlan = withMatrixKindSubPlans(
+const matrixKindProgrammingPlan = withMatrixKindSubPlans(
   genProgrammingPlan({
     domainId: PesticideResidueDomainId,
     year: new Date().getFullYear(),
     regionalStatus: RegionList.map((region) => ({
       region,
       status: 'InProgress'
-    })),
-    contexts: ['Control', 'Surveillance']
+    }))
   }),
   ['A0DEH', 'A0DQS']
 );
+const currentProgrammingPlan = {
+  ...matrixKindProgrammingPlan,
+  subPlans: [
+    matrixKindProgrammingPlan.subPlans[0],
+    {
+      ...matrixKindProgrammingPlan.subPlans[1],
+      context: 'Surveillance' as const
+    }
+  ]
+};
 const previousProgrammingPlan = genProgrammingPlan({
   domainId: PesticideResidueDomainId,
   year: new Date().getFullYear() - 1,
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'Validated'
-  })),
-  contexts: ['Control', 'Surveillance']
+  }))
 });
 
 const prescription1 = genPrescription({

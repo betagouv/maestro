@@ -326,7 +326,6 @@ export const ProgrammingPlanSettingsTabs = ({
           <ProgrammingPlanGlobalSettings
             settings={draft}
             planSettings={subPlan ? programmingPlan : undefined}
-            contexts={programmingPlan.contexts}
             technicalInstructionFile={technicalInstructionFile}
             inputForm={form}
             onChange={changeDraft}

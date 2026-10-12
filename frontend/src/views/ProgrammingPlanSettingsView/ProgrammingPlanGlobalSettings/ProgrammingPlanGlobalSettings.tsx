@@ -3,7 +3,8 @@ import clsx from 'clsx';
 import { StageLabels, StageList } from 'maestro-shared/referential/Stage';
 import {
   ContextLabels,
-  type ProgrammingPlanContext
+  type ProgrammingPlanContext,
+  ProgrammingPlanContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanNationalCoordinator } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import type { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings.ts';
@@ -35,7 +36,6 @@ type Props<
 > = {
   settings: T;
   planSettings: ProgrammingPlanSettings | undefined;
-  contexts: ProgrammingPlanContext[];
   technicalInstructionFile: File | undefined;
   inputForm: UseForm<typeof ProgrammingLevelSettingsForm>;
   onChange: (settings: T) => void;
@@ -50,7 +50,6 @@ export const ProgrammingPlanGlobalSettings = <
 >({
   settings,
   planSettings,
-  contexts,
   technicalInstructionFile,
   inputForm,
   onChange,
@@ -124,7 +123,7 @@ export const ProgrammingPlanGlobalSettings = <
         {(props) => (
           <AppSelect
             value={settings.context ?? ''}
-            options={selectOptionsFromList(contexts, {
+            options={selectOptionsFromList(ProgrammingPlanContextList, {
               labels: ContextLabels,
               withDefault: 'auto',
               defaultLabel: 'Choisir un contexte'

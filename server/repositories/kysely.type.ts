@@ -325,7 +325,6 @@ export interface ProgrammingPlans extends ProgrammingPlanSettings {
   year: number;
   title: string;
   distributionKind: string;
-  contexts: string[];
   legalContexts: string[];
   samplesOutsidePlanAllowed: Generated<boolean>;
   closedAt: Timestamp | null;

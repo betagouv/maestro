@@ -2,7 +2,8 @@ import { describe, expect, test } from 'vitest';
 import {
   hasNewerLaunchedCampaign,
   isProgrammingPlanDeletable,
-  isProgrammingPlanDomainDeletable
+  isProgrammingPlanDomainDeletable,
+  programmingPlanContexts
 } from './ProgrammingPlans';
 
 const plan = (
@@ -133,5 +134,24 @@ describe('hasNewerLaunchedCampaign', () => {
         })
       ])
     ).toBe(false);
+  });
+});
+
+describe('programmingPlanContexts', () => {
+  test('should return the distinct contexts of the sub-plans in the reference order, ignoring missing ones', () => {
+    expect(
+      programmingPlanContexts({
+        subPlans: [
+          { context: 'Exploratory' },
+          { context: null },
+          { context: 'Control' },
+          { context: 'Exploratory' }
+        ]
+      })
+    ).toStrictEqual(['Control', 'Exploratory']);
+  });
+
+  test('should return no context for a plan without any sub-plan', () => {
+    expect(programmingPlanContexts({ subPlans: [] })).toStrictEqual([]);
   });
 });
