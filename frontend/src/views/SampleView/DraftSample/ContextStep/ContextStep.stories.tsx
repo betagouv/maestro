@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  genProgrammingSubPlan
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { genSampleContextData } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { expect, fn, userEvent, within } from 'storybook/test';
@@ -19,7 +22,17 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const programmingPlan = genProgrammingPlan();
+const controlProgrammingPlan = genProgrammingPlan();
+const programmingPlan = {
+  ...controlProgrammingPlan,
+  subPlans: [
+    ...controlProgrammingPlan.subPlans,
+    genProgrammingSubPlan({
+      programmingPlanId: controlProgrammingPlan.id,
+      context: 'Surveillance'
+    })
+  ]
+};
 
 export const EmptyForm: Story = {
   parameters: {
@@ -60,6 +73,9 @@ export const SubmittingErrors: Story = {
     apiClient: getMockApi({
       useFindProgrammingPlansQuery: () => ({
         data: [programmingPlan]
+      }),
+      useGetProgrammingPlanQuery: () => ({
+        data: programmingPlan
       })
     })
   },

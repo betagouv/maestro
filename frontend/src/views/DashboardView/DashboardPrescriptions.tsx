@@ -16,7 +16,10 @@ import {
   sortPrescriptions
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  type ProgrammingPlanChecked,
+  programmingPlanContexts
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { getSubPlanMatrixKinds } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import {
@@ -47,7 +50,11 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
   const apiClient = useContext(ApiClientContext);
   const { user, hasNationalView } = useAuthentication();
 
-  const [context, setContext] = useState(programmingPlan.contexts[0]);
+  const contexts = useMemo(
+    () => programmingPlanContexts(programmingPlan),
+    [programmingPlan]
+  );
+  const [context, setContext] = useState(contexts[0]);
   const [regionFilter, setRegionFilter] = useState(user?.region);
 
   useEffect(() => {
@@ -55,7 +62,7 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
   }, [user?.region]);
 
   useEffect(() => {
-    setContext(programmingPlan.contexts[0]);
+    setContext(contexts[0]);
   }, [programmingPlan.id]);
 
   const findPrescriptionOptions = useMemo(
@@ -113,9 +120,9 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
           panel: 'white-container'
         }}
         onTabChange={({ tabIndex }) => {
-          setContext(programmingPlan.contexts[tabIndex]);
+          setContext(contexts[tabIndex]);
         }}
-        tabs={programmingPlan.contexts.map((context) => ({
+        tabs={contexts.map((context) => ({
           label: `${ContextLabels[context]} ${programmingPlan.year}`,
           content: (
             <>

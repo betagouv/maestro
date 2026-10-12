@@ -4,6 +4,7 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import type { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { programmingPlanContexts } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isPPVSubPlan,
   subPlanLabel
@@ -135,7 +136,8 @@ const ContextStepSummary = ({
           )}
         </div>
       </div>
-      {(programmingPlan?.contexts ?? []).length > 1 && (
+      {programmingPlanContexts({ subPlans: programmingPlan?.subPlans ?? [] })
+        .length > 1 && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-microscope-line')}></div>
           <div>

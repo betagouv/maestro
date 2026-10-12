@@ -157,7 +157,7 @@ export const Sample11Fixture = genCreatedPartialSample({
     y: 4.731044
   },
   programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-  context: PPVValidatedProgrammingPlanFixture.contexts[0],
+  context: 'Control',
   legalContext: 'A',
   resytalId: '23-123456',
   company: CompanyFixture,

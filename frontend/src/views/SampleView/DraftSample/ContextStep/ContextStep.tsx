@@ -15,6 +15,7 @@ import {
   OutsideProgrammingPlanContext,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { programmingPlanContexts } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isPPVSubPlan,
   type ProgrammingSubPlanId,
@@ -86,11 +87,14 @@ const ContextStep = ({ partialSample }: Props) => {
   const [resytalId, setResytalId] = useState(
     partialSample?.resytalId ?? undefined
   );
+  const planContexts = programmingPlanContexts({
+    subPlans: programmingPlan?.subPlans ?? []
+  });
   const [context, setContext] = useState<
     ProgrammingPlanContext | 'OutsideProgrammingPlan' | undefined
   >(
-    programmingPlan?.contexts.length === 1
-      ? programmingPlan?.contexts[0]
+    planContexts.length === 1
+      ? planContexts[0]
       : isOutsideProgrammingPlanSample(partialSample)
         ? 'OutsideProgrammingPlan'
         : ProgrammingPlanContext.safeParse(partialSample?.context).data
@@ -224,7 +228,7 @@ const ContextStep = ({ partialSample }: Props) => {
 
   const contextOptions = selectOptionsFromList(
     [
-      programmingPlan?.contexts ?? [],
+      planContexts,
       programmingPlan?.samplesOutsidePlanAllowed
         ? ['OutsideProgrammingPlan']
         : []

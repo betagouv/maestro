@@ -5,7 +5,8 @@ import clsx from 'clsx';
 import {
   hasNewerLaunchedCampaign,
   type ProgrammingPlanChecked,
-  ProgrammingPlanSort
+  ProgrammingPlanSort,
+  programmingPlanContexts
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
@@ -119,17 +120,20 @@ const DashboardView = () => {
       />
       <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>
         {hasNationalView &&
-          currentValidatedProgrammingPlan?.contexts.map((context) => (
-            <div
-              className={cx('fr-col-12', 'fr-col-md-6')}
-              key={`${currentValidatedProgrammingPlan.id}-${context}`}
-            >
-              <ProgrammingPlanCard
-                programmingPlan={currentValidatedProgrammingPlan}
-                context={context}
-              />
-            </div>
-          ))}
+          currentValidatedProgrammingPlan &&
+          programmingPlanContexts(currentValidatedProgrammingPlan).map(
+            (context) => (
+              <div
+                className={cx('fr-col-12', 'fr-col-md-6')}
+                key={`${currentValidatedProgrammingPlan.id}-${context}`}
+              >
+                <ProgrammingPlanCard
+                  programmingPlan={currentValidatedProgrammingPlan}
+                  context={context}
+                />
+              </div>
+            )
+          )}
 
         {currentValidatedProgrammingPlan && (
           <DashboardPrescriptions
