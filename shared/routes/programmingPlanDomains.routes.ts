@@ -2,7 +2,8 @@ import z from 'zod';
 import {
   ProgrammingPlanDomain,
   ProgrammingPlanDomainCreateInput,
-  ProgrammingPlanDomainId
+  ProgrammingPlanDomainId,
+  ProgrammingPlanDomainUpdateInput
 } from '../schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { SubRoutes } from './routes';
 
@@ -30,6 +31,11 @@ export const programmingPlanDomainsRoutes = {
   '/programming-plan-domains/:programmingPlanDomainId': {
     params: {
       programmingPlanDomainId: ProgrammingPlanDomainId
+    },
+    put: {
+      accountPermissions: ['manageProgrammingPlanSettings'],
+      body: ProgrammingPlanDomainUpdateInput,
+      response: ProgrammingPlanDomain
     },
     delete: {
       accountPermissions: ['manageProgrammingPlanSettings'],

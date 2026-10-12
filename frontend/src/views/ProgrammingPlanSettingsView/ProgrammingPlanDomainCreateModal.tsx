@@ -7,6 +7,7 @@ import AppServiceErrorAlert from 'src/components/_app/AppErrorAlert/AppServiceEr
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { ApiClientContext } from 'src/services/apiClient';
+import { focusFirstInputWhenVisible } from 'src/utils/modalUtils';
 import { assert, type Equals } from 'tsafe';
 
 type Props = {
@@ -30,6 +31,7 @@ export const ProgrammingPlanDomainCreateModal = ({
   const form = useForm(ProgrammingPlanDomainCreateInput, { label, year });
 
   useIsModalOpen(modal, {
+    onDisclose: () => focusFirstInputWhenVisible(modal),
     onConceal: () => {
       form.reset();
       createProgrammingPlanDomainResult.reset();
@@ -37,7 +39,7 @@ export const ProgrammingPlanDomainCreateModal = ({
     }
   });
 
-  const submit = async (e: React.MouseEvent<HTMLElement>) => {
+  const submit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     await form.validate(async (valid) => {
       try {
@@ -68,7 +70,7 @@ export const ProgrammingPlanDomainCreateModal = ({
         }
       ]}
     >
-      <form>
+      <form onSubmit={submit}>
         <AppTextInput
           label="Libellé du domaine"
           value={label}

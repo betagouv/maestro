@@ -26,3 +26,10 @@ export const ProgrammingPlanDomainCreateInput = z.object({
 export type ProgrammingPlanDomainCreateInput = z.infer<
   typeof ProgrammingPlanDomainCreateInput
 >;
+
+export const ProgrammingPlanDomainUpdateInput =
+  ProgrammingPlanDomainCreateInput.pick({ label: true });
+
+export type ProgrammingPlanDomainUpdateInput = z.infer<
+  typeof ProgrammingPlanDomainUpdateInput
+>;

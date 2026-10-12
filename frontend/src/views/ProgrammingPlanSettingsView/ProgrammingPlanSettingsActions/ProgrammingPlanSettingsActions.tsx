@@ -22,6 +22,7 @@ import {
   ProgrammingPlanDeleteModal,
   type ProgrammingPlanDeletionTarget
 } from '../ProgrammingPlanDeleteModal/ProgrammingPlanDeleteModal';
+import { ProgrammingPlanDomainRenameModal } from '../ProgrammingPlanDomainRenameModal/ProgrammingPlanDomainRenameModal';
 import { ProgrammingPlanDuplicateModal } from '../ProgrammingPlanDuplicateModal/ProgrammingPlanDuplicateModal';
 import './ProgrammingPlanSettingsActions.scss';
 
@@ -83,6 +84,11 @@ const deleteModal = createModal({
   isOpenedByDefault: false
 });
 
+const renameDomainModal = createModal({
+  id: 'programming-plan-domain-rename-modal',
+  isOpenedByDefault: false
+});
+
 const duplicateModal = createModal({
   id: 'programming-plan-duplicate-modal',
   isOpenedByDefault: false
@@ -112,6 +118,20 @@ export const ProgrammingPlanSettingsActions = ({
 
   return (
     <span className={clsx('programming-plan-settings-actions', className)}>
+      {canManage && target.kind === 'domain' && (
+        <>
+          <Button
+            title="Renommer"
+            iconId="fr-icon-edit-line"
+            priority="tertiary"
+            onClick={renameDomainModal.open}
+          />
+          <ProgrammingPlanDomainRenameModal
+            modal={renameDomainModal}
+            domain={target.domain}
+          />
+        </>
+      )}
       {canManage && (
         <>
           <Button
