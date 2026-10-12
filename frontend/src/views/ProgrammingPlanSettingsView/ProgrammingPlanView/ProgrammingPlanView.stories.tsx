@@ -155,6 +155,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     monoSubstancesManaged: true,
     multiSubstances: null,
     multiSubstancesManaged: true,
+    sampleProcedure: null,
+    sampleProcedureManaged: true,
     fields: [matriceField, quantiteField].map(({ id }) => ({
       fieldId: id,
       required: false,
@@ -183,6 +185,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     monoSubstancesManaged: true,
     multiSubstances: null,
     multiSubstancesManaged: true,
+    sampleProcedure: null,
+    sampleProcedureManaged: true,
     fields: []
   },
   [AnimauxSubPlanId]: {
@@ -205,6 +209,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     monoSubstancesManaged: true,
     multiSubstances: null,
     multiSubstancesManaged: true,
+    sampleProcedure: null,
+    sampleProcedureManaged: true,
     fields: [
       {
         fieldId: especeField.id,
@@ -254,6 +260,8 @@ const planSettings: ProgrammingPlanSettingsForm = {
   monoSubstancesManaged: false,
   multiSubstances: null,
   multiSubstancesManaged: false,
+  sampleProcedure: null,
+  sampleProcedureManaged: false,
   settingsCompleted: false,
   nationalCoordinators: [nationalCoordinator],
   technicalInstruction: null,
@@ -1199,6 +1207,53 @@ export const PlanNotes: Story = {
         ...planSettings,
         notes: 'Prélever hors période de traitement',
         notesManaged: true
+      })
+    );
+  }
+};
+
+export const PlanSampleProcedure: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    await userEvent.click(canvas.getByRole('tab', { name: 'Échantillons' }));
+    const managedSwitch = await canvas.findByTitle(
+      'Paramétrer « Modalités d’échantillonnage » au niveau du plan'
+    );
+
+    await expect(managedSwitch).not.toBeChecked();
+    await expect(
+      canvas.queryByRole('textbox', { name: 'Contenant' })
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(managedSwitch);
+    await userEvent.type(
+      await canvas.findByRole('textbox', { name: 'Contenant' }),
+      'Sachet plastique'
+    );
+    await userEvent.type(
+      canvas.getByRole('textbox', { name: 'T° de conservation' }),
+      'Entre 0 et 3°'
+    );
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        ...planSettings,
+        sampleProcedure: {
+          unitCount: null,
+          minQuantity: null,
+          container: 'Sachet plastique',
+          samplingTemperature: null,
+          storageTemperature: 'Entre 0 et 3°',
+          maxAnalysisDelay: null
+        },
+        sampleProcedureManaged: true
       })
     );
   }

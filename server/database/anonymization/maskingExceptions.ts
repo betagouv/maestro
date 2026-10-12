@@ -104,6 +104,7 @@ export const maskingExceptions: Record<string, string[]> = {
     'mono_substances',
     'multi_substances',
     'samples',
+    'sample_procedure',
     'stages',
     'substance_kinds',
     'title'
@@ -117,6 +118,7 @@ export const maskingExceptions: Record<string, string[]> = {
     'multi_substances',
     'programming_plan_id',
     'samples',
+    'sample_procedure',
     'stages',
     'sub_plan_number',
     'substance_kinds'

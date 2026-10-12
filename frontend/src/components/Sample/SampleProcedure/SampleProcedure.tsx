@@ -1,11 +1,12 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { sampleProcedureItems } from 'maestro-shared/schema/ProgrammingPlan/SampleProcedure';
 import type {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import config from '../../../utils/config';
 import DocumentLink from '../../DocumentLink/DocumentLink';
@@ -16,6 +17,11 @@ interface Props {
 
 const SampleProcedure = ({ partialSample }: Props) => {
   const { programmingSubPlan } = usePartialSample(partialSample);
+  const items = sampleProcedureItems(
+    programmingSubPlan?.sampleProcedure,
+    partialSample.matrices
+  );
+  const substanceKinds = programmingSubPlan?.substanceKinds ?? [];
   return (
     <div
       className={clsx(
@@ -35,62 +41,34 @@ const SampleProcedure = ({ partialSample }: Props) => {
         ></span>
         Modalités d'échantillonnage
       </h6>
-      {!isPPVSubPlan(programmingSubPlan) && (
+      {items.length > 0 && (
         <>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            <div className={cx('fr-col-12', 'fr-col-md-6')}>
-              <div className={cx('fr-my-1v')}>
-                <b>Contenant en plastique</b>
+            {items.map(({ label, value }) => (
+              <div key={label} className={cx('fr-col-12', 'fr-col-md-6')}>
+                {label} : <b>{value}</b>
               </div>
-              <div className={cx('fr-my-1v')}>
-                Température : <b>-18° </b>
-              </div>
-              <div className={cx('fr-my-1v')}>
-                Délais max. avant analyse : <b>30 jours</b>
-              </div>
-            </div>
-            <div
-              className={clsx(cx('fr-col-12', 'fr-col-md-6'), 'border-left')}
-            >
-              <div className={cx('fr-my-1v')}>
-                Matière prélevée :{' '}
-                <b>
-                  {programmingSubPlan?.subPlanNumber === 'M02'
-                    ? 'Foie de bovin'
-                    : 'Muscle de volaille'}
-                </b>
-              </div>
-              <div className={cx('fr-my-1v')}>
-                Quantité par échantillon : <b>200 grammes</b>
-              </div>
-            </div>
+            ))}
           </div>
           <hr className={cx('fr-my-3w')} />
-          <div>
-            <span className={cx('fr-mr-1w')}>Analyses prévues</span>
-            <Tag className={cx('fr-mx-1w')}>Mono-résidus</Tag>
-            <Tag className={cx('fr-mx-1w')}>Multi-résidus</Tag>
-            <Tag className={cx('fr-mx-1w')}>Cuivre</Tag>
-          </div>
         </>
       )}
-      <div className={cx('fr-mt-3v')}>
+      <div>
         <span className={cx('fr-mr-1w')}>Réglementation</span>
         <DocumentLink
           documentId={config.documents.regulation201862}
           scope={{ type: 'resource' }}
         />
       </div>
-      {isPPVSubPlan(programmingSubPlan) && (
+      {substanceKinds.length > 0 && (
         <div>
           <hr className={cx('fr-my-3w')} />
           <span className={cx('fr-mr-1w')}>Analyses prévues</span>
-          {partialSample.monoSubstances && (
-            <Tag className={cx('fr-mx-1w')}>Mono-résidus</Tag>
-          )}
-          {partialSample.multiSubstances && (
-            <Tag className={cx('fr-mx-1w')}>Multi-résidus</Tag>
-          )}
+          {substanceKinds.map((substanceKind) => (
+            <Tag key={substanceKind} className={cx('fr-mx-1w')}>
+              {SubstanceKindLabels[substanceKind]}
+            </Tag>
+          ))}
         </div>
       )}
     </div>
