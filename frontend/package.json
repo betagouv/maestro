@@ -46,7 +46,7 @@
     "clsx": "^2.1.0",
     "i18next": "^26.4.2",
     "maestro-shared": "^0.0.1",
-    "maplibre-gl": "^6.11.2",
+    "maplibre-gl": "^6.12.0",
     "playwright": "^1.63.0",
     "react": "^19.2.7",
     "react-dom": "^19.3.0",
