@@ -4,7 +4,6 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
 import {
   type Region,
@@ -15,6 +14,7 @@ import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/Find
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { type ChangeEvent, useContext, useMemo, useState } from 'react';
+import { t } from 'src/i18n';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from '../../../hooks/useStore';

@@ -3,14 +3,13 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import { t } from 'i18next';
 import type { PrescriptionCounts } from 'maestro-shared/schema/Prescription/PrescriptionCounts';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-
 import type { ReactNode } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
+import { t } from 'src/i18n';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import './ProgrammingPrescriptionList.scss';
 import { pluralize } from 'src/utils/stringUtils';

@@ -7,7 +7,6 @@ import { useMemo } from 'react';
 import { Provider } from 'react-redux';
 import { createMemoryRouter, Link, RouterProvider } from 'react-router';
 import '../src/App.scss';
-import '../src/i18n';
 import { ApiClientContext } from '../src/services/apiClient';
 import { mockApiClient } from '../src/services/mockApiClient';
 import { applicationReducer } from '../src/store/store';

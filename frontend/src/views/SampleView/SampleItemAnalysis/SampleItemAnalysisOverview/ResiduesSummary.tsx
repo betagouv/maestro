@@ -1,12 +1,12 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { t } from 'i18next';
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
   type ResidueCompliance,
   ResidueComplianceLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import type { FunctionComponent } from 'react';
+import { t } from 'src/i18n';
 import { assert, type Equals } from 'tsafe';
 import { pluralize } from '../../../../utils/stringUtils';
 import { ResidueComplianceIcon } from './ResidueComplianceIcon';

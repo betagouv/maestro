@@ -42,13 +42,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
-      i18n:
-        patterns:
-          - "i18next"
-          - "react-i18next"
-        update-types:
-          - "minor"
-          - "patch"
       mui:
         patterns:
           - "@mui/*"

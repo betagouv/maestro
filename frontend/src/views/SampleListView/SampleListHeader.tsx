@@ -3,10 +3,10 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
-import { t } from 'i18next';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
+import { t } from 'src/i18n';
 import { getSampleListExportURL } from 'src/services/sample.service';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 

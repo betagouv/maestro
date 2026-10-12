@@ -1,6 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
-import { t } from 'i18next';
 import {
   type Matrix,
   MatrixList
@@ -32,6 +31,7 @@ import {
   samplersOptions,
   selectOptionsFromList
 } from 'src/components/_app/AppSelect/AppSelectOption';
+import { t } from 'src/i18n';
 import { pluralize } from '../../utils/stringUtils';
 
 interface Props {
