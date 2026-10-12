@@ -55,6 +55,17 @@ tables, ainsi que les colonnes `jsonb` dont le contenu n'est pas maîtrisé. Ils
 annulés : rien ne permet de savoir ce qu'un agent y a saisi, donc aucune règle par
 colonne ne saurait les traiter finement.
 
+Les notes et commentaires conservent toutefois leur **signal** : `anon.partial(col,
+0, 'renseigné', 0)` ne garde aucun caractère et renvoie le seul remplissage. Un
+tableau de bord peut donc compter et filtrer les enregistrements porteurs d'une
+note, sans en lire un mot.
+
+Toute fonction employée ici doit appartenir à un schéma déclaré de confiance, et
+seul `anon` l'est par défaut — `public` ne doit jamais l'être. Une fonction maison
+exigerait donc un schéma dédié marqué `TRUSTED` par le support, sur un mécanisme
+que le projet annonce vouloir supprimer au profit des ACL PostgreSQL. D'où le choix
+de n'utiliser que des fonctions de l'extension.
+
 **Identifiants externes** — les références permettant de recouper avec d'autres
 systèmes d'information.
 

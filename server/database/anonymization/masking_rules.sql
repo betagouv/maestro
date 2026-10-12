@@ -65,61 +65,61 @@ SECURITY LABEL FOR anon ON COLUMN samples.parcel
 SECURITY LABEL FOR anon ON COLUMN samples.company_offline
   IS 'MASKED WITH VALUE NULL';
 SECURITY LABEL FOR anon ON COLUMN samples.notes_on_creation
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(samples.notes_on_creation, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN samples.notes_on_matrix
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(samples.notes_on_matrix, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN samples.notes_on_items
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(samples.notes_on_items, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN samples.notes_on_compliance
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(samples.notes_on_compliance, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN samples.notes_on_owner_agreement
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(samples.notes_on_owner_agreement, 0, ''renseigné'', 0)';
 
 SECURITY LABEL FOR anon ON COLUMN sample_items.notes_on_admissibility
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(sample_items.notes_on_admissibility, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN sample_items.budget_notes
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(sample_items.budget_notes, 0, ''renseigné'', 0)';
 
 SECURITY LABEL FOR anon ON COLUMN analysis.notes_on_compliance
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(analysis.notes_on_compliance, 0, ''renseigné'', 0)';
 
 SECURITY LABEL FOR anon ON COLUMN analysis_residues.notes_on_result
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(analysis_residues.notes_on_result, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN analysis_residues.notes_on_pollution_risk
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(analysis_residues.notes_on_pollution_risk, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN analysis_residues.notes_on_contamination_sources
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(analysis_residues.notes_on_contamination_sources, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN analysis_residues.unknown_label
   IS 'MASKED WITH VALUE NULL';
 
 SECURITY LABEL FOR anon ON COLUMN programming_plans.notes
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(programming_plans.notes, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN programming_plans.programming_instruction
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(programming_plans.programming_instruction, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN programming_sub_plans_raw.notes
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(programming_sub_plans_raw.notes, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN programming_sub_plans_raw.programming_instruction
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(programming_sub_plans_raw.programming_instruction, 0, ''renseigné'', 0)';
 
 SECURITY LABEL FOR anon ON COLUMN local_prescription_comments.comment
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(local_prescription_comments.comment, 0, ''renseigné'', 0)';
 
 SECURITY LABEL FOR anon ON COLUMN notifications.message
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(notifications.message, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN notifications.link
   IS 'MASKED WITH VALUE NULL';
 
 SECURITY LABEL FOR anon ON COLUMN documents.name
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(documents.name, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN documents.legend
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(documents.legend, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN documents.notes
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(documents.notes, 0, ''renseigné'', 0)';
 SECURITY LABEL FOR anon ON COLUMN documents.filename
   IS 'MASKED WITH VALUE NULL';
 
 SECURITY LABEL FOR anon ON COLUMN sample_specific_data_values.value
-  IS 'MASKED WITH VALUE NULL';
+  IS 'MASKED WITH FUNCTION anon.partial(sample_specific_data_values.value, 0, ''renseigné'', 0)';
 
 SECURITY LABEL FOR anon ON COLUMN analysis_errors.residues
   IS 'MASKED WITH VALUE NULL';
