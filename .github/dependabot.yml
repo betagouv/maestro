@@ -13,9 +13,88 @@ updates:
       prefix-development: "chore"
       include: "scope"
 
+    groups:
+      aws-sdk:
+        patterns:
+          - "@aws-sdk/*"
+      sentry:
+        patterns:
+          - "@sentry/*"
+      storybook:
+        patterns:
+          - "storybook"
+          - "@storybook/*"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      vite:
+        patterns:
+          - "vite"
+          - "@vitejs/*"
+          - "vite-plugin-pwa"
+        update-types:
+          - "minor"
+          - "patch"
+      i18n:
+        patterns:
+          - "i18next"
+          - "react-i18next"
+        update-types:
+          - "minor"
+          - "patch"
+      mui:
+        patterns:
+          - "@mui/*"
+          - "@emotion/*"
+        update-types:
+          - "minor"
+          - "patch"
+      maplibre:
+        patterns:
+          - "maplibre-gl"
+          - "react-map-gl"
+        update-types:
+          - "minor"
+          - "patch"
+      date-fns:
+        patterns:
+          - "date-fns"
+          - "date-fns-tz"
+        update-types:
+          - "minor"
+          - "patch"
+      mail:
+        patterns:
+          - "imapflow"
+          - "mailparser"
+          - "nodemailer"
+          - "@types/mailparser"
+          - "@types/nodemailer"
+        update-types:
+          - "minor"
+          - "patch"
+      fast-xml:
+        patterns:
+          - "fast-xml-parser"
+          - "fast-xml-builder"
+        update-types:
+          - "minor"
+          - "patch"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: daily
     cooldown:
       default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
