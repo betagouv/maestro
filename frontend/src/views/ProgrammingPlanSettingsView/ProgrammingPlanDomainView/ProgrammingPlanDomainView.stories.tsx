@@ -32,6 +32,7 @@ const regionalStatus = (status: ProgrammingPlanStatus) =>
   RegionList.map((region) => ({ region, status }));
 
 const deleteProgrammingPlanDomain = fn();
+const updateProgrammingPlanDomain = fn();
 
 const meta = {
   title: 'Views/ProgrammingPlanSettingsView/ProgrammingPlanDomainView',
@@ -219,6 +220,78 @@ export const DeleteDomain: Story = {
     await waitFor(() =>
       expect(deleteProgrammingPlanDomain).toHaveBeenCalledWith({
         programmingPlanDomainId: chemical2026.id
+      })
+    );
+  }
+};
+
+export const RenameDomain: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      useFindProgrammingPlanDomainsQuery: { data: [chemical2026] },
+      useFindProgrammingPlansQuery: { data: [] },
+      useUpdateProgrammingPlanDomainMutation: [updateProgrammingPlanDomain, {}]
+    }),
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(chemical2026.id)
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanDomain.mockClear();
+
+    await userEvent.click(canvas.getByTitle('Renommer'));
+
+    const modal = within(
+      canvasElement.querySelector<HTMLElement>(
+        '#programming-plan-domain-rename-modal'
+      ) as HTMLElement
+    );
+    const labelInput = modal.getByLabelText(/Libellé du domaine/);
+
+    await waitFor(() => expect(labelInput).toBeVisible());
+    await waitFor(() => expect(labelInput).toHaveFocus());
+    await expect(labelInput).toHaveValue('Contaminants chimiques');
+
+    await userEvent.clear(labelInput);
+    await userEvent.type(labelInput, 'Contaminants');
+    await userEvent.click(modal.getByText('Renommer'));
+
+    await waitFor(() =>
+      expect(updateProgrammingPlanDomain).toHaveBeenCalledWith({
+        programmingPlanDomainId: chemical2026.id,
+        label: 'Contaminants'
+      })
+    );
+  }
+};
+
+export const RenameDomainWithEnterKey: Story = {
+  parameters: RenameDomain.parameters,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanDomain.mockClear();
+
+    await userEvent.click(canvas.getByTitle('Renommer'));
+
+    const modal = within(
+      canvasElement.querySelector<HTMLElement>(
+        '#programming-plan-domain-rename-modal'
+      ) as HTMLElement
+    );
+    const labelInput = modal.getByLabelText(/Libellé du domaine/);
+
+    await waitFor(() => expect(labelInput).toBeVisible());
+
+    await userEvent.clear(labelInput);
+    await userEvent.type(labelInput, 'Contaminants{Enter}');
+
+    await waitFor(() =>
+      expect(updateProgrammingPlanDomain).toHaveBeenCalledWith({
+        programmingPlanDomainId: chemical2026.id,
+        label: 'Contaminants'
       })
     );
   }

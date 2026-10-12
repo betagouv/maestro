@@ -1,7 +1,8 @@
 import {
   ProgrammingPlanDomain,
   type ProgrammingPlanDomainCreateInput,
-  type ProgrammingPlanDomainId
+  type ProgrammingPlanDomainId,
+  type ProgrammingPlanDomainUpdateInput
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { kysely } from './kysely';
 
@@ -42,6 +43,20 @@ const insert = async (
   return ProgrammingPlanDomain.parse(createdDomain);
 };
 
+const update = async (
+  id: ProgrammingPlanDomainId,
+  domain: ProgrammingPlanDomainUpdateInput
+): Promise<ProgrammingPlanDomain> => {
+  const updatedDomain = await kysely
+    .updateTable('programmingPlanDomains')
+    .set(domain)
+    .where('id', '=', id)
+    .returningAll()
+    .executeTakeFirstOrThrow();
+
+  return ProgrammingPlanDomain.parse(updatedDomain);
+};
+
 const deleteOne = async (id: ProgrammingPlanDomainId): Promise<void> => {
   console.info('Delete programming plan domain', id);
 
@@ -55,5 +70,6 @@ export const programmingPlanDomainRepository = {
   findMany,
   findUnique,
   insert,
+  update,
   deleteOne
 };

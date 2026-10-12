@@ -1,6 +1,7 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { createModal } from '@codegouvfr/react-dsfr/Modal';
+import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { Brand } from 'maestro-shared/constants';
 import { Regions } from 'maestro-shared/referential/Region';
 import { StageLabels } from 'maestro-shared/referential/Stage';
@@ -9,6 +10,7 @@ import React, { type FunctionComponent, useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
+import { focusFirstInputWhenVisible } from '../../utils/modalUtils';
 import AppSearchInput from '../_app/AppSearchInput/AppSearchInput';
 import { selectOptionsFromList } from '../_app/AppSelect/AppSelectOption';
 import { useMascarade } from './useMascarade';
@@ -26,7 +28,11 @@ export const MascaradeModal = ({ modal, ..._rest }: Props) => {
 
   const [userId, setUserId] = useState<string | null>(null);
 
-  const submit = async (e: React.MouseEvent<HTMLElement>) => {
+  useIsModalOpen(modal, {
+    onDisclose: () => focusFirstInputWhenVisible(modal)
+  });
+
+  const submit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     modal.close();
     if (userId) {
@@ -57,7 +63,9 @@ export const MascaradeModal = ({ modal, ..._rest }: Props) => {
             small={true}
             description="Toute modification effectuée sera automatiquement enregistrée au nom de l'utilisateur."
           />
-          <UsersSearchInput setUserId={setUserId} />
+          <form onSubmit={submit}>
+            <UsersSearchInput setUserId={setUserId} />
+          </form>
         </modal.Component>
       )}{' '}
     </>

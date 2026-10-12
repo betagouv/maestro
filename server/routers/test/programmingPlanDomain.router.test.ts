@@ -110,6 +110,64 @@ describe('Programming plan domain router', () => {
     });
   });
 
+  describe('PUT /programming-plan-domains/:programmingPlanDomainId', () => {
+    const renamedDomain = genProgrammingPlanDomain({ year: 2044 });
+    const renamedDomainPlan = genDeletableProgrammingPlan({
+      domainId: renamedDomain.id,
+      year: renamedDomain.year
+    });
+    const domainRoute = `${testRoute}/${renamedDomain.id}`;
+    const newLabel = { label: 'Domaine renommé' };
+
+    beforeAll(async () => {
+      await kysely
+        .insertInto('programmingPlanDomains')
+        .values(renamedDomain)
+        .execute();
+      await programmingPlanRepository.insert(renamedDomainPlan);
+    });
+
+    afterAll(async () => {
+      await programmingPlanDomainRepository.deleteOne(renamedDomain.id);
+    });
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(domainRoute)
+        .send(newLabel)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have the permission', async () => {
+      await request(app)
+        .put(domainRoute)
+        .send(newLabel)
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the user does not coordinate every plan of the domain', async () => {
+      await request(app)
+        .put(domainRoute)
+        .send(newLabel)
+        .use(tokenProvider(NationalCoordinatorDaoaFixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should rename the domain', async () => {
+      const res = await request(app)
+        .put(domainRoute)
+        .send(newLabel)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual({ ...renamedDomain, ...newLabel });
+      await expect(
+        programmingPlanDomainRepository.findUnique(renamedDomain.id)
+      ).resolves.toEqual({ ...renamedDomain, ...newLabel });
+    });
+  });
+
   describe('DELETE /programming-plan-domains/:programmingPlanDomainId', () => {
     const deletableDomain = genProgrammingPlanDomain({ year: 2043 });
     const deletablePlan = genDeletableProgrammingPlan({

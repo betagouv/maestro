@@ -65,6 +65,36 @@ export const programmingPlanDomainRouter = {
     }
   },
   '/programming-plan-domains/:programmingPlanDomainId': {
+    put: async ({ user, account, body }, { programmingPlanDomainId }) => {
+      const domain = await programmingPlanDomainRepository.findUnique(
+        programmingPlanDomainId
+      );
+
+      if (!domain) {
+        return { status: HttpStatus.NOT_FOUND };
+      }
+
+      const domainPlans = (
+        await programmingPlanRepository.findMany({ year: domain.year })
+      ).filter((plan) => plan.domainId === programmingPlanDomainId);
+
+      if (
+        !domainPlans.every((plan) =>
+          canUpdateProgrammingPlanSettings(plan, user, account.roles)
+        )
+      ) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+
+      console.info('Rename programming plan domain', programmingPlanDomainId);
+
+      const updatedDomain = await programmingPlanDomainRepository.update(
+        programmingPlanDomainId,
+        body
+      );
+
+      return { response: updatedDomain, status: HttpStatus.OK };
+    },
     delete: async ({ user, account }, { programmingPlanDomainId }) => {
       const domain = await programmingPlanDomainRepository.findUnique(
         programmingPlanDomainId
