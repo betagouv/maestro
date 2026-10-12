@@ -417,7 +417,8 @@ export const prescriptionsRouter = {
         prescriptions,
         localPrescriptions,
         exportedRegion,
-        exportedDepartment
+        exportedDepartment,
+        userRole
       );
 
       response.setHeader(

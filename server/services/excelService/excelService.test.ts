@@ -66,7 +66,8 @@ describe('generatePrescriptionsExportExcel', async () => {
       prescriptions,
       localPrescriptions.filter((_) => isNil(_.department)),
       undefined,
-      undefined
+      undefined,
+      'NationalCoordinator'
     );
 
     const workbook = XLSX.read(buffer, { type: 'buffer' });
@@ -94,7 +95,8 @@ describe('generatePrescriptionsExportExcel', async () => {
       prescriptions,
       localPrescriptions.filter((_) => _.region === regionPDL),
       regionPDL,
-      undefined
+      undefined,
+      'RegionalCoordinator'
     );
 
     const workbook = XLSX.read(buffer, { type: 'buffer' });
@@ -112,28 +114,14 @@ describe('generatePrescriptionsExportExcel', async () => {
 
     expect(csv.toString()).toMatchInlineSnapshot(`
       "N°;Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;PDL;"Département 44
-      Programmés";"Département 44
-      Laboratoire mono-résidu";"Département 44
-      Laboratoire multi-résidus";"Département 44
-      Laboratoire cuivre";"Département 49
       Programmés";"Département 49
-      Laboratoire mono-résidu";"Département 49
-      Laboratoire multi-résidus";"Département 49
-      Laboratoire cuivre";"Département 53
       Programmés";"Département 53
-      Laboratoire mono-résidu";"Département 53
-      Laboratoire multi-résidus";"Département 53
-      Laboratoire cuivre";"Département 72
       Programmés";"Département 72
-      Laboratoire mono-résidu";"Département 72
-      Laboratoire multi-résidus";"Département 72
-      Laboratoire cuivre";"Département 85
       Programmés";"Département 85
-      Laboratoire mono-résidu";"Département 85
-      Laboratoire multi-résidus"
-      M01;;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattage;;;3;8;;;;13;;;;8;;;;9;;;;13;;
-      M02;;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattage;Instructions pour le foie de bovin;Prescription pour le foie de bovin;5;8;;;;13;;;;8;;;;9;;;;13;;
-      ;;;;Total;;;;8;16;;;;26;;;;16;;;;18;;;;26;;"
+      Programmés";;;;;;;;;;;;;;
+      M01;;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattage;;;3;8;13;8;9;13;;;;;;;;;;;;;;
+      M02;;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattage;Instructions pour le foie de bovin;Prescription pour le foie de bovin;5;8;13;8;9;13;;;;;;;;;;;;;;
+      ;;;;Total;;;;8;16;26;16;18;26;;;;;;;;;;;;;;"
     `);
   });
 
@@ -154,7 +142,8 @@ describe('generatePrescriptionsExportExcel', async () => {
           }
         ]),
       regionPDL,
-      department
+      department,
+      'DepartmentalCoordinator'
     );
 
     const workbook = XLSX.read(buffer, { type: 'buffer' });
@@ -204,7 +193,8 @@ describe('generatePrescriptionsExportExcel', async () => {
         })
       ],
       regionPDL,
-      department
+      department,
+      'DepartmentalCoordinator'
     );
 
     const workbook = XLSX.read(buffer, { type: 'buffer' });
