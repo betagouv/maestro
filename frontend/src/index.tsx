@@ -1,12 +1,11 @@
 import './utils/zodJitless';
 import 'maestro-shared/utils/zodConfig';
 import { registerSW } from 'virtual:pwa-register';
+import * as Sentry from '@sentry/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import App from './App';
-import './i18n';
-import * as Sentry from '@sentry/react';
 import config from './utils/config';
 
 // Vérifie qu'il n'y a pas une nouvelle version du site toutes les 5min

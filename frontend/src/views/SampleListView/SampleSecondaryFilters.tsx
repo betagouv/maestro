@@ -2,7 +2,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
-import { t } from 'i18next';
 import {
   type Context,
   ContextLabels,
@@ -14,6 +13,7 @@ import {
   SampleComplianceLabels
 } from 'maestro-shared/schema/Sample/SampleCompliance';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { t } from 'src/i18n';
 import type { z } from 'zod';
 import { DepartmentsSelect } from '../../components/DepartmentsSelect/DepartmentsSelect';
 import LaboratorySelect from '../../components/LaboratorySelect/LaboratorySelect';

@@ -1,56 +1,66 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import { isNil } from 'lodash-es';
 
-if (!i18n.isInitialized) {
-  i18n.use(initReactI18next).init({
-    debug: false,
-    fallbackLng: 'fr',
-    resources: {
-      fr: {
-        translation: {
-          analysis_zero: 'Aucune analyse',
-          analysis_one: 'Une analyse',
-          analysis_other: '{{count}} analyses',
-          boolean_zero: 'Non',
-          boolean_one: 'Oui',
-          has_been_commented_zero: "n'a été commentée",
-          has_been_commented_one: 'a été commentée',
-          has_been_commented_other: 'ont été commentées',
-          matrix_zero: 'Aucune matrice',
-          matrix_one: 'Une matrice',
-          matrix_other: '{{count}} matrices',
-          programmingPlan_zero: 'Aucun plan',
-          programmingPlan_one: 'Un plan',
-          programmingPlan_other: '{{count}} plans',
-          subPlan_zero: 'Aucun sous-plan',
-          subPlan_one: 'Un sous-plan',
-          subPlan_other: '{{count}} sous-plans',
-          sample_zero: 'Aucun prélèvement',
-          sample_one: 'Un prélèvement',
-          sample_other: '{{count}} prélèvements',
-          plannedSample_zero: 'Aucun prélèvement programmé',
-          plannedSample_one: 'Un prélèvement programmé',
-          plannedSample_other: '{{count}} prélèvements programmés',
-          document_zero: 'Aucun document',
-          document_one: 'Un document',
-          document_other: '{{count}} documents ressources',
-          residue_zero: 'Aucun résidu',
-          residue_one: 'Un résidu',
-          residue_other: '{{count}} résidus',
-          department_zero: 'Aucun département',
-          department_one: 'Un département',
-          department_other: '{{count}} départements',
-          context_zero: 'Aucun contexte',
-          context_one: 'Un contexte',
-          context_other: '{{count}} contextes',
-          select_zero: 'Aucun sélectionné',
-          select_one: 'Un sélectionné',
-          select_other: '{{count}} sélectionnés',
-          comment_zero: 'Aucun commentaire',
-          comment_one: 'Un commentaire',
-          comment_other: '{{count}} commentaires'
-        }
-      }
-    }
-  });
-}
+const translations = {
+  analysis: {
+    zero: 'Aucune analyse',
+    one: 'Une analyse',
+    other: '{{count}} analyses'
+  },
+  has_been_commented: {
+    zero: "n'a été commentée",
+    one: 'a été commentée',
+    other: 'ont été commentées'
+  },
+  matrix: {
+    zero: 'Aucune matrice',
+    one: 'Une matrice',
+    other: '{{count}} matrices'
+  },
+  programmingPlan: {
+    zero: 'Aucun plan',
+    one: 'Un plan',
+    other: '{{count}} plans'
+  },
+  subPlan: {
+    zero: 'Aucun sous-plan',
+    one: 'Un sous-plan',
+    other: '{{count}} sous-plans'
+  },
+  sample: {
+    zero: 'Aucun prélèvement',
+    one: 'Un prélèvement',
+    other: '{{count}} prélèvements'
+  },
+  residue: {
+    zero: 'Aucun résidu',
+    one: 'Un résidu',
+    other: '{{count}} résidus'
+  },
+  department: {
+    zero: 'Aucun département',
+    one: 'Un département',
+    other: '{{count}} départements'
+  },
+  context: {
+    zero: 'Aucun contexte',
+    one: 'Un contexte',
+    other: '{{count}} contextes'
+  }
+} as const satisfies Record<string, Record<'zero' | 'one' | 'other', string>>;
+
+export const t = (
+  key: keyof typeof translations,
+  { count }: { count: number | null | undefined }
+): string => {
+  if (isNil(count)) {
+    return '';
+  }
+  const forms = translations[key];
+  if (count === 0) {
+    return forms.zero;
+  }
+  if (count === 1) {
+    return forms.one;
+  }
+  return forms.other.replace('{{count}}', String(count));
+};

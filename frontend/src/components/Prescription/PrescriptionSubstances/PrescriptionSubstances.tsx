@@ -1,7 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { t } from 'i18next';
 import { SSD2IdSort } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
@@ -11,6 +10,7 @@ import {
   AdditionalSubstanceKindList,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { t } from 'src/i18n';
 import { pluralize } from 'src/utils/stringUtils';
 
 interface Props {
