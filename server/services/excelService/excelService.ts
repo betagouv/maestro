@@ -56,6 +56,7 @@ import {
   type SubstanceKind,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
+import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { formatMaestroDate, formatWithTz } from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
@@ -423,7 +424,8 @@ const generatePrescriptionsExportExcel = async (
   prescriptions: Prescription[],
   allLocalPrescriptions: LocalPrescription[],
   exportedRegion: Region | undefined,
-  exportedDepartment: Department | undefined
+  exportedDepartment: Department | undefined,
+  userRole: UserRole
 ): Promise<Buffer> => {
   const hasRegionalPlan = programmingPlans.some(
     (plan) => plan.distributionKind === 'REGIONAL'
@@ -431,6 +433,15 @@ const generatePrescriptionsExportExcel = async (
   const hasSlaughterhousePlan = programmingPlans.some(
     (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
   );
+
+  const showLaboratoryColumns =
+    !isNil(exportedRegion) && userRole !== 'Sampler';
+  const showRegionalLaboratoryColumns =
+    showLaboratoryColumns && hasRegionalPlan;
+  const showDepartmentalLaboratoryColumns =
+    showLaboratoryColumns &&
+    hasSlaughterhousePlan &&
+    !isNil(exportedDepartment);
 
   const hasCompanyColumns =
     hasSlaughterhousePlan &&
@@ -468,6 +479,53 @@ const generatePrescriptionsExportExcel = async (
       .map((_) => _.companySiret as string)
   ]);
 
+  const laboratoryShortNameById = new Map(
+    laboratories.map((laboratory) => [laboratory.id, laboratory.shortName])
+  );
+
+  const regionalLocalPrescriptions = new Map<string, LocalPrescription[]>();
+  const departmentalLocalPrescriptionByKey = new Map<
+    string,
+    LocalPrescription
+  >();
+  const companyLocalPrescriptionByKey = new Map<string, LocalPrescription>();
+
+  for (const localPrescription of localPrescriptions) {
+    if (isNil(localPrescription.companySiret)) {
+      const regional = regionalLocalPrescriptions.get(
+        localPrescription.prescriptionId
+      );
+      if (regional) {
+        regional.push(localPrescription);
+      } else {
+        regionalLocalPrescriptions.set(localPrescription.prescriptionId, [
+          localPrescription
+        ]);
+      }
+      departmentalLocalPrescriptionByKey.set(
+        `${localPrescription.prescriptionId}:${localPrescription.department}`,
+        localPrescription
+      );
+    } else {
+      companyLocalPrescriptionByKey.set(
+        `${localPrescription.prescriptionId}:${localPrescription.companySiret}`,
+        localPrescription
+      );
+    }
+  }
+
+  const laboratoryShortName = (
+    localPrescription: LocalPrescription | undefined,
+    substanceKind: SubstanceKind
+  ): string => {
+    const laboratoryId = localPrescription?.substanceKindsLaboratories?.find(
+      (skl) => skl.substanceKind === substanceKind
+    )?.laboratoryId;
+    return laboratoryId
+      ? (laboratoryShortNameById.get(laboratoryId) ?? '')
+      : '';
+  };
+
   const planById = new Map(programmingPlans.map((plan) => [plan.id, plan]));
   const subPlanById = new Map(
     programmingPlans.flatMap((plan) =>
@@ -479,13 +537,15 @@ const generatePrescriptionsExportExcel = async (
     domains.map((domain) => [domain.id, domain.label])
   );
 
-  const effectiveSubstanceKinds = [
-    ...new Set(
-      programmingPlans.flatMap((plan) =>
-        plan.subPlans.flatMap((sp) => sp.substanceKinds ?? [])
-      )
-    )
-  ];
+  const effectiveSubstanceKinds = !showLaboratoryColumns
+    ? []
+    : [
+        ...new Set(
+          programmingPlans.flatMap((plan) =>
+            plan.subPlans.flatMap((sp) => sp.substanceKinds ?? [])
+          )
+        )
+      ];
 
   const columnTitles: string[] = [];
 
@@ -496,7 +556,7 @@ const generatePrescriptionsExportExcel = async (
     columnTitles.push(
       ...exportedRegions.flatMap((region) => [
         Regions[region].shortName,
-        ...(hasRegionalPlan
+        ...(showRegionalLaboratoryColumns
           ? effectiveSubstanceKinds.flatMap(
               (substanceKind) =>
                 `Région ${Regions[region].shortName}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
@@ -509,10 +569,12 @@ const generatePrescriptionsExportExcel = async (
     columnTitles.push(
       ...exportedDepartments.flatMap((department) => [
         `Département ${department}\nProgrammés`,
-        ...effectiveSubstanceKinds.flatMap(
-          (substanceKind) =>
-            `Département ${department}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
-        )
+        ...(showDepartmentalLaboratoryColumns
+          ? effectiveSubstanceKinds.flatMap(
+              (substanceKind) =>
+                `Département ${department}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
+            )
+          : [])
       ])
     );
 
@@ -534,11 +596,9 @@ const generatePrescriptionsExportExcel = async (
     prescriptions,
     programmingPlans
   ).map((prescription) => {
-    const filteredLocalPrescriptions = [
-      ...localPrescriptions.filter(
-        (_) => _.prescriptionId === prescription.id && isNil(_.companySiret)
-      )
-    ].toSorted(LocalPrescriptionSort);
+    const filteredLocalPrescriptions = (
+      regionalLocalPrescriptions.get(prescription.id) ?? []
+    ).toSorted(LocalPrescriptionSort);
 
     const prescriptionSubPlan = subPlanById.get(
       prescription.programmingSubPlanId
@@ -559,19 +619,13 @@ const generatePrescriptionsExportExcel = async (
           );
           return [
             localPrescription?.sampleCount ?? 0,
-            ...(hasRegionalPlan
+            ...(showRegionalLaboratoryColumns
               ? effectiveSubstanceKinds.map((substanceKind) =>
                   prescriptionPlan?.distributionKind === 'REGIONAL' &&
                   (prescriptionSubPlan?.substanceKinds ?? []).includes(
                     substanceKind
                   )
-                    ? (laboratories.find((laboratory) =>
-                        localPrescription?.substanceKindsLaboratories?.some(
-                          (skl) =>
-                            skl.substanceKind === substanceKind &&
-                            laboratory.id === skl.laboratoryId
-                        )
-                      )?.shortName ?? '')
+                    ? laboratoryShortName(localPrescription, substanceKind)
                     : ''
                 )
               : [])
@@ -582,28 +636,21 @@ const generatePrescriptionsExportExcel = async (
     if (hasSlaughterhousePlan) {
       columns.push(
         ...exportedDepartments.flatMap((exportedDepartmentColumn) => {
-          const localPrescription = localPrescriptions.find(
-            (_) =>
-              _.prescriptionId === prescription.id &&
-              isNil(_.companySiret) &&
-              _.department === exportedDepartmentColumn
+          const localPrescription = departmentalLocalPrescriptionByKey.get(
+            `${prescription.id}:${exportedDepartmentColumn}`
           );
           return [
             localPrescription?.sampleCount ?? 0,
-            ...effectiveSubstanceKinds.map((substanceKind) =>
-              prescriptionPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
-              (prescriptionSubPlan?.substanceKinds ?? []).includes(
-                substanceKind
-              )
-                ? (laboratories.find((laboratory) =>
-                    localPrescription?.substanceKindsLaboratories?.some(
-                      (skl) =>
-                        skl.substanceKind === substanceKind &&
-                        laboratory.id === skl.laboratoryId
-                    )
-                  )?.shortName ?? '')
-                : ''
-            )
+            ...(showDepartmentalLaboratoryColumns
+              ? effectiveSubstanceKinds.map((substanceKind) =>
+                  prescriptionPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
+                  (prescriptionSubPlan?.substanceKinds ?? []).includes(
+                    substanceKind
+                  )
+                    ? laboratoryShortName(localPrescription, substanceKind)
+                    : ''
+                )
+              : [])
           ];
         })
       );
@@ -613,10 +660,8 @@ const generatePrescriptionsExportExcel = async (
       columns.push(
         ...companySirets.map(
           (companySiret) =>
-            localPrescriptions.find(
-              (_) =>
-                _.prescriptionId === prescription.id &&
-                _.companySiret === companySiret
+            companyLocalPrescriptionByKey.get(
+              `${prescription.id}:${companySiret}`
             )?.sampleCount ?? 0
         )
       );
@@ -656,7 +701,9 @@ const generatePrescriptionsExportExcel = async (
           ),
           'sampleCount'
         ),
-        ...(hasRegionalPlan ? effectiveSubstanceKinds.map(() => '') : [])
+        ...(showRegionalLaboratoryColumns
+          ? effectiveSubstanceKinds.map(() => '')
+          : [])
       ])
     );
   }
@@ -672,7 +719,9 @@ const generatePrescriptionsExportExcel = async (
         );
         return [
           sumBy(filteredLocalPrescriptions, 'sampleCount'),
-          ...effectiveSubstanceKinds.map(() => '')
+          ...(showDepartmentalLaboratoryColumns
+            ? effectiveSubstanceKinds.map(() => '')
+            : [])
         ];
       })
     );
