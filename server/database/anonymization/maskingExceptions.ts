@@ -110,7 +110,6 @@ export const maskingExceptions: Record<string, string[]> = {
   ],
   programming_sub_plan_fields_raw: ['inheritance'],
   programming_sub_plans_raw: [
-    'analysis_permission_role',
     'context',
     'matrices',
     'mono_substances',

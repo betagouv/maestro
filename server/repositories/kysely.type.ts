@@ -476,7 +476,6 @@ export interface ProgrammingSubPlans extends ProgrammingPlanSettings {
   settingsCompleted: Generated<boolean>;
   programmingPlanId: string;
   subPlanNumber: string;
-  analysisPermissionRole: UserRole | null;
   contactListId: number | null;
   withSacha: boolean;
 }

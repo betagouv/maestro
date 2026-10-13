@@ -10,7 +10,10 @@ import {
   type PrescriptionPermission
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  isPPVSubPlan,
+  type ProgrammingSubPlan
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   hasSamplePermission,
   type SampleChecked,
@@ -101,15 +104,10 @@ export const useAuthentication = () => {
   const hasUserSamplePermission = useCallback(
     (
       sample: SampleChecked,
-      analysisPermissionRole?: UserRole | null
+      subPlan?: Pick<ProgrammingSubPlan, 'subPlanNumber' | 'stages'> | null
     ): Record<SamplePermission, boolean> =>
       !isNil(authUser?.user) && !isNil(authUser?.userRole)
-        ? hasSamplePermission(
-            authUser.user,
-            authUser.userRole,
-            sample,
-            analysisPermissionRole
-          )
+        ? hasSamplePermission(authUser.user, authUser.userRole, sample, subPlan)
         : {
             performAnalysis: false
           },

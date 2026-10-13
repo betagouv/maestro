@@ -183,7 +183,6 @@ export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
     'ALIMENTATION_ANIMALE',
     'TRANSFORMATION'
   ],
-  analysisPermissionRole: 'Sampler',
   contactListId: 7,
   withSacha: false,
   substanceKinds: ['Mono', 'Multi'],
@@ -232,7 +231,6 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   subPlanNumber: 'M01',
   stages: ['ABATTAGE'],
-  analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper'],
@@ -253,7 +251,6 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   subPlanNumber: 'M02',
   stages: ['ABATTAGE'],
-  analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper'],

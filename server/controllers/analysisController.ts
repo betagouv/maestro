@@ -43,12 +43,7 @@ export const analysisRouter = {
       );
 
       if (
-        !hasSamplePermission(
-          user,
-          userRole,
-          sample,
-          subPlan?.analysisPermissionRole
-        )['performAnalysis']
+        !hasSamplePermission(user, userRole, sample, subPlan)['performAnalysis']
       ) {
         return { status: HttpStatus.FORBIDDEN };
       }
@@ -89,12 +84,7 @@ export const analysisRouter = {
       );
 
       if (
-        !hasSamplePermission(
-          user,
-          userRole,
-          sample,
-          subPlan?.analysisPermissionRole
-        )['performAnalysis']
+        !hasSamplePermission(user, userRole, sample, subPlan)['performAnalysis']
       ) {
         return { status: HttpStatus.FORBIDDEN };
       }

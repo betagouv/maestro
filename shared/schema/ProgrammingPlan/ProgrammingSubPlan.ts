@@ -1,8 +1,12 @@
 import { intersection, uniq } from 'lodash-es';
 import { z } from 'zod';
-import { type Stage, StageLabels } from '../../referential/Stage';
+import {
+  SlaughterhouseStage,
+  type Stage,
+  StageLabels
+} from '../../referential/Stage';
 import { SubstanceKindLabels } from '../Substance/SubstanceKind';
-import { UserRole } from '../User/UserRole';
+import type { UserRole } from '../User/UserRole';
 import { ContextLabels } from './Context';
 import { ProgrammingPlanSettings } from './ProgrammingPlanSettings';
 import { subPlanMatrixNameParts } from './SubPlanMatrices';
@@ -16,7 +20,6 @@ export const ProgrammingSubPlan = z.object({
   subPlanNumber: z.string(),
   ...ProgrammingPlanSettings.shape,
   settingsCompleted: z.boolean(),
-  analysisPermissionRole: UserRole.nullish(),
   contactListId: z.number().int().nullish(),
   withSacha: z.boolean()
 });
@@ -62,6 +65,15 @@ export const isPPVSubPlanNumber = (subPlanNumber?: string | null): boolean =>
 export const isPPVSubPlan = (
   subPlan?: Pick<ProgrammingSubPlan, 'subPlanNumber'> | null
 ): boolean => isPPVSubPlanNumber(subPlan?.subPlanNumber);
+
+export const analysisPermissionRoles = (
+  subPlan: Pick<ProgrammingSubPlan, 'subPlanNumber' | 'stages'>
+): UserRole[] =>
+  isPPVSubPlan(subPlan)
+    ? ['Sampler', 'RegionalCoordinator']
+    : subPlan.stages?.includes(SlaughterhouseStage)
+      ? ['DepartmentalCoordinator']
+      : ['Sampler', 'DepartmentalCoordinator'];
 
 export const subPlansForStages = <T extends Pick<ProgrammingSubPlan, 'stages'>>(
   subPlans: T[],

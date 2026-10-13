@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { genProgrammingSubPlan } from '../../test/programmingPlanFixtures';
-import { subPlanLabel } from './ProgrammingSubPlan';
+import { analysisPermissionRoles, subPlanLabel } from './ProgrammingSubPlan';
 
 describe('subPlanLabel', () => {
   test('should join the stage, the matrices, the analytes and the context', () => {
@@ -63,5 +63,42 @@ describe('subPlanLabel', () => {
         })
       )
     ).toBe('');
+  });
+});
+
+describe('analysisPermissionRoles', () => {
+  test('should allow the sampler and the regional coordinator on a PPV sub-plan', () => {
+    expect(
+      analysisPermissionRoles(
+        genProgrammingSubPlan({
+          subPlanNumber: 'PPV01',
+          stages: ['PRODUCTION_PRIMAIRE_VEGETALE']
+        })
+      )
+    ).toEqual(['Sampler', 'RegionalCoordinator']);
+  });
+
+  test('should allow only the departmental coordinator on a slaughterhouse sub-plan', () => {
+    expect(
+      analysisPermissionRoles(
+        genProgrammingSubPlan({
+          subPlanNumber: 'M01',
+          stages: ['ELEVAGE', 'ABATTAGE']
+        })
+      )
+    ).toEqual(['DepartmentalCoordinator']);
+  });
+
+  test('should allow the sampler and the departmental coordinator on any other sub-plan', () => {
+    expect(
+      analysisPermissionRoles(
+        genProgrammingSubPlan({ subPlanNumber: 'M03', stages: ['ELEVAGE'] })
+      )
+    ).toEqual(['Sampler', 'DepartmentalCoordinator']);
+    expect(
+      analysisPermissionRoles(
+        genProgrammingSubPlan({ subPlanNumber: 'M03', stages: null })
+      )
+    ).toEqual(['Sampler', 'DepartmentalCoordinator']);
   });
 });

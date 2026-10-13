@@ -343,12 +343,7 @@ export const sampleRouter = {
       if (
         (itemUpdate.updateKey === 'analysis' ||
           itemUpdate.updateKey === 'billing') &&
-        !hasSamplePermission(
-          user,
-          userRole,
-          sample,
-          subPlan?.analysisPermissionRole
-        )['performAnalysis']
+        !hasSamplePermission(user, userRole, sample, subPlan)['performAnalysis']
       ) {
         return { status: HttpStatus.FORBIDDEN };
       }
@@ -440,7 +435,10 @@ export const sampleRouter = {
       const subPlan = await programmingSubPlanRepository.findUnique(
         sample.programmingSubPlanId
       );
-      if (isPPVSubPlan(subPlan)) {
+      if (
+        isPPVSubPlan(subPlan) ||
+        !hasSamplePermission(user, userRole, sample, subPlan)['performAnalysis']
+      ) {
         return { status: HttpStatus.FORBIDDEN };
       }
 

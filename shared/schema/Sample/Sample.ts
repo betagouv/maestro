@@ -17,7 +17,11 @@ import {
   OutsideProgrammingPlanContext,
   ProgrammingPlanContext
 } from '../ProgrammingPlan/Context';
-import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
+import {
+  analysisPermissionRoles,
+  type ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from '../ProgrammingPlan/ProgrammingSubPlan';
 import { SpecificData, UnknownValue } from '../SpecificData/SpecificData';
 import { hasPermission, Sampler, type UserBase } from '../User/User';
 import type { UserRole } from '../User/UserRole';
@@ -306,10 +310,11 @@ export const hasSamplePermission = (
   user: Pick<UserBase, 'region'>,
   userRole: UserRole,
   sample: Pick<SampleBase, 'region'>,
-  analysisPermissionRole?: UserRole | null
+  subPlan?: Pick<ProgrammingSubPlan, 'subPlanNumber' | 'stages'> | null
 ): Record<SamplePermission, boolean> => ({
   performAnalysis:
     hasPermission(userRole, 'performAnalysis') &&
     sample.region === user.region &&
-    analysisPermissionRole === userRole
+    !isNil(subPlan) &&
+    analysisPermissionRoles(subPlan).includes(userRole)
 });

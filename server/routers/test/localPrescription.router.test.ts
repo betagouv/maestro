@@ -1323,7 +1323,6 @@ describe('Local prescriptions router', () => {
         plan.subPlans.map((sp) => ({
           ...toProgrammingPlanSettingsRow(sp),
           programmingPlanId: plan.id,
-          analysisPermissionRole: sp.analysisPermissionRole ?? null,
           contactListId: sp.contactListId ?? null
         }))
       );
