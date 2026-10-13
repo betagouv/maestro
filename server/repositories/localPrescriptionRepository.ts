@@ -11,6 +11,7 @@ import {
   type LocalPrescriptionKeyString,
   toLocalPrescriptionKeyString
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import { PPVSubPlanNumberPrefix } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { PendingChangeVisibility } from 'maestro-shared/schema/User/UserRole';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
@@ -220,8 +221,9 @@ const findMany = async (
               .orWhere((regional) =>
                 regional
                   .where(
-                    `${programmingPlansTable}.distribution_kind`,
-                    'REGIONAL'
+                    `${programmingSubPlansTable}.sub_plan_number`,
+                    'like',
+                    `${PPVSubPlanNumberPrefix}%`
                   )
                   .where(`${localPrescriptionsTable}.department`, 'None')
               )
@@ -237,7 +239,11 @@ const findMany = async (
             )
             .orWhere((regional) =>
               regional
-                .where(`${programmingPlansTable}.distribution_kind`, 'REGIONAL')
+                .where(
+                  `${programmingSubPlansTable}.sub_plan_number`,
+                  'like',
+                  `${PPVSubPlanNumberPrefix}%`
+                )
                 .where(`${localPrescriptionsTable}.company_siret`, 'None')
             )
         );

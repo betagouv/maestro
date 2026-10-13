@@ -50,7 +50,7 @@ export const NextProgrammingPlanStatus = {
     Validated: 'Closed',
     Closed: null
   },
-  TO_BE_DEFINED: {
+  DEPARTMENTAL: {
     InProgress: 'SubmittedToRegion',
     SubmittedToAdmin: 'SubmittedToRegion',
     SubmittedToRegion: 'SubmittedToDepartments',

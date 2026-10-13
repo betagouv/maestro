@@ -1,6 +1,7 @@
 import type { Knex } from 'knex';
 import { intersection, isNil, omit, omitBy, uniq } from 'lodash-es';
 import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { SlaughterhouseStage } from 'maestro-shared/referential/Stage';
 import type { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
@@ -343,10 +344,7 @@ const missingDistributionExpression = (
 
   if (findOptions.region) {
     return [
-      `case when (
-         select pp.distribution_kind from ${programmingPlansTable} pp
-         where pp.id = ${programmingPlanIdColumn}
-       ) = 'SLAUGHTERHOUSE'
+      `case when '${SlaughterhouseStage}' = any(${programmingSubPlansTable}.stages)
        then ${distributedToDepartments(visibility)}
        else false
        end`,

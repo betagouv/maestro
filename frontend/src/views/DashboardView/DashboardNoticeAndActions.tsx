@@ -22,7 +22,7 @@ const prioritySamplesStatusList = {
     Sampler: ['Submitted'],
     DepartmentalCoordinator: ['Submitted', 'InReview']
   },
-  TO_BE_DEFINED: {
+  DEPARTMENTAL: {
     Sampler: ['Submitted'],
     DepartmentalCoordinator: ['Submitted', 'InReview']
   }

@@ -95,7 +95,6 @@ export const maskingExceptions: Record<string, string[]> = {
     'closed_by',
     'context',
     'created_by',
-    'distribution_kind',
     'id',
     'launched_by',
     'matrices',

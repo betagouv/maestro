@@ -16,7 +16,7 @@ export const getAlertEmails = ({
       return Regions[region].alertEmails;
     case 'SLAUGHTERHOUSE':
       return department ? (DepartmentAlertEmails[department] ?? []) : [];
-    case 'TO_BE_DEFINED':
+    case 'DEPARTMENTAL':
       return [];
   }
 };

@@ -17,6 +17,7 @@ import type {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
@@ -1223,35 +1224,48 @@ describe('Local prescriptions router', () => {
     const slaughterhouseDomain = genProgrammingPlanDomain({ year: 1922 });
     const slaughterhouseClosedDomain = genProgrammingPlanDomain({ year: 1923 });
 
-    const programmingPlanSlaughterhouse = genProgrammingPlan({
-      createdBy: NationalCoordinator.id,
-      domainId: slaughterhouseDomain.id,
-      distributionKind: 'SLAUGHTERHOUSE',
-      year: 1922,
-      regionalStatus: RegionList.map((region) => ({
-        region,
-        status: 'SubmittedToDepartments' as const
-      })),
-      departmentalStatus: [
-        {
-          region: RegionalCoordinator.region as Region,
-          department: DepartmentalCoordinator.department as Department,
-          status: 'Validated' as const
-        }
-      ]
+    const asSlaughterhousePlan = (plan: ProgrammingPlanChecked) => ({
+      ...plan,
+      subPlans: plan.subPlans.map((subPlan) => ({
+        ...subPlan,
+        subPlanNumber: 'M01',
+        stages: ['ABATTAGE' as const]
+      }))
     });
 
-    const programmingPlanSlaughterhouseClosed = genProgrammingPlan({
-      createdBy: NationalCoordinator.id,
-      domainId: slaughterhouseClosedDomain.id,
-      distributionKind: 'SLAUGHTERHOUSE',
-      year: 1923,
-      regionalStatus: RegionList.map((region) => ({
-        region,
-        status: 'Closed' as const
-      })),
-      departmentalStatus: []
-    });
+    const programmingPlanSlaughterhouse = asSlaughterhousePlan(
+      genProgrammingPlan({
+        createdBy: NationalCoordinator.id,
+        domainId: slaughterhouseDomain.id,
+        distributionKind: 'SLAUGHTERHOUSE',
+        year: 1922,
+        regionalStatus: RegionList.map((region) => ({
+          region,
+          status: 'SubmittedToDepartments' as const
+        })),
+        departmentalStatus: [
+          {
+            region: RegionalCoordinator.region as Region,
+            department: DepartmentalCoordinator.department as Department,
+            status: 'Validated' as const
+          }
+        ]
+      })
+    );
+
+    const programmingPlanSlaughterhouseClosed = asSlaughterhousePlan(
+      genProgrammingPlan({
+        createdBy: NationalCoordinator.id,
+        domainId: slaughterhouseClosedDomain.id,
+        distributionKind: 'SLAUGHTERHOUSE',
+        year: 1923,
+        regionalStatus: RegionList.map((region) => ({
+          region,
+          status: 'Closed' as const
+        })),
+        departmentalStatus: []
+      })
+    );
 
     const slaughterhousePrescription = genPrescription({
       programmingSubPlanId: programmingPlanSlaughterhouse.subPlans[0].id
