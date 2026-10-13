@@ -326,7 +326,6 @@ export interface ProgrammingPlans extends ProgrammingPlanSettings {
   title: string;
   distributionKind: string;
   legalContexts: string[];
-  samplesOutsidePlanAllowed: Generated<boolean>;
   closedAt: Timestamp | null;
   closedBy: string | null;
   launchedAt: Timestamp | null;

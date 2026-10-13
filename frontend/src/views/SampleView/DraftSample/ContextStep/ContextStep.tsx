@@ -227,12 +227,7 @@ const ContextStep = ({ partialSample }: Props) => {
     .extend({ company: Company });
 
   const contextOptions = selectOptionsFromList(
-    [
-      planContexts,
-      programmingPlan?.samplesOutsidePlanAllowed
-        ? ['OutsideProgrammingPlan']
-        : []
-    ].flat(),
+    [...planContexts, 'OutsideProgrammingPlan'],
     {
       labels: {
         ...ContextLabels,

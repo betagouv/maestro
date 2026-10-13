@@ -349,7 +349,6 @@ const create = async ({
         title,
         legalContexts: ['A', 'B'],
         distributionKind: 'TO_BE_DEFINED',
-        samplesOutsidePlanAllowed: true,
         settingsCompleted: false,
         createdAt: new Date(),
         createdBy

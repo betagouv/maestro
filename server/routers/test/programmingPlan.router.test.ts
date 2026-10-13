@@ -2452,7 +2452,6 @@ describe('ProgrammingPlan router', () => {
         subPlans: [],
         legalContexts: ['A', 'B'],
         distributionKind: 'TO_BE_DEFINED',
-        samplesOutsidePlanAllowed: true,
         settingsCompleted: false,
         createdBy: NationalCoordinator.id,
         nationalStatus: { status: 'InProgress' },

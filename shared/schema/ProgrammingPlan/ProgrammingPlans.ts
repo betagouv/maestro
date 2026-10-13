@@ -28,7 +28,6 @@ export const ProgrammingPlanBase = z.object({
   legalContexts: z
     .array(LegalContext)
     .min(1, 'Veuillez renseigner au moins un cadre juridique.'),
-  samplesOutsidePlanAllowed: z.boolean(),
   distributionKind: DistributionKind,
   nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator),
   ...ProgrammingPlanSettings.shape,
