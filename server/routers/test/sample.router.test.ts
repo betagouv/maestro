@@ -41,6 +41,7 @@ import {
 } from 'maestro-shared/test/sampleFixtures';
 import {
   AdminFixture,
+  genUser,
   LaboratoryOfficeUserFixture,
   LaboratoryUserFixture,
   NationalCoordinator,
@@ -71,13 +72,22 @@ import {
   formatPartialSample,
   Samples
 } from '../../repositories/sampleRepository';
+import {
+  UserCompanies,
+  Users,
+  userRepository
+} from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import {
   mockGenerateSampleSupportPDF,
   mockTchapSend,
   mockTriggerProcessing
 } from '../../test/setupTests';
-import { seedTestDepartments, tokenProvider } from '../../test/testUtils';
+import {
+  seedTestDepartments,
+  TEST_LOGGED_SECRET,
+  tokenProvider
+} from '../../test/testUtils';
 
 beforeAll(async () => {
   await seedTestDepartments();
@@ -1032,6 +1042,27 @@ describe('Sample router', () => {
       notesOnCompliance: 'RAS'
     };
 
+    const DepartmentalCoordinatorDaoa = genUser({
+      roles: ['DepartmentalCoordinator'],
+      region: SamplerDaoaFixture.region,
+      department: SamplerDaoaFixture.department
+    });
+
+    beforeAll(async () => {
+      const userToInsert = {
+        ...DepartmentalCoordinatorDaoa,
+        loggedSecrets: [TEST_LOGGED_SECRET]
+      };
+      await userRepository.insert(userToInsert);
+    });
+
+    afterAll(async () => {
+      await UserCompanies()
+        .delete()
+        .where('userId', DepartmentalCoordinatorDaoa.id);
+      await Users().delete().where('id', DepartmentalCoordinatorDaoa.id);
+    });
+
     test('should fail if the user is not authenticated', async () => {
       await request(app)
         .put(testRoute(SampleDAOA1Fixture.id))
@@ -1076,6 +1107,7 @@ describe('Sample router', () => {
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(SamplerDaoaFixture);
     });
 
     test('should be forbidden for a PPV sample', async () => {
@@ -1090,7 +1122,7 @@ describe('Sample router', () => {
       const res = await request(app)
         .put(testRoute(SampleDAOA1Fixture.id))
         .send(complianceData)
-        .use(tokenProvider(SamplerDaoaFixture))
+        .use(tokenProvider(DepartmentalCoordinatorDaoa))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(complianceData);

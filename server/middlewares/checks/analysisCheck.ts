@@ -39,12 +39,7 @@ export const getAndCheckAnalysisSample = async (
       sample.programmingSubPlanId
     );
     if (
-      !hasSamplePermission(
-        user,
-        userRole,
-        sample,
-        subPlan?.analysisPermissionRole
-      )['performAnalysis']
+      !hasSamplePermission(user, userRole, sample, subPlan)['performAnalysis']
     ) {
       throw new HttpError({
         status: constants.HTTP_STATUS_FORBIDDEN,

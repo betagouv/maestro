@@ -130,6 +130,7 @@ const userRolePermissions = {
     'readPrescriptions',
     'downloadSupportDocument',
     'readSamples',
+    'performAnalysis',
     'downloadAnalysisRequestDocument',
     'readDocuments',
     'readCompanies',

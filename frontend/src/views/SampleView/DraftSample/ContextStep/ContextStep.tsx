@@ -5,8 +5,9 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { intersection, isNil } from 'lodash-es';
 import {
-  type LegalContext,
-  LegalContextLabels
+  LegalContext,
+  LegalContextLabels,
+  LegalContextList
 } from 'maestro-shared/referential/LegalContext';
 import { Company } from 'maestro-shared/schema/Company/Company';
 import {
@@ -68,6 +69,7 @@ import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 import { SampleEmptyFormDownload } from '../SampleEmptyFormDownload';
+import { sampleLegalContext } from './sampleLegalContext';
 
 type Props = {
   partialSample?: PartialSample | PartialSampleToCreate;
@@ -108,11 +110,7 @@ const ContextStep = ({ partialSample }: Props) => {
   const [programmingSubPlanId, setProgrammingSubPlanId] = useState(
     partialSample?.programmingSubPlanId ?? ''
   );
-  const [legalContext, setLegalContext] = useState(
-    programmingPlan?.legalContexts.length === 1
-      ? programmingPlan?.legalContexts[0]
-      : partialSample?.legalContext
-  );
+  const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
 
   const [geolocationX, setGeolocationX] = useState(
     partialSample?.geolocation?.x ??
@@ -222,17 +220,13 @@ const ContextStep = ({ partialSample }: Props) => {
         }
       ),
       outsideProgrammingPlanContext:
-        context === 'OutsideProgrammingPlan' ? Context : z.undefined()
+        context === 'OutsideProgrammingPlan' ? Context : z.undefined(),
+      legalContext: isPPV ? LegalContext : z.undefined()
     })
     .extend({ company: Company });
 
   const contextOptions = selectOptionsFromList(
-    [
-      planContexts,
-      programmingPlan?.samplesOutsidePlanAllowed
-        ? ['OutsideProgrammingPlan']
-        : []
-    ].flat(),
+    [...planContexts, 'OutsideProgrammingPlan'],
     {
       labels: {
         ...ContextLabels,
@@ -262,13 +256,10 @@ const ContextStep = ({ partialSample }: Props) => {
     OutsideProgrammingPlan: warning
   };
 
-  const legalContextOptions = selectOptionsFromList(
-    programmingPlan?.legalContexts ?? [],
-    {
-      labels: LegalContextLabels,
-      withDefault: false
-    }
-  );
+  const legalContextOptions = selectOptionsFromList(LegalContextList, {
+    labels: LegalContextLabels,
+    withDefault: false
+  });
 
   const programmingSubPlanOptions = selectOptionsFromList(
     intersection(
@@ -323,7 +314,7 @@ const ContextStep = ({ partialSample }: Props) => {
       context === 'OutsideProgrammingPlan'
         ? outsideProgrammingPlanContext
         : context,
-    legalContext: legalContext as LegalContext,
+    legalContext: sampleLegalContext({ isPPV, context, legalContext }),
     company,
     companyOffline,
     resytalId: resytalId || undefined,
@@ -404,7 +395,7 @@ const ContextStep = ({ partialSample }: Props) => {
       | undefined,
     context,
     outsideProgrammingPlanContext,
-    legalContext,
+    legalContext: isPPV ? legalContext : undefined,
     company,
     companyOffline,
     resytalId: resytalId || undefined,
@@ -633,7 +624,7 @@ const ContextStep = ({ partialSample }: Props) => {
           />
         </div>
       )}
-      {legalContextOptions.length > 1 && (
+      {isPPV && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppRadioButtons

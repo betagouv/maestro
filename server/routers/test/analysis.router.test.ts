@@ -24,7 +24,7 @@ import {
   LaboratoryUserFixture,
   NationalCoordinator,
   NationalObserver,
-  RegionalCoordinator,
+  RegionalDromCoordinator,
   RegionalObserver,
   Sampler1Fixture,
   Sampler2Fixture
@@ -349,7 +349,7 @@ describe('Analysis router', () => {
           .expect(constants.HTTP_STATUS_FORBIDDEN);
 
       await forbiddenRequestTest(Sampler2Fixture);
-      await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(RegionalDromCoordinator);
       await forbiddenRequestTest(LaboratoryUserFixture);
       await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });

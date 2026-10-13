@@ -145,8 +145,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
   );
 
   const isEditing: boolean =
-    hasUserSamplePermission(sample, programmingSubPlan?.analysisPermissionRole)
-      .performAnalysis &&
+    hasUserSamplePermission(sample, programmingSubPlan).performAnalysis &&
     (location.pathname.endsWith('/edit') ||
       sampleItem.analysis?.status !== 'Completed');
 
@@ -164,10 +163,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
         <SampleItemAdmissibility
           sample={sample}
           readonly={
-            !hasUserSamplePermission(
-              sample,
-              programmingSubPlan?.analysisPermissionRole
-            ).performAnalysis
+            !hasUserSamplePermission(sample, programmingSubPlan).performAnalysis
           }
           sampleItem={sampleItem}
         />
@@ -279,10 +275,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 stateRelatedMessage={billingForm.message('invoicingDate')}
                 whenValid="Date de facturation correctement renseignée."
                 disabled={
-                  !hasUserSamplePermission(
-                    sample,
-                    programmingSubPlan?.analysisPermissionRole
-                  ).performAnalysis
+                  !hasUserSamplePermission(sample, programmingSubPlan)
+                    .performAnalysis
                 }
               />
             </div>
@@ -305,10 +299,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 inputKey="paid"
                 whenValid="Statut de paiement correctement renseigné."
                 disabled={
-                  !hasUserSamplePermission(
-                    sample,
-                    programmingSubPlan?.analysisPermissionRole
-                  ).performAnalysis
+                  !hasUserSamplePermission(sample, programmingSubPlan)
+                    .performAnalysis
                 }
               />
             </div>
@@ -329,10 +321,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 stateRelatedMessage={billingForm.message('paidDate')}
                 whenValid="Date de paiement correctement renseignée."
                 disabled={
-                  !hasUserSamplePermission(
-                    sample,
-                    programmingSubPlan?.analysisPermissionRole
-                  ).performAnalysis
+                  !hasUserSamplePermission(sample, programmingSubPlan)
+                    .performAnalysis
                 }
               />
             </div>
@@ -355,10 +345,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 stateRelatedMessage={billingForm.message('invoiceNumber')}
                 whenValid="Numéro de facture correctement renseigné."
                 disabled={
-                  !hasUserSamplePermission(
-                    sample,
-                    programmingSubPlan?.analysisPermissionRole
-                  ).performAnalysis
+                  !hasUserSamplePermission(sample, programmingSubPlan)
+                    .performAnalysis
                 }
               />
             </div>
@@ -379,10 +367,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 stateRelatedMessage={billingForm.message('budgetNotes')}
                 whenValid="Notes budgétaires correctement renseignées."
                 disabled={
-                  !hasUserSamplePermission(
-                    sample,
-                    programmingSubPlan?.analysisPermissionRole
-                  ).performAnalysis
+                  !hasUserSamplePermission(sample, programmingSubPlan)
+                    .performAnalysis
                 }
               />
             </div>
@@ -409,10 +395,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
             sample={sample}
             analysis={analysis}
             readonly={
-              !hasUserSamplePermission(
-                sample,
-                programmingSubPlan?.analysisPermissionRole
-              ).performAnalysis
+              !hasUserSamplePermission(sample, programmingSubPlan)
+                .performAnalysis
             }
             onEdit={() => navigateToSampleEdit(sample.id)}
             programmingSubPlan={programmingSubPlan}

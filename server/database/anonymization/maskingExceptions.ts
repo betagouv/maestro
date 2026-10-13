@@ -98,7 +98,6 @@ export const maskingExceptions: Record<string, string[]> = {
     'distribution_kind',
     'id',
     'launched_by',
-    'legal_contexts',
     'matrices',
     'mono_substances',
     'multi_substances',
@@ -110,7 +109,6 @@ export const maskingExceptions: Record<string, string[]> = {
   ],
   programming_sub_plan_fields_raw: ['inheritance'],
   programming_sub_plans_raw: [
-    'analysis_permission_role',
     'context',
     'matrices',
     'mono_substances',

@@ -181,6 +181,7 @@ export const seed = async () => {
           programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
           programmingSubPlanId: DAOABovinValidatedSubPlanId,
           context: 'Surveillance',
+          legalContext: 'A',
           matrices: [{ matrixKind: 'A01QX', matrix: 'A01XF#F28.A0C0S' }],
           step: 'Sent',
           department: '85',

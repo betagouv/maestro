@@ -110,7 +110,9 @@ export const buildAnalysisRequestData = (
     sampledDate: formatMaestroDate(updatedSample.sampledDate),
     sampledTime: updatedSample.sampledTime,
     context: ContextLabels[updatedSample.context],
-    legalContext: LegalContextLabels[updatedSample.legalContext],
+    legalContext: updatedSample.legalContext
+      ? LegalContextLabels[updatedSample.legalContext]
+      : '',
     stage: stageField
       ? (getFieldValueLabel(stageField, updatedSample.specificData['stage']) ??
         '')

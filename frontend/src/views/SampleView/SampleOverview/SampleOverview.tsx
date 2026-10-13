@@ -182,10 +182,7 @@ const SampleOverview = ({ sample }: Props) => {
         illustration={food}
       />
       {!!config.sevesUrl &&
-        hasUserSamplePermission(
-          sample,
-          programmingSubPlan?.analysisPermissionRole
-        ).performAnalysis &&
+        hasUserSamplePermission(sample, programmingSubPlan).performAnalysis &&
         (sample.seves || sample.sevesNotice) && (
           <div className={cx('fr-mb-2w')}>
             <SampleSeves sample={sample} />
@@ -218,10 +215,7 @@ const SampleOverview = ({ sample }: Props) => {
         />
       )}
       {activeCompliance &&
-        hasUserSamplePermission(
-          sample,
-          programmingSubPlan?.analysisPermissionRole
-        ).performAnalysis && (
+        hasUserSamplePermission(sample, programmingSubPlan).performAnalysis && (
           <div ref={complianceRef}>
             <SampleComplianceForm
               sample={sample}
@@ -358,10 +352,8 @@ const SampleOverview = ({ sample }: Props) => {
                   }
                 : undefined,
               !isPPVSubPlan(programmingSubPlan) &&
-              hasUserSamplePermission(
-                sample,
-                programmingSubPlan?.analysisPermissionRole
-              ).performAnalysis
+              hasUserSamplePermission(sample, programmingSubPlan)
+                .performAnalysis
                 ? {
                     text: (
                       <div
@@ -405,9 +397,7 @@ const SampleOverview = ({ sample }: Props) => {
                 itemNumber={activeItemNumber}
                 sampleItemCopies={sampleItemCopies(activeItemNumber)}
                 sample={sample}
-                analysisPermissionRole={
-                  programmingSubPlan?.analysisPermissionRole
-                }
+                programmingSubPlan={programmingSubPlan}
               />
             )}
             {activeMenu === 'matrix' && (
