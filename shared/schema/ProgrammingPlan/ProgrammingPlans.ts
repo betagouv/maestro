@@ -80,6 +80,18 @@ export const ProgrammingPlanChecked = checkSchema(
 
 export type ProgrammingPlanChecked = z.infer<typeof ProgrammingPlanChecked>;
 
+export const ProgrammingPlanCreateInput = z.object({
+  domainId: ProgrammingPlanDomainId,
+  title: z
+    .string({ error: () => 'Veuillez renseigner le nom du plan.' })
+    .trim()
+    .min(1, { error: () => 'Veuillez renseigner le nom du plan.' })
+});
+
+export type ProgrammingPlanCreateInput = z.infer<
+  typeof ProgrammingPlanCreateInput
+>;
+
 export const programmingPlanContexts = (plan: {
   subPlans: Pick<ProgrammingSubPlan, 'context'>[];
 }): ProgrammingPlanContext[] =>

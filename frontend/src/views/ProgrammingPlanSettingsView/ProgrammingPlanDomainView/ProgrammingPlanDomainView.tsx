@@ -1,6 +1,7 @@
 import Breadcrumb from '@codegouvfr/react-dsfr/Breadcrumb';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { useContext } from 'react';
@@ -10,9 +11,15 @@ import { YearTitle } from 'src/components/YearTitle/YearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 
+import { ProgrammingPlanCreateModal } from '../ProgrammingPlanCreateModal/ProgrammingPlanCreateModal';
 import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 import { ProgrammingPlanSettingsCard } from '../ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard';
+
+const createPlanModal = createModal({
+  id: 'programming-plan-create-modal',
+  isOpenedByDefault: false
+});
 
 type Props = Record<never, never>;
 
@@ -97,12 +104,21 @@ export const ProgrammingPlanDomainView = ({ ..._rest }: Props = {}) => {
             priority="tertiary"
             iconId="fr-icon-file-add-line"
             className={cx('fr-ml-1w')}
-            onClick={() => ({
-              //FIXME DOMAIN implémenter l'action
-            })}
+            onClick={createPlanModal.open}
           >
             Ajouter un plan
           </Button>
+          {domain && (
+            <ProgrammingPlanCreateModal
+              modal={createPlanModal}
+              domainId={domain.id}
+              onCreated={({ id }) =>
+                navigate(
+                  AppRouteLinks.ProgrammingPlanSettingsPlanRoute.link(id)
+                )
+              }
+            />
+          )}
         </div>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           {domainPlans.map((plan) => (

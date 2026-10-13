@@ -1,11 +1,13 @@
 import type { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
-import { Region } from 'maestro-shared/referential/Region';
+import { Region, RegionList } from 'maestro-shared/referential/Region';
 import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import type { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { hasSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanLocalStatus as ProgrammingPlanLocalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
+import { emptyProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   ProgrammingPlanBase,
@@ -14,7 +16,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import z from 'zod';
 import { knexInstance as db } from './db';
-import { kysely } from './kysely';
+import { executeTransaction, kysely } from './kysely';
 import {
   type ProgrammingPlanSettingsRow,
   toProgrammingPlanSettingsRow
@@ -324,6 +326,66 @@ const insert = async (
   });
 };
 
+const create = async ({
+  domain,
+  title,
+  createdBy,
+  nationalCoordinatorId
+}: {
+  domain: Pick<ProgrammingPlanDomain, 'id' | 'year'>;
+  title: string;
+  createdBy: string;
+  nationalCoordinatorId: string | null;
+}): Promise<string> => {
+  console.info('Create programming plan', title);
+
+  return executeTransaction(async (trx) => {
+    const { id } = await trx
+      .insertInto('programmingPlans')
+      .values({
+        ...toProgrammingPlanSettingsRow(emptyProgrammingPlanSettings(false)),
+        domainId: domain.id,
+        year: domain.year,
+        title,
+        legalContexts: ['A', 'B'],
+        distributionKind: 'TO_BE_DEFINED',
+        samplesOutsidePlanAllowed: true,
+        settingsCompleted: false,
+        createdAt: new Date(),
+        createdBy
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+
+    await trx
+      .insertInto('programmingPlanLocalStatus')
+      .values(
+        [
+          { region: 'None', department: 'None' },
+          ...RegionList.map((region) => ({ region, department: 'None' }))
+        ].map(({ region, department }) => ({
+          programmingPlanId: id,
+          region,
+          department,
+          status: 'InProgress',
+          sentAt: null,
+          lastSentAt: null,
+          lastModifiedAt: null
+        }))
+      )
+      .execute();
+
+    if (nationalCoordinatorId) {
+      await trx
+        .insertInto('programmingPlanNationalCoordinators')
+        .values({ programmingPlanId: id, userId: nationalCoordinatorId })
+        .execute();
+    }
+
+    return id;
+  });
+};
+
 const update = async (
   programmingPlan: ProgrammingPlanChecked
 ): Promise<void> => {
@@ -517,6 +579,7 @@ export default {
   findUnique,
   findMany,
   insert,
+  create,
   update,
   launch,
   insertManyLocalStatus,

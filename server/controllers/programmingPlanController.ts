@@ -358,6 +358,31 @@ export const programmingPlanRouter = {
           maskHasPendingChangeForViewer(plan, userRole, user)
         )
       };
+    },
+    post: async ({ user, account, body: { domainId, title } }) => {
+      const domain = await programmingPlanDomainRepository.findUnique(domainId);
+
+      if (!domain) {
+        return { status: HttpStatus.NOT_FOUND };
+      }
+
+      const programmingPlanId = await programmingPlanRepository.create({
+        domain,
+        title,
+        createdBy: user.id,
+        nationalCoordinatorId: account.roles.includes('NationalCoordinator')
+          ? user.id
+          : null
+      });
+
+      const programmingPlan =
+        await programmingPlanRepository.findUnique(programmingPlanId);
+
+      if (!programmingPlan) {
+        return { status: HttpStatus.NOT_FOUND };
+      }
+
+      return { response: programmingPlan, status: HttpStatus.CREATED };
     }
   },
   '/programming-plans/send-to-regions': {

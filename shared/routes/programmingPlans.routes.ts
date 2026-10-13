@@ -6,7 +6,10 @@ import {
   ProgrammingSubPlanSettingsForm
 } from '../schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  ProgrammingPlanChecked,
+  ProgrammingPlanCreateInput
+} from '../schema/ProgrammingPlan/ProgrammingPlans';
 import {
   ProgrammingSubPlan,
   ProgrammingSubPlanId
@@ -26,6 +29,11 @@ export const programmingPlansRoutes = {
       ],
       query: FindProgrammingPlanOptions,
       response: z.array(ProgrammingPlanChecked)
+    },
+    post: {
+      accountPermissions: ['manageProgrammingPlanSettings'],
+      body: ProgrammingPlanCreateInput,
+      response: ProgrammingPlanChecked
     }
   },
   '/programming-plans/send-to-regions': {
