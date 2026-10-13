@@ -1,6 +1,5 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
-import { LegalContext } from '../../referential/LegalContext';
 import { checkSchema } from '../../utils/zod';
 import {
   type ProgrammingPlanContext,
@@ -25,9 +24,6 @@ export const ProgrammingPlanBase = z.object({
   domainId: ProgrammingPlanDomainId,
   title: z.string().min(1, 'Veuillez renseigner le titre.'),
   subPlans: z.array(ProgrammingSubPlan),
-  legalContexts: z
-    .array(LegalContext)
-    .min(1, 'Veuillez renseigner au moins un cadre juridique.'),
   distributionKind: DistributionKind,
   nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator),
   ...ProgrammingPlanSettings.shape,

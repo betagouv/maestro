@@ -98,7 +98,6 @@ export const maskingExceptions: Record<string, string[]> = {
     'distribution_kind',
     'id',
     'launched_by',
-    'legal_contexts',
     'matrices',
     'mono_substances',
     'multi_substances',

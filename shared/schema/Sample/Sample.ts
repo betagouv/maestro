@@ -42,7 +42,7 @@ export const SampleContextData = z.object({
   programmingPlanId: z.guid(),
   programmingSubPlanId: ProgrammingSubPlanId,
   context: Context,
-  legalContext: LegalContext,
+  legalContext: LegalContext.nullish(),
   company: Company.nullish(),
   companyOffline: z.string().nullish(),
   resytalId: z.string().nullish(),

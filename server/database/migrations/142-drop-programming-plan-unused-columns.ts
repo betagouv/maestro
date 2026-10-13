@@ -40,7 +40,17 @@ const subPlansView = (withAnalysisPermissionRole: boolean) => `
 export const up = async (knex: Knex) => {
   await knex.schema.alterTable('programming_plans', (table) => {
     table.dropColumn('samples_outside_plan_allowed');
+    table.dropColumn('legal_contexts');
   });
+
+  await knex.raw(`
+    UPDATE samples s
+    SET legal_context = NULL
+    FROM programming_sub_plans_raw sp
+    WHERE sp.id = s.programming_sub_plan_id
+      AND sp.sub_plan_number NOT LIKE 'PPV%'
+      AND s.context IN ('LocalPlan', 'Investigation', 'ControlSupport')
+  `);
 
   await knex.raw('DROP VIEW programming_sub_plans');
 
@@ -54,7 +64,34 @@ export const up = async (knex: Knex) => {
 export const down = async (knex: Knex) => {
   await knex.schema.alterTable('programming_plans', (table) => {
     table.boolean('samples_outside_plan_allowed').notNullable().defaultTo(true);
+    table.specificType('legal_contexts', 'text[]');
   });
+
+  await knex.raw(`
+    UPDATE programming_plans pp
+    SET legal_contexts = CASE
+      WHEN EXISTS (
+        SELECT 1
+        FROM programming_sub_plans_raw sp
+        WHERE sp.programming_plan_id = pp.id
+          AND sp.sub_plan_number LIKE 'PPV%'
+      ) THEN ARRAY['A', 'B']
+      ELSE ARRAY['A']
+    END
+  `);
+
+  await knex.schema.alterTable('programming_plans', (table) => {
+    table.specificType('legal_contexts', 'text[]').notNullable().alter();
+  });
+
+  await knex.raw(`
+    UPDATE samples s
+    SET legal_context = 'A'
+    FROM programming_sub_plans_raw sp
+    WHERE sp.id = s.programming_sub_plan_id
+      AND sp.sub_plan_number NOT LIKE 'PPV%'
+      AND s.legal_context IS NULL
+  `);
 
   await knex.raw('DROP VIEW programming_sub_plans');
 

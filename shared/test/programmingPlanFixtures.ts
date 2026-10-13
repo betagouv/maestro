@@ -284,7 +284,6 @@ export const genProgrammingPlan = (
       }
     ],
     distributionKind: 'REGIONAL',
-    legalContexts: ['A', 'B'],
     nationalCoordinators: [
       {
         id: NationalCoordinatorId,
@@ -487,7 +486,6 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
     DAOABovinValidatedSubPlanFixture
   ],
   distributionKind: 'SLAUGHTERHOUSE',
-  legalContexts: ['A'],
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
   nationalStatus: { status: 'SubmittedToRegion' },
@@ -515,7 +513,6 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
     DAOABovinInProgressSubPlanFixture
   ],
   distributionKind: 'SLAUGHTERHOUSE',
-  legalContexts: ['A'],
   settingsCompleted: false,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,

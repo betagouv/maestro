@@ -325,7 +325,6 @@ export interface ProgrammingPlans extends ProgrammingPlanSettings {
   year: number;
   title: string;
   distributionKind: string;
-  legalContexts: string[];
   closedAt: Timestamp | null;
   closedBy: string | null;
   launchedAt: Timestamp | null;
@@ -394,7 +393,7 @@ export interface Samples {
   id: Generated<string>;
   laboratoryId: string | null;
   lastUpdatedAt: Generated<Timestamp | null>;
-  legalContext: string;
+  legalContext: string | null;
   matrices: ColumnType<
     PartialSampleMatrix[] | null,
     string | null | undefined,

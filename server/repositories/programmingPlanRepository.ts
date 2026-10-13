@@ -346,7 +346,6 @@ const create = async ({
         domainId: domain.id,
         year: domain.year,
         title,
-        legalContexts: ['A', 'B'],
         distributionKind: 'TO_BE_DEFINED',
         settingsCompleted: false,
         createdAt: new Date(),

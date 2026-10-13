@@ -230,6 +230,7 @@ export const SampleDAOA1Fixture = genCreatedPartialSample({
     x: 46.642117,
     y: -0.734475
   },
+  legalContext: 'A',
   reference: 'DAOA-85-24-001-A',
   specificData: { stage: 'STADE10' }
 });
@@ -245,6 +246,7 @@ export const SampleDAOA2Fixture = genCreatedPartialSample({
     x: 46.642117,
     y: -0.734475
   },
+  legalContext: 'A',
   reference: 'DAOA-85-24-002-A',
   specificData: { stage: 'STADE10' }
 });
