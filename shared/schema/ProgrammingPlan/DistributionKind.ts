@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const DistributionKind = z.enum(
-  ['REGIONAL', 'SLAUGHTERHOUSE', 'TO_BE_DEFINED'],
+  ['REGIONAL', 'SLAUGHTERHOUSE', 'DEPARTMENTAL'],
   {
     error: () => 'Veuillez renseigner le mode de répartition.'
   }

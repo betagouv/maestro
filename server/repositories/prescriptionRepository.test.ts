@@ -9,6 +9,7 @@ import {
   DAOAInProgressVolailleSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import localPrescriptionRepository from './localPrescriptionRepository';
 import prescriptionRepository, {
   Prescriptions
 } from './prescriptionRepository';
@@ -20,6 +21,13 @@ const daoaPrescriptions = [
 
 beforeAll(async () => {
   await Prescriptions().insert(daoaPrescriptions);
+  await localPrescriptionRepository.insertMany([
+    {
+      prescriptionId: FoieDeBovinPrescriptionFixture.id,
+      region: '44',
+      sampleCount: 3
+    }
+  ]);
 });
 
 afterAll(async () => {
@@ -49,6 +57,19 @@ describe('findMany', () => {
 
     expect(prescriptions.map(({ id }) => id)).toStrictEqual([
       PrescriptionFixture.id
+    ]);
+  });
+});
+
+describe('findMany missingDistribution', () => {
+  test('should find in a region the slaughterhouse prescriptions not distributed to the departments, and never the others', async () => {
+    const prescriptions = await prescriptionRepository.findMany({
+      region: '44',
+      missingDistribution: true
+    });
+
+    expect(prescriptions.map(({ id }) => id)).toStrictEqual([
+      FoieDeBovinPrescriptionFixture.id
     ]);
   });
 });

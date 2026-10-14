@@ -324,7 +324,6 @@ export interface ProgrammingPlans extends ProgrammingPlanSettings {
   id: Generated<string>;
   year: number;
   title: string;
-  distributionKind: string;
   closedAt: Timestamp | null;
   closedBy: string | null;
   launchedAt: Timestamp | null;

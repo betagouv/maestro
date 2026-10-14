@@ -2450,7 +2450,7 @@ describe('ProgrammingPlan router', () => {
         year: new Date().getFullYear(),
         title: 'Nouveau plan',
         subPlans: [],
-        distributionKind: 'TO_BE_DEFINED',
+        distributionKind: 'DEPARTMENTAL',
         settingsCompleted: false,
         createdBy: NationalCoordinator.id,
         nationalStatus: { status: 'InProgress' },

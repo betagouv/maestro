@@ -14,6 +14,10 @@ import {
   ProgrammingPlanChecked,
   ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  PPVSubPlanNumberPrefix,
+  type ProgrammingSubPlan
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import z from 'zod';
 import { knexInstance as db } from './db';
 import { executeTransaction, kysely } from './kysely';
@@ -25,6 +29,7 @@ import {
   ProgrammingSubPlansRaw,
   programmingSubPlansTable
 } from './programmingSubPlanRepository';
+import { subPlansDistributionKind } from './subPlansDistributionKind';
 
 export const programmingPlansTable = 'programming_plans';
 const programmingPlanLocalStatusTable = 'programming_plan_local_status';
@@ -43,7 +48,8 @@ const ProgrammingPlanDbo = ProgrammingPlanBase.omit({
   nationalStatus: true,
   regionalStatus: true,
   departmentalStatus: true,
-  nationalCoordinators: true
+  nationalCoordinators: true,
+  distributionKind: true
 });
 
 type ProgrammingPlanDbo = z.infer<typeof ProgrammingPlanDbo>;
@@ -63,7 +69,7 @@ type ProgrammingPlanRow = ProgrammingPlanDbo & {
   nationalStatus: ProgrammingPlanLocalStatusDbo[];
   regionalStatus: ProgrammingPlanLocalStatusDbo[];
   departmentalStatus: ProgrammingPlanLocalStatusDbo[];
-  subPlans: unknown[];
+  subPlans: Pick<ProgrammingSubPlan, 'subPlanNumber' | 'stages'>[];
 };
 
 export const ProgrammingPlans = (transaction = db) =>
@@ -194,7 +200,9 @@ const whereDepartmentOrRegionalDistribution = (
       .where(`${programmingPlanLocalStatusTable}.department`, department)
       .orWhere((regional) =>
         regional
-          .where(`${programmingPlansTable}.distribution_kind`, 'REGIONAL')
+          .whereRaw(
+            `exists (select 1 from ${programmingSubPlansTable} sp where sp.programming_plan_id = ${programmingPlansTable}.id and sp.sub_plan_number like '${PPVSubPlanNumberPrefix}%')`
+          )
           .where(`${programmingPlanLocalStatusTable}.department`, 'None')
       )
   );
@@ -346,7 +354,6 @@ const create = async ({
         domainId: domain.id,
         year: domain.year,
         title,
-        distributionKind: 'TO_BE_DEFINED',
         settingsCompleted: false,
         createdAt: new Date(),
         createdBy
@@ -569,7 +576,8 @@ const parseProgrammingPlan = (
 ): ProgrammingPlanChecked =>
   ProgrammingPlanChecked.parse({
     ...row,
-    nationalStatus: row.nationalStatus?.[0]
+    nationalStatus: row.nationalStatus?.[0],
+    distributionKind: subPlansDistributionKind(row.subPlans)
   });
 
 export default {
