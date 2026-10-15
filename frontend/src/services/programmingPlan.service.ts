@@ -95,6 +95,17 @@ const programmingPlanApi = api.injectEndpoints({
         invalidatesTags: () => [{ type: 'ProgrammingPlan', id: 'LIST' }]
       }
     ),
+    createProgrammingSubPlan: buildTypedMutation(
+      builder,
+      '/programming-plans/:programmingPlanId/sub-plans',
+      'post',
+      {
+        invalidatesTags: (_result, _error, { programmingPlanId }) => [
+          { type: 'ProgrammingPlan', id: programmingPlanId },
+          { type: 'ProgrammingPlan', id: 'LIST' }
+        ]
+      }
+    ),
     duplicateProgrammingSubPlan: buildTypedMutation(
       builder,
       '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/duplicate',
@@ -215,6 +226,7 @@ export const useGetProgrammingPlanQuery: typeof programmingPlanApi.useGetProgram
 
 export const {
   useCreateProgrammingPlanMutation,
+  useCreateProgrammingSubPlanMutation,
   useUpdateProgrammingPlanStatusMutation,
   useUpdateProgrammingPlanLocalStatusMutation,
   useFindProgrammingPlanSettingsQuery,

@@ -2477,6 +2477,101 @@ describe('ProgrammingPlan router', () => {
     });
   });
 
+  describe('POST /programming-plans/:programmingPlanId/sub-plans', () => {
+    const subPlansRoute = (programmingPlanId: string) =>
+      `/api/programming-plans/${programmingPlanId}/sub-plans`;
+
+    const genPlan = (status: ProgrammingPlanStatus) => {
+      const planId = crypto.randomUUID();
+      return genDeletableProgrammingPlan({
+        id: planId,
+        stagesManaged: true,
+        subPlans: [
+          genProgrammingSubPlan({
+            programmingPlanId: planId,
+            subPlanNumber: 'PPV01',
+            stagesManaged: false,
+            settingsCompleted: false
+          })
+        ],
+        regionalStatus: RegionList.map((region) => ({ region, status }))
+      });
+    };
+
+    let inProgressPlan: ProgrammingPlanChecked;
+    let launchedPlan: ProgrammingPlanChecked;
+
+    beforeEach(async () => {
+      inProgressPlan = genPlan('InProgress');
+      launchedPlan = genPlan('Validated');
+      await programmingPlanRepository.insert(inProgressPlan);
+      await programmingPlanRepository.insert(launchedPlan);
+    });
+
+    afterEach(async () => {
+      await programmingPlanRepository.deleteOne(inProgressPlan.id);
+      await programmingPlanRepository.deleteOne(launchedPlan.id);
+    });
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .post(subPlansRoute(inProgressPlan.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have the permission', async () => {
+      await request(app)
+        .post(subPlansRoute(inProgressPlan.id))
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the user does not coordinate the plan', async () => {
+      await request(app)
+        .post(subPlansRoute(inProgressPlan.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the campaign is launched', async () => {
+      await request(app)
+        .post(subPlansRoute(launchedPlan.id))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should create an empty sub-plan numbered after the last one, managing what the plan does not', async () => {
+      const res = await request(app)
+        .post(subPlansRoute(inProgressPlan.id))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      expect(res.body).toMatchObject({
+        programmingPlanId: inProgressPlan.id,
+        subPlanNumber: 'PPV02',
+        settingsCompleted: false
+      });
+
+      await expect(
+        kysely
+          .selectFrom('programmingSubPlansRaw')
+          .select([
+            'stages',
+            'stagesManaged',
+            'substanceKinds',
+            'substanceKindsManaged'
+          ])
+          .where('id', '=', res.body.id)
+          .executeTakeFirst()
+      ).resolves.toEqual({
+        stages: null,
+        stagesManaged: false,
+        substanceKinds: null,
+        substanceKindsManaged: true
+      });
+    });
+  });
+
   describe('DELETE /programming-plans/:programmingPlanId', () => {
     const planRoute = (programmingPlanId: string) =>
       `/api/programming-plans/${programmingPlanId}`;

@@ -6,6 +6,7 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import clsx from 'clsx';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
+import { isCampaignLaunched } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { subPlanLabel } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
@@ -16,7 +17,6 @@ import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
-import { isCampaignLaunched } from '../ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard.tsx';
 import { ProgrammingPlanSettingsTabs } from '../ProgrammingPlanSettingsTabs/ProgrammingPlanSettingsTabs';
 import { ProgrammingSubPlanList } from '../ProgrammingSubPlanList/ProgrammingSubPlanList';
 
@@ -54,12 +54,13 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
     [programmingPlan?.title]
   );
 
-  const canRenamePlan =
-    !subPlan &&
+  const canUpdatePlanSettings =
     !!programmingPlan &&
     !!user &&
     !!account &&
     canUpdateProgrammingPlanSettings(programmingPlan, user, account.roles);
+
+  const canRenamePlan = !subPlan && canUpdatePlanSettings;
 
   return !programmingPlan ? null : (
     <AppPage
@@ -210,6 +211,9 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
             subPlans={programmingPlan?.subPlans ?? []}
             programmingPlanId={programmingPlanId}
             currentSubPlanId={subPlan?.id}
+            canAddSubPlan={
+              canUpdatePlanSettings && !isCampaignLaunched(programmingPlan)
+            }
           />
         </div>
       </div>

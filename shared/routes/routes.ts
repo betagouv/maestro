@@ -65,6 +65,7 @@ export const MaestroRoutes = [
   '/programming-plan-domains/:programmingPlanDomainId',
   '/programming-plan-domains/:programmingPlanDomainId/duplicate',
   '/programming-plans/:programmingPlanId/duplicate',
+  '/programming-plans/:programmingPlanId/sub-plans',
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId',
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/duplicate',
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/settings',
