@@ -43,6 +43,8 @@ SECURITY LABEL FOR anon ON COLUMN local_prescription_changes.company_siret
   IS 'MASKED WITH FUNCTION anon.pseudo_siret(local_prescription_changes.company_siret)';
 SECURITY LABEL FOR anon ON COLUMN local_prescription_comments.company_siret
   IS 'MASKED WITH FUNCTION anon.pseudo_siret(local_prescription_comments.company_siret)';
+SECURITY LABEL FOR anon ON COLUMN company_workshops.siret
+  IS 'MASKED WITH FUNCTION anon.pseudo_siret(company_workshops.siret)';
 
 SECURITY LABEL FOR anon ON COLUMN companies.name
   IS 'MASKED WITH FUNCTION anon.pseudo_company(companies.name)';
@@ -129,6 +131,22 @@ SECURITY LABEL FOR anon ON COLUMN samples.seves
   IS 'MASKED WITH VALUE NULL';
 
 SECURITY LABEL FOR anon ON COLUMN samples.resytal_id
+  IS 'MASKED WITH VALUE NULL';
+SECURITY LABEL FOR anon ON COLUMN company_workshops.ate_identifiant
+  IS 'MASKED WITH VALUE NULL';
+SECURITY LABEL FOR anon ON COLUMN company_workshops.ate_lb
+  IS 'MASKED WITH VALUE NULL';
+SECURITY LABEL FOR anon ON COLUMN company_workshops.eta_id
+  IS 'MASKED WITH VALUE NULL';
+SECURITY LABEL FOR anon ON COLUMN company_workshops.eta_lb
+  IS 'MASKED WITH FUNCTION anon.pseudo_company(company_workshops.eta_lb)';
+SECURITY LABEL FOR anon ON COLUMN company_workshops.ide_lb
+  IS 'MASKED WITH VALUE NULL';
+SECURITY LABEL FOR anon ON COLUMN company_workshops.adr_ligne1
+  IS 'MASKED WITH VALUE NULL';
+SECURITY LABEL FOR anon ON COLUMN company_workshops.cp_etab
+  IS 'MASKED WITH VALUE NULL';
+SECURITY LABEL FOR anon ON COLUMN company_workshops.commune_etab
   IS 'MASKED WITH VALUE NULL';
 SECURITY LABEL FOR anon ON COLUMN sample_items.invoice_number
   IS 'MASKED WITH VALUE NULL';

@@ -27,6 +27,49 @@ import { sendSachaFile } from './sachaSender';
 import { generateXML, getSenderSachaSigle, type XmlFile } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
+const referenceEtablissementType = (
+  sample: Pick<SampleChecked, 'company' | 'companyWorkshop' | 'ownerEmail'>
+) => {
+  const workshop = sample.companyWorkshop;
+
+  if (!workshop?.typeIdentEta || !workshop.etaId || !workshop.etaLb) {
+    return {
+      ReferenceEtablissement: {
+        SigleIdentifiant: 'SIRET',
+        Identifiant: sample.company.siret,
+        Nom: sample.company.name,
+        CodePostal: `${sample.company.postalCode ?? ''} ${sample.company.city ?? ''}`,
+        Adresse1: sample.company.address ?? undefined,
+        Email: sample.ownerEmail ?? undefined
+      }
+    };
+  }
+
+  const codePostal = [workshop.cpEtab, workshop.communeEtab]
+    .filter(isDefined)
+    .join(' ');
+
+  return {
+    ReferenceEtablissement: {
+      SigleIdentifiant: workshop.typeIdentEta,
+      Identifiant: workshop.etaId,
+      Nom: workshop.etaLb,
+      Adresse1: workshop.adrLigne1 ?? undefined,
+      CodePostal: codePostal,
+      Email: sample.ownerEmail ?? undefined
+    },
+    ReferenceAtelierType: {
+      ReferenceAtelier: {
+        SigleIdentifiant: workshop.ideLb ?? '',
+        Identifiant: workshop.ateIdentifiant,
+        Nom: workshop.ateLb,
+        Adresse1: workshop.adrLigne1 ?? undefined,
+        CodePostal: codePostal
+      }
+    }
+  };
+};
+
 export const generateXMLDAI = (
   sample: Pick<
     SampleChecked,
@@ -34,6 +77,7 @@ export const generateXMLDAI = (
     | 'sampledDate'
     | 'lastUpdatedAt'
     | 'company'
+    | 'companyWorkshop'
     | 'ownerEmail'
     | 'sampler'
     | 'department'
@@ -115,16 +159,7 @@ export const generateXMLDAI = (
           DateIntervention: sample.sampledDate,
           DateModification: toSachaDateTime(sample.lastUpdatedAt)
         },
-        ReferenceEtablissementType: {
-          ReferenceEtablissement: {
-            SigleIdentifiant: 'SIRET',
-            Identifiant: sample.company.siret,
-            Nom: sample.company.name,
-            CodePostal: `${sample.company.postalCode ?? ''} ${sample.company.city ?? ''}`,
-            Adresse1: sample.company.address ?? undefined,
-            Email: sample.ownerEmail ?? undefined
-          }
-        },
+        ReferenceEtablissementType: referenceEtablissementType(sample),
         DialogueActeurType: {
           DialogueActeur: {
             SigleIdentifiant: 'DEPADM',

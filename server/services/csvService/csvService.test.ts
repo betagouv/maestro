@@ -81,6 +81,7 @@ test('génère un CSV', async () => {
     Cadre juridique;
     Entité contrôlée;Company 1
     Siret;11111111111111
+    Atelier;
     Identifiant Resytal;23-123456
     Département;
     Adresse;
@@ -125,6 +126,7 @@ test('génère un CSV avec le BOM pour Girpa', async () => {
     Cadre juridique;
     Entité contrôlée;Company 1
     Siret;11111111111111
+    Atelier;
     Identifiant Resytal;23-123456
     Département;
     Adresse;

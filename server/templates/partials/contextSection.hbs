@@ -178,6 +178,13 @@
                     {{company.city}}
                   </div>
                 {{/if}}
+                {{#if companyWorkshop}}
+                  <div class='sub-value'>
+                    Atelier :
+                    {{companyWorkshop.label}}
+                    ({{companyWorkshop.identifier}})
+                  </div>
+                {{/if}}
               </div>
             </div>
             <div class='fr-col-6'>

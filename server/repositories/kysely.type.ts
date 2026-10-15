@@ -179,6 +179,22 @@ export interface Companies {
   geolocation: Point | null;
 }
 
+export interface CompanyWorkshops {
+  id: Generated<string>;
+  siret: string;
+  ateIdentifiant: string;
+  ateLb: string;
+  typeIdentEta: string | null;
+  etaId: string | null;
+  etaLb: string | null;
+  ideLb: string | null;
+  adrLigne1: string | null;
+  cpEtab: string | null;
+  communeEtab: string | null;
+  cataLbs: string | null;
+  cataLb: string | null;
+}
+
 export interface Documents {
   createdAt: Generated<Timestamp | null>;
   createdBy: string | null;
@@ -385,6 +401,7 @@ export interface SampleItems {
 export interface Samples {
   companyOffline: string | null;
   companySiret: string | null;
+  companyWorkshopId: string | null;
   context: string;
   createdAt: Generated<Timestamp | null>;
   department: string | null;
@@ -580,6 +597,7 @@ export interface DB {
   analysisResidues: AnalysisResidues;
   analysisErrors: AnalysisErrors;
   companies: Companies;
+  companyWorkshops: CompanyWorkshops;
   departments: Departments;
   documentProgrammingPlans: DocumentProgrammingPlans;
   documents: Documents;

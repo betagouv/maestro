@@ -28,6 +28,15 @@ const companyApi = api.injectEndpoints({
         return [];
       }
     }),
+    findCompanyWorkshops: buildTypedQuery(
+      builder,
+      '/companies/:siret/workshops',
+      {
+        providesTags: (_result, _error, { siret }) => [
+          { type: 'CompanyWorkshop' as const, id: siret }
+        ]
+      }
+    ),
     findCompanies: buildTypedQuery(builder, '/companies', {
       providesTags: (result) => [
         { type: 'Company', id: 'LIST' },
@@ -43,5 +52,6 @@ const companyApi = api.injectEndpoints({
 export const {
   useLazySearchCompaniesQuery,
   useFindCompaniesQuery,
-  useLazyFindCompaniesQuery
+  useLazyFindCompaniesQuery,
+  useFindCompanyWorkshopsQuery
 } = companyApi;

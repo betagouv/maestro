@@ -777,3 +777,45 @@ describe('getCommemoratifs', () => {
     ).toThrow();
   });
 });
+
+test("alimente l'établissement et l'atelier depuis le référentiel atelier", async () => {
+  const xmlFile = await generateXMLDAI(
+    {
+      ...daiSample,
+      companyWorkshop: {
+        id: '11111111-2222-4333-8444-555555555555',
+        siret: '54695037900216',
+        typeIdentEta: 'ILU',
+        etaId: '72080002',
+        etaLb: 'SOCOPA VIANDES',
+        ideLb: 'DOSDSV',
+        ateIdentifiant: '72080002ABATTOIR',
+        ateLb:
+          "DOSDSV-72080002ABATTOIR-Viande de boucherie - Amont - Chaîne d'abattage anx de boucherie",
+        adrLigne1: 'RN 23',
+        cpEtab: '72400',
+        communeEtab: 'CHERRE'
+      }
+    },
+    'M01',
+    daiSampleItem,
+    1765876056798,
+    daiFieldConfigs,
+    daiCommemoratifRecord,
+    sachaConf,
+    laboratory
+  );
+
+  expect(xmlFile.content).toContain('<SigleIdentifiant>ILU</SigleIdentifiant>');
+  expect(xmlFile.content).toContain('<Identifiant>72080002</Identifiant>');
+  expect(xmlFile.content).toContain('<Nom>SOCOPA VIANDES</Nom>');
+  expect(xmlFile.content).toContain('<CodePostal>72400 CHERRE</CodePostal>');
+  expect(xmlFile.content).toContain('<ReferenceAtelierType>');
+  expect(xmlFile.content).toContain(
+    '<SigleIdentifiant>DOSDSV</SigleIdentifiant>'
+  );
+  expect(xmlFile.content).toContain(
+    '<Identifiant>72080002ABATTOIR</Identifiant>'
+  );
+  expect(xmlFile.content).toContain('<Adresse1>RN 23</Adresse1>');
+});

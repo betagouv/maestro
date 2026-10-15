@@ -1,4 +1,5 @@
 import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
+import { companyWorkshopLabel } from 'maestro-shared/schema/Company/CompanyWorkshop';
 import { isPPVSubPlanNumber } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 
 const escapeCsvValue = (value: any) => {
@@ -23,6 +24,7 @@ const generateAnalysisRequestCsv = async (data: AnalysisRequestData) => {
     `Cadre juridique;${escapeCsvValue(data.legalContext)}`,
     `Entité contrôlée;${escapeCsvValue(data.company.name)}`,
     `Siret;${escapeCsvValue(data.company.siret)}`,
+    `Atelier;${escapeCsvValue(data.companyWorkshop ? companyWorkshopLabel(data.companyWorkshop) : '')}`,
     `Identifiant Resytal;${escapeCsvValue(data.resytalId)}`,
     `Département;${escapeCsvValue(data.department)}`,
     `Adresse;${escapeCsvValue(data.company.fullAddress)}`,

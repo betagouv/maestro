@@ -1,11 +1,17 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { Company } from 'maestro-shared/schema/Company/Company';
+import {
+  type CompanyWorkshop,
+  companyWorkshopLabel
+} from 'maestro-shared/schema/Company/CompanyWorkshop';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { useEffect, useMemo } from 'react';
+import AppSelect from 'src/components/_app/AppSelect/AppSelect';
+import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import CompanySearch from 'src/components/CompanySearch/CompanySearch';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -18,9 +24,12 @@ type Props = {
   programmingSubPlanId: string;
   company: Company | undefined;
   companyOffline: string | undefined;
+  companyWorkshop: CompanyWorkshop | undefined;
+  companyWorkshops: CompanyWorkshop[];
   readonly: boolean;
   form: UseForm<any>;
   onCompanyChange: (company: Company | undefined) => void;
+  onCompanyWorkshopChange: (workshop: CompanyWorkshop | undefined) => void;
   onGeolocationChange?: (x: number | undefined, y: number | undefined) => void;
 };
 
@@ -30,9 +39,12 @@ const SampleCompany = ({
   programmingSubPlanId,
   company,
   companyOffline,
+  companyWorkshop,
+  companyWorkshops,
   readonly,
   form,
   onCompanyChange,
+  onCompanyWorkshopChange,
   onGeolocationChange
 }: Props) => {
   const { user } = useAuthentication();
@@ -153,6 +165,38 @@ const SampleCompany = ({
           />
         )}
       </div>
+      {companyWorkshops.length > 0 && (
+        <div className={cx('fr-col-12')}>
+          <AppSelect
+            value={companyWorkshop?.id ?? ''}
+            options={selectOptionsFromList(
+              companyWorkshops.map((workshop) => workshop.id),
+              {
+                labels: Object.fromEntries(
+                  companyWorkshops.map((workshop) => [
+                    workshop.id,
+                    companyWorkshopLabel(workshop)
+                  ])
+                )
+              }
+            )}
+            onChange={(e) =>
+              onCompanyWorkshopChange(
+                companyWorkshops.find(
+                  (workshop) => workshop.id === e.target.value
+                )
+              )
+            }
+            inputForm={form}
+            inputKey="companyWorkshop"
+            whenValid="Atelier correctement renseigné."
+            data-testid="companyWorkshop-select"
+            label="Atelier"
+            required
+            disabled={readonly}
+          />
+        </div>
+      )}
     </div>
   );
 };

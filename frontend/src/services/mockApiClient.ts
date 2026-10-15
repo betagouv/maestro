@@ -155,6 +155,7 @@ const defaultMockApiClientConf: MockApi = {
   useFindCompaniesQuery: {
     data: [SlaughterhouseCompanyFixture1, SlaughterhouseCompanyFixture2]
   },
+  useFindCompanyWorkshopsQuery: { data: [] },
   useFindAllFieldConfigsQuery: { data: [] },
   useCreateFieldMutation: [fn(), {}],
   useUpdateFieldMutation: [fn(), {}],
