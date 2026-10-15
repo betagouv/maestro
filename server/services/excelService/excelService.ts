@@ -27,6 +27,7 @@ import { ContaminationSourceLabels } from 'maestro-shared/schema/Analysis/Residu
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import { companyWorkshopLabel } from 'maestro-shared/schema/Company/CompanyWorkshop';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { LaboratoryAgreement } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
@@ -93,6 +94,7 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   company: string;
   companyAddress: string;
   companySiret: string;
+  companyWorkshop: string;
   resytalId: string;
   notesOnCreation: string;
   matrix: string;
@@ -253,6 +255,9 @@ const generateSamplesExportExcel = async (
         [sample.company?.postalCode, sample.company?.city].join(' ')
       ].join('\n'),
       companySiret: sample.company?.siret,
+      companyWorkshop: sample.companyWorkshop
+        ? companyWorkshopLabel(sample.companyWorkshop)
+        : undefined,
       resytalId: sample.resytalId,
       notesOnCreation: sample.notesOnCreation,
       matrix: sample.matrices?.length
