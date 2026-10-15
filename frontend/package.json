@@ -55,7 +55,7 @@
     "react-router": "^8.4.0",
     "sass": "^1.105.1",
     "storybook": "^10.6.1",
-    "vite": "^8.3.3",
+    "vite": "^8.3.4",
     "vite-plugin-pwa": "^2.0.0"
   },
   "overrides": {
