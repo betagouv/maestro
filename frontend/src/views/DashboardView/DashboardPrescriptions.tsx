@@ -274,7 +274,8 @@ const DashboardPrescriptionCard: FunctionComponent<{
                 {Math.max(
                   0,
                   sumBy(localPrescriptions, 'sampleCount') -
-                    sumBy(localPrescriptions, 'realizedSampleCount') -
+                    (sumBy(localPrescriptions, 'realizedSampleCount') -
+                      sumBy(localPrescriptions, 'notAdmissibleSampleCount')) -
                     sumBy(localPrescriptions, 'inProgressSampleCount')
                 )}{' '}
                 à faire

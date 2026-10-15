@@ -148,6 +148,8 @@ export const DashboardViewForSampler: Story = {
     await expect(
       canvas.getAllByText('2 non recevables')[0]
     ).toBeInTheDocument();
+    // 8 (programmés) - (5 réalisés - 2 non recevables) - 1 (en cours) = 4
+    await expect(canvas.getAllByText('4 à faire')[0]).toBeInTheDocument();
   }
 };
 
