@@ -94,6 +94,13 @@ export const programmingPlanContexts = (plan: {
     plan.subPlans.some((subPlan) => subPlan.context === context)
   );
 
+export const isCampaignLaunched = (
+  plan: Pick<ProgrammingPlanChecked, 'regionalStatus' | 'departmentalStatus'>
+): boolean =>
+  [...plan.regionalStatus, ...plan.departmentalStatus].some(({ status }) =>
+    ['Validated', 'Closed'].includes(status)
+  );
+
 export const isClosed = (plan: ProgrammingPlanChecked): boolean => {
   return !isNil(plan.closedAt);
 };

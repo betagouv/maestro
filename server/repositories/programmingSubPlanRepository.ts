@@ -83,6 +83,35 @@ const updateSettings = async (
     .execute();
 };
 
+const insert = async ({
+  programmingPlanId,
+  subPlanNumber,
+  ...settings
+}: ProgrammingPlanSettings &
+  Pick<
+    ProgrammingSubPlan,
+    'programmingPlanId' | 'subPlanNumber'
+  >): Promise<ProgrammingSubPlanId> => {
+  console.info('Insert programming sub-plan', programmingPlanId, subPlanNumber);
+
+  const id = crypto.randomUUID() as ProgrammingSubPlanId;
+
+  await kysely
+    .insertInto('programmingSubPlansRaw')
+    .values({
+      ...toProgrammingPlanSettingsRow(settings),
+      id,
+      programmingPlanId,
+      subPlanNumber,
+      settingsCompleted: false,
+      contactListId: null,
+      withSacha: false
+    })
+    .execute();
+
+  return id;
+};
+
 const deleteOne = async (id: ProgrammingSubPlanId): Promise<void> => {
   console.info('Delete programming sub-plan', id);
 
@@ -95,6 +124,7 @@ const deleteOne = async (id: ProgrammingSubPlanId): Promise<void> => {
 export const programmingSubPlanRepository = {
   findUnique,
   findMany,
+  insert,
   updateSettings,
   deleteOne
 };

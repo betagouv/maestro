@@ -34,7 +34,10 @@ import {
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { isProgrammingPlanDeletable } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  isCampaignLaunched,
+  isProgrammingPlanDeletable
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isProgrammingSubPlanDeletable,
   stagesFromSubPlans
@@ -70,8 +73,8 @@ import { notificationService } from '../services/notificationService';
 import prescriptionDiffusionService from '../services/prescriptionDiffusionService';
 import { programmingPlanDeletionService } from '../services/programmingPlanDeletionService';
 import { programmingPlanDuplicationService } from '../services/programmingPlanDuplicationService';
-
 import { programmingPlanSettingsService } from '../services/programmingPlanSettingsService';
+import { programmingSubPlanCreationService } from '../services/programmingSubPlanCreationService';
 
 const planBatches = (
   plans: ProgrammingPlanChecked[]
@@ -986,6 +989,35 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
       }
 
       return { response: duplicatedPlan, status: HttpStatus.CREATED };
+    }
+  },
+  '/programming-plans/:programmingPlanId/sub-plans': {
+    post: async ({ user, account }, { programmingPlanId }) => {
+      const programmingPlan =
+        await getAndCheckProgrammingPlan(programmingPlanId);
+
+      if (
+        !canUpdateProgrammingPlanSettings(
+          programmingPlan,
+          user,
+          account.roles
+        ) ||
+        isCampaignLaunched(programmingPlan)
+      ) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+
+      const createdSubPlanId =
+        await programmingSubPlanCreationService.createSubPlan(programmingPlan);
+
+      const createdSubPlan =
+        await programmingSubPlanRepository.findUnique(createdSubPlanId);
+
+      if (!createdSubPlan) {
+        return { status: HttpStatus.NOT_FOUND };
+      }
+
+      return { response: createdSubPlan, status: HttpStatus.CREATED };
     }
   },
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/duplicate':

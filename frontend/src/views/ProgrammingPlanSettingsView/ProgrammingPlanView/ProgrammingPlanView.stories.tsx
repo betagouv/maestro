@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { RegionList } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import type {
   ProgrammingPlanSettingsForm,
   ProgrammingSubPlanSettingsForm
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
+import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   ProgrammingSubPlanId,
   subPlanLabel
@@ -50,6 +52,7 @@ const createDocumentUpload = fn(async () => ({
 }));
 const deleteProgrammingPlan = fn();
 const deleteProgrammingSubPlan = fn();
+const createProgrammingSubPlan = fn(async () => ({ id: FruitsSubPlanId }));
 
 const completionModal = (canvasElement: HTMLElement) =>
   canvasElement.querySelector(
@@ -279,6 +282,31 @@ const technicalInstruction = genDocument({
   filename: 'it-2026.pdf'
 });
 
+const ppvPlan = genProgrammingPlan({
+  id: PPVPlanId,
+  year: 2026,
+  domainId: pesticide2026.id,
+  title: 'Production primaire végétale',
+  stages: ['TRANSFORMATION'],
+  stagesManaged: true,
+  settingsCompleted: false,
+  subPlans: [fruitsSubPlan, cerealesSubPlan, animauxSubPlan]
+});
+
+const withPPVPlanRegionalStatus = (
+  status: ProgrammingPlanStatus
+): Partial<MockApi> => ({
+  ...mockApiConf,
+  useFindProgrammingPlansQuery: {
+    data: [
+      {
+        ...ppvPlan,
+        regionalStatus: RegionList.map((region) => ({ region, status }))
+      }
+    ]
+  }
+});
+
 const mockApiConf: Partial<MockApi> = {
   useUpdateProgrammingPlanSettingsMutation: [updateProgrammingPlanSettings, {}],
   useCreateDocumentUploadMutation: [createDocumentUpload, {}],
@@ -313,16 +341,7 @@ const mockApiConf: Partial<MockApi> = {
   },
   useFindProgrammingPlansQuery: {
     data: [
-      genProgrammingPlan({
-        id: PPVPlanId,
-        year: 2026,
-        domainId: pesticide2026.id,
-        title: 'Production primaire végétale',
-        stages: ['TRANSFORMATION'],
-        stagesManaged: true,
-        settingsCompleted: false,
-        subPlans: [fruitsSubPlan, cerealesSubPlan, animauxSubPlan]
-      }),
+      ppvPlan,
       genProgrammingPlan({
         year: 2026,
         domainId: pesticide2026.id,
@@ -1958,6 +1977,9 @@ export const PlanReadOnlyForNonCoordinator: Story = {
     await expect(
       canvasElement.querySelector('.fr-icon-delete-bin-line')
     ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: 'Ajouter' })
+    ).not.toBeInTheDocument();
   }
 };
 
@@ -2264,5 +2286,44 @@ export const SubPlanDeleteForbiddenWhenCompleted: Story = {
     await expect(
       canvas.getByTitle('Le paramétrage de ce sous-plan est terminé.')
     ).toBeDisabled();
+  }
+};
+
+export const SubPlanAdd: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      ...withPPVPlanRegionalStatus('InProgress'),
+      useCreateProgrammingSubPlanMutation: [createProgrammingSubPlan, {}]
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    createProgrammingSubPlan.mockClear();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Ajouter' }));
+
+    await waitFor(() =>
+      expect(createProgrammingSubPlan).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId
+      })
+    );
+    await expect(
+      await canvas.findByRole('heading', { name: `102 - ${fruitsName}` })
+    ).toBeInTheDocument();
+  }
+};
+
+export const SubPlanAddHiddenWhenCampaignLaunched: Story = {
+  parameters: {
+    apiClient: getMockApi(withPPVPlanRegionalStatus('Validated'))
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByText('3 sous-plans')).toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: 'Ajouter' })
+    ).not.toBeInTheDocument();
   }
 };

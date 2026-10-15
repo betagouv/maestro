@@ -5,7 +5,10 @@ import type { RegisteredLinkProps } from '@codegouvfr/react-dsfr/link';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { sortBy, sumBy, uniqBy } from 'lodash-es';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  isCampaignLaunched,
+  type ProgrammingPlanChecked
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { CSSProperties } from 'react';
 import { pluralize } from 'src/utils/stringUtils';
 import { assert, type Equals } from 'tsafe';
@@ -19,11 +22,6 @@ type Props = {
   linkProps: RegisteredLinkProps;
   withPlanCount?: boolean;
 };
-
-export const isCampaignLaunched = (plan: ProgrammingPlanChecked): boolean =>
-  [...plan.regionalStatus, ...plan.departmentalStatus].some(({ status }) =>
-    ['Validated', 'Closed'].includes(status)
-  );
 
 export const ProgrammingPlanSettingsCard = ({
   title,

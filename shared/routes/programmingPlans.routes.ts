@@ -107,6 +107,15 @@ export const programmingPlansRoutes = {
       response: ProgrammingPlanChecked
     }
   },
+  '/programming-plans/:programmingPlanId/sub-plans': {
+    params: {
+      programmingPlanId: z.guid()
+    },
+    post: {
+      accountPermissions: ['manageProgrammingPlanSettings'],
+      response: ProgrammingSubPlan
+    }
+  },
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/duplicate':
     {
       params: {

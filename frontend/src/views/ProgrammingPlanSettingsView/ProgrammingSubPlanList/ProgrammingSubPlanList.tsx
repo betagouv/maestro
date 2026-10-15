@@ -8,8 +8,10 @@ import {
   type ProgrammingSubPlanId,
   subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { useContext, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router';
+import AppServiceErrorAlert from 'src/components/_app/AppErrorAlert/AppServiceErrorAlert';
+import { ApiClientContext } from 'src/services/apiClient';
 import { pluralize } from 'src/utils/stringUtils';
 import { assert, type Equals } from 'tsafe';
 import './ProgrammingSubPlanList.scss';
@@ -18,15 +20,22 @@ type Props = {
   subPlans: ProgrammingSubPlan[];
   programmingPlanId: string;
   currentSubPlanId?: ProgrammingSubPlanId;
+  canAddSubPlan: boolean;
 };
 
 export const ProgrammingSubPlanList = ({
   subPlans,
   programmingPlanId,
   currentSubPlanId,
+  canAddSubPlan,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const navigate = useNavigate();
+  const apiClient = useContext(ApiClientContext);
+  const [createProgrammingSubPlan, createProgrammingSubPlanCall] =
+    apiClient.useCreateProgrammingSubPlanMutation();
 
   const [search, setSearch] = useState('');
 
@@ -41,6 +50,19 @@ export const ProgrammingSubPlanList = ({
       )
       .sort((a, b) => a.subPlanNumber.localeCompare(b.subPlanNumber));
   }, [subPlans, search]);
+
+  const addSubPlan = async () => {
+    const { id } = await createProgrammingSubPlan({
+      programmingPlanId
+    }).unwrap();
+
+    navigate(
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        programmingPlanId,
+        id
+      )
+    );
+  };
 
   return (
     <div className={clsx('white-container', 'programming-sub-plan-list')}>
@@ -58,18 +80,20 @@ export const ProgrammingSubPlanList = ({
         <span className={cx('fr-text--sm', 'fr-m-0')}>
           {pluralize(subPlans.length, { preserveCount: true })('sous-plan')}
         </span>
-        <Button
-          className={cx('fr-ml-auto')}
-          size="small"
-          priority="secondary"
-          iconId="fr-icon-file-add-line"
-          onClick={() => ({
-            //FIXME DOMAIN implémenter l'ajout d'un sous-plan
-          })}
-        >
-          Ajouter
-        </Button>
+        {canAddSubPlan && (
+          <Button
+            className={cx('fr-ml-auto')}
+            size="small"
+            priority="secondary"
+            iconId="fr-icon-file-add-line"
+            disabled={createProgrammingSubPlanCall.isLoading}
+            onClick={addSubPlan}
+          >
+            Ajouter
+          </Button>
+        )}
       </div>
+      <AppServiceErrorAlert call={createProgrammingSubPlanCall} />
       <div className={cx('fr-px-2w', 'fr-py-1w')}>
         <Input
           label="Rechercher un sous-plan"
