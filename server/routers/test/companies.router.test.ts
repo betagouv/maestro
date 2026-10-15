@@ -2,12 +2,14 @@ import { constants } from 'node:http2';
 import {
   CompanyFixture,
   SlaughterhouseCompanyFixture1,
-  SlaughterhouseCompanyFixture2
+  SlaughterhouseCompanyFixture2,
+  SlaughterhouseWorkshopFixture1,
+  SlaughterhouseWorkshopFixture2
 } from 'maestro-shared/test/companyFixtures';
 import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import request from 'supertest';
-import { describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
@@ -55,6 +57,37 @@ describe('Company Router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expectArrayToContainElements(res2.body, [CompanyFixture]);
+    });
+  });
+
+  describe('GET /companies/:siret/workshops', () => {
+    const testRoute = (siret: string) => `/api/companies/${siret}/workshops`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute(SlaughterhouseCompanyFixture1.siret))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should return the workshops of the company', async () => {
+      const res = await request(app)
+        .get(testRoute(SlaughterhouseCompanyFixture1.siret))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectArrayToContainElements(res.body, [
+        expect.objectContaining(SlaughterhouseWorkshopFixture1),
+        expect.objectContaining(SlaughterhouseWorkshopFixture2)
+      ]);
+    });
+
+    test('should return an empty list for a company without workshop', async () => {
+      const res = await request(app)
+        .get(testRoute(CompanyFixture.siret))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual([]);
     });
   });
 });
