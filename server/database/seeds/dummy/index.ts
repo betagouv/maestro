@@ -15,12 +15,14 @@ import { seed as laboratoryAgreementsSeed } from './008-laboratory-agreements';
 import { seed as documentsSeed } from './009-documents';
 import { seed as analysisSeed } from './010-analysis';
 import { seed as laboratoryAgreementChecksSeed } from './011-laboratory-agreement-checks';
+import { seed as companyWorkshopsSeed } from './012-company-workshops';
 
 const run = async () => {
   initKnex();
   initKysely(config.databaseUrl);
 
   await companiesSeed();
+  await companyWorkshopsSeed();
   await laboratoriesSeed();
   await usersSeed();
   await programmingPlansSeed();

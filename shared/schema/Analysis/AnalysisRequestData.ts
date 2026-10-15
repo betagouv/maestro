@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Company } from '../Company/Company';
+import { CompanyWorkshop } from '../Company/CompanyWorkshop';
 import { Laboratory } from '../Laboratory/Laboratory';
 import { SampleBase } from '../Sample/Sample';
 import { SampleItem } from '../Sample/SampleItem';
@@ -13,6 +14,7 @@ export const AnalysisRequestData = z.object({
     ...Company.shape,
     fullAddress: z.string()
   }),
+  companyWorkshop: CompanyWorkshop.nullish(),
   laboratory: Laboratory,
   monoSubstanceLabels: z.array(z.string()),
   multiSubstanceLabels: z.array(z.string()),

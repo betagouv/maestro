@@ -1,5 +1,6 @@
 import { fakerFR as faker, fakerFR } from '@faker-js/faker';
 import type { Company } from '../schema/Company/Company';
+import type { CompanyWorkshop } from '../schema/Company/CompanyWorkshop';
 import { genSiret } from './testFixtures';
 
 export const genCompany = (data?: Partial<Company>): Company => ({
@@ -37,3 +38,17 @@ export const SlaughterhouseCompanyFixture2 = genCompany({
   postalCode: '75000',
   kinds: ['MEAT_SLAUGHTERHOUSE']
 });
+
+export const SlaughterhouseWorkshopFixture1: CompanyWorkshop = {
+  id: 'bbbbbbbb-0000-4000-8000-000000000001',
+  siret: SlaughterhouseCompanyFixture1.siret,
+  ateIdentifiant: 'A01',
+  ateLb: 'Abattage gros bovins'
+};
+
+export const SlaughterhouseWorkshopFixture2: CompanyWorkshop = {
+  id: 'bbbbbbbb-0000-4000-8000-000000000002',
+  siret: SlaughterhouseCompanyFixture1.siret,
+  ateIdentifiant: 'A02',
+  ateLb: 'Découpe et désossage'
+};

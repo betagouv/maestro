@@ -11,6 +11,7 @@ import { maestroDateRefined, toMaestroDate } from '../../utils/date';
 import { isDefined } from '../../utils/utils';
 import { checkSchema } from '../../utils/zod';
 import { Company } from '../Company/Company';
+import { CompanyWorkshop } from '../Company/CompanyWorkshop';
 import { Geolocation } from '../Geolocation/Geolocation';
 import {
   Context,
@@ -44,6 +45,7 @@ export const SampleContextData = z.object({
   context: Context,
   legalContext: LegalContext.nullish(),
   company: Company.nullish(),
+  companyWorkshop: CompanyWorkshop.nullish(),
   companyOffline: z.string().nullish(),
   resytalId: z.string().nullish(),
   notesOnCreation: z.string().nullish(),

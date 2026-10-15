@@ -100,6 +100,7 @@ export const buildAnalysisRequestData = (
     ),
     sampler,
     company,
+    companyWorkshop: updatedSample.companyWorkshop,
     laboratory,
     monoSubstanceLabels: (updatedSample.monoSubstances ?? []).map(
       substanceToLaboratoryLabel
