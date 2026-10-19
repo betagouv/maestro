@@ -3,6 +3,10 @@ import { z } from 'zod';
 import { type Department, DepartmentSort } from '../../referential/Department';
 import { type Region, RegionSort } from '../../referential/Region';
 import type { Company } from '../Company/Company';
+import {
+  hasCompanyEchelon,
+  hasDepartmentalEchelon
+} from '../ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import { hasPermission, type UserBase, userRegionsForRole } from '../User/User';
 import type { UserRole } from '../User/UserRole';
@@ -162,11 +166,11 @@ export const hasLocalPrescriptionPermission = (
     programmingPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === localPrescription.region
     )?.status !== 'Closed' &&
-    (programmingPlan.distributionKind === 'SLAUGHTERHOUSE'
+    (hasDepartmentalEchelon(programmingPlan.distributionKind)
       ? hasPermission(userRole, 'distributePrescriptionToDepartments')
       : hasPermission(userRole, 'approveProgrammingPlan')),
   distributeToSlaughterhouses:
-    programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
+    hasCompanyEchelon(programmingPlan.distributionKind) &&
     hasPermission(userRole, 'distributePrescriptionToSlaughterhouses') &&
     userRegionsForRole(user, userRole).includes(localPrescription.region) &&
     user.department === localPrescription.department &&
@@ -190,13 +194,13 @@ export const hasLocalPrescriptionPermission = (
   updateLaboratories:
     hasPermission(userRole, 'updatePrescriptionLaboratories') &&
     userRegionsForRole(user, userRole).includes(localPrescription.region) &&
-    ((programmingPlan.distributionKind === 'REGIONAL' &&
+    ((!hasDepartmentalEchelon(programmingPlan.distributionKind) &&
       programmingPlan.regionalStatus.some(
         (regionStatus) =>
           regionStatus.region === localPrescription.region &&
           ['Validated', 'SubmittedToRegion'].includes(regionStatus.status)
       )) ||
-      (programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
+      (hasDepartmentalEchelon(programmingPlan.distributionKind) &&
         user.department === localPrescription.department &&
         programmingPlan.departmentalStatus.some(
           (departmentalStatus) =>

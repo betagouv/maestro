@@ -34,6 +34,7 @@ import {
   sortPrescriptions
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { PrescriptionImportResult } from 'maestro-shared/schema/Prescription/PrescriptionImport';
+import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import {
@@ -450,11 +451,16 @@ const ProgrammingPrescriptionList = ({
         department,
         companies,
         regionalPrescriptionIds: (allPrescriptions ?? [])
-          .filter(
-            (prescription) =>
-              findPrescriptionPlan(programmingPlans, prescription)
-                ?.distributionKind === 'REGIONAL'
-          )
+          .filter((prescription) => {
+            const prescriptionPlan = findPrescriptionPlan(
+              programmingPlans,
+              prescription
+            );
+            return (
+              !isNil(prescriptionPlan) &&
+              !hasDepartmentalEchelon(prescriptionPlan.distributionKind)
+            );
+          })
           .map((prescription) => prescription.id)
       }),
     [
@@ -793,15 +799,15 @@ const ProgrammingPrescriptionList = ({
       return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser à l\'administrateur et/ou aux régions dans "Suivi des plans".';
     if (isRegionalRole(userRole)) {
       const hasRegionalKind = programmingPlans.some(
-        (plan) => plan.distributionKind === 'REGIONAL'
+        (plan) => !hasDepartmentalEchelon(plan.distributionKind)
       );
-      const hasSlaughterhouseKind = programmingPlans.some(
-        (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+      const hasDepartmentalEchelonKind = programmingPlans.some((plan) =>
+        hasDepartmentalEchelon(plan.distributionKind)
       );
-      if (hasRegionalKind && !hasSlaughterhouseKind) {
+      if (hasRegionalKind && !hasDepartmentalEchelonKind) {
         return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs dans "Suivi des plans".';
       }
-      if (hasSlaughterhouseKind && !hasRegionalKind) {
+      if (hasDepartmentalEchelonKind && !hasRegionalKind) {
         return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux départements dans "Suivi des plans".';
       }
       return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs et/ou aux départements dans "Suivi des plans".';
@@ -876,8 +882,9 @@ const ProgrammingPrescriptionList = ({
       if (!plan) {
         return [];
       }
-      const isLaboratoryEchelon =
-        plan.distributionKind === 'REGIONAL' ? !department : !!department;
+      const isLaboratoryEchelon = hasDepartmentalEchelon(plan.distributionKind)
+        ? !!department
+        : !department;
       if (!isLaboratoryEchelon) {
         return [];
       }

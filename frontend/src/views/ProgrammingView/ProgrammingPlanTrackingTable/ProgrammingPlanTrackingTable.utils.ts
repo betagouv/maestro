@@ -5,9 +5,9 @@ import type { Prescription } from 'maestro-shared/schema/Prescription/Prescripti
 import {
   computeCompleteness,
   computeDisplayStatus,
-  type DisplayStatusResult,
-  type ProgrammingPlanEchelon
+  type DisplayStatusResult
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanLocalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 

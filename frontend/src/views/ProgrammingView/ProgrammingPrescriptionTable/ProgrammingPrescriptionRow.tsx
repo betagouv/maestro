@@ -17,6 +17,7 @@ import {
   hasPrescriptionPermission,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
+import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
@@ -125,7 +126,7 @@ const ProgrammingPrescriptionRow = ({
   const regionDistributedCount = sumBy(rowSubLocalPrescriptions, 'sampleCount');
   const showRegionDistributionBadge =
     !isSamplerView &&
-    plan.distributionKind === 'SLAUGHTERHOUSE' &&
+    hasDepartmentalEchelon(plan.distributionKind) &&
     ((ownRegionalPrescription?.sampleCount ?? 0) !== 0 ||
       regionDistributedCount !== 0);
   const rowHasUnviewedChange = region
@@ -141,8 +142,7 @@ const ProgrammingPrescriptionRow = ({
     hasUserPermission('commentPrescription') &&
     !!onOpenComments;
   const showRowLaboratoryCells =
-    (plan.distributionKind === 'REGIONAL' ||
-      (plan.distributionKind === 'SLAUGHTERHOUSE' && department)) &&
+    (!hasDepartmentalEchelon(plan.distributionKind) || department) &&
     !!ownRegionalPrescription;
   const rowSubstanceKindsLaboratories: SubstanceKindLaboratory[] = (
     showRowLaboratoryCells

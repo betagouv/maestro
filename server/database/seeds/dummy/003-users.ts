@@ -2,8 +2,11 @@ import { fakerFR } from '@faker-js/faker';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { CER30Id } from 'maestro-shared/schema/User/User';
 import {
+  ALANRuminantsSubPlanFixture,
+  ALANVolaillesSubPlanFixture,
   DAOABovinValidatedSubPlanFixture,
   DAOAVolailleValidatedSubPlanFixture,
+  NationalCoordinatorAlanId,
   PPVValidatedSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -20,6 +23,10 @@ const ppvStages = stagesFromSubPlans([PPVValidatedSubPlanFixture]);
 const sachaStages = stagesFromSubPlans([
   DAOAVolailleValidatedSubPlanFixture,
   DAOABovinValidatedSubPlanFixture
+]);
+const alanStages = stagesFromSubPlans([
+  ALANRuminantsSubPlanFixture,
+  ALANVolaillesSubPlanFixture
 ]);
 
 export const seed = async () => {
@@ -158,6 +165,54 @@ export const seed = async () => {
       roles: ['Sampler'],
       region: '52',
       department: '85'
+    },
+
+    //ALAN
+    {
+      id: NationalCoordinatorAlanId,
+      email: 'coordinateur.national.alan@maestro.beta.gouv.fr',
+      name: `ALAN - ${fakerFR.person.fullName()}`,
+      stages: [],
+      certified: true,
+      roles: ['NationalCoordinator']
+    },
+    {
+      id: crypto.randomUUID(),
+      email: 'coordinateur.regional.alan@maestro.beta.gouv.fr',
+      name: `ALAN - ${fakerFR.person.fullName()}`,
+      stages: alanStages,
+      certified: true,
+      roles: ['RegionalCoordinator'],
+      region: '53'
+    },
+    {
+      id: crypto.randomUUID(),
+      email: 'coordinateur.departemental.alan@maestro.beta.gouv.fr',
+      name: `ALAN - ${fakerFR.person.fullName()}`,
+      stages: alanStages,
+      certified: true,
+      roles: ['DepartmentalCoordinator'],
+      region: '53',
+      department: '35'
+    },
+    {
+      id: crypto.randomUUID(),
+      email: 'preleveur.alan@maestro.beta.gouv.fr',
+      name: `ALAN - ${fakerFR.person.fullName()}`,
+      stages: alanStages,
+      certified: true,
+      roles: ['Sampler'],
+      region: '53',
+      department: '35'
+    },
+    {
+      id: crypto.randomUUID(),
+      email: 'suivi.regional.alan@maestro.beta.gouv.fr',
+      name: `ALAN - ${fakerFR.person.fullName()}`,
+      stages: alanStages,
+      certified: true,
+      roles: ['RegionalObserver'],
+      region: '53'
     }
   ]);
 

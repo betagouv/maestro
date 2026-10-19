@@ -1,6 +1,6 @@
 import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
-import { RegionList } from 'maestro-shared/referential/Region';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import type { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
@@ -40,6 +40,7 @@ describe('Prescriptions router', () => {
   const closedDomain = genProgrammingPlanDomain({ year: 1820 });
   const submittedDomain = genProgrammingPlanDomain({ year: 1821 });
   const inProgressDomain = genProgrammingPlanDomain({ year: 1822 });
+  const departmentalDomain = genProgrammingPlanDomain({ year: 1823 });
 
   const programmingPlanClosed = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
@@ -73,6 +74,23 @@ describe('Prescriptions router', () => {
     subPlanNumber: 'TEST2',
     context: 'Surveillance'
   });
+  const programmingPlanDepartmentalId = crypto.randomUUID();
+  const departmentalSubPlan = genProgrammingSubPlan({
+    programmingPlanId: programmingPlanDepartmentalId,
+    subPlanNumber: 'TEST4',
+    stages: ['TRANSFORMATION']
+  });
+  const programmingPlanDepartmental = genProgrammingPlan({
+    id: programmingPlanDepartmentalId,
+    createdBy: NationalCoordinator.id,
+    domainId: departmentalDomain.id,
+    subPlans: [departmentalSubPlan],
+    regionalStatus: RegionList.map((region) => ({
+      region,
+      status: 'InProgress'
+    })),
+    year: 1823
+  });
   const closedControlPrescription = genPrescription({
     programmingSubPlanId: programmingPlanClosed.subPlans[0].id
   });
@@ -89,20 +107,27 @@ describe('Prescriptions router', () => {
   beforeAll(async () => {
     await kysely
       .insertInto('programmingPlanDomains')
-      .values([closedDomain, submittedDomain, inProgressDomain])
+      .values([
+        closedDomain,
+        submittedDomain,
+        inProgressDomain,
+        departmentalDomain
+      ])
       .execute();
     await ProgrammingPlans().insert(
       [
         programmingPlanSubmitted,
         programmingPlanInProgress,
-        programmingPlanClosed
+        programmingPlanClosed,
+        programmingPlanDepartmental
       ].map(formatProgrammingPlan)
     );
     await ProgrammingPlanLocalStatus().insert(
       [
         programmingPlanSubmitted,
         programmingPlanInProgress,
-        programmingPlanClosed
+        programmingPlanClosed,
+        programmingPlanDepartmental
       ].flatMap((programmingPlan) => [
         {
           ...programmingPlan.nationalStatus,
@@ -120,7 +145,8 @@ describe('Prescriptions router', () => {
       [
         programmingPlanSubmitted,
         programmingPlanInProgress,
-        programmingPlanClosed
+        programmingPlanClosed,
+        programmingPlanDepartmental
       ]
         .flatMap((plan) =>
           plan.subPlans.map((sp) => ({
@@ -154,14 +180,16 @@ describe('Prescriptions router', () => {
       .where('id', 'in', [
         programmingPlanInProgress.id,
         programmingPlanSubmitted.id,
-        programmingPlanClosed.id
+        programmingPlanClosed.id,
+        programmingPlanDepartmental.id
       ]);
     await kysely
       .deleteFrom('programmingPlanDomains')
       .where('id', 'in', [
         closedDomain.id,
         submittedDomain.id,
-        inProgressDomain.id
+        inProgressDomain.id,
+        departmentalDomain.id
       ])
       .execute();
   });
