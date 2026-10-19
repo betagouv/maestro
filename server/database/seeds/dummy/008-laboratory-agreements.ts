@@ -40,8 +40,8 @@ export const DAOAVolailleMultiLaboratoryIds = [
 ];
 export const DAOACopperLaboratoryIds = [LDA85Id];
 
-export const ALANMonoLaboratoryIds = [ANS94ALnrPestId, CAP29Id];
-export const ALANMultiLaboratoryIds = [CAP29Id, LDA22Id, SCL34Id];
+const ALANMonoLaboratoryIds = [ANS94ALnrPestId, CAP29Id];
+const ALANMultiLaboratoryIds = [CAP29Id, LDA22Id, SCL34Id];
 
 const PPVLaboratoryIds = [
   CAP29Id,
