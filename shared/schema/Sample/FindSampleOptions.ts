@@ -68,7 +68,13 @@ export const buildFindSampleOptions = (
         : query.departments,
     companySirets,
     programmingSubPlanIds: programmingSubPlansAreRestricted(user)
-      ? user.programmingSubPlans.map((sp) => sp.id)
+      ? user.programmingSubPlans
+          .map((sp) => sp.id)
+          .filter(
+            (id) =>
+              !query.programmingSubPlanIds?.length ||
+              query.programmingSubPlanIds.includes(id)
+          )
       : query.programmingSubPlanIds
   } as FindSampleOptions;
 };

@@ -2,7 +2,8 @@ import { describe, expect, test } from 'vitest';
 import { Regions } from '../../referential/Region';
 import {
   DAOABovinValidatedSubPlanFixture,
-  DAOAVolailleValidatedSubPlanFixture
+  DAOAVolailleValidatedSubPlanFixture,
+  PPVInProgressSubPlanFixture
 } from '../../test/programmingPlanFixtures';
 import {
   AdminFixture,
@@ -154,6 +155,39 @@ describe('buildFindSampleOptions', () => {
       expect(result.departments).toEqual([
         regionDepartments[0],
         regionDepartments[1]
+      ]);
+    });
+
+    test('RegionalCoordinator can filter by one of their sub plans', () => {
+      const result = buildFindSampleOptions(
+        RegionalCoordinator,
+        'RegionalCoordinator',
+        {
+          ...baseQuery,
+          programmingSubPlanIds: [PPVInProgressSubPlanFixture.id]
+        }
+      );
+
+      expect(result.programmingSubPlanIds).toEqual([
+        PPVInProgressSubPlanFixture.id
+      ]);
+    });
+
+    test('RegionalCoordinator cannot filter by a sub plan they do not own', () => {
+      const result = buildFindSampleOptions(
+        RegionalCoordinator,
+        'RegionalCoordinator',
+        {
+          ...baseQuery,
+          programmingSubPlanIds: [
+            PPVInProgressSubPlanFixture.id,
+            DAOABovinValidatedSubPlanFixture.id
+          ]
+        }
+      );
+
+      expect(result.programmingSubPlanIds).toEqual([
+        PPVInProgressSubPlanFixture.id
       ]);
     });
 
