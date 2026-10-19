@@ -90,8 +90,8 @@ const DaoaNationalCoordinators = [
 ];
 
 export const NationalCoordinatorAlanId = '15151515-1515-1515-1515-151515151515';
-export const NationalCoordinatorAlanName = 'Alice Coordination';
-export const NationalCoordinatorAlanEmail = 'alice.coordination@example.net';
+const NationalCoordinatorAlanName = 'Alice Coordination';
+const NationalCoordinatorAlanEmail = 'alice.coordination@example.net';
 
 const AlanNationalCoordinators = [
   {
