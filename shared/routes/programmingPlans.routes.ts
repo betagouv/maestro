@@ -1,5 +1,5 @@
 import z from 'zod';
-import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { FindProgrammingPlanQuery } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import {
   ProgrammingPlanSettingsForm,
@@ -27,7 +27,7 @@ export const programmingPlansRoutes = {
         'readProgrammingPlanValidated',
         'readProgrammingPlanClosed'
       ],
-      query: FindProgrammingPlanOptions,
+      query: FindProgrammingPlanQuery,
       response: z.array(ProgrammingPlanChecked)
     },
     post: {

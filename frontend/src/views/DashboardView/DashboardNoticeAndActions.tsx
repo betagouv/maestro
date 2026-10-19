@@ -87,8 +87,8 @@ const DashboardNoticeAndActions: FunctionComponent<Props> = ({
   const { data: priorityProgrammingPlans } =
     apiClient.useFindProgrammingPlansQuery(
       {
-        subPlanIds: user?.programmingSubPlans?.map((sp) => sp.id),
-        status: priorityProgrammingPlansStatus
+        status: priorityProgrammingPlansStatus,
+        scope: 'owned'
       },
       {
         skip:

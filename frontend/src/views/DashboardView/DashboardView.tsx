@@ -27,10 +27,8 @@ const DashboardView = () => {
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
     {
-      subPlanIds: hasRole('AdministratorMaestro', 'AdministratorBGIR')
-        ? undefined
-        : user?.programmingSubPlans?.map((sp) => sp.id),
-      status: ['Validated', 'Closed']
+      status: ['Validated', 'Closed'],
+      scope: 'owned'
     },
     {
       skip:

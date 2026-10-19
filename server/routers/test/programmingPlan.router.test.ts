@@ -239,26 +239,6 @@ describe('ProgrammingPlan router', () => {
       ]);
     });
 
-    test('can filter the programmingPlans by subPlanIds for the administrator', async () => {
-      const res = await request(app)
-        .get(
-          testRoute({
-            subPlanIds: DAOAInProgressProgrammingPlanFixture.subPlans[0].id
-          })
-        )
-        .use(tokenProvider(AdminFixture))
-        .expect(constants.HTTP_STATUS_OK);
-
-      expect(res.body[0]).toMatchObject({
-        id: DAOAInProgressProgrammingPlanFixture.id,
-        subPlans: expect.arrayContaining([
-          expect.objectContaining({
-            id: DAOAInProgressProgrammingPlanFixture.subPlans[0].id
-          })
-        ])
-      });
-    });
-
     test('should find regional submitted and validated programming plans for a regional coordinator', async () => {
       const res1 = await request(app)
         .get(testRoute())

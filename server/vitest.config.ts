@@ -22,6 +22,7 @@ export default defineConfig({
         plugins: [RandomSeed()],
         test: {
           name: 'integration',
+          execArgv: ['--max-http-header-size=8192'],
           hookTimeout: 45000,
           testTimeout: 30000,
           globalSetup: ['./test/globalSetup.ts'],

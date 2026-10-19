@@ -36,10 +36,16 @@ export type FindProgrammingPlanOptions = z.infer<
   typeof FindProgrammingPlanOptions
 >;
 
+export const FindProgrammingPlanQuery = FindProgrammingPlanOptions.omit({
+  subPlanIds: true
+});
+
+export type FindProgrammingPlanQuery = z.infer<typeof FindProgrammingPlanQuery>;
+
 export const buildFindProgrammingPlanOptions = (
   user: UserRefined,
   userRole: UserRole,
-  findOptions: Partial<FindProgrammingPlanOptions>,
+  findOptions: Partial<FindProgrammingPlanQuery>,
   userLaboratory?: Laboratory
 ): FindProgrammingPlanOptions => {
   const userStatusAuthorized = Object.entries(ProgrammingPlanStatusPermissions)
@@ -55,15 +61,6 @@ export const buildFindProgrammingPlanOptions = (
       ? !programmingSubPlansAreRestricted({ roles: [userRole] })
       : !stagesIsRequired({ roles: [userRole] });
 
-  const subPlanIds = isUnrestricted
-    ? (findOptions.subPlanIds ?? null)
-    : findOptions.subPlanIds
-      ? intersection(
-          findOptions.subPlanIds,
-          user.programmingSubPlans.map((sp) => sp.id)
-        )
-      : user.programmingSubPlans.map((sp) => sp.id);
-
   return {
     ...findOptions,
     ids: userLaboratory?.programmingPlanIds,
@@ -71,7 +68,9 @@ export const buildFindProgrammingPlanOptions = (
       findOptionsStatus,
       userStatusAuthorized
     ) as ProgrammingPlanStatus[],
-    subPlanIds: subPlanIds ?? undefined,
+    subPlanIds: isUnrestricted
+      ? undefined
+      : user.programmingSubPlans.map((sp) => sp.id),
     launchedOnly: userRole === 'Sampler',
     region: isNationalRole(userRole) ? findOptions.region : user.region,
     department:
