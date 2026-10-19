@@ -12,9 +12,7 @@ if [ "${APP}" != "maestro-prod" ]; then
   exit 0
 fi
 
-dbclient-fetcher pgsql 18
-
-pg_dump ${SCALINGO_POSTGRESQL_URL} --clean --if-exists --format=d --no-owner --no-privileges --file=./backups/
+"$HOME/.apt/usr/lib/postgresql/18/bin/pg_dump" ${SCALINGO_POSTGRESQL_URL} --clean --if-exists --format=d --no-owner --no-privileges --file=./backups/
 
 if [ ! -s ./backups/toc.dat ]; then
   echo "Dump invalide : ./backups/toc.dat absent ou vide, sauvegarde annulée" >&2
