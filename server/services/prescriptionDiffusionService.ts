@@ -4,7 +4,7 @@ import type { Region } from 'maestro-shared/referential/Region';
 import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type { LocalPrescriptionChange } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
 import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
-import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import localPrescriptionChangeRepository from '../repositories/localPrescriptionChangeRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionChangeRepository from '../repositories/prescriptionChangeRepository';

@@ -6,6 +6,7 @@ import { seed as companiesSeed } from './001-companies';
 import { seed as laboratoriesSeed } from './002-laboratories';
 import { seed as usersSeed } from './003-users';
 import { seed as programmingPlansSeed } from './004-programming-plans';
+import { seed as alanPrescriptionsSeed } from './005-prescriptions-alan';
 import { seed as daoaPrescriptionsSeed } from './005-prescriptions-daoa';
 import { seed as ppvPrescriptionsSeed } from './005-prescriptions-ppv';
 import { seed as specificDataFieldsSeed } from './005-specific-data-fields';
@@ -27,6 +28,7 @@ const run = async () => {
   await ppvPrescriptionsSeed();
   await specificDataFieldsSeed();
   await daoaPrescriptionsSeed();
+  await alanPrescriptionsSeed();
   await samplesSeed();
   await substanceAnalysisSeed();
   await laboratoryAgreementsSeed();

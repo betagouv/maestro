@@ -10,6 +10,10 @@ import {
   type DisplayStatusResult,
   isCampaignLaunchable
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import {
+  hasCompanyEchelon,
+  hasDepartmentalEchelon
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useMemo } from 'react';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -55,15 +59,15 @@ export const useProgrammingPlanTrackingStatus = (
     { programmingPlanIds: planIds },
     { skip: planIds.length === 0 }
   );
-  const hasSlaughterhousePlan = programmingPlans.some(
-    (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+  const hasCompanyEchelonPlan = programmingPlans.some((plan) =>
+    hasCompanyEchelon(plan.distributionKind)
   );
 
   const { data: localPrescriptions } = apiClient.useFindLocalPrescriptionsQuery(
     {
       programmingPlanIds: planIds,
       allLevels: true,
-      includeCompanies: hasSlaughterhousePlan,
+      includeCompanies: hasCompanyEchelonPlan,
       includes: ['laboratories' as const]
     },
     { skip: planIds.length === 0 }
@@ -123,7 +127,7 @@ export const useProgrammingPlanTrackingStatus = (
       );
 
       const departmentalDisplayStatus =
-        department && plan.distributionKind === 'SLAUGHTERHOUSE'
+        department && hasDepartmentalEchelon(plan.distributionKind)
           ? buildEchelonDisplayStatus(
               plan,
               planPrescriptions,
@@ -135,7 +139,7 @@ export const useProgrammingPlanTrackingStatus = (
           : undefined;
 
       const departmentalAggregate =
-        !department && plan.distributionKind === 'SLAUGHTERHOUSE'
+        !department && hasDepartmentalEchelon(plan.distributionKind)
           ? buildAggregateDisplayStatus(
               (region ? [region] : RegionList).flatMap((regionColumn) =>
                 sortedDepartments(regionColumn).map((departmentColumn) =>

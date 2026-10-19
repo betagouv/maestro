@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import type { DistributionKind } from '../ProgrammingPlan/DistributionKind';
-import { ProgrammingPlanEchelon } from '../ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import { ProgrammingPlanEchelon } from '../ProgrammingPlan/ProgrammingPlanEchelon';
 import {
   isLaboratoryAssignmentComplete,
   type LocalPrescription

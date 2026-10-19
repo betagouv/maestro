@@ -1,5 +1,6 @@
 import { hasSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import {
+  ALANProgrammingPlanFixture,
   DAOAInProgressProgrammingPlanFixture,
   DAOAValidatedProgrammingPlanFixture,
   PPVClosedProgrammingPlanFixture,
@@ -24,7 +25,8 @@ export const seed = async () => {
     PPVValidatedProgrammingPlanFixture,
     PPVInProgressProgrammingPlanFixture,
     DAOAValidatedProgrammingPlanFixture,
-    DAOAInProgressProgrammingPlanFixture
+    DAOAInProgressProgrammingPlanFixture,
+    ALANProgrammingPlanFixture
   ];
 
   await kysely

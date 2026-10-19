@@ -23,6 +23,7 @@ import type {
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
@@ -472,9 +473,7 @@ const ProgrammingPrescriptionTable = ({
     !!region &&
     userRole !== 'Sampler' &&
     programmingPlans.some(
-      (p) =>
-        p.distributionKind === 'REGIONAL' ||
-        (p.distributionKind === 'SLAUGHTERHOUSE' && !!department)
+      (p) => !hasDepartmentalEchelon(p.distributionKind) || !!department
     );
 
   const prescriptions = region
@@ -490,13 +489,12 @@ const ProgrammingPrescriptionTable = ({
     findPrescriptionSubPlan(programmingPlans, prescription)?.context;
   const planOrder = Object.keys(prescriptionsByPlan);
 
-  const hasVisibleSlaughterhousePlan = planOrder.some(
-    (planId) =>
-      programmingPlans.find((p) => p.id === planId)?.distributionKind ===
-      'SLAUGHTERHOUSE'
-  );
+  const hasVisibleDepartmentalEchelonPlan = planOrder.some((planId) => {
+    const plan = programmingPlans.find((p) => p.id === planId);
+    return !isNil(plan) && hasDepartmentalEchelon(plan.distributionKind);
+  });
 
-  const departmentList = hasVisibleSlaughterhousePlan
+  const departmentList = hasVisibleDepartmentalEchelonPlan
     ? regionDepartmentList
     : EMPTY_DEPARTMENTS;
 
@@ -718,7 +716,7 @@ const ProgrammingPrescriptionTable = ({
                                 'align-center'
                               )}
                             >
-                              {hasVisibleSlaughterhousePlan
+                              {hasVisibleDepartmentalEchelonPlan
                                 ? sumBy(
                                     visibleSubLocalPrescriptions.filter(
                                       (r) => r.department === departmentColumn
@@ -902,8 +900,9 @@ const ProgrammingPrescriptionTable = ({
                                                   departmentList[0]
                                               })}
                                             >
-                                              {plan.distributionKind ===
-                                              'SLAUGHTERHOUSE'
+                                              {hasDepartmentalEchelon(
+                                                plan.distributionKind
+                                              )
                                                 ? sumBy(
                                                     contextSubLocalPrescriptions.filter(
                                                       (r) =>

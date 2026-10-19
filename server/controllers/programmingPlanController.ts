@@ -17,10 +17,13 @@ import {
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import {
   hasSentOnward,
-  isCampaignLaunchable,
-  type ProgrammingPlanEchelon
+  isCampaignLaunchable
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
+import {
+  hasDepartmentalEchelon,
+  type ProgrammingPlanEchelon
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   inheritsUnmanagedSetting,
@@ -230,20 +233,19 @@ ${samplersCanSampleNotice}`;
   >();
 
   for (const plan of plans) {
-    const validatedScopes =
-      plan.distributionKind === 'SLAUGHTERHOUSE'
-        ? plan.departmentalStatus
-            .filter((_) => _.status === 'Validated')
-            .map((_) => ({
-              region: _.region as Region,
-              department: _.department as Department
-            }))
-        : plan.regionalStatus
-            .filter((_) => _.status === 'Validated')
-            .map((_) => ({
-              region: _.region as Region,
-              department: undefined
-            }));
+    const validatedScopes = hasDepartmentalEchelon(plan.distributionKind)
+      ? plan.departmentalStatus
+          .filter((_) => _.status === 'Validated')
+          .map((_) => ({
+            region: _.region as Region,
+            department: _.department as Department
+          }))
+      : plan.regionalStatus
+          .filter((_) => _.status === 'Validated')
+          .map((_) => ({
+            region: _.region as Region,
+            department: undefined
+          }));
 
     for (const scope of validatedScopes) {
       const key = `${scope.region}-${scope.department ?? 'None'}`;
