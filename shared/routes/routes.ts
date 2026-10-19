@@ -6,6 +6,7 @@ import { companiesRoutes } from './companies.routes';
 import { documentsRoutes } from './documents.routes';
 import { laboratoriesRoutes } from './laboratories.routes';
 import { mascaradeRoutes } from './mascarade.routes';
+import { matricesRoutes } from './matrices.routes';
 import { noticesRoutes } from './notices.routes';
 import { notificationsRoutes } from './notifications.routes';
 import { prescriptionsRoutes } from './prescriptions.routes';
@@ -46,6 +47,7 @@ export const MaestroRoutes = [
   '/laboratories/:laboratoryId/residue-mappings',
   '/mascarade/:userId',
   '/mascarade',
+  '/matrices',
   '/notifications',
   '/notifications/:notificationId',
   '/notices/:type',
@@ -111,6 +113,7 @@ type Routes = typeof analysisRoutes &
   typeof documentsRoutes &
   typeof laboratoriesRoutes &
   typeof mascaradeRoutes &
+  typeof matricesRoutes &
   typeof noticesRoutes &
   typeof notificationsRoutes &
   typeof prescriptionsRoutes &
@@ -128,6 +131,7 @@ export const routes: Routes = {
   ...documentsRoutes,
   ...laboratoriesRoutes,
   ...mascaradeRoutes,
+  ...matricesRoutes,
   ...noticesRoutes,
   ...notificationsRoutes,
   ...prescriptionsRoutes,

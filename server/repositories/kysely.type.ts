@@ -30,6 +30,10 @@ import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type {
+  Matrix,
+  MatrixKind
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanSampleSetting } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
@@ -463,6 +467,24 @@ export interface UserCompanies {
   userId: string;
 }
 
+export interface MatrixKinds {
+  code: MatrixKind;
+  label: string;
+  deprecated: Generated<boolean>;
+}
+
+export interface Matrices {
+  code: Matrix;
+  label: string;
+  deprecated: Generated<boolean>;
+  sachaSigle: string | null;
+}
+
+export interface MatrixKindMatrices {
+  matrixKindCode: MatrixKind;
+  matrixCode: Matrix;
+}
+
 export interface ProgrammingPlanDomains {
   id: Generated<ProgrammingPlanDomainId>;
   label: string;
@@ -599,6 +621,9 @@ export interface DB {
   laboratoryAgreements: LaboratoryAgreements;
   laboratoryAgreementChecks: LaboratoryAgreementChecks;
   localPrescriptionSubstanceKindsLaboratories: LocalPrescriptionSubstanceKindLaboratory;
+  matrices: Matrices;
+  matrixKinds: MatrixKinds;
+  matrixKindMatrices: MatrixKindMatrices;
   notices: Notices;
   prescriptions: Prescriptions;
   programmingPlanDomains: ProgrammingPlanDomains;
