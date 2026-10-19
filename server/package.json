@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "npm run migrate-latest && node --enable-source-maps --max-semi-space-size=16 --import ./loaders/register.mjs --watch --watch-kill-signal SIGINT --inspect ./index.ts",
+    "dev": "npm run migrate-latest && node --enable-source-maps --max-semi-space-size=16 --max-http-header-size=8192 --import ./loaders/register.mjs --watch --watch-kill-signal SIGINT --inspect ./index.ts",
     "build": "tsc",
     "tsc": "tsc",
     "start": "npm run migrate-latest && node --enable-source-maps --max-semi-space-size=16 --import ./sentry.mjs --import ./loaders/register.mjs ./index.ts",

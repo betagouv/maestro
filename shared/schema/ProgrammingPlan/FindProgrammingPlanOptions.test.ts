@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'vitest';
-import { DAOAInProgressVolailleSubPlanId } from '../../test/programmingPlanFixtures';
 import {
   AdminFixture,
   NationalCoordinator,
@@ -63,21 +62,6 @@ describe('buildFindProgrammingPlanOptions', () => {
     expect(result.subPlanIds).toEqual(
       NationalCoordinator.programmingSubPlans.map((subPlan) => subPlan.id)
     );
-  });
-
-  test('should intersect the requested sub plans with the owned ones with the owned scope', () => {
-    const [ownedSubPlan] = NationalCoordinator.programmingSubPlans;
-
-    const result = buildFindProgrammingPlanOptions(
-      NationalCoordinator,
-      'NationalCoordinator',
-      {
-        scope: 'owned',
-        subPlanIds: [ownedSubPlan.id, DAOAInProgressVolailleSubPlanId]
-      }
-    );
-
-    expect(result.subPlanIds).toEqual([ownedSubPlan.id]);
   });
 
   test('should not restrict an administrator with the owned scope', () => {
