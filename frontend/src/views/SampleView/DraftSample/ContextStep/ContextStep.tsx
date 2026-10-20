@@ -210,6 +210,9 @@ const ContextStep = ({ partialSample }: Props) => {
       })
     })
     .extend({
+      programmingSubPlanId: z
+        .string({ error: 'Veuillez renseigner le type de plan.' })
+        .brand<'ProgrammingSubPlanId'>(),
       context: z.enum(
         [...ProgrammingPlanContext.options, 'OutsideProgrammingPlan'],
         {
@@ -554,8 +557,7 @@ const ContextStep = ({ partialSample }: Props) => {
           options={programmingSubPlanOptions}
           onChange={(e) => setProgrammingSubPlanId(e.target.value)}
           inputForm={form}
-          inputKey="specificData"
-          inputPathFromKey={['programmingSubPlanId']}
+          inputKey="programmingSubPlanId"
           whenValid="Type de plan correctement renseigné."
           data-testid="programmingSubPlan-select"
           label="Type de plan"

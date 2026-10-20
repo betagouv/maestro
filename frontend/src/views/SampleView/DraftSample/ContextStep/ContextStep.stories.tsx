@@ -91,6 +91,9 @@ export const SubmittingErrors: Story = {
       canvas.getByText('Veuillez renseigner la longitude.')
     ).toBeInTheDocument();
     await expect(
+      canvas.getByText('Veuillez renseigner le type de plan.')
+    ).toBeInTheDocument();
+    await expect(
       canvas.getByText('Veuillez renseigner le contexte.')
     ).toBeInTheDocument();
     await expect(
