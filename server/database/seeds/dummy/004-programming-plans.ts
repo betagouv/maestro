@@ -19,9 +19,21 @@ import { ProgrammingSubPlansRaw } from '../../../repositories/programmingSubPlan
 import { Users } from '../../../repositories/userRepository';
 
 export const seed = async () => {
+  const plans = [
+    PPVClosedProgrammingPlanFixture,
+    PPVValidatedProgrammingPlanFixture,
+    PPVInProgressProgrammingPlanFixture,
+    DAOAValidatedProgrammingPlanFixture,
+    DAOAInProgressProgrammingPlanFixture
+  ];
+
   await kysely
     .insertInto('programmingPlanDomains')
-    .values(ProgrammingPlanDomainFixtures)
+    .values(
+      ProgrammingPlanDomainFixtures.filter((domain) =>
+        plans.some((plan) => plan.domainId === domain.id)
+      )
+    )
     .onConflict((oc) =>
       oc.column('id').doUpdateSet((eb) => ({
         label: eb.ref('excluded.label'),
@@ -37,14 +49,6 @@ export const seed = async () => {
   if (!user) {
     return;
   }
-
-  const plans = [
-    PPVClosedProgrammingPlanFixture,
-    PPVValidatedProgrammingPlanFixture,
-    PPVInProgressProgrammingPlanFixture,
-    DAOAValidatedProgrammingPlanFixture,
-    DAOAInProgressProgrammingPlanFixture
-  ];
 
   await ProgrammingPlans().insert(
     plans.map((plan) => ({
