@@ -6,6 +6,7 @@ import {
   type ProgrammingPlanContext,
   ProgrammingPlanContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { ProgrammingPlanEditionPhase } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEditionPhase';
 import type { ProgrammingPlanNationalCoordinator } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import type { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings.ts';
 import type {
@@ -39,6 +40,7 @@ type Props<
 > = {
   settings: T;
   planSettings: ProgrammingPlanSettings | undefined;
+  editionPhase: ProgrammingPlanEditionPhase;
   technicalInstructionFile: File | undefined;
   inputForm: UseForm<typeof ProgrammingLevelSettingsForm>;
   onChange: (settings: T) => void;
@@ -54,6 +56,7 @@ export const ProgrammingPlanGlobalSettings = <
 >({
   settings,
   planSettings,
+  editionPhase,
   technicalInstructionFile,
   inputForm,
   onChange,
@@ -97,6 +100,7 @@ export const ProgrammingPlanGlobalSettings = <
         label="Stade(s) de prélèvement"
         settings={settings}
         planSettings={planSettings}
+        editionPhase={editionPhase}
         onChange={onChange}
       >
         {(props) => (
@@ -117,6 +121,7 @@ export const ProgrammingPlanGlobalSettings = <
         label="Analyte(s)"
         settings={settings}
         planSettings={planSettings}
+        editionPhase={editionPhase}
         onChange={onChange}
       >
         {(props) => (
@@ -139,6 +144,7 @@ export const ProgrammingPlanGlobalSettings = <
         label="Contexte"
         settings={settings}
         planSettings={planSettings}
+        editionPhase={editionPhase}
         onChange={onChange}
       >
         {(props) => (
@@ -167,6 +173,7 @@ export const ProgrammingPlanGlobalSettings = <
         label="Matrice(s)"
         settings={settings}
         planSettings={planSettings}
+        editionPhase={editionPhase}
         onChange={onChange}
       >
         {(props) => (
@@ -183,6 +190,7 @@ export const ProgrammingPlanGlobalSettings = <
         label="Clé de répartition conseillée"
         settings={settings}
         planSettings={planSettings}
+        editionPhase={editionPhase}
         onChange={onChange}
       >
         {({ disabled, label }) => (
@@ -206,6 +214,7 @@ export const ProgrammingPlanGlobalSettings = <
         label="Note additionnelle"
         settings={settings}
         planSettings={planSettings}
+        editionPhase={editionPhase}
         onChange={onChange}
       >
         {({ disabled, label }) => (

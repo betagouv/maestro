@@ -1,6 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
+import type { ProgrammingPlanEditionPhase } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEditionPhase';
 import {
   type ProgrammingPlanSettings,
   SubstancesSettings
@@ -16,6 +17,7 @@ import './ProgrammingPlanAnalysisSettings.scss';
 type Props<T extends ProgrammingPlanSettings> = {
   settings: T;
   planSettings: ProgrammingPlanSettings | undefined;
+  editionPhase: ProgrammingPlanEditionPhase;
   inputForm: UseForm<typeof ProgrammingLevelSettingsForm>;
   onChange: (settings: T) => void;
 };
@@ -25,6 +27,7 @@ export const ProgrammingPlanAnalysisSettings = <
 >({
   settings,
   planSettings,
+  editionPhase,
   inputForm,
   onChange,
   ..._rest
@@ -60,6 +63,7 @@ export const ProgrammingPlanAnalysisSettings = <
           }
           settings={settings}
           planSettings={planSettings}
+          editionPhase={editionPhase}
           inheritanceDisabledReason={inheritanceDisabledReason}
           onChange={onChange}
         >

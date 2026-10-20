@@ -295,7 +295,10 @@ const ppvPlan = genProgrammingPlan({
   stages: ['TRANSFORMATION'],
   stagesManaged: true,
   settingsCompleted: false,
-  subPlans: [fruitsSubPlan, cerealesSubPlan, animauxSubPlan]
+  subPlans: [fruitsSubPlan, cerealesSubPlan, animauxSubPlan],
+  launchedAt: null,
+  launchedBy: null,
+  nationalStatus: { status: 'InProgress' }
 });
 
 const withPPVPlanRegionalStatus = (
@@ -471,6 +474,9 @@ export const PlanSaveBlockedByCompletedSubPlan: Story = {
             stages: ['TRANSFORMATION'],
             stagesManaged: true,
             settingsCompleted: false,
+            launchedAt: null,
+            launchedBy: null,
+            nationalStatus: { status: 'InProgress' },
             subPlans: [
               genProgrammingSubPlan({
                 ...animauxSubPlan,
@@ -2484,5 +2490,95 @@ export const SubPlanAddHiddenWhenCampaignLaunched: Story = {
     await expect(
       canvas.queryByRole('button', { name: 'Ajouter' })
     ).not.toBeInTheDocument();
+  }
+};
+
+export const PlanSubmittedToRegionLocksSettings: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useFindProgrammingPlansQuery: {
+        data: [{ ...ppvPlan, nationalStatus: { status: 'SubmittedToRegion' } }]
+      }
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      await canvas.findByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
+    ).toBeDisabled();
+    await expect(
+      canvas.getByTitle(
+        'Paramétrer « Stade(s) de prélèvement » au niveau du plan'
+      )
+    ).toBeDisabled();
+    await expect(
+      canvas.getAllByText(
+        'Non modifiable après la soumission du plan aux régions.'
+      )
+    ).toHaveLength(4);
+    await expect(
+      canvas.getByTitle('Paramétrer « Note additionnelle » au niveau du plan')
+    ).toBeEnabled();
+  }
+};
+
+export const SubPlanLaunchedOnlyReordersFields: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useFindProgrammingPlansQuery: {
+        data: [
+          {
+            ...ppvPlan,
+            nationalStatus: { status: 'SubmittedToRegion' },
+            launchedAt: new Date('2026-03-01'),
+            launchedBy: NationalCoordinatorId
+          }
+        ]
+      }
+    }),
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await userEvent.click(
+      await canvas.findByRole('tab', { name: 'Formulaire préleveur' })
+    );
+
+    await expect(
+      await canvas.findByRole('button', { name: 'Ajouter un descripteur' })
+    ).toBeDisabled();
+    for (const removeButton of canvas.getAllByTitle('Retirer')) {
+      await expect(removeButton).toBeDisabled();
+    }
+
+    await userEvent.click(canvas.getAllByTitle('Descendre')[0]);
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fields: [quantiteField, matriceField].map(({ id }) => ({
+            fieldId: id,
+            required: false,
+            optionIds: [],
+            inheritance: 'Own',
+            managedAtPlanLevel: false
+          }))
+        })
+      )
+    );
   }
 };
