@@ -37,6 +37,7 @@ main {
     max-height: calc(100vh - 100px);
     overflow: auto;
     width: fit-content !important;
+    max-width: 100%;
     justify-self: center;
   }
 
