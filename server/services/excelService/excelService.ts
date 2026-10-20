@@ -61,6 +61,7 @@ import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import { matrixRepository } from '../../repositories/matrixRepository';
 import { programmingPlanDomainRepository } from '../../repositories/programmingPlanDomainRepository';
 import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
@@ -184,6 +185,7 @@ const generateSamplesExportExcel = async (
   withCodes = false
 ): Promise<Buffer> => {
   const laboratories = await laboratoryRepository.findMany();
+  const matrixReferential = await matrixRepository.findReferential();
 
   const fieldConfigsCache = new Map<string, ProgrammingSubPlanFieldConfig[]>();
   const getFieldConfigs = async (
@@ -256,7 +258,7 @@ const generateSamplesExportExcel = async (
       resytalId: sample.resytalId,
       notesOnCreation: sample.notesOnCreation,
       matrix: sample.matrices?.length
-        ? getSampleMatrixLabels(sample.matrices).join(', ')
+        ? getSampleMatrixLabels(matrixReferential, sample.matrices).join(', ')
         : undefined,
       matrixCode: sample.matrices?.length
         ? sample.matrices.map(({ matrix }) => matrix).join(', ')
@@ -425,6 +427,8 @@ const generatePrescriptionsExportExcel = async (
   exportedRegion: Region | undefined,
   exportedDepartment: Department | undefined
 ): Promise<Buffer> => {
+  const matrixReferential = await matrixRepository.findReferential();
+
   const hasRegionalPlan = programmingPlans.some(
     (plan) => plan.distributionKind === 'REGIONAL'
   );
@@ -632,6 +636,7 @@ const generatePrescriptionsExportExcel = async (
         ? ContextLabels[prescriptionSubPlan.context]
         : '',
       matrix: getSubPlanMatrixLabels(
+        matrixReferential,
         prescriptionSubPlan?.matrices ?? null
       ).join(', '),
       stages: (prescriptionSubPlan?.stages ?? [])
@@ -822,6 +827,7 @@ const generateLaboratoryAgreementsExportExcel = async (
     ids: allSubPlanIds
   });
   const subPlanById = Object.fromEntries(subPlans.map((sp) => [sp.id, sp]));
+  const matrixReferential = await matrixRepository.findReferential();
 
   const uniqueRows = agreements.reduce<
     {
@@ -863,9 +869,10 @@ const generateLaboratoryAgreementsExportExcel = async (
           a.substanceKind === substanceKind
       );
 
-      const matrices = getSubPlanMatrixLabels(subPlan?.matrices ?? null).join(
-        ', '
-      );
+      const matrices = getSubPlanMatrixLabels(
+        matrixReferential,
+        subPlan?.matrices ?? null
+      ).join(', ');
 
       const stages = (subPlan?.stages ?? [])
         .map((s) => StageLabels[s])
@@ -901,7 +908,7 @@ const generateLaboratoryAgreementsExportExcel = async (
         analytes: SubstanceKindLabels[substanceKind],
         matrices,
         domain:
-          (subPlan ? subPlanLabel(subPlan) : '') ||
+          (subPlan ? subPlanLabel(matrixReferential, subPlan) : '') ||
           subPlan?.subPlanNumber ||
           programmingSubPlanId,
         stages,

@@ -78,6 +78,9 @@ export const maskingExceptions: Record<string, string[]> = {
     'prescription_id',
     'region'
   ],
+  matrices: ['code', 'label', 'sacha_sigle'],
+  matrix_kind_matrices: ['matrix_code', 'matrix_kind_code'],
+  matrix_kinds: ['code', 'label'],
   notices: ['description', 'title', 'type'],
   notifications: ['category', 'kind'],
   prescription_changes: ['kind'],

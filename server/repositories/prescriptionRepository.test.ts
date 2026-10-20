@@ -1,3 +1,4 @@
+import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import {
   FoieDeBovinPrescriptionFixture,
   PrescriptionFixture,
@@ -42,7 +43,7 @@ afterAll(async () => {
 describe('findMany', () => {
   test('should find the prescriptions whose sub-plan selects one of the matrix kinds', async () => {
     const prescriptions = await prescriptionRepository.findMany({
-      matrixKinds: ['A01SN', 'A01QX']
+      matrixKinds: ['A01SN', 'A01QX'] as MatrixKind[]
     });
 
     expect(prescriptions.map(({ id }) => id).toSorted()).toStrictEqual(
@@ -52,7 +53,7 @@ describe('findMany', () => {
 
   test('should exclude the prescriptions whose sub-plan selects none of the matrix kinds', async () => {
     const prescriptions = await prescriptionRepository.findMany({
-      matrixKinds: ['A00GY']
+      matrixKinds: ['A00GY'] as MatrixKind[]
     });
 
     expect(prescriptions.map(({ id }) => id)).toStrictEqual([
@@ -84,8 +85,14 @@ describe('findCounts', () => {
       rows.map(({ subPlanId, matrixKinds }) => ({ subPlanId, matrixKinds }))
     ).toStrictEqual(
       expect.arrayContaining([
-        { subPlanId: DAOAInProgressBovinSubPlanId, matrixKinds: ['A01QX'] },
-        { subPlanId: DAOAInProgressVolailleSubPlanId, matrixKinds: ['A01SN'] }
+        {
+          subPlanId: DAOAInProgressBovinSubPlanId,
+          matrixKinds: ['A01QX'] as MatrixKind[]
+        },
+        {
+          subPlanId: DAOAInProgressVolailleSubPlanId,
+          matrixKinds: ['A01SN'] as MatrixKind[]
+        }
       ])
     );
     expect(rows).toHaveLength(2);

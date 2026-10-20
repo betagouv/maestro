@@ -1,5 +1,6 @@
 import { uniq } from 'lodash-es';
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
+import type { MatrixReferential } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type {
   CommemoratifSigle,
   CommemoratifValueSigle,
@@ -11,6 +12,7 @@ import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/Progra
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { isDefined } from 'maestro-shared/utils/utils';
 import type { SachaConf } from '../../repositories/kysely.type';
+import { matrixRepository } from '../../repositories/matrixRepository';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
@@ -18,16 +20,16 @@ import type { DaiSentResult } from '../daiSendingService';
 import { documentService } from '../documentService';
 import { referencesFromSample, SampleReference } from './sachaReferences';
 import {
-  type NotPPVMatrix,
   SigleContexteIntervention,
-  SigleMatrix,
-  SiglePlanAnalyse
+  SiglePlanAnalyse,
+  sigleMatrixValidator
 } from './sachaReferential';
 import { sendSachaFile } from './sachaSender';
 import { generateXML, getSenderSachaSigle, type XmlFile } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
 export const generateXMLDAI = (
+  matrixReferential: MatrixReferential,
   sample: Pick<
     SampleChecked,
     | 'specificData'
@@ -58,7 +60,9 @@ export const generateXMLDAI = (
   }
 
   const siglesMatrice = sample.matrices.map(({ matrix }) => {
-    const sigle = SigleMatrix[matrix as NotPPVMatrix];
+    const sigle = sigleMatrixValidator.safeParse(
+      matrixReferential.matrices.find(({ code }) => code === matrix)?.sachaSigle
+    ).data;
     if (!sigle) {
       throw new Error(`Pas de Sigle SACHA associé à la matrice ${matrix}.`);
     }
@@ -233,15 +237,21 @@ export const sendDAIWithEDI = async (
   sampleItem: SampleItem,
   laboratory: LaboratoryWithSacha
 ): Promise<DaiSentResult> => {
-  const [sachaCommemoratifRecord, specificDataRecord, sachaConf] =
-    await Promise.all([
-      sachaCommemoratifRepository.findAll(),
-      specificDataFieldConfigRepository.findSachaFields(),
-      sachaConfRepository.get()
-    ]);
+  const [
+    matrixReferential,
+    sachaCommemoratifRecord,
+    specificDataRecord,
+    sachaConf
+  ] = await Promise.all([
+    matrixRepository.findReferential(),
+    sachaCommemoratifRepository.findAll(),
+    specificDataFieldConfigRepository.findSachaFields(),
+    sachaConfRepository.get()
+  ]);
 
   const dateNow = Date.now();
   const xmlFile = await generateXMLDAI(
+    matrixReferential,
     sample,
     subPlanNumber,
     sampleItem,

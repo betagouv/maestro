@@ -37,6 +37,7 @@ import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPla
 import localPrescriptionChangeRepository from '../repositories/localPrescriptionChangeRepository';
 import localPrescriptionCommentRepository from '../repositories/localPrescriptionCommentRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
+import { matrixRepository } from '../repositories/matrixRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
@@ -740,7 +741,10 @@ export const localPrescriptionsRouter = {
           },
           recipients,
           {
-            matrix: getSubPlanMatrixLabels(subPlan.matrices).join(', '),
+            matrix: getSubPlanMatrixLabels(
+              await matrixRepository.findReferential(),
+              subPlan.matrices
+            ).join(', '),
             sampleCount: localPrescription.sampleCount,
             comment: draftPrescriptionComment.comment,
             author: user ? `${user.name}` : 'Anonyme'
@@ -823,7 +827,10 @@ export const localPrescriptionsRouter = {
             },
             recipients,
             {
-              matrix: getSubPlanMatrixLabels(subPlan.matrices).join(', '),
+              matrix: getSubPlanMatrixLabels(
+                await matrixRepository.findReferential(),
+                subPlan.matrices
+              ).join(', '),
               sampleCount: localPrescription.sampleCount,
               comment: draftPrescriptionComment.comment,
               author: user ? `${user.name}` : 'Anonyme'

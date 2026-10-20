@@ -3,6 +3,7 @@ import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import type { Region } from 'maestro-shared/referential/Region';
 import { residueResultExceedsLmr } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
+import { OtherMatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import {
   ComplianceStat,
   type FindComplianceStatsOptions
@@ -791,7 +792,13 @@ const findComplianceStats = async (
   }
 
   const rows = await query;
-  return rows.map((r: any) => ComplianceStat.parse(r));
+  return rows.map((r: any) =>
+    ComplianceStat.parse(
+      r.matrixKind === OtherMatrixKind.value
+        ? omit(r, 'matrixKind', 'matrix')
+        : r
+    )
+  );
 };
 
 export const sampleRepository = {

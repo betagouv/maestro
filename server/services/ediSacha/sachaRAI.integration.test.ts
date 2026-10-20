@@ -1,3 +1,4 @@
+import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
@@ -137,8 +138,8 @@ describe('processSachaRAI', () => {
         department: '08',
         reference: referencesFromEtiquette(multiMatricesEtiquette).reference,
         matrices: [
-          { matrixKind: 'A01SN', matrix: 'A01SN#F26.A07XE' },
-          { matrixKind: 'A01SN', matrix: 'A01SQ#F28.A0C0S' }
+          { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SN#F26.A07XE' },
+          { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SQ#F28.A0C0S' }
         ]
       })
     );

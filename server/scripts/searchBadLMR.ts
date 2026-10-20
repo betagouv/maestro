@@ -1,15 +1,18 @@
 import { sql } from 'kysely';
-import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { initKysely, kysely } from '../repositories/kysely';
+import { matrixRepository } from '../repositories/matrixRepository';
 import config from '../utils/config';
 
 const searchBadLMR = async () => {
   initKysely(config.databaseUrl);
 
-  for (const matrix of MatrixEffective.options) {
+  const { matrices } = await matrixRepository.findReferential();
+
+  for (const { code: matrix, label } of matrices.filter(
+    ({ deprecated }) => !deprecated
+  )) {
     const samples = await kysely
       .selectFrom('analysisResidues')
       .leftJoin('analysis', 'analysis.id', 'analysisResidues.analysisId')
@@ -56,7 +59,7 @@ const searchBadLMR = async () => {
         if (lmrs.length > 1) {
           console.log(
             // @ts-expect-error ssd2Id
-            ` - ${MatrixLabels[matrix]} (${matrix}) - ${SSD2Referential[ref].name} (${ref})`
+            ` - ${label} (${matrix}) - ${SSD2Referential[ref].name} (${ref})`
           );
 
           byReference[ref]

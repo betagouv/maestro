@@ -1,7 +1,5 @@
 import type { Knex } from 'knex';
 import { isNil } from 'lodash-es';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 
 const PPVPrefix = 'PPV';
@@ -13,13 +11,7 @@ type PrescriptionRow = {
 };
 
 const baseLabel = ({ matrix, matrixKind }: PrescriptionRow): string =>
-  (matrix ? (MatrixLabels as Record<string, string>)[matrix] : null) ??
-  (matrixKind
-    ? (MatrixKindLabels as Record<string, string>)[matrixKind]
-    : null) ??
-  matrix ??
-  matrixKind ??
-  'Sans matrice';
+  matrix ?? matrixKind ?? 'Sans matrice';
 
 const buildLabels = (prescriptions: PrescriptionRow[]): Map<string, string> => {
   const occurrences = prescriptions.reduce<Record<string, number>>(

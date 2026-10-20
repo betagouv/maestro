@@ -11,12 +11,15 @@ import {
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
+import {
+  type MatrixReferential,
+  matrixKindLabel
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   isPPVSubPlanNumber,
@@ -43,6 +46,7 @@ import { formatMaestroDate } from 'maestro-shared/utils/date';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import { matrixRepository } from '../../repositories/matrixRepository';
 import { programmingPlanDomainRepository } from '../../repositories/programmingPlanDomainRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
@@ -64,14 +68,15 @@ import {
 import { buildSampleItems } from '../sampleItemService';
 
 export const getMatrixSectionItems = (
+  referential: MatrixReferential,
   matrices: PartialSampleMatrix[] | null | undefined
 ) =>
   matrices?.length
     ? matrices.map((matrix) => ({
         matrixKind: matrix.matrixKind
-          ? MatrixKindLabels[matrix.matrixKind]
+          ? matrixKindLabel(referential, matrix.matrixKind)
           : '',
-        matrix: getSampleMatrixLabel(matrix)
+        matrix: getSampleMatrixLabel(referential, matrix)
       }))
     : [{ matrixKind: '', matrix: '' }];
 
@@ -277,6 +282,7 @@ const generateSamplePDF = async (
     sample.programmingSubPlanId
   );
   const subPlanNumber = subPlan?.subPlanNumber ?? '';
+  const matrixReferential = await matrixRepository.findReferential();
 
   const fieldConfigs =
     await specificDataFieldConfigRepository.findByPlanSubPlan(
@@ -331,7 +337,7 @@ const generateSamplePDF = async (
     programmingPlan.domainId
   );
 
-  const planLabel = `${subPlanNumber} / ${domain?.label ?? ''} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan ? subPlanLabel(subPlan) : ''}`;
+  const planLabel = `${subPlanNumber} / ${domain?.label ?? ''} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan ? subPlanLabel(matrixReferential, subPlan) : ''}`;
 
   return generatePDF(template, {
     fullVersion,
@@ -379,7 +385,9 @@ const generateSamplePDF = async (
         }
       : null,
     ...getSubstancesSections(currentSampleItem?.substanceKinds ?? [], {
-      matrix: getSampleMatrixLabels(sample.matrices).join(', '),
+      matrix: getSampleMatrixLabels(matrixReferential, sample.matrices).join(
+        ', '
+      ),
       monoSubstances: sample.monoSubstances,
       multiSubstances: sample.multiSubstances
     }),
@@ -389,8 +397,9 @@ const generateSamplePDF = async (
     legalContext: sample.legalContext
       ? LegalContextLabels[sample.legalContext]
       : '',
-    matrices: getMatrixSectionItems(sample.matrices),
+    matrices: getMatrixSectionItems(matrixReferential, sample.matrices),
     sampleProcedureItems: sampleProcedureItems(
+      matrixReferential,
       subPlan?.sampleProcedure,
       sample.matrices
     ),

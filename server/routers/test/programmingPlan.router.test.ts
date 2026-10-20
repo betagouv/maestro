@@ -6,6 +6,10 @@ import {
   Regions
 } from 'maestro-shared/referential/Region';
 import type { Stage } from 'maestro-shared/referential/Stage';
+import type {
+  Matrix,
+  MatrixKind
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import {
@@ -2230,8 +2234,11 @@ describe('ProgrammingPlan router', () => {
       matrices: {
         operator: 'And',
         items: [
-          { matrixKind: 'A01SN', matrices: [] },
-          { matrixKind: 'A01QX', matrices: ['A01XF#F28.A0C0S'] }
+          { matrixKind: 'A01SN' as MatrixKind, matrices: [] },
+          {
+            matrixKind: 'A01QX' as MatrixKind,
+            matrices: ['A01XF#F28.A0C0S' as Matrix]
+          }
         ]
       } satisfies SubPlanMatrices,
       context: 'Control' as const,

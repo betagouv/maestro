@@ -2,7 +2,6 @@ import type { Readable } from 'node:stream';
 import { isNil } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
@@ -11,6 +10,10 @@ import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/Analysi
 import { getAnalysisReportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
+import {
+  type MatrixReferential,
+  matrixKindLabel
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
@@ -24,6 +27,7 @@ import type { UserBase } from 'maestro-shared/schema/User/User';
 import { formatMaestroDate } from 'maestro-shared/utils/date';
 import type { LaboratoryResidueMapping } from '../repositories/kysely.type';
 import { laboratoryResidueMappingRepository } from '../repositories/laboratoryResidueMappingRepository';
+import { matrixRepository } from '../repositories/matrixRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import { userRepository } from '../repositories/userRepository';
 import { csvService } from './csvService/csvService';
@@ -47,6 +51,7 @@ const streamToBase64 = async (stream: Readable): Promise<string> => {
 };
 
 export const buildAnalysisRequestData = (
+  matrixReferential: MatrixReferential,
   updatedSample: SampleChecked,
   subPlanNumber: string,
   sampleItem: SampleItem,
@@ -121,10 +126,13 @@ export const buildAnalysisRequestData = (
       .map(({ matrixKind }) => matrixKind)
       .join(', '),
     matrixKindLabel: updatedSample.matrices
-      .map(({ matrixKind }) => MatrixKindLabels[matrixKind])
+      .map(({ matrixKind }) => matrixKindLabel(matrixReferential, matrixKind))
       .join(', '),
     matrix: updatedSample.matrices.map(({ matrix }) => matrix).join(', '),
-    matrixLabel: getSampleMatrixLabels(updatedSample.matrices).join(', '),
+    matrixLabel: getSampleMatrixLabels(
+      matrixReferential,
+      updatedSample.matrices
+    ).join(', '),
     matrixPart: matrixPartField
       ? (getFieldValueLabel(
           matrixPartField,
@@ -263,6 +271,7 @@ export const sendDAIWithoutEDI = async (
 
   const analysisRequestDocs = await generateAndStoreAnalysisRequestDocuments(
     buildAnalysisRequestData(
+      await matrixRepository.findReferential(),
       sample,
       subPlanNumber,
       sampleItem,

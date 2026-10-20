@@ -2,6 +2,7 @@ import XLSX from '@e965/xlsx';
 import { isNil, sumBy } from 'lodash-es';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
+import { MatrixReferentialFixture } from 'maestro-shared/test/matrixFixtures';
 import {
   FoieDeBovinLocalPrescriptionFixture,
   FoieDeBovinPrescriptionFixture,
@@ -28,6 +29,12 @@ vi.mock('../../repositories/laboratoryRepository', () => ({
 vi.mock('../../repositories/companyRepository', () => ({
   default: {
     findMany: vi.fn().mockResolvedValue([])
+  }
+}));
+
+vi.mock('../../repositories/matrixRepository', () => ({
+  matrixRepository: {
+    findReferential: vi.fn().mockResolvedValue(MatrixReferentialFixture)
   }
 }));
 
