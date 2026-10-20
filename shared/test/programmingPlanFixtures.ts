@@ -296,7 +296,7 @@ export const ALANRuminantsSubPlanFixture = genProgrammingSubPlan({
   subPlanNumber: 'ALAN01',
   stages: ['ALIMENTATION_ANIMALE'],
   substanceKinds: ['Mono', 'Multi'],
-  matrices: genSubPlanMatrices('TODO_16'),
+  matrices: genSubPlanMatrices('TODO_16' as MatrixKind),
   context: 'Surveillance'
 });
 
@@ -306,7 +306,7 @@ export const ALANVolaillesSubPlanFixture = genProgrammingSubPlan({
   subPlanNumber: 'ALAN02',
   stages: ['ALIMENTATION_ANIMALE'],
   substanceKinds: ['Mono', 'Multi'],
-  matrices: genSubPlanMatrices('TODO_18'),
+  matrices: genSubPlanMatrices('TODO_18' as MatrixKind),
   context: 'Surveillance'
 });
 
