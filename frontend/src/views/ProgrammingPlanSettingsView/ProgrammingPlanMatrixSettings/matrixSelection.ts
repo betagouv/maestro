@@ -68,9 +68,11 @@ export const subMatrices = (
   referential: MatrixReferential,
   matrixKind: MatrixKind
 ): Matrix[] =>
-  matricesOfKind(referential, matrixKind).filter(
-    (matrix: string) => matrix !== matrixKind
-  );
+  matricesOfKind(referential, matrixKind)
+    .filter((matrix: string) => matrix !== matrixKind)
+    .toSorted((a, b) =>
+      matrixLabel(referential, a).localeCompare(matrixLabel(referential, b))
+    );
 
 export const filterMatrixKinds = (
   referential: MatrixReferential,

@@ -80,7 +80,7 @@ describe('toggleMatrix', () => {
     ]);
   });
 
-  test('should keep the matrices in the referential order', () => {
+  test('should keep the matrices sorted by label', () => {
     expect(
       toggleMatrix(
         MatrixReferentialFixture,
@@ -88,7 +88,7 @@ describe('toggleMatrix', () => {
         'A01GP' as MatrixKind,
         'A01GQ' as Matrix
       )
-    ).toStrictEqual([{ matrixKind: 'A01GP', matrices: ['A01GQ', 'A01GS'] }]);
+    ).toStrictEqual([{ matrixKind: 'A01GP', matrices: ['A01GS', 'A01GQ'] }]);
   });
 
   test('should detail the other matrices when unchecking a matrix of a fully selected matrix kind', () => {
@@ -145,12 +145,10 @@ describe('toggleMatrix', () => {
 });
 
 describe('subMatrices', () => {
-  test('should list the matrices of the matrix kind', () => {
+  test('should list the matrices of the matrix kind sorted by label', () => {
     expect(
-      subMatrices(MatrixReferentialFixture, 'A01GP' as MatrixKind)
-    ).toStrictEqual(
-      matricesOfKind(MatrixReferentialFixture, 'A01GP' as MatrixKind)
-    );
+      subMatrices(MatrixReferentialFixture, 'A00QT' as MatrixKind)
+    ).toStrictEqual(['A00QY', 'A0DNJ', 'A0DNK', 'A00QV', 'A00QX', 'A00QZ']);
   });
 
   test('should exclude the matrix kind itself', () => {
