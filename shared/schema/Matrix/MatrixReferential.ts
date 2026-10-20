@@ -25,21 +25,19 @@ export type MatrixSigleSacha = z.infer<typeof MatrixSigleSacha>;
 export const OtherMatrixKind = z.literal('Other');
 export type OtherMatrixKind = z.infer<typeof OtherMatrixKind>;
 
-export const MatrixKindEntry = z.object({
+const MatrixKindEntry = z.object({
   code: MatrixKind,
   label: z.string(),
   deprecated: z.boolean(),
   matrices: z.array(Matrix)
 });
-export type MatrixKindEntry = z.infer<typeof MatrixKindEntry>;
 
-export const MatrixEntry = z.object({
+const MatrixEntry = z.object({
   code: Matrix,
   label: z.string(),
   deprecated: z.boolean(),
   sachaSigle: MatrixSigleSacha.nullable()
 });
-export type MatrixEntry = z.infer<typeof MatrixEntry>;
 
 export const MatrixReferential = z.object({
   matrixKinds: z.array(MatrixKindEntry),
