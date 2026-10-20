@@ -16,6 +16,12 @@ export const MatrixKind = z
   .brand<'MatrixKind'>();
 export type MatrixKind = z.infer<typeof MatrixKind>;
 
+export const MatrixSigleSacha = z
+  .string()
+  .nonempty()
+  .brand<'MatrixSigleSacha'>();
+export type MatrixSigleSacha = z.infer<typeof MatrixSigleSacha>;
+
 export const OtherMatrixKind = z.literal('Other');
 export type OtherMatrixKind = z.infer<typeof OtherMatrixKind>;
 
@@ -31,7 +37,7 @@ export const MatrixEntry = z.object({
   code: Matrix,
   label: z.string(),
   deprecated: z.boolean(),
-  sachaSigle: z.string().nullable()
+  sachaSigle: MatrixSigleSacha.nullable()
 });
 export type MatrixEntry = z.infer<typeof MatrixEntry>;
 

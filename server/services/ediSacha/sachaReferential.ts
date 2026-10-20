@@ -22,10 +22,3 @@ export const SiglePlanAnalyse: Partial<
   Mono: 'RPDA',
   Multi: 'RPDA'
 };
-
-export const sigleMatrixValidator = z.enum([
-  'FOIE_BV',
-  'MSCL_VOL',
-  'VDE_FRA_DIND',
-  'VDE_FRA_POUL'
-]);

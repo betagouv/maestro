@@ -21,8 +21,7 @@ import { documentService } from '../documentService';
 import { referencesFromSample, SampleReference } from './sachaReferences';
 import {
   SigleContexteIntervention,
-  SiglePlanAnalyse,
-  sigleMatrixValidator
+  SiglePlanAnalyse
 } from './sachaReferential';
 import { sendSachaFile } from './sachaSender';
 import { generateXML, getSenderSachaSigle, type XmlFile } from './sachaToXML';
@@ -60,9 +59,9 @@ export const generateXMLDAI = (
   }
 
   const siglesMatrice = sample.matrices.map(({ matrix }) => {
-    const sigle = sigleMatrixValidator.safeParse(
-      matrixReferential.matrices.find(({ code }) => code === matrix)?.sachaSigle
-    ).data;
+    const sigle = matrixReferential.matrices.find(
+      ({ code }) => code === matrix
+    )?.sachaSigle;
     if (!sigle) {
       throw new Error(`Pas de Sigle SACHA associé à la matrice ${matrix}.`);
     }

@@ -32,7 +32,8 @@ import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/
 import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type {
   Matrix,
-  MatrixKind
+  MatrixKind,
+  MatrixSigleSacha
 } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
@@ -477,7 +478,7 @@ export interface Matrices {
   code: Matrix;
   label: string;
   deprecated: Generated<boolean>;
-  sachaSigle: string | null;
+  sachaSigle: MatrixSigleSacha | null;
 }
 
 export interface MatrixKindMatrices {
