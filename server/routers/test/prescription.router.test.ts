@@ -1,6 +1,6 @@
 import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
-import { RegionList, Regions } from 'maestro-shared/referential/Region';
+import { RegionList } from 'maestro-shared/referential/Region';
 import type { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
