@@ -2,6 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
+import type { MatrixReferential } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -12,6 +13,7 @@ import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import type React from 'react';
 import { useContext } from 'react';
 import AppServiceErrorAlert from 'src/components/_app/AppErrorAlert/AppServiceErrorAlert';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { ApiClientContext } from 'src/services/apiClient';
 import { pluralize } from 'src/utils/stringUtils';
 import { assert, type Equals } from 'tsafe';
@@ -29,7 +31,10 @@ export type ProgrammingPlanDeletionTarget =
       subPlan: ProgrammingSubPlan;
     };
 
-const withDeletionLabels = (target: ProgrammingPlanDeletionTarget) => {
+const withDeletionLabels = (
+  matrixReferential: MatrixReferential,
+  target: ProgrammingPlanDeletionTarget
+) => {
   switch (target.kind) {
     case 'domain':
       return { ...target, article: 'le domaine', name: target.domain.label };
@@ -43,7 +48,7 @@ const withDeletionLabels = (target: ProgrammingPlanDeletionTarget) => {
       return {
         ...target,
         article: 'le sous-plan',
-        name: `${target.subPlan.subPlanNumber} - ${subPlanLabel(target.subPlan)}`
+        name: `${target.subPlan.subPlanNumber} - ${subPlanLabel(matrixReferential, target.subPlan)}`
       };
     default:
       return assertUnreachable(target);
@@ -64,7 +69,8 @@ export const ProgrammingPlanDeleteModal = ({
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const target = withDeletionLabels(unlabelledTarget);
+  const matrixReferential = useMatrixReferential();
+  const target = withDeletionLabels(matrixReferential, unlabelledTarget);
 
   const apiClient = useContext(ApiClientContext);
   const [deleteProgrammingPlanDomain, deleteDomainCall] =

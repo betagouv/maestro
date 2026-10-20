@@ -7,16 +7,17 @@ import {
   type Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   type MatrixKind,
-  MatrixKindLabels
-} from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { RegionList, Regions } from 'maestro-shared/referential/Region';
+  matrixKindLabel,
+  matrixLabel
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { ComplianceStat } from 'maestro-shared/schema/Sample/ComplianceStat';
 import { type FunctionComponent, useContext, useState } from 'react';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { ApiClientContext } from '../../services/apiClient';
 
 type Props = {
@@ -30,6 +31,7 @@ const DashboardComplianceStats: FunctionComponent<Props> = ({
   programmingPlan
 }) => {
   const apiClient = useContext(ApiClientContext);
+  const matrixReferential = useMatrixReferential();
   const [expandedRegions, setExpandedRegions] = useState<string[]>([]);
   const [expandedMatrixKinds, setExpandedMatrixKinds] = useState<string[]>([]);
 
@@ -75,7 +77,7 @@ const DashboardComplianceStats: FunctionComponent<Props> = ({
     const matrixKindStats = Object.entries(byMatrixKind).map(
       ([kind, kindRows]) => ({
         kind: kind as MatrixKind,
-        label: MatrixKindLabels[kind as MatrixKind] ?? kind,
+        label: matrixKindLabel(matrixReferential, kind as MatrixKind),
         totalCount: sumBy(kindRows, 'totalCount'),
         compliantCount: sumBy(kindRows, 'compliantCount'),
         nonCompliantCount: sumBy(kindRows, 'nonCompliantCount'),
@@ -188,7 +190,7 @@ const DashboardComplianceStats: FunctionComponent<Props> = ({
                         key={`matrix-${region}-${m.matrix}`}
                         className={cx('fr-text--sm', 'fr-pl-6v')}
                       >
-                        {MatrixLabels[m.matrix!] ?? m.matrix}
+                        {m.matrix && matrixLabel(matrixReferential, m.matrix)}
                       </span>,
                       m.totalCount,
                       m.compliantCount,

@@ -1,4 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type {
+  Matrix,
+  MatrixKind
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import { useState } from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
@@ -41,7 +45,7 @@ export const MatrixKindOnly: Story = {
   args: {
     matrices: {
       operator: 'Or',
-      items: [{ matrixKind: 'A00QT', matrices: [] }]
+      items: [{ matrixKind: 'A00QT' as MatrixKind, matrices: [] }]
     }
   },
   play: async ({ canvasElement }) => {
@@ -59,8 +63,8 @@ export const MatrixKindWithMatrices: Story = {
       operator: 'Or',
       items: [
         {
-          matrixKind: 'A01GP',
-          matrices: ['A01GV', 'A01GY', 'A01GS', 'A0DVG']
+          matrixKind: 'A01GP' as MatrixKind,
+          matrices: ['A01GV', 'A01GY', 'A01GS', 'A0DVG'] as Matrix[]
         }
       ]
     }
@@ -72,8 +76,11 @@ export const SeveralMatrixKinds: Story = {
     matrices: {
       operator: 'Or',
       items: [
-        { matrixKind: 'A00QT', matrices: ['A00QV', 'A00QY'] },
-        { matrixKind: 'A01GP', matrices: [] }
+        {
+          matrixKind: 'A00QT' as MatrixKind,
+          matrices: ['A00QV', 'A00QY'] as Matrix[]
+        },
+        { matrixKind: 'A01GP' as MatrixKind, matrices: [] }
       ]
     }
   },
@@ -89,8 +96,11 @@ export const SeveralMatrixKinds: Story = {
     await expect(args.onChange).toHaveBeenLastCalledWith({
       operator: 'And',
       items: [
-        { matrixKind: 'A00QT', matrices: ['A00QV', 'A00QY'] },
-        { matrixKind: 'A01GP', matrices: [] }
+        {
+          matrixKind: 'A00QT' as MatrixKind,
+          matrices: ['A00QV', 'A00QY'] as Matrix[]
+        },
+        { matrixKind: 'A01GP' as MatrixKind, matrices: [] }
       ]
     });
     await expect(
@@ -104,8 +114,8 @@ export const RemoveMatrixKindBackToOr: Story = {
     matrices: {
       operator: 'And',
       items: [
-        { matrixKind: 'A00QT', matrices: [] },
-        { matrixKind: 'A01GP', matrices: [] }
+        { matrixKind: 'A00QT' as MatrixKind, matrices: [] },
+        { matrixKind: 'A01GP' as MatrixKind, matrices: [] }
       ]
     }
   },
@@ -118,7 +128,7 @@ export const RemoveMatrixKindBackToOr: Story = {
 
     await expect(args.onChange).toHaveBeenLastCalledWith({
       operator: 'Or',
-      items: [{ matrixKind: 'A01GP', matrices: [] }]
+      items: [{ matrixKind: 'A01GP' as MatrixKind, matrices: [] }]
     });
     await expect(
       canvas.queryByRole('radio', { name: 'Toutes (et)' })
@@ -130,7 +140,7 @@ export const RemoveLastMatrixKind: Story = {
   args: {
     matrices: {
       operator: 'Or',
-      items: [{ matrixKind: 'A00QT', matrices: [] }]
+      items: [{ matrixKind: 'A00QT' as MatrixKind, matrices: [] }]
     }
   },
   play: async ({ canvasElement, args }) => {
@@ -154,8 +164,8 @@ export const Disabled: Story = {
     matrices: {
       operator: 'And',
       items: [
-        { matrixKind: 'A00QT', matrices: [] },
-        { matrixKind: 'A01GP', matrices: ['A01GS'] }
+        { matrixKind: 'A00QT' as MatrixKind, matrices: [] },
+        { matrixKind: 'A01GP' as MatrixKind, matrices: ['A01GS'] as Matrix[] }
       ]
     }
   },
@@ -249,7 +259,9 @@ export const SelectMatrixInModal: Story = {
     await waitFor(() => expect(modalElement).not.toBeVisible());
     await expect(args.onChange).toHaveBeenCalledWith({
       operator: 'Or',
-      items: [{ matrixKind: 'A01GP', matrices: ['A01GS'] }]
+      items: [
+        { matrixKind: 'A01GP' as MatrixKind, matrices: ['A01GS'] as Matrix[] }
+      ]
     });
     await expect(
       canvas.queryByRole('button', { name: 'Ajouter catégorie(s) de matrice' })

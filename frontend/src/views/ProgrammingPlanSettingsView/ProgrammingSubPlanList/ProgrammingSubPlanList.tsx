@@ -11,6 +11,7 @@ import {
 import { useContext, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import AppServiceErrorAlert from 'src/components/_app/AppErrorAlert/AppServiceErrorAlert';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { ApiClientContext } from 'src/services/apiClient';
 import { pluralize } from 'src/utils/stringUtils';
 import { assert, type Equals } from 'tsafe';
@@ -34,6 +35,7 @@ export const ProgrammingSubPlanList = ({
 
   const navigate = useNavigate();
   const apiClient = useContext(ApiClientContext);
+  const matrixReferential = useMatrixReferential();
   const [createProgrammingSubPlan, createProgrammingSubPlanCall] =
     apiClient.useCreateProgrammingSubPlanMutation();
 
@@ -44,12 +46,12 @@ export const ProgrammingSubPlanList = ({
 
     return subPlans
       .filter((subPlan) =>
-        `${subPlan.subPlanNumber} ${subPlanLabel(subPlan)}`
+        `${subPlan.subPlanNumber} ${subPlanLabel(matrixReferential, subPlan)}`
           .toLowerCase()
           .includes(trimmedSearch)
       )
       .sort((a, b) => a.subPlanNumber.localeCompare(b.subPlanNumber));
-  }, [subPlans, search]);
+  }, [subPlans, search, matrixReferential]);
 
   const addSubPlan = async () => {
     const { id } = await createProgrammingSubPlan({
@@ -130,7 +132,8 @@ export const ProgrammingSubPlanList = ({
                   subPlan.id === currentSubPlanId ? 'page' : undefined
                 }
               >
-                {subPlan.subPlanNumber} - {subPlanLabel(subPlan)}
+                {subPlan.subPlanNumber} -{' '}
+                {subPlanLabel(matrixReferential, subPlan)}
                 {subPlan.settingsCompleted && (
                   <span
                     className={clsx(

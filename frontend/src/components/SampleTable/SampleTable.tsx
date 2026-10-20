@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import './SampleTable.scss';
 import { formatMaestroDate } from 'maestro-shared/utils/date';
@@ -26,6 +27,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
   const { sampleLink, navigateToSample } = useSamplesLink();
 
   const { hasUserPermission, user } = useAuthentication();
+  const matrixReferential = useMatrixReferential();
 
   const tableHeaders = [
     '#',
@@ -44,7 +46,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
       (samples ?? []).map((sample) => [
         ...[
           isCreatedPartialSample(sample) ? sample.reference : '',
-          getSampleMatrixLabels(sample.matrices).join(', '),
+          getSampleMatrixLabels(matrixReferential, sample.matrices).join(', '),
           <div className="d-flex-align-center" key={`${sample.id}-name`}>
             {isCreatedPartialSample(sample) ? sample.sampler.name : user?.name}
           </div>,
@@ -80,7 +82,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
           )}
         </div>
       ]),
-    [samples]
+    [samples, matrixReferential]
   );
 
   return (

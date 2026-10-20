@@ -5,17 +5,15 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
-import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import {
-  type MatrixKind,
-  MatrixKindLabels,
-  MatrixKindList,
-  OtherMatrixKind
-} from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
+import {
+  effectiveMatrixKinds,
+  type Matrix,
+  type MatrixKind,
+  matricesOfKind,
+  OtherMatrixKind
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import {
   type Context,
   ContextLabels,
@@ -63,7 +61,9 @@ import {
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
+import { matrixKindLabels, matrixLabels } from 'src/utils/matrixLabels';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
@@ -94,6 +94,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const { user } = useAuthentication();
   const { readonly, programmingPlan } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
+  const matrixReferential = useMatrixReferential();
 
   const isSubmittingRef = useRef<boolean>(false);
   const [matrices, setMatrices] = useState<PartialSampleMatrix[]>(
@@ -280,6 +281,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       (ctx) => {
         if (isProgrammingPlanSample(partialSample)) {
           sampleMatricesIssues(
+            matrixReferential,
             ctx.value.matrices,
             subPlanMatrices ?? null
           ).forEach(({ path, message }) => {
@@ -383,25 +385,32 @@ const MatrixStep = ({ partialSample }: Props) => {
       prescriptionSubPlans
         ? selectOptionsFromList(
             isProgrammingPlanSample(partialSample)
-              ? MatrixKindList.filter((matrixKind) =>
-                  prescriptionSubPlans.some(
-                    (subPlan) =>
-                      (!programmingSubPlanId ||
-                        subPlan.id === programmingSubPlanId) &&
-                      getSubPlanMatrixKinds(subPlan.matrices).includes(
-                        matrixKind
-                      )
+              ? matrixReferential.matrixKinds
+                  .map(({ code }) => code)
+                  .filter((matrixKind) =>
+                    prescriptionSubPlans.some(
+                      (subPlan) =>
+                        (!programmingSubPlanId ||
+                          subPlan.id === programmingSubPlanId) &&
+                        getSubPlanMatrixKinds(subPlan.matrices).includes(
+                          matrixKind
+                        )
+                    )
                   )
-                )
-              : MatrixKindList,
+              : effectiveMatrixKinds(matrixReferential),
             {
-              labels: MatrixKindLabels,
+              labels: matrixKindLabels(matrixReferential),
               withSort: true,
               withDefault: false
             }
           )
         : undefined,
-    [prescriptionSubPlans, partialSample, programmingSubPlanId]
+    [
+      prescriptionSubPlans,
+      partialSample,
+      programmingSubPlanId,
+      matrixReferential
+    ]
   );
 
   const matrixOptions = (matrixKind?: MatrixKind | OtherMatrixKind | null) =>
@@ -409,7 +418,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       matrixKind === OtherMatrixKind.value
         ? []
         : matrixKind
-          ? (MatrixListByKind[matrixKind]?.filter((m) =>
+          ? matricesOfKind(matrixReferential, matrixKind).filter((m) =>
               isProgrammingPlanSample(partialSample)
                 ? prescriptionSubPlans?.some(
                     (subPlan) =>
@@ -423,10 +432,10 @@ const MatrixStep = ({ partialSample }: Props) => {
                       )
                   )
                 : true
-            ) ?? matrixKind)
+            )
           : [],
       {
-        labels: MatrixLabels,
+        labels: matrixLabels(matrixReferential),
         withSort: true,
         withDefault: false
       }
@@ -492,7 +501,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                     options={
                       andItems
                         ? selectOptionsFromList([andItems[index].matrixKind], {
-                            labels: MatrixKindLabels,
+                            labels: matrixKindLabels(matrixReferential),
                             withDefault: false
                           })
                         : matrixKindOptions

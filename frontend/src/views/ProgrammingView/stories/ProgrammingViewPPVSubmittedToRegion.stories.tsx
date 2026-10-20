@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList } from 'maestro-shared/referential/Region';
+import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import {
   genLocalPrescription,
   genPrescription
@@ -33,7 +34,7 @@ const programmingPlan = withMatrixKindSubPlans(
       status: 'SubmittedToRegion'
     }))
   }),
-  ['A0DEH', 'A0DQS']
+  ['A0DEH', 'A0DQS'] as MatrixKind[]
 );
 const pastProgrammingPlan = {
   ...genProgrammingPlan({

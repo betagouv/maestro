@@ -27,6 +27,7 @@ import LaboratorySelect from 'src/components/LaboratorySelect/LaboratorySelect';
 import PrescriptionDistributionBadge from 'src/components/Prescription/PrescriptionDistributionBadge/PrescriptionDistributionBadge';
 import SelectionCheckbox from 'src/components/SelectionCheckbox/SelectionCheckbox';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import {
   assignSampleLaboratory,
   groupSubstanceKindsLaboratoriesBySample,
@@ -114,6 +115,7 @@ const ProgrammingPrescriptionRow = ({
 }: Props) => {
   const { hasUserLocalPrescriptionPermission, hasUserPermission, userRole } =
     useAuthentication();
+  const matrixReferential = useMatrixReferential();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const totalSampleCount = sumBy(localPrescriptions, 'sampleCount');
@@ -219,9 +221,10 @@ const ProgrammingPrescriptionRow = ({
                 >
                   <div className="matrice-cell__content">
                     <span className="matrice-cell__title">
-                      {getSubPlanMatrixLabels(subPlan?.matrices ?? null).join(
-                        ', '
-                      )}
+                      {getSubPlanMatrixLabels(
+                        matrixReferential,
+                        subPlan?.matrices ?? null
+                      ).join(', ')}
                     </span>
                     {showComments && rowCommentCount > 0 && (
                       <Button

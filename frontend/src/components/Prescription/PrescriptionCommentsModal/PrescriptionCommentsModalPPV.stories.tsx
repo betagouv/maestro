@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { MatrixReferentialFixture } from 'maestro-shared/test/matrixFixtures';
 import {
   FoieDeBovinPrescriptionFixture,
   genPrescription
@@ -133,6 +134,7 @@ export const NationalCoordinatorViewByPrescription: Story = {
 
     const title = canvas.queryByText(
       getPrescriptionTitle(
+        MatrixReferentialFixture,
         [getProgrammingPlanWithStatus('SubmittedToRegion')],
         FoieDeBovinPrescriptionFixture
       )
@@ -242,6 +244,7 @@ export const RegionalCoordinatorViewPlanSubmittedToRegions: Story = {
 
     const title = canvas.queryByText(
       getPrescriptionTitle(
+        MatrixReferentialFixture,
         [getProgrammingPlanWithStatus('SubmittedToRegion')],
         FoieDeBovinPrescriptionFixture
       )

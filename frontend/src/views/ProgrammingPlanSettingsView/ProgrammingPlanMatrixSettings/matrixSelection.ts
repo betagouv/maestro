@@ -1,11 +1,12 @@
-import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import {
+  effectiveMatrixKinds,
+  type Matrix,
   type MatrixKind,
-  MatrixKindEffective,
-  MatrixKindLabels
-} from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
+  type MatrixReferential,
+  matricesOfKind,
+  matrixKindLabel,
+  matrixLabel
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import {
   isMatrixSelected,
   type MatrixKindSelection
@@ -41,12 +42,13 @@ export const toggleMatrixKind = (
 };
 
 export const toggleMatrix = (
+  referential: MatrixReferential,
   selection: MatrixSelection,
   matrixKind: MatrixKind,
   matrix: Matrix
 ): MatrixSelection => {
   const item = selection.find((item) => item.matrixKind === matrixKind);
-  const allMatrices = subMatrices(matrixKind);
+  const allMatrices = subMatrices(referential, matrixKind);
   const matrices = allMatrices.filter(
     (m) => isMatrixSelected(item, m) !== (m === matrix)
   );
@@ -62,25 +64,33 @@ export const toggleMatrix = (
     : selection.map((item) => (item.matrixKind === matrixKind ? next : item));
 };
 
-export const subMatrices = (matrixKind: MatrixKind): Matrix[] =>
-  MatrixListByKind[matrixKind].filter((matrix) => matrix !== matrixKind);
+export const subMatrices = (
+  referential: MatrixReferential,
+  matrixKind: MatrixKind
+): Matrix[] =>
+  matricesOfKind(referential, matrixKind).filter(
+    (matrix: string) => matrix !== matrixKind
+  );
 
-export const filterMatrixKinds = (search: string): MatrixKindOption[] => {
+export const filterMatrixKinds = (
+  referential: MatrixReferential,
+  search: string
+): MatrixKindOption[] => {
   const term = search.toLowerCase().trim();
   const matches = (label: string) => label.toLowerCase().includes(term);
 
-  return MatrixKindEffective.options
-    .toSorted((a, b) => MatrixKindLabels[a].localeCompare(MatrixKindLabels[b]))
-    .flatMap((matrixKind): MatrixKindOption[] => {
-      const matrices = subMatrices(matrixKind);
-      if (!term || matches(MatrixKindLabels[matrixKind])) {
+  return effectiveMatrixKinds(referential).flatMap(
+    (matrixKind): MatrixKindOption[] => {
+      const matrices = subMatrices(referential, matrixKind);
+      if (!term || matches(matrixKindLabel(referential, matrixKind))) {
         return [{ matrixKind, matrices, matchedByMatrix: false }];
       }
       const matchingMatrices = matrices.filter((matrix) =>
-        matches(MatrixLabels[matrix])
+        matches(matrixLabel(referential, matrix))
       );
       return matchingMatrices.length > 0
         ? [{ matrixKind, matrices: matchingMatrices, matchedByMatrix: true }]
         : [];
-    });
+    }
+  );
 };

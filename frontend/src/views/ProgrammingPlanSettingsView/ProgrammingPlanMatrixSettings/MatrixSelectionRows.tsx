@@ -1,7 +1,8 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { matrixKindLabel } from 'maestro-shared/schema/Matrix/MatrixReferential';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { assert, type Equals } from 'tsafe';
 import { MatrixTag } from './MatrixTag';
 import {
@@ -23,6 +24,7 @@ export const MatrixSelectionRows = ({
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
+  const matrixReferential = useMatrixReferential();
 
   return (
     <div style={{ width: '100%' }}>
@@ -39,7 +41,7 @@ export const MatrixSelectionRows = ({
         >
           <div>
             {disabled ? (
-              <Tag small>{MatrixKindLabels[matrixKind]}</Tag>
+              <Tag small>{matrixKindLabel(matrixReferential, matrixKind)}</Tag>
             ) : (
               <Tag
                 small
@@ -49,7 +51,7 @@ export const MatrixSelectionRows = ({
                     onChange(removeMatrixKind(selection, matrixKind))
                 }}
               >
-                {MatrixKindLabels[matrixKind]}
+                {matrixKindLabel(matrixReferential, matrixKind)}
               </Tag>
             )}
           </div>
@@ -70,7 +72,14 @@ export const MatrixSelectionRows = ({
                     disabled
                       ? undefined
                       : () =>
-                          onChange(toggleMatrix(selection, matrixKind, matrix))
+                          onChange(
+                            toggleMatrix(
+                              matrixReferential,
+                              selection,
+                              matrixKind,
+                              matrix
+                            )
+                          )
                   }
                 />
               ))

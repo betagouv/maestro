@@ -14,6 +14,7 @@ import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/Find
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { type ChangeEvent, useContext, useMemo, useState } from 'react';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { t } from 'src/i18n';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -31,6 +32,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
   const { hasNationalView } = useAuthentication();
+  const matrixReferential = useMatrixReferential();
 
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
@@ -90,7 +92,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
 
   const filteredPrescriptions = commentedPrescriptions
     .filter((prescription) =>
-      getPrescriptionTitle([programmingPlan], prescription)
+      getPrescriptionTitle(matrixReferential, [programmingPlan], prescription)
         .toLowerCase()
         .includes(matrixQuery.toLowerCase())
     )
@@ -168,7 +170,11 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
               <div className={cx('fr-m-2w')}>
                 <div className={clsx('d-flex-align-center')}>
                   <h6 className="flex-grow-1">
-                    {getPrescriptionTitle([programmingPlan], prescription)}
+                    {getPrescriptionTitle(
+                      matrixReferential,
+                      [programmingPlan],
+                      prescription
+                    )}
                   </h6>
                   <Button
                     priority="secondary"

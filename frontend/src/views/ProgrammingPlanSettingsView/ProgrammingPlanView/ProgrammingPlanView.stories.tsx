@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import type {
+  Matrix,
+  MatrixKind
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import type {
   ProgrammingPlanSettingsForm,
@@ -14,6 +18,7 @@ import {
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { SpecificDataFieldId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
+import { MatrixReferentialFixture } from 'maestro-shared/test/matrixFixtures';
 import {
   genProgrammingPlan,
   genProgrammingPlanDomain,
@@ -110,7 +115,7 @@ const cerealesSubPlan = genProgrammingSubPlan({
   id: CerealesSubPlanId,
   subPlanNumber: '101',
   stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
-  matrices: genSubPlanMatrices('A00GY'),
+  matrices: genSubPlanMatrices('A00GY' as MatrixKind),
   context: 'Control',
   settingsCompleted: false
 });
@@ -119,7 +124,7 @@ const fruitsSubPlan = genProgrammingSubPlan({
   id: FruitsSubPlanId,
   subPlanNumber: '102',
   stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'TRANSFORMATION'],
-  matrices: genSubPlanMatrices('A0DVX'),
+  matrices: genSubPlanMatrices('A0DVX' as MatrixKind),
   context: 'Control',
   settingsCompleted: false
 });
@@ -128,14 +133,14 @@ const animauxSubPlan = genProgrammingSubPlan({
   id: AnimauxSubPlanId,
   subPlanNumber: '103',
   stages: ['ELEVAGE'],
-  matrices: genSubPlanMatrices('A01SN'),
+  matrices: genSubPlanMatrices('A01SN' as MatrixKind),
   context: 'Control',
   settingsCompleted: true
 });
 
-const cerealesName = subPlanLabel(cerealesSubPlan);
-const fruitsName = subPlanLabel(fruitsSubPlan);
-const animauxName = subPlanLabel(animauxSubPlan);
+const cerealesName = subPlanLabel(MatrixReferentialFixture, cerealesSubPlan);
+const fruitsName = subPlanLabel(MatrixReferentialFixture, fruitsSubPlan);
+const animauxName = subPlanLabel(MatrixReferentialFixture, animauxSubPlan);
 
 const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
   [CerealesSubPlanId]: {
@@ -146,7 +151,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     samples: [{ ...defaultProgrammingPlanSample, substanceKinds: ['Mono'] }],
     samplesManaged: true,
     settingsCompleted: false,
-    matrices: genSubPlanMatrices('A00GY'),
+    matrices: genSubPlanMatrices('A00GY' as MatrixKind),
     matricesManaged: true,
     context: 'Control',
     contextManaged: true,
@@ -176,7 +181,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     samples: null,
     samplesManaged: true,
     settingsCompleted: false,
-    matrices: genSubPlanMatrices('A0DVX'),
+    matrices: genSubPlanMatrices('A0DVX' as MatrixKind),
     matricesManaged: true,
     context: 'Control',
     contextManaged: true,
@@ -200,7 +205,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     samples: [{ ...defaultProgrammingPlanSample, substanceKinds: ['Mono'] }],
     samplesManaged: true,
     settingsCompleted: true,
-    matrices: genSubPlanMatrices('A00GY'),
+    matrices: genSubPlanMatrices('A00GY' as MatrixKind),
     matricesManaged: true,
     context: 'Control',
     contextManaged: true,
@@ -1386,7 +1391,10 @@ export const PlanMatrices: Story = {
       expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
         programmingPlanId: PPVPlanId,
         ...planSettings,
-        matrices: genSubPlanMatrices('A01GP', ['A01GS']),
+        matrices: genSubPlanMatrices(
+          'A01GP' as MatrixKind,
+          ['A01GS'] as Matrix[]
+        ),
         matricesManaged: true
       })
     );

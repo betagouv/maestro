@@ -57,6 +57,7 @@ import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaIn
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import SampleGeolocationForm from 'src/components/Sample/SampleGeolocationForm/SampleGeolocationForm';
 import { useForm } from 'src/hooks/useForm';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import SampleCompany from 'src/views/SampleView/DraftSample/ContextStep/SampleCompany';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
@@ -86,6 +87,7 @@ const ContextStep = ({ partialSample }: Props) => {
   const { trackEvent } = useAnalytics();
   const { user } = useAuthentication();
   const apiClient = useContext(ApiClientContext);
+  const matrixReferential = useMatrixReferential();
   const [resytalId, setResytalId] = useState(
     partialSample?.resytalId ?? undefined
   );
@@ -282,7 +284,10 @@ const ContextStep = ({ partialSample }: Props) => {
     ),
     {
       labels: Object.fromEntries(
-        (programmingPlan?.subPlans ?? []).map((sp) => [sp.id, subPlanLabel(sp)])
+        (programmingPlan?.subPlans ?? []).map((sp) => [
+          sp.id,
+          subPlanLabel(matrixReferential, sp)
+        ])
       ),
       withDefault: 'auto',
       withSort: true

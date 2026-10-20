@@ -1,16 +1,21 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
+import type { MatrixReferential } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { subPlanLabel } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import type React from 'react';
 import { useContext } from 'react';
 import AppServiceErrorAlert from 'src/components/_app/AppErrorAlert/AppServiceErrorAlert';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 import type { ProgrammingPlanDeletionTarget } from '../ProgrammingPlanDeleteModal/ProgrammingPlanDeleteModal';
 
-const withDuplicationLabels = (target: ProgrammingPlanDeletionTarget) => {
+const withDuplicationLabels = (
+  matrixReferential: MatrixReferential,
+  target: ProgrammingPlanDeletionTarget
+) => {
   switch (target.kind) {
     case 'domain':
       return {
@@ -32,9 +37,9 @@ const withDuplicationLabels = (target: ProgrammingPlanDeletionTarget) => {
       return {
         ...target,
         article: 'le sous-plan',
-        name: `${target.subPlan.subPlanNumber} - ${subPlanLabel(target.subPlan)}`,
+        name: `${target.subPlan.subPlanNumber} - ${subPlanLabel(matrixReferential, target.subPlan)}`,
         year: target.programmingPlan.year,
-        cascade: `le sous-plan ${subPlanLabel(target.subPlan)}`
+        cascade: `le sous-plan ${subPlanLabel(matrixReferential, target.subPlan)}`
       };
     default:
       return assertUnreachable(target);
@@ -55,7 +60,8 @@ export const ProgrammingPlanDuplicateModal = ({
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const target = withDuplicationLabels(unlabelledTarget);
+  const matrixReferential = useMatrixReferential();
+  const target = withDuplicationLabels(matrixReferential, unlabelledTarget);
 
   const apiClient = useContext(ApiClientContext);
   const [duplicateProgrammingPlanDomain, duplicateDomainCall] =

@@ -13,6 +13,7 @@ import { useNavigate, useParams } from 'react-router';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { YearTitle } from 'src/components/YearTitle/YearTitle';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
@@ -32,6 +33,7 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   const navigate = useNavigate();
 
   const apiClient = useContext(ApiClientContext);
+  const matrixReferential = useMatrixReferential();
   const { data: domains = [] } = apiClient.useFindProgrammingPlanDomainsQuery();
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
@@ -43,7 +45,7 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   const subPlan = programmingPlan?.subPlans.find((_) => _.id === subPlanId);
 
   const title = subPlan
-    ? `${subPlan.subPlanNumber} - ${subPlanLabel(subPlan)}`
+    ? `${subPlan.subPlanNumber} - ${subPlanLabel(matrixReferential, subPlan)}`
     : programmingPlan?.title;
 
   const { user, account } = useAuthentication();
