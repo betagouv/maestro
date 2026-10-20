@@ -1,6 +1,11 @@
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import {
+  isSettingLocked,
+  lockedSettingReason,
+  type ProgrammingPlanEditionPhase
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEditionPhase';
+import {
   managedKey,
   type ProgrammingPlanSettingKey,
   type ProgrammingPlanSettings
@@ -16,6 +21,7 @@ type SettingInheritanceOptions<T extends ProgrammingPlanSettings> = {
   label: string;
   settings: T;
   planSettings: ProgrammingPlanSettings | undefined;
+  editionPhase: ProgrammingPlanEditionPhase;
   inheritanceDisabledReason?: string;
   onChange: (settings: T) => void;
 };
@@ -25,28 +31,33 @@ export const useSettingInheritance = <T extends ProgrammingPlanSettings>({
   label,
   settings,
   planSettings,
+  editionPhase,
   inheritanceDisabledReason,
   onChange
 }: SettingInheritanceOptions<T>) => {
   const managed = settings[managedKey(settingKey)];
   const managedAtPlanLevel = planSettings?.[managedKey(settingKey)] ?? false;
   const isInherited = managedAtPlanLevel && !managed;
+  const locked = isSettingLocked(editionPhase, settingKey);
+  const disabledReason = locked
+    ? lockedSettingReason(editionPhase)
+    : inheritanceDisabledReason;
 
   const change = (patch: Partial<ProgrammingPlanSettings>) =>
     onChange({ ...settings, ...patch });
 
   return {
-    isInherited,
+    disabled: isInherited || locked,
     isFieldVisible: planSettings !== undefined || managed,
     required: managed,
     lockButton: managedAtPlanLevel && (
       <SettingInheritanceLockButton
         isInherited={isInherited}
         title={
-          inheritanceDisabledReason ??
+          disabledReason ??
           (isInherited ? 'Géré par le plan' : 'Détaché du plan')
         }
-        disabled={inheritanceDisabledReason !== undefined}
+        disabled={disabledReason !== undefined}
         onClick={() =>
           change(
             isInherited
@@ -65,15 +76,13 @@ export const useSettingInheritance = <T extends ProgrammingPlanSettings>({
         labelPosition="left"
         showCheckedHint={false}
         inputTitle={`Paramétrer « ${label} » au niveau du plan`}
-        disabled={inheritanceDisabledReason !== undefined}
+        disabled={disabledReason !== undefined}
         checked={managed}
         onChange={(managed) => change({ [managedKey(settingKey)]: managed })}
       />
     ),
-    disabledReasonHint: !planSettings && inheritanceDisabledReason && (
-      <p className={cx('fr-hint-text', 'fr-mb-0')}>
-        {inheritanceDisabledReason}
-      </p>
+    disabledReasonHint: (!planSettings || locked) && disabledReason && (
+      <p className={cx('fr-hint-text', 'fr-mb-0')}>{disabledReason}</p>
     )
   };
 };
@@ -95,6 +104,7 @@ export const ProgrammingPlanSettingInheritance = <
   labelContent = label,
   settings,
   planSettings,
+  editionPhase,
   inheritanceDisabledReason,
   onChange,
   children,
@@ -103,7 +113,7 @@ export const ProgrammingPlanSettingInheritance = <
   assert<Equals<keyof typeof _rest, never>>();
 
   const {
-    isInherited,
+    disabled,
     isFieldVisible,
     required,
     lockButton,
@@ -114,6 +124,7 @@ export const ProgrammingPlanSettingInheritance = <
     label,
     settings,
     planSettings,
+    editionPhase,
     inheritanceDisabledReason,
     onChange
   });
@@ -142,7 +153,7 @@ export const ProgrammingPlanSettingInheritance = <
       <div style={{ flex: 1 }}>
         {isFieldVisible ? (
           children({
-            disabled: isInherited,
+            disabled,
             label: composedLabel,
             required
           })

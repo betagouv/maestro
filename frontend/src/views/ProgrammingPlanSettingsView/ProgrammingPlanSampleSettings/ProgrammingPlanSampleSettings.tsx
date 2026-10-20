@@ -4,6 +4,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import type { TagProps } from '@codegouvfr/react-dsfr/Tag';
 import TagsGroup from '@codegouvfr/react-dsfr/TagsGroup';
 import clsx from 'clsx';
+import type { ProgrammingPlanEditionPhase } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEditionPhase';
 import {
   defaultProgrammingPlanSample,
   type ProgrammingPlanSampleCopySetting,
@@ -50,6 +51,7 @@ type EditedCopy = {
 type Props<T extends ProgrammingPlanSettings> = {
   settings: T;
   planSettings: ProgrammingPlanSettings | undefined;
+  editionPhase: ProgrammingPlanEditionPhase;
   inputForm: UseForm<typeof ProgrammingLevelSettingsForm>;
   onChange: (settings: T) => void;
 };
@@ -59,6 +61,7 @@ export const ProgrammingPlanSampleSettings = <
 >({
   settings,
   planSettings,
+  editionPhase,
   inputForm,
   onChange,
   ..._rest
@@ -107,20 +110,16 @@ export const ProgrammingPlanSampleSettings = <
       ? undefined
       : 'Paramétrez d’abord les analytes au niveau du plan.';
 
-  const {
-    isInherited: disabled,
-    isFieldVisible,
-    lockButton,
-    toggle,
-    disabledReasonHint
-  } = useSettingInheritance({
-    settingKey: 'samples',
-    label: 'Échantillons / Exemplaires',
-    settings,
-    planSettings,
-    inheritanceDisabledReason,
-    onChange
-  });
+  const { disabled, isFieldVisible, lockButton, toggle, disabledReasonHint } =
+    useSettingInheritance({
+      settingKey: 'samples',
+      label: 'Échantillons / Exemplaires',
+      settings,
+      planSettings,
+      editionPhase,
+      inheritanceDisabledReason,
+      onChange
+    });
 
   return (
     <>
@@ -283,6 +282,7 @@ export const ProgrammingPlanSampleSettings = <
       <ProgrammingPlanSampleProcedureSettings
         settings={settings}
         planSettings={planSettings}
+        editionPhase={editionPhase}
         inputForm={inputForm}
         onChange={onChange}
       />
