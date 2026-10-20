@@ -35,9 +35,6 @@ const PesticideResidueNextYearDomainId = ProgrammingPlanDomainId.parse(
 const PesticideResidueInTwoYearsDomainId = ProgrammingPlanDomainId.parse(
   '3c4d5e6f-7a8b-4c9d-8e0f-2a3b4c5d6e7f'
 );
-const PesticideResidueInTenYearsDomainId = ProgrammingPlanDomainId.parse(
-  '4d5e6f7a-8b9c-4d0e-9f1a-3b4c5d6e7f8a'
-);
 
 export const genProgrammingPlanDomain = (
   data?: Partial<ProgrammingPlanDomain>
@@ -65,10 +62,6 @@ export const ProgrammingPlanDomainFixtures: ProgrammingPlanDomain[] = [
   genProgrammingPlanDomain({
     id: PesticideResidueInTwoYearsDomainId,
     year: currentYear + 2
-  }),
-  genProgrammingPlanDomain({
-    id: PesticideResidueInTenYearsDomainId,
-    year: currentYear + 10
   })
 ];
 
@@ -418,7 +411,7 @@ export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
   ],
   stagesManaged: true,
   id: PPVValidatedDromProgrammingPlanId,
-  domainId: PesticideResidueInTenYearsDomainId,
+  domainId: PesticideResidueDomainId,
   title: 'Production primaire végétale - DROM',
   subPlans: [PPVValidatedDromSubPlanFixture],
   distributionKind: 'REGIONAL',
@@ -429,7 +422,7 @@ export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
     region,
     status: isDromRegion(region) ? 'Validated' : 'SubmittedToRegion'
   })),
-  year: new Date().getFullYear() + 10
+  year: new Date().getFullYear()
 });
 
 export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
