@@ -1,11 +1,12 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { Regions } from 'maestro-shared/referential/Region';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { matrixLabel } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { type FunctionComponent, useContext } from 'react';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { ApiClientContext } from '../../services/apiClient';
 
 type Props = {
@@ -16,6 +17,7 @@ const DashboardResidueStats: FunctionComponent<Props> = ({
   programmingPlan
 }) => {
   const apiClient = useContext(ApiClientContext);
+  const matrixReferential = useMatrixReferential();
 
   const { data: stats, isLoading } = apiClient.useGetResidueStatsQuery({
     programmingPlanId: programmingPlan.id
@@ -34,7 +36,7 @@ const DashboardResidueStats: FunctionComponent<Props> = ({
           data={stats.map((stat, index) => [
             index + 1,
             SSD2IdLabel[stat.residueReference] ?? stat.residueReference,
-            MatrixLabels[stat.matrix],
+            matrixLabel(matrixReferential, stat.matrix),
             Regions[stat.region]?.name ?? stat.region,
             stat.sampleCount,
             stat.higherThanArfdCount

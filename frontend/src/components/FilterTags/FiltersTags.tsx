@@ -4,13 +4,16 @@ import clsx from 'clsx';
 import { format } from 'date-fns';
 import { omit } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { Regions } from 'maestro-shared/referential/Region';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import type { Pagination } from 'maestro-shared/schema/commons/Pagination';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import {
+  type MatrixReferential,
+  matricesOfKind,
+  matrixKindLabel,
+  matrixLabel
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -22,6 +25,7 @@ import type { UserListItem } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { Fragment, type ReactNode, useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import type { PrescriptionFilters } from '../../store/reducers/prescriptionsSlice';
 
 type FilterableType = FindSampleOptions &
@@ -87,7 +91,7 @@ const renderArrayTags = <T extends string>(
 const filtersConfig = {
   matrixKinds: {
     prop: 'matrixKinds',
-    getComponent: (value, onChange, { filters }) => (
+    getComponent: (value, onChange, { filters, matrixReferential }) => (
       <Fragment key="tag-matrixKinds">
         {value.map((kind) => (
           <Tag
@@ -97,7 +101,9 @@ const filtersConfig = {
               onClick: () => {
                 const newMatrixKinds = value.filter((v) => v !== kind);
                 const remainingMatrices = filters?.matrices?.filter((m) =>
-                  newMatrixKinds.some((k) => MatrixListByKind[k].includes(m))
+                  newMatrixKinds.some((k) =>
+                    matricesOfKind(matrixReferential, k).includes(m)
+                  )
                 );
                 onChange({
                   matrixKinds: newMatrixKinds,
@@ -106,7 +112,7 @@ const filtersConfig = {
               }
             }}
           >
-            {MatrixKindLabels[kind]}
+            {matrixKindLabel(matrixReferential, kind)}
           </Tag>
         ))}
       </Fragment>
@@ -114,8 +120,13 @@ const filtersConfig = {
   },
   matrices: {
     prop: 'matrices',
-    getComponent: (value, onChange) =>
-      renderArrayTags('matrices', value, (m) => MatrixLabels[m], onChange)
+    getComponent: (value, onChange, { matrixReferential }) =>
+      renderArrayTags(
+        'matrices',
+        value,
+        (m) => matrixLabel(matrixReferential, m),
+        onChange
+      )
   },
   statuses: {
     prop: 'statuses',
@@ -222,7 +233,7 @@ const filtersConfig = {
   },
   programmingSubPlanIds: {
     prop: 'programmingSubPlanIds',
-    getComponent: (value, onChange, { programmingPlans }) =>
+    getComponent: (value, onChange, { programmingPlans, matrixReferential }) =>
       renderArrayTags(
         'programmingSubPlanIds',
         value,
@@ -230,7 +241,7 @@ const filtersConfig = {
           const subPlan = programmingPlans
             ?.flatMap((plan) => plan.subPlans)
             .find((subPlan) => subPlan.id === id);
-          return subPlan ? subPlanLabel(subPlan) : id;
+          return subPlan ? subPlanLabel(matrixReferential, subPlan) : id;
         },
         onChange
       )
@@ -256,6 +267,7 @@ const filtersConfig = {
             laboratories?: Props['laboratories'];
             domains?: ProgrammingPlanDomain[];
             filters?: Partial<FilterableType>;
+            matrixReferential: MatrixReferential;
           }
         ) => ReactNode;
         getLabel?: never;
@@ -273,6 +285,7 @@ const FiltersTags = ({
   domains
 }: Props) => {
   const { hasNationalView } = useAuthentication();
+  const matrixReferential = useMatrixReferential();
 
   const hasFilters = useMemo(
     () =>
@@ -317,7 +330,8 @@ const FiltersTags = ({
                 users,
                 laboratories,
                 domains,
-                filters
+                filters,
+                matrixReferential
               });
             } else {
               // @ts-expect-error TS2345 il est perdu

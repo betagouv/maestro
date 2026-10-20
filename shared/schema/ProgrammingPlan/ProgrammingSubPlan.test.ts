@@ -1,18 +1,23 @@
 import { describe, expect, test } from 'vitest';
-import { genProgrammingSubPlan } from '../../test/programmingPlanFixtures';
+import { MatrixReferentialFixture } from '../../test/matrixFixtures';
+import {
+  genProgrammingSubPlan,
+  genSubPlanMatrices
+} from '../../test/programmingPlanFixtures';
+import type { Matrix, MatrixKind } from '../Matrix/MatrixReferential';
 import { analysisPermissionRoles, subPlanLabel } from './ProgrammingSubPlan';
 
 describe('subPlanLabel', () => {
   test('should join the stage, the matrices, the analytes and the context', () => {
     expect(
       subPlanLabel(
+        MatrixReferentialFixture,
         genProgrammingSubPlan({
           stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
           substanceKinds: ['Multi'],
-          matrices: {
-            operator: 'Or',
-            items: [{ matrixKind: 'A01GP', matrices: ['A01GS'] }]
-          },
+          matrices: genSubPlanMatrices('A01GP' as MatrixKind, [
+            'A01GS' as Matrix
+          ]),
           context: 'Surveillance'
         })
       )
@@ -24,13 +29,11 @@ describe('subPlanLabel', () => {
   test('should join several stages and several analytes', () => {
     expect(
       subPlanLabel(
+        MatrixReferentialFixture,
         genProgrammingSubPlan({
           stages: ['ELEVAGE', 'ABATTAGE'],
           substanceKinds: ['Mono', 'Multi'],
-          matrices: {
-            operator: 'Or',
-            items: [{ matrixKind: 'A01GP', matrices: [] }]
-          },
+          matrices: genSubPlanMatrices('A01GP' as MatrixKind),
           context: 'Control'
         })
       )
@@ -42,6 +45,7 @@ describe('subPlanLabel', () => {
   test('should skip the missing parts', () => {
     expect(
       subPlanLabel(
+        MatrixReferentialFixture,
         genProgrammingSubPlan({
           stages: null,
           substanceKinds: null,
@@ -55,6 +59,7 @@ describe('subPlanLabel', () => {
   test('should name nothing when every part is missing', () => {
     expect(
       subPlanLabel(
+        MatrixReferentialFixture,
         genProgrammingSubPlan({
           stages: [],
           substanceKinds: [],

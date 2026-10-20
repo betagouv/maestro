@@ -1,6 +1,6 @@
 import { omit } from 'lodash-es';
-import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
+import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
@@ -51,231 +51,231 @@ export const abricotsEtSimilaires = genPPVPrescription({
   id: '02b1d919-f5e7-4d67-afa6-dc8e7e8f3687',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A0DVX',
+  matrixKind: 'A0DVX' as MatrixKind,
   sampleCount: 40
 });
 export const avocats = genPPVPrescription({
   id: 'b312ebb6-11cc-4fb3-a7e2-19e74fe73e8f',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A01LB',
+  matrixKind: 'A01LB' as MatrixKind,
   sampleCount: 14
 });
 export const avoineEtSimilaires = genPPVPrescription({
   id: 'c2476ab6-53f2-4909-a68f-de3bbbce0bab',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A000F',
+  matrixKind: 'A000F' as MatrixKind,
   sampleCount: 53
 });
 export const legumesFeuilles = genPPVPrescription({
   id: 'd98ca4ed-1404-4f24-8d41-6a027f4e78c5',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00KR',
+  matrixKind: 'A00KR' as MatrixKind,
   sampleCount: 9
 });
 export const carottes = genPPVPrescription({
   id: 'a9818827-9b11-40d5-a095-3674d71ae9fa',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00QH',
+  matrixKind: 'A00QH' as MatrixKind,
   sampleCount: 56
 });
 export const celeris = genPPVPrescription({
   id: '940c3185-c61a-49b5-a355-ce41ffee7b8f',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00RY',
+  matrixKind: 'A00RY' as MatrixKind,
   sampleCount: 33
 });
 export const cerisesEtSimilaires = genPPVPrescription({
   id: 'a31e2e9c-067e-4cd2-8952-56f5316634ee',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A01GG',
+  matrixKind: 'A01GG' as MatrixKind,
   sampleCount: 24
 });
 export const chouxVertsEtSimilaires = genPPVPrescription({
   id: '19f098d7-2873-4ebb-96b7-df13e1084b4e',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00GL',
+  matrixKind: 'A00GL' as MatrixKind,
   sampleCount: 40
 });
 export const chouxFleurs = genPPVPrescription({
   id: 'f97c3ffa-23ca-4205-a55d-01f1ca76e270',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00FR',
+  matrixKind: 'A00FR' as MatrixKind,
   sampleCount: 36
 });
 export const endives = genPPVPrescription({
   id: '57d5289b-ca8f-4017-9794-a621f496b72a',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00NE',
+  matrixKind: 'A00NE' as MatrixKind,
   sampleCount: 20
 });
 export const fenouils = genPPVPrescription({
   id: '8839818d-1820-4f6b-a298-a12cc2f0980e',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00SA',
+  matrixKind: 'A00SA' as MatrixKind,
   sampleCount: 16
 });
 export const fevesNonEcossees = genPPVPrescription({
   id: 'a9b33e14-56ec-4156-ad32-a06df9dd3d96',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00PH',
+  matrixKind: 'A00PH' as MatrixKind,
   sampleCount: 43
 });
 export const figues = genPPVPrescription({
   id: '25117f79-6bde-4f66-b4df-631af6495eaf',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A01HG',
+  matrixKind: 'A01HG' as MatrixKind,
   sampleCount: 19
 });
 export const jeunesPousses = genPPVPrescription({
   id: '7f5a4f46-9fbb-4c6f-b6de-ee933707fc40',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00MA',
+  matrixKind: 'A00MA' as MatrixKind,
   sampleCount: 40
 });
 export const fruitsACoques = genPPVPrescription({
   id: 'a2e5b333-4fff-4f25-823d-2c0aef8d9568',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A014C',
+  matrixKind: 'A014C' as MatrixKind,
   sampleCount: 3
 });
 export const houblon = genPPVPrescription({
   id: '8facf692-60d2-43d1-9088-567786b94ccf',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00YZ',
+  matrixKind: 'A00YZ' as MatrixKind,
   sampleCount: 8
 });
 export const laituesEtSimilaires = genPPVPrescription({
   id: 'f3ea9e45-378c-48db-a53e-6001e89d5a77',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A0DLB',
+  matrixKind: 'A0DLB' as MatrixKind,
   sampleCount: 14
 });
 const legumesSecs = genPPVPrescription({
   id: 'c4eca56b-5b87-4152-a8c8-6e4f27e32e24',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A012R',
+  matrixKind: 'A012R' as MatrixKind,
   sampleCount: 84
 });
 export const lentilles = genPPVPrescription({
   id: '74880178-aa79-4a57-85f4-2727ea9ebb1a',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A013Q',
+  matrixKind: 'A013Q' as MatrixKind,
   sampleCount: 33
 });
 export const litchis = genPPVPrescription({
   id: 'eb344a0d-e309-44c8-a25a-f75f140faae3',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A01JV',
+  matrixKind: 'A01JV' as MatrixKind,
   sampleCount: 12
 });
 export const maches = genPPVPrescription({
   id: 'e9f62e45-6890-4f2d-80eb-44a93dbb1f07',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00KT',
+  matrixKind: 'A00KT' as MatrixKind,
   sampleCount: 22
 });
 export const mangues = genPPVPrescription({
   id: 'b101f673-cb3e-4398-81ff-cdae2bd41241',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A01LF',
+  matrixKind: 'A01LF' as MatrixKind,
   sampleCount: 13
 });
 export const navets = genPPVPrescription({
   id: 'd2887e1d-8868-4dd3-bfa0-3b796242dbf6',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00RE',
+  matrixKind: 'A00RE' as MatrixKind,
   sampleCount: 31
 });
 export const oignons = genPPVPrescription({
   id: '84c8ea38-8a20-42cf-ba10-b9418af4aa51',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A00HC',
+  matrixKind: 'A00HC' as MatrixKind,
   sampleCount: 52
 });
 export const orgeEtSimilaires = genPPVPrescription({
   id: '904e8eac-b05b-44dd-92b9-c20b82dedef2',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A0D9Y',
+  matrixKind: 'A0D9Y' as MatrixKind,
   sampleCount: 64
 });
 export const patatesDouces = genPPVPrescription({
   id: 'e98c900b-8ae0-40ad-b3cf-d36f6650c9c0',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A010C',
+  matrixKind: 'A010C' as MatrixKind,
   sampleCount: 21
 });
 export const pechesEtSimilaires = genPPVPrescription({
   id: 'ba65c645-9bec-49e4-afe0-4bbd12e5a874',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A01GL',
+  matrixKind: 'A01GL' as MatrixKind,
   sampleCount: 36
 });
 export const poireauxEtSimilaires = genPPVPrescription({
   id: 'bbab1f35-439f-4f93-aa8a-bff96c899643',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A0DEH',
+  matrixKind: 'A0DEH' as MatrixKind,
   sampleCount: 42
 });
 export const poires = genPPVPrescription({
   id: '52c53b82-3ffb-43ba-8dd7-805671e84557',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A01DP',
+  matrixKind: 'A01DP' as MatrixKind,
   sampleCount: 36
 });
 export const rizEtSimilaires = genPPVPrescription({
   id: 'a86ac011-3f12-40e1-adf7-e03bfd66d8cb',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A001C',
+  matrixKind: 'A001C' as MatrixKind,
   sampleCount: 17
 });
 export const fevesDeSoja = genPPVPrescription({
   id: 'd4a1ade5-f0a7-4aca-81b0-a15856aabead',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A0DFR',
+  matrixKind: 'A0DFR' as MatrixKind,
   sampleCount: 50
 });
 export const graineDeTournesol1 = genPPVPrescription({
   id: '8140350b-23df-490d-8e00-95296d24ec6b',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
-  matrixKind: 'A0DBP',
+  matrixKind: 'A0DBP' as MatrixKind,
   sampleCount: 24
 });
 const graineDeTournesol2 = genPPVPrescription({
   id: 'da04a0f4-8a63-4e93-8725-4adf25e3fc3e',
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Surveillance',
-  matrixKind: 'A0DBP',
+  matrixKind: 'A0DBP' as MatrixKind,
   sampleCount: 50
 });
 const buildSubPlans = (

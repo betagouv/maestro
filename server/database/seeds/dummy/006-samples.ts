@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
+import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { FoieDeBovinValidatedPrescriptionFixture } from 'maestro-shared/test/prescriptionFixtures';
 import {
@@ -58,7 +59,7 @@ export const seed = async () => {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
-          matrices: [{ matrixKind: 'A0DVX', matrix: 'A0DVX' }],
+          matrices: [{ matrixKind: 'A0DVX' as MatrixKind, matrix: 'A0DVX' }],
           step: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -76,7 +77,7 @@ export const seed = async () => {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
-          matrices: [{ matrixKind: 'A000F', matrix: 'A000F' }],
+          matrices: [{ matrixKind: 'A000F' as MatrixKind, matrix: 'A000F' }],
           step: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -94,7 +95,7 @@ export const seed = async () => {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
-          matrices: [{ matrixKind: 'A00QH', matrix: 'A00QH' }],
+          matrices: [{ matrixKind: 'A00QH' as MatrixKind, matrix: 'A00QH' }],
           step: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -110,7 +111,7 @@ export const seed = async () => {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
-          matrices: [{ matrixKind: 'A01GG', matrix: 'A01GG' }],
+          matrices: [{ matrixKind: 'A01GG' as MatrixKind, matrix: 'A01GG' }],
           step: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -128,7 +129,7 @@ export const seed = async () => {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
-          matrices: [{ matrixKind: 'A00HC', matrix: 'A00HC' }],
+          matrices: [{ matrixKind: 'A00HC' as MatrixKind, matrix: 'A00HC' }],
           step: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -144,7 +145,7 @@ export const seed = async () => {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
-          matrices: [{ matrixKind: 'A013Q', matrix: 'A013Q' }],
+          matrices: [{ matrixKind: 'A013Q' as MatrixKind, matrix: 'A013Q' }],
           step: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -160,7 +161,7 @@ export const seed = async () => {
           sampler,
           programmingPlanId: validatedProgrammingPlan.id,
           context: 'Control',
-          matrices: [{ matrixKind: 'A0DFR', matrix: 'A0DFR' }],
+          matrices: [{ matrixKind: 'A0DFR' as MatrixKind, matrix: 'A0DFR' }],
           step: 'Sent',
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
@@ -182,7 +183,9 @@ export const seed = async () => {
           programmingSubPlanId: DAOABovinValidatedSubPlanId,
           context: 'Surveillance',
           legalContext: 'A',
-          matrices: [{ matrixKind: 'A01QX', matrix: 'A01XF#F28.A0C0S' }],
+          matrices: [
+            { matrixKind: 'A01QX' as MatrixKind, matrix: 'A01XF#F28.A0C0S' }
+          ],
           step: 'Sent',
           department: '85',
           company: CHARAL,

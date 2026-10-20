@@ -1,8 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import {
+  type Matrix,
+  type MatrixKind,
+  matrixKindLabel,
+  matrixLabel
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
+import { MatrixReferentialFixture } from 'maestro-shared/test/matrixFixtures';
 
-import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import {
   genLocalPrescription,
   genPrescription
@@ -55,7 +59,7 @@ const programmingPlan = withMatrixKindSubPlans(
     subPlans: [PPVValidatedSubPlanFixture],
     distributionKind: 'REGIONAL'
   }),
-  ['A001M', 'A00TQ']
+  ['A001M', 'A00TQ'] as MatrixKind[]
 );
 const prescription1 = genPrescription({
   programmingSubPlanId: programmingPlan.subPlans[0].id
@@ -230,7 +234,10 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
       1
     );
 
-    await userEvent.selectOptions(matrixKindListbox, MatrixKindLabels.A001M);
+    await userEvent.selectOptions(
+      matrixKindListbox,
+      matrixKindLabel(MatrixReferentialFixture, 'A001M' as MatrixKind)
+    );
     await userEvent.click(stageSelect);
     await expect(
       canvas.queryByText(
@@ -259,10 +266,10 @@ const andSubPlan = {
     operator: 'And' as const,
     items: [
       {
-        matrixKind: 'A00QT' as const,
+        matrixKind: 'A00QT' as MatrixKind,
         matrices: ['A00QV', 'A00QX'] as Matrix[]
       },
-      { matrixKind: 'A01GP' as const, matrices: ['A01GQ'] as Matrix[] }
+      { matrixKind: 'A01GP' as MatrixKind, matrices: ['A01GQ'] as Matrix[] }
     ]
   }
 };
@@ -317,20 +324,27 @@ export const MatrixStepPPVAnd: Story = {
     const matrixKindInputs = canvas.getAllByTestId('matrix-kind-select');
     await expect(matrixKindInputs).toHaveLength(2);
     await expect(matrixKindInputs[0]).toBeDisabled();
-    await expect(matrixKindInputs[0]).toHaveValue(MatrixKindLabels.A00QT);
-    await expect(matrixKindInputs[1]).toHaveValue(MatrixKindLabels.A01GP);
+    await expect(matrixKindInputs[0]).toHaveValue(
+      matrixKindLabel(MatrixReferentialFixture, 'A00QT' as MatrixKind)
+    );
+    await expect(matrixKindInputs[1]).toHaveValue(
+      matrixKindLabel(MatrixReferentialFixture, 'A01GP' as MatrixKind)
+    );
 
     await userEvent.click(canvas.getAllByTestId('matrix-select')[0]);
     const matrixListbox = await screen.findByRole('listbox');
     await expect(within(matrixListbox).getAllByRole('option')).toHaveLength(2);
-    await userEvent.selectOptions(matrixListbox, MatrixLabels.A00QV);
+    await userEvent.selectOptions(
+      matrixListbox,
+      matrixLabel(MatrixReferentialFixture, 'A00QV' as Matrix)
+    );
 
     await waitFor(() =>
       expect(createOrUpdateMock).toHaveBeenLastCalledWith(
         expect.objectContaining({
           matrices: [
-            { matrixKind: 'A00QT', matrix: 'A00QV' },
-            { matrixKind: 'A01GP', matrix: 'A01GQ' }
+            { matrixKind: 'A00QT' as MatrixKind, matrix: 'A00QV' },
+            { matrixKind: 'A01GP' as MatrixKind, matrix: 'A01GQ' }
           ]
         })
       )

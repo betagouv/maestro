@@ -1,9 +1,9 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { Department } from 'maestro-shared/referential/Department';
-import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
 import { Stage } from 'maestro-shared/referential/Stage';
 import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
+import { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionComments } from 'maestro-shared/schema/Prescription/PrescriptionComments';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';

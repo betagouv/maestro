@@ -18,6 +18,7 @@ import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKin
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { memo, useMemo } from 'react';
 import LaboratoryAgreementTag from 'src/components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { pluralize } from 'src/utils/stringUtils';
 
 const LABS_DISPLAY_LIMIT = 10;
@@ -90,9 +91,14 @@ const AgreementTableRow = memo(function AgreementTableRow({
   onAnimatingStart,
   onAnimatingEnd
 }: Props) {
+  const matrixReferential = useMatrixReferential();
   const allMatrices = useMemo(
-    () => getSubPlanMatrixLabels(row.programmingSubPlan.matrices),
-    [row.programmingSubPlan]
+    () =>
+      getSubPlanMatrixLabels(
+        matrixReferential,
+        row.programmingSubPlan.matrices
+      ),
+    [matrixReferential, row.programmingSubPlan]
   );
   const visibleMatrices = isMatrixExpanded
     ? allMatrices
@@ -327,7 +333,9 @@ const AgreementTableRow = memo(function AgreementTableRow({
               >
                 <div>
                   Type de plan :{' '}
-                  <strong>{subPlanLabel(row.programmingSubPlan)}</strong>
+                  <strong>
+                    {subPlanLabel(matrixReferential, row.programmingSubPlan)}
+                  </strong>
                 </div>
                 {planStages.length > 0 && (
                   <div

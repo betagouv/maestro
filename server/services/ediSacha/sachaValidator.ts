@@ -1,9 +1,9 @@
+import { MatrixSigleSacha } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { NumeroEtiquette } from './sachaReferences';
 import {
   sigleContexteInterventionValidator,
-  sigleMatrixValidator,
   siglePlanAnalyseValidator
 } from './sachaReferential';
 
@@ -78,7 +78,7 @@ const dialogueEchantillonCommemoratifType = coerceToArray(
   z.object({
     DialogueEchantillonComplet: z.object({
       NumeroEchantillon: z.coerce.number().int(),
-      SigleMatriceSpecifique: sigleMatrixValidator,
+      SigleMatriceSpecifique: MatrixSigleSacha,
       NumeroIdentificationExterne: z.string().optional(),
       IdentifiantLabo: z.string().optional(),
       NumeroLot: z.coerce.number().int().optional(),

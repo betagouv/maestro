@@ -3,6 +3,7 @@ import { fakerFR } from '@faker-js/faker';
 import { addDays, format } from 'date-fns';
 import { omit } from 'lodash-es';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
+import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   DummyLaboratoryIds,
@@ -588,7 +589,7 @@ describe('Sample router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest({
-        matrices: [{ matrixKind: 'A00GY', matrix: 123 }]
+        matrices: [{ matrixKind: 'A00GY' as MatrixKind, matrix: 123 }]
       });
       await badRequestTest({
         items: [
@@ -626,7 +627,7 @@ describe('Sample router', () => {
 
     const validBody = {
       ...Sample11Fixture,
-      matrices: [{ matrixKind: 'A00GY', matrix: 'A00HF' }],
+      matrices: [{ matrixKind: 'A00GY' as MatrixKind, matrix: 'A00HF' }],
       items: [
         genSampleItem({
           sampleId: Sample11Fixture.id,
@@ -863,7 +864,7 @@ describe('Sample router', () => {
         company: SlaughterhouseCompanyFixture1,
         step: 'Submitted',
         ownerAgreement: true,
-        matrices: [{ matrixKind: 'A0C0Z', matrix: 'A0BAV' }],
+        matrices: [{ matrixKind: 'A0C0Z' as MatrixKind, matrix: 'A0BAV' }],
         programmingSubPlanId: DAOAInProgressBovinSubPlanId,
         geolocation: { x: 46.642117, y: -0.734475 },
         specificData: {
@@ -899,7 +900,7 @@ describe('Sample router', () => {
         department: SamplerDaoaFixture.department,
         company: SlaughterhouseCompanyFixture1,
         step: 'Draft',
-        matrices: [{ matrixKind: 'A0C0Z', matrix: 'A0BAV' }],
+        matrices: [{ matrixKind: 'A0C0Z' as MatrixKind, matrix: 'A0BAV' }],
         programmingSubPlanId: DAOAInProgressBovinSubPlanId,
         geolocation: { x: 46.642117, y: -0.734475 }
       });
@@ -956,7 +957,9 @@ describe('Sample router', () => {
         .where({ id: SampleDAOA1Fixture.id })
         .update({
           step: 'Submitted',
-          matrices: JSON.stringify([{ matrixKind: 'A0C0Z', matrix: 'A01GL' }]),
+          matrices: JSON.stringify([
+            { matrixKind: 'A0C0Z' as MatrixKind, matrix: 'A01GL' }
+          ]),
           ownerAgreement: true,
           sentAt: null,
           programmingSubPlanId: DAOAInProgressVolailleSubPlanId

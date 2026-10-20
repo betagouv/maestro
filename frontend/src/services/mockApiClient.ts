@@ -12,6 +12,7 @@ import {
 } from 'maestro-shared/test/companyFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
+import { MatrixReferentialFixture } from 'maestro-shared/test/matrixFixtures';
 import { genLocalPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import {
   genProgrammingPlan,
@@ -170,6 +171,7 @@ const defaultMockApiClientConf: MockApi = {
   useFindLaboratoryAgreementChecksQuery: { data: [] },
   useUpdateLaboratoryAgreementCheckMutation: [fn(), {}],
   useUpdateLaboratoryAgreementsMutation: [fn(), {}],
+  useFindMatrixReferentialQuery: { data: MatrixReferentialFixture },
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
   useFindPrescriptionCountsQuery: {

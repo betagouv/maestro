@@ -1,4 +1,5 @@
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
+import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type {
   CommemoratifSigle,
   CommemoratifValueSigle,
@@ -8,6 +9,7 @@ import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import type { SampleMatrix } from 'maestro-shared/schema/Sample/SampleMatrix';
 import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
+import { MatrixReferentialFixture } from 'maestro-shared/test/matrixFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import type { MaestroDate } from 'maestro-shared/utils/date';
 import { describe, expect, test } from 'vitest';
@@ -130,7 +132,7 @@ const daiSample = {
   sentAt: new Date(1765876056798),
   department: '72',
   matrices: [
-    { matrixKind: 'A01SN', matrix: 'A01SN#F26.A07XE' }
+    { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SN#F26.A07XE' }
   ] as SampleMatrix[],
   specificData: {
     sampling: 'Aléatoire',
@@ -212,6 +214,7 @@ const daiCommemoratifRecord: SachaCommemoratifRecord = {
 test(`génère un XML de DAI`, async () => {
   expect(
     await generateXMLDAI(
+      MatrixReferentialFixture,
       daiSample,
       'M01',
       daiSampleItem,
@@ -310,6 +313,7 @@ test(`fige le NumeroEtiquette sur sentAt (date d'envoi), tout en datant le fichi
   const dateNow = new Date('2026-01-05T09:00:00').getTime();
 
   const xmlFile = await generateXMLDAI(
+    MatrixReferentialFixture,
     { ...daiSample, sentAt: new Date('2025-12-16T09:00:00') },
     'M01',
     daiSampleItem,
@@ -329,6 +333,7 @@ test(`fige le NumeroEtiquette sur sentAt (date d'envoi), tout en datant le fichi
 
 test('génère un plan d’analyse par sigle distinct des analytes de l’exemplaire', async () => {
   const xmlFile = await generateXMLDAI(
+    MatrixReferentialFixture,
     daiSample,
     'M01',
     { ...daiSampleItem, substanceKinds: ['Mono', 'Copper', 'Multi'] },
@@ -349,6 +354,7 @@ test('génère un plan d’analyse par sigle distinct des analytes de l’exempl
 test('refuse un exemplaire dont un analyte n’a pas de plan d’analyse', () => {
   expect(() =>
     generateXMLDAI(
+      MatrixReferentialFixture,
       daiSample,
       'M01',
       { ...daiSampleItem, substanceKinds: ['Copper', 'ANALYTE1'] },
@@ -363,11 +369,12 @@ test('refuse un exemplaire dont un analyte n’a pas de plan d’analyse', () =>
 
 test('génère un échantillon par matrice, avec la même étiquette et le même scellé', async () => {
   const xmlFile = await generateXMLDAI(
+    MatrixReferentialFixture,
     {
       ...daiSample,
       matrices: [
-        { matrixKind: 'A01SN', matrix: 'A01SN#F26.A07XE' },
-        { matrixKind: 'A01SN', matrix: 'A01SQ#F28.A0C0S' }
+        { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SN#F26.A07XE' },
+        { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SQ#F28.A0C0S' }
       ]
     },
     'M01',
@@ -393,6 +400,7 @@ test('génère un échantillon par matrice, avec la même étiquette et le même
 
 test('numérote les échantillons à partir de 1, quel que soit le numéro de l’exemplaire', async () => {
   const xmlFile = await generateXMLDAI(
+    MatrixReferentialFixture,
     daiSample,
     'M01',
     { ...daiSampleItem, itemNumber: 2 },
@@ -412,11 +420,12 @@ test('numérote les échantillons à partir de 1, quel que soit le numéro de l�
 test('refuse deux matrices de même sigle SACHA', () => {
   expect(() =>
     generateXMLDAI(
+      MatrixReferentialFixture,
       {
         ...daiSample,
         matrices: [
-          { matrixKind: 'A01SN', matrix: 'A01SN#F26.A07XE' },
-          { matrixKind: 'A01SN', matrix: 'A01SP#F31.A0CSD' }
+          { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SN#F26.A07XE' },
+          { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SP#F31.A0CSD' }
         ]
       },
       'M01',

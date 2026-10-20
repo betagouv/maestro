@@ -1,5 +1,10 @@
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type {
+  Matrix,
+  MatrixKind
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
+import { MatrixReferentialFixture } from 'maestro-shared/test/matrixFixtures';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { MatrixSelectionModal } from './MatrixSelectionModal';
 import { subMatrices } from './matrixSelection';
@@ -15,8 +20,11 @@ const meta = {
   args: {
     modal: storyModal,
     selection: [
-      { matrixKind: 'A00QT', matrices: ['A00QV'] },
-      { matrixKind: 'A01GP', matrices: ['A01GS', 'A0DVG'] }
+      { matrixKind: 'A00QT' as MatrixKind, matrices: ['A00QV'] as Matrix[] },
+      {
+        matrixKind: 'A01GP' as MatrixKind,
+        matrices: ['A01GS', 'A0DVG'] as Matrix[]
+      }
     ],
     onSave: fn()
   }
@@ -81,8 +89,11 @@ export const CheckMatrixKind: Story = {
 
     await expect(args.onSave).toHaveBeenCalledWith([
       {
-        matrixKind: 'A01GP',
-        matrices: subMatrices('A01GP').filter((matrix) => matrix !== 'A01GS')
+        matrixKind: 'A01GP' as MatrixKind,
+        matrices: subMatrices(
+          MatrixReferentialFixture,
+          'A01GP' as MatrixKind
+        ).filter((matrix) => matrix !== 'A01GS')
       }
     ]);
   }
@@ -90,7 +101,7 @@ export const CheckMatrixKind: Story = {
 
 export const SearchAndSelectMatrix: Story = {
   args: {
-    selection: [{ matrixKind: 'A00QT', matrices: [] }]
+    selection: [{ matrixKind: 'A00QT' as MatrixKind, matrices: [] }]
   },
   play: async ({ canvasElement, args }) => {
     const modal = await openModal(canvasElement);
@@ -117,8 +128,8 @@ export const SearchAndSelectMatrix: Story = {
     await userEvent.click(modal.getByRole('button', { name: 'Enregistrer' }));
 
     await expect(args.onSave).toHaveBeenCalledWith([
-      { matrixKind: 'A00QT', matrices: [] },
-      { matrixKind: 'A01GP', matrices: ['A01GS'] }
+      { matrixKind: 'A00QT' as MatrixKind, matrices: [] },
+      { matrixKind: 'A01GP' as MatrixKind, matrices: ['A01GS'] as Matrix[] }
     ]);
   }
 };

@@ -29,6 +29,7 @@ import {
   useMemo,
   useState
 } from 'react';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { assert, type Equals } from 'tsafe';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { CircleProgress } from '../../components/CircleProgress/CircleProgress';
@@ -178,6 +179,7 @@ const DashboardPrescriptionCard: FunctionComponent<{
   localPrescriptions: LocalPrescription[];
   region?: Region | null;
 }> = ({ programmingPlan, prescription, localPrescriptions, region }) => {
+  const matrixReferential = useMatrixReferential();
   const matrixKinds = getSubPlanMatrixKinds(
     findPrescriptionSubPlan([programmingPlan], prescription)?.matrices ?? null
   );
@@ -202,7 +204,11 @@ const DashboardPrescriptionCard: FunctionComponent<{
       background
       border
       enlargeLink
-      title={getPrescriptionTitle([programmingPlan], prescription)}
+      title={getPrescriptionTitle(
+        matrixReferential,
+        [programmingPlan],
+        prescription
+      )}
       size="small"
       end={
         <>

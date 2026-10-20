@@ -11,6 +11,7 @@ import { laboratoriesRouter } from '../controllers/laboratoryController';
 import { laboratoryResidueMappingRouter } from '../controllers/laboratoryResidueMappingController';
 import { localPrescriptionsRouter } from '../controllers/localPrescriptionController';
 import { mascaradeRouter } from '../controllers/mascaradeController';
+import { matrixRouter } from '../controllers/matrixController';
 import { noticesProtectedRouter } from '../controllers/noticeController';
 import { notificationsRouter } from '../controllers/notificationController';
 import { prescriptionsRouter } from '../controllers/prescriptionController';
@@ -42,6 +43,7 @@ const router = {
   ...laboratoriesRouter,
   ...laboratoryResidueMappingRouter,
   ...mascaradeRouter,
+  ...matrixRouter,
   ...noticesProtectedRouter,
   ...notificationsRouter,
   ...prescriptionsRouter,

@@ -1,9 +1,9 @@
-import type { Matrix } from '../referential/Matrix/Matrix';
-import {
-  type MatrixKind,
-  MatrixKindLabels
-} from '../referential/Matrix/MatrixKind';
 import { isDromRegion, RegionList, Regions } from '../referential/Region';
+import {
+  type Matrix,
+  type MatrixKind,
+  matrixKindLabel
+} from '../schema/Matrix/MatrixReferential';
 import {
   type ProgrammingPlanDomain,
   ProgrammingPlanDomainId
@@ -16,6 +16,7 @@ import {
   ProgrammingSubPlanId
 } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubPlanMatrices } from '../schema/ProgrammingPlan/SubPlanMatrices';
+import { MatrixReferentialFixture } from './matrixFixtures';
 import { oneOf } from './testFixtures';
 
 const currentYear = new Date().getFullYear();
@@ -189,7 +190,7 @@ export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
   samples: [
     { ...defaultProgrammingPlanSample, substanceKinds: ['Mono', 'Multi'] }
   ],
-  matrices: genSubPlanMatrices('A00GY'),
+  matrices: genSubPlanMatrices('A00GY' as MatrixKind),
   monoSubstances: ['RF-1020-001-PPP']
 });
 export const PPVValidatedDromSubPlanFixture = genProgrammingSubPlan({
@@ -234,7 +235,7 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   contactListId: 9,
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper'],
-  matrices: genSubPlanMatrices('A01SN'),
+  matrices: genSubPlanMatrices('A01SN' as MatrixKind),
   sampleProcedure: DAOASampleProcedure,
   context: 'Surveillance'
 });
@@ -254,7 +255,9 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   contactListId: 9,
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper'],
-  matrices: genSubPlanMatrices('A01QX', ['A01XF#F28.A0C0S']),
+  matrices: genSubPlanMatrices('A01QX' as MatrixKind, [
+    'A01XF#F28.A0C0S' as Matrix
+  ]),
   sampleProcedure: DAOASampleProcedure,
   context: 'Surveillance'
 });
@@ -341,7 +344,7 @@ export const withMatrixKindSubPlans = <T extends ProgrammingPlanChecked>(
         ? programmingPlan.subPlans[0].id
         : ProgrammingSubPlanId.parse(crypto.randomUUID()),
     subPlanNumber: `PPV${String(index + 1).padStart(2, '0')}`,
-    label: MatrixKindLabels[matrixKind],
+    label: matrixKindLabel(MatrixReferentialFixture, matrixKind),
     matrices: genSubPlanMatrices(matrixKind)
   }))
 });

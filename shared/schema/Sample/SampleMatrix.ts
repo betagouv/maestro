@@ -1,51 +1,30 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
-import type { CheckFn } from 'zod/v4/core';
-import { Matrix, MatrixList } from '../../referential/Matrix/Matrix';
 import {
+  Matrix,
   MatrixKind,
-  MatrixKindLabels,
+  type MatrixReferential,
+  matrixKindLabel,
+  matrixLabel,
   OtherMatrixKind
-} from '../../referential/Matrix/MatrixKind';
-import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
-import { checkSchema } from '../../utils/zod';
+} from '../Matrix/MatrixReferential';
 import {
   isMatrixSelected,
   type SubPlanMatrices
 } from '../ProgrammingPlan/SubPlanMatrices';
 
-const sampleMatrixCheck: CheckFn<{
-  matrixKind: MatrixKind | 'Other';
-  matrix: Matrix | string;
-}> = (ctx) => {
-  if (
-    ctx.value.matrixKind !== 'Other' &&
-    !Matrix.safeParse(ctx.value.matrix).success
-  ) {
-    ctx.issues.push({
-      input: ctx.value,
-      code: 'invalid_value',
-      values: MatrixList,
-      path: ['matrix']
-    });
-  }
-};
-
-export const SampleMatrix = checkSchema(
-  z.object({
-    matrixKind: z.union([MatrixKind, OtherMatrixKind], {
-      error: (issue) =>
-        isNil(issue.input)
-          ? 'Veuillez renseigner la catégorie de matrice programmée.'
-          : issue.message
-    }),
-    matrix: z.union([Matrix, z.string().nonempty()], {
-      error: (issue) =>
-        isNil(issue.input) ? 'Veuillez renseigner la matrice.' : issue.message
-    })
+export const SampleMatrix = z.object({
+  matrixKind: z.union([MatrixKind, OtherMatrixKind], {
+    error: (issue) =>
+      isNil(issue.input)
+        ? 'Veuillez renseigner la catégorie de matrice programmée.'
+        : issue.message
   }),
-  sampleMatrixCheck
-);
+  matrix: z.union([Matrix, z.string().nonempty()], {
+    error: (issue) =>
+      isNil(issue.input) ? 'Veuillez renseigner la matrice.' : issue.message
+  })
+});
 export type SampleMatrix = z.infer<typeof SampleMatrix>;
 
 export const PartialSampleMatrix = z.object({
@@ -54,22 +33,26 @@ export const PartialSampleMatrix = z.object({
 });
 export type PartialSampleMatrix = z.infer<typeof PartialSampleMatrix>;
 
-export const getSampleMatrixLabel = ({
-  matrixKind,
-  matrix
-}: PartialSampleMatrix): string =>
+export const getSampleMatrixLabel = (
+  referential: MatrixReferential,
+  { matrixKind, matrix }: PartialSampleMatrix
+): string =>
   isNil(matrix)
     ? ''
     : matrixKind === OtherMatrixKind.value
       ? matrix
-      : MatrixLabels[matrix as Matrix];
+      : matrixLabel(referential, matrix as Matrix);
 
 export const getSampleMatrixLabels = (
+  referential: MatrixReferential,
   matrices: PartialSampleMatrix[] | null | undefined
 ): string[] =>
-  (matrices ?? []).map(getSampleMatrixLabel).filter((label) => label !== '');
+  (matrices ?? [])
+    .map((matrix) => getSampleMatrixLabel(referential, matrix))
+    .filter((label) => label !== '');
 
 export const sampleMatricesIssues = (
+  referential: MatrixReferential,
   matrices: PartialSampleMatrix[],
   subPlanMatrices: SubPlanMatrices | null
 ): { path: (string | number)[]; message: string }[] => {
@@ -140,8 +123,8 @@ export const sampleMatricesIssues = (
               path: ['matrices'],
               message:
                 count === 0
-                  ? `Veuillez renseigner une matrice de la catégorie « ${MatrixKindLabels[matrixKind]} ».`
-                  : `Une seule matrice de la catégorie « ${MatrixKindLabels[matrixKind]} » est attendue.`
+                  ? `Veuillez renseigner une matrice de la catégorie « ${matrixKindLabel(referential, matrixKind)} ».`
+                  : `Une seule matrice de la catégorie « ${matrixKindLabel(referential, matrixKind)} » est attendue.`
             }
           ];
     })

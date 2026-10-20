@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { MatrixReferential } from '../Matrix/MatrixReferential';
 import {
   getSampleMatrixLabels,
   type PartialSampleMatrix
@@ -27,10 +28,11 @@ export const SampleProcedureLabels: Record<SampleProcedureKey, string> = {
 };
 
 export const sampleProcedureItems = (
+  referential: MatrixReferential,
   sampleProcedure: SampleProcedure | null | undefined,
   matrices: PartialSampleMatrix[] | null | undefined
 ): { label: string; value: string }[] => {
-  const matrixLabels = getSampleMatrixLabels(matrices);
+  const matrixLabels = getSampleMatrixLabels(referential, matrices);
   return [
     ...(matrixLabels.length
       ? [{ label: 'Matière prélevée', value: matrixLabels.join(', ') }]

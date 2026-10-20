@@ -1,3 +1,5 @@
+import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
+import { MatrixReferentialFixture } from 'maestro-shared/test/matrixFixtures';
 import { describe, expect, test } from 'vitest';
 import { getMatrixSectionItems, getSubstancesSections } from './pdfService';
 
@@ -63,8 +65,8 @@ describe('getSubstancesSections', () => {
 describe('getMatrixSectionItems', () => {
   test('rend une ligne par matrice, avec les libellés', () => {
     expect(
-      getMatrixSectionItems([
-        { matrixKind: 'A00GY', matrix: 'A00GZ' },
+      getMatrixSectionItems(MatrixReferentialFixture, [
+        { matrixKind: 'A00GY' as MatrixKind, matrix: 'A00GZ' },
         { matrixKind: 'Other', matrix: 'Navet' }
       ])
     ).toEqual([
@@ -74,7 +76,7 @@ describe('getMatrixSectionItems', () => {
   });
 
   test('rend une ligne vide sans matrice, pour le formulaire vierge', () => {
-    expect(getMatrixSectionItems(null)).toEqual([
+    expect(getMatrixSectionItems(MatrixReferentialFixture, null)).toEqual([
       { matrixKind: '', matrix: '' }
     ]);
   });

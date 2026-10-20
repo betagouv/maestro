@@ -62,6 +62,7 @@ import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPla
 import { documentRepository } from '../repositories/documentRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
+import { matrixRepository } from '../repositories/matrixRepository';
 import { programmingPlanDomainRepository } from '../repositories/programmingPlanDomainRepository.ts';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
@@ -69,6 +70,7 @@ import { sampleRepository } from '../repositories/sampleRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
+import { hasUnknownSubPlanMatrixCodes } from '../services/matrixService';
 import { notificationService } from '../services/notificationService';
 import prescriptionDiffusionService from '../services/prescriptionDiffusionService';
 import { programmingPlanDeletionService } from '../services/programmingPlanDeletionService';
@@ -1136,6 +1138,15 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
       }
 
       if (
+        hasUnknownSubPlanMatrixCodes(
+          await matrixRepository.findReferential(),
+          body.matrices
+        )
+      ) {
+        return { status: HttpStatus.BAD_REQUEST };
+      }
+
+      if (
         managesAboveSubstanceKinds.plan(body) ||
         orphanSubstancesSettingKeys(body).length > 0 ||
         resumesDraft(programmingPlan, body) ||
@@ -1238,6 +1249,15 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           programmingSubPlan.programmingPlanId !== programmingPlanId
         ) {
           return { status: HttpStatus.NOT_FOUND };
+        }
+
+        if (
+          hasUnknownSubPlanMatrixCodes(
+            await matrixRepository.findReferential(),
+            body.matrices
+          )
+        ) {
+          return { status: HttpStatus.BAD_REQUEST };
         }
 
         if (

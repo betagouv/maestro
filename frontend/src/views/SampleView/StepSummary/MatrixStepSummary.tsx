@@ -1,8 +1,8 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { uniq } from 'lodash-es';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { matrixKindLabel } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   isProgrammingPlanSample,
@@ -20,6 +20,7 @@ import {
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useContext } from 'react';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { ApiClientContext } from 'src/services/apiClient';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
@@ -41,6 +42,7 @@ const MatrixStepSummary = ({
   onUpdateSpecificData
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
+  const matrixReferential = useMatrixReferential();
   const { data: fieldConfigs = [] } =
     apiClient.useFindProgrammingSubPlanFieldConfigsQuery(
       {
@@ -66,10 +68,13 @@ const MatrixStepSummary = ({
           <div>
             <div>
               Catégorie de matrice programmée :{' '}
-              <b>{MatrixKindLabels[sampleMatrix.matrixKind]}</b>
+              <b>
+                {matrixKindLabel(matrixReferential, sampleMatrix.matrixKind)}
+              </b>
             </div>
             <div>
-              Matrice : <b>{getSampleMatrixLabel(sampleMatrix)}</b>
+              Matrice :{' '}
+              <b>{getSampleMatrixLabel(matrixReferential, sampleMatrix)}</b>
             </div>
           </div>
         </div>

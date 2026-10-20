@@ -1,5 +1,9 @@
 import type { Department } from 'maestro-shared/referential/Department';
 import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import type {
+  Matrix,
+  MatrixKind
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import {
   PartialSample,
   type SampleChecked
@@ -96,13 +100,13 @@ describe('findMany samples', async () => {
   test('find with matrixKinds option', async () => {
     let samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      matrixKinds: ['A00PX']
+      matrixKinds: ['A00PX'] as MatrixKind[]
     });
     expect(samples).toEqual([]);
 
     samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      matrixKinds: ['A00PX', 'A00GY']
+      matrixKinds: ['A00PX', 'A00GY'] as MatrixKind[]
     });
     expect(samples.map(({ id }) => id)).toContain(Sample11Fixture.id);
   });
@@ -110,13 +114,13 @@ describe('findMany samples', async () => {
   test('find with matrices option', async () => {
     let samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      matrices: ['A00HF']
+      matrices: ['A00HF'] as Matrix[]
     });
     expect(samples.map(({ id }) => id)).not.toContain(Sample11Fixture.id);
 
     samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      matrices: ['A00HF', 'A00GZ']
+      matrices: ['A00HF', 'A00GZ'] as Matrix[]
     });
     expect(samples.map(({ id }) => id)).toContain(Sample11Fixture.id);
   });
@@ -258,19 +262,19 @@ describe('findComplianceStats', async () => {
     await insertStatsSample({
       reference: 'DAOA-69-24-101-A',
       department: '69',
-      matrices: [{ matrixKind: 'A00GY', matrix: 'A00GZ' }],
+      matrices: [{ matrixKind: 'A00GY' as MatrixKind, matrix: 'A00GZ' }],
       compliance: 'Compliant'
     });
     await insertStatsSample({
       reference: 'DAOA-69-24-102-A',
       department: '69',
-      matrices: [{ matrixKind: 'A00GY', matrix: 'A00GZ' }],
+      matrices: [{ matrixKind: 'A00GY' as MatrixKind, matrix: 'A00GZ' }],
       compliance: 'NonCompliantAndHarmful'
     });
     await insertStatsSample({
       reference: 'DAOA-69-24-103-A',
       department: '69',
-      matrices: [{ matrixKind: 'A00GY', matrix: 'A00GZ' }]
+      matrices: [{ matrixKind: 'A00GY' as MatrixKind, matrix: 'A00GZ' }]
     });
 
     const stats = await sampleRepository.findComplianceStats({
@@ -292,8 +296,8 @@ describe('findComplianceStats', async () => {
       reference: 'DAOA-73-24-109-A',
       department: '73',
       matrices: [
-        { matrixKind: 'A00QT', matrix: 'A00QV' },
-        { matrixKind: 'A01GP', matrix: 'A01GQ' }
+        { matrixKind: 'A00QT' as MatrixKind, matrix: 'A00QV' },
+        { matrixKind: 'A01GP' as MatrixKind, matrix: 'A01GQ' }
       ],
       compliance: 'Compliant'
     });

@@ -19,6 +19,7 @@ import { formatMaestroDate } from 'maestro-shared/utils/date';
 import SampleGeolocationForm from 'src/components/Sample/SampleGeolocationForm/SampleGeolocationForm';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import type { UseForm } from 'src/hooks/useForm';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary, {
   type StepSummaryMode
@@ -54,6 +55,7 @@ const ContextStepSummary = ({
   const { user } = useAuthentication();
   const { readonly, programmingPlan, programmingSubPlan } =
     usePartialSample(sample);
+  const matrixReferential = useMatrixReferential();
 
   return (
     <StepSummary title="Contexte du prélèvement" onEdit={onEdit} mode={mode}>
@@ -150,7 +152,11 @@ const ContextStepSummary = ({
           <div className={cx('fr-icon-microscope-line')}></div>
           <div>
             Type de plan :{' '}
-            <b>{programmingSubPlan ? subPlanLabel(programmingSubPlan) : ''}</b>
+            <b>
+              {programmingSubPlan
+                ? subPlanLabel(matrixReferential, programmingSubPlan)
+                : ''}
+            </b>
           </div>
         </div>
       )}

@@ -1,9 +1,8 @@
 import { z } from 'zod';
 import { Department } from '../../referential/Department';
-import { Matrix } from '../../referential/Matrix/Matrix';
-import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { Region } from '../../referential/Region';
 import { Pagination } from '../commons/Pagination';
+import { Matrix, MatrixKind } from '../Matrix/MatrixReferential';
 import { Context } from '../ProgrammingPlan/Context';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import {

@@ -1,12 +1,13 @@
 import { uniqBy } from 'lodash-es';
 import { z } from 'zod';
-import { Matrix } from '../../referential/Matrix/Matrix';
-import {
-  MatrixKind,
-  MatrixKindLabels
-} from '../../referential/Matrix/MatrixKind';
-import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { refineSchema } from '../../utils/zod';
+import {
+  Matrix,
+  MatrixKind,
+  type MatrixReferential,
+  matrixKindLabel,
+  matrixLabel
+} from '../Matrix/MatrixReferential';
 
 export const MatrixOperator = z.enum(['Or', 'And']);
 export type MatrixOperator = z.infer<typeof MatrixOperator>;
@@ -39,15 +40,17 @@ export const getSubPlanMatrixKinds = (
 ): MatrixKind[] => (matrices?.items ?? []).map(({ matrixKind }) => matrixKind);
 
 export const getSubPlanMatrixLabels = (
+  referential: MatrixReferential,
   matrices: SubPlanMatrices | null
 ): string[] =>
   (matrices?.items ?? []).flatMap((item) =>
     item.matrices.length === 0
-      ? [MatrixKindLabels[item.matrixKind]]
-      : item.matrices.map((matrix) => MatrixLabels[matrix])
+      ? [matrixKindLabel(referential, item.matrixKind)]
+      : item.matrices.map((matrix) => matrixLabel(referential, matrix))
   );
 
 export const subPlanMatrixNameParts = (
+  referential: MatrixReferential,
   matrices: SubPlanMatrices | null
 ): string[] => {
   const items = matrices?.items ?? [];
@@ -55,7 +58,7 @@ export const subPlanMatrixNameParts = (
 
   return items.map((item) =>
     detailedMatrices.length === 1 && item.matrices.length === 1
-      ? MatrixLabels[item.matrices[0]]
-      : MatrixKindLabels[item.matrixKind]
+      ? matrixLabel(referential, item.matrices[0])
+      : matrixKindLabel(referential, item.matrixKind)
   );
 };

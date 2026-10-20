@@ -5,10 +5,12 @@ import Pagination from '@codegouvfr/react-dsfr/Pagination';
 import clsx from 'clsx';
 import { isEmpty, mapValues, omit, omitBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
-import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import type { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
+import type {
+  Matrix,
+  MatrixKind
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import {
   type Context,
   ProgrammingPlanContext

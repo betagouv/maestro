@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { MatrixReferentialFixture } from '../../test/matrixFixtures';
 import { sampleProcedureItems } from './SampleProcedure';
 
 describe('sampleProcedureItems', () => {
@@ -12,7 +13,9 @@ describe('sampleProcedureItems', () => {
   };
 
   test('liste les champs renseignés dans l’ordre du formulaire', () => {
-    expect(sampleProcedureItems(sampleProcedure, null)).toStrictEqual([
+    expect(
+      sampleProcedureItems(MatrixReferentialFixture, sampleProcedure, null)
+    ).toStrictEqual([
       { label: 'Quantité minimale', value: '200 grammes' },
       { label: 'Contenant', value: 'Contenant en plastique' },
       { label: 'T° de conservation', value: '-18°' }
@@ -21,7 +24,7 @@ describe('sampleProcedureItems', () => {
 
   test('commence par la matière prélevée quand le prélèvement a des matrices', () => {
     expect(
-      sampleProcedureItems(null, [
+      sampleProcedureItems(MatrixReferentialFixture, null, [
         { matrixKind: 'Other', matrix: 'Foie' },
         { matrixKind: 'Other', matrix: 'Rein' },
         { matrixKind: null, matrix: null }
@@ -30,6 +33,8 @@ describe('sampleProcedureItems', () => {
   });
 
   test('ne rend rien sans modalités ni matrice', () => {
-    expect(sampleProcedureItems(null, [])).toStrictEqual([]);
+    expect(
+      sampleProcedureItems(MatrixReferentialFixture, null, [])
+    ).toStrictEqual([]);
   });
 });

@@ -6,12 +6,13 @@ import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import clsx from 'clsx';
 import {
   type MatrixKind,
-  MatrixKindLabels
-} from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+  matrixKindLabel,
+  matrixLabel
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { isMatrixSelected } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import { useMemo, useState } from 'react';
 import { AppSelectionModal } from 'src/components/_app/AppSelectionModal/AppSelectionModal';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { assert, type Equals } from 'tsafe';
 import './MatrixSelectionModal.scss';
 import { MatrixSelectionRows } from './MatrixSelectionRows';
@@ -37,6 +38,7 @@ export const MatrixSelectionModal = ({
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  const matrixReferential = useMatrixReferential();
   const [draft, setDraft] = useState<MatrixSelection>(selection);
   const [search, setSearch] = useState('');
   const [expandedMatrixKinds, setExpandedMatrixKinds] = useState<MatrixKind[]>(
@@ -51,7 +53,10 @@ export const MatrixSelectionModal = ({
     }
   });
 
-  const options = useMemo(() => filterMatrixKinds(search), [search]);
+  const options = useMemo(
+    () => filterMatrixKinds(matrixReferential, search),
+    [matrixReferential, search]
+  );
 
   const toggleExpanded = (matrixKind: MatrixKind) =>
     setExpandedMatrixKinds((expanded) =>
@@ -90,7 +95,7 @@ export const MatrixSelectionModal = ({
     >
       {options.map(({ matrixKind, matrices, matchedByMatrix }) => {
         const selected = draft.find((item) => item.matrixKind === matrixKind);
-        const matrixCount = subMatrices(matrixKind).length;
+        const matrixCount = subMatrices(matrixReferential, matrixKind).length;
         const expanded =
           matchedByMatrix || expandedMatrixKinds.includes(matrixKind);
         return (
@@ -103,7 +108,7 @@ export const MatrixSelectionModal = ({
                   {
                     label: (
                       <span>
-                        <b>{MatrixKindLabels[matrixKind]}</b>
+                        <b>{matrixKindLabel(matrixReferential, matrixKind)}</b>
                         {matrixCount > 0 && ` (${matrixCount})`}
                       </span>
                     ),
@@ -132,8 +137,8 @@ export const MatrixSelectionModal = ({
                   size="small"
                   title={
                     expanded
-                      ? `Replier ${MatrixKindLabels[matrixKind]}`
-                      : `Déplier ${MatrixKindLabels[matrixKind]}`
+                      ? `Replier ${matrixKindLabel(matrixReferential, matrixKind)}`
+                      : `Déplier ${matrixKindLabel(matrixReferential, matrixKind)}`
                   }
                   onClick={() => toggleExpanded(matrixKind)}
                 />
@@ -147,11 +152,18 @@ export const MatrixSelectionModal = ({
                   'matrix-selection-modal__matrices'
                 )}
                 options={matrices.map((matrix) => ({
-                  label: MatrixLabels[matrix],
+                  label: matrixLabel(matrixReferential, matrix),
                   nativeInputProps: {
                     checked: isMatrixSelected(selected, matrix),
                     onChange: () =>
-                      setDraft(toggleMatrix(draft, matrixKind, matrix))
+                      setDraft(
+                        toggleMatrix(
+                          matrixReferential,
+                          draft,
+                          matrixKind,
+                          matrix
+                        )
+                      )
                   }
                 }))}
               />

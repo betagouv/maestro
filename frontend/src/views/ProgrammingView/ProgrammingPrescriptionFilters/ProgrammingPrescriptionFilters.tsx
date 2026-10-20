@@ -4,12 +4,12 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { omit, pick, sortBy } from 'lodash-es';
-import {
-  type MatrixKind,
-  MatrixKindLabels
-} from 'maestro-shared/referential/Matrix/MatrixKind';
 import type { Stage } from 'maestro-shared/referential/Stage';
 import { StageLabels } from 'maestro-shared/referential/Stage';
+import {
+  type MatrixKind,
+  matrixKindLabel
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import {
   ContextLabels,
   type ProgrammingPlanContext,
@@ -22,6 +22,7 @@ import {
   subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useContext, useMemo, useState } from 'react';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import AppCheckboxSelect from '../../../components/_app/AppCheckboxSelect/AppCheckboxSelect';
 import FiltersTags from '../../../components/FilterTags/FiltersTags';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -53,6 +54,7 @@ const ProgrammingPrescriptionFilters = ({
   const apiClient = useContext(ApiClientContext);
   const { isMobile } = useWindowSize();
   const { hasRole, hasDepartmentalView } = useAuthentication();
+  const matrixReferential = useMatrixReferential();
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   const canFilterByCoordinator = hasRole(
@@ -102,12 +104,12 @@ const ProgrammingPrescriptionFilters = ({
     () =>
       sortBy(
         options.matrixKinds.map((kind) => ({
-          label: MatrixKindLabels[kind],
+          label: matrixKindLabel(matrixReferential, kind),
           value: kind
         })),
         'label'
       ),
-    [options.matrixKinds]
+    [options.matrixKinds, matrixReferential]
   );
 
   const stageCoordinators = useMemo(
@@ -152,7 +154,7 @@ const ProgrammingPrescriptionFilters = ({
               const subPlan = subPlans.find((_) => _.id === subPlanId);
               return {
                 label: subPlan
-                  ? `${subPlan.subPlanNumber} - ${subPlanLabel(subPlan)}`
+                  ? `${subPlan.subPlanNumber} - ${subPlanLabel(matrixReferential, subPlan)}`
                   : subPlanId,
                 value: subPlanId,
                 sortKey: subPlanSortKeys.get(subPlanId) ?? ''

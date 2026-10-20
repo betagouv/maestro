@@ -1,11 +1,15 @@
 import { fakerFR } from '@faker-js/faker';
 import { pick } from 'lodash-es';
 import { LegalContextList } from '../referential/LegalContext';
-import { MatrixListByKind } from '../referential/Matrix/MatrixListByKind';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
 import type { Company } from '../schema/Company/Company';
 import type { Geolocation } from '../schema/Geolocation/Geolocation';
+import {
+  type Matrix,
+  type MatrixKind,
+  matricesOfKind
+} from '../schema/Matrix/MatrixReferential';
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import {
   type CreatedSampleData,
@@ -24,6 +28,7 @@ import {
   SlaughterhouseCompanyFixture2
 } from './companyFixtures';
 import { LaboratoryFixture } from './laboratoryFixtures';
+import { MatrixReferentialFixture } from './matrixFixtures';
 import { PrescriptionFixture } from './prescriptionFixtures';
 import {
   DAOAInProgressBovinSubPlanId,
@@ -83,7 +88,14 @@ export const genCreatedPartialSample = (
     ...contextData,
     ...genCreatedSampleData(data),
     company: genCompany(),
-    matrices: [{ matrixKind: 'A00GY', matrix: oneOf(MatrixListByKind.A00GY) }],
+    matrices: [
+      {
+        matrixKind: 'A00GY' as MatrixKind,
+        matrix: oneOf(
+          matricesOfKind(MatrixReferentialFixture, 'A00GY' as MatrixKind)
+        )
+      }
+    ],
     monoSubstances: [],
     multiSubstances: [],
     programmingSubPlanId: PPVValidatedSubPlanId,
@@ -168,7 +180,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   lastUpdatedAt: new Date('2024-03-04'),
   step: 'DraftMatrix' as const,
   status: 'Draft' as const,
-  matrices: [{ matrixKind: 'A00GY', matrix: 'A00GZ' }],
+  matrices: [{ matrixKind: 'A00GY' as MatrixKind, matrix: 'A00GZ' as Matrix }],
   programmingSubPlanId: PPVValidatedSubPlanId,
   specificData: {
     stage: 'STADE1',

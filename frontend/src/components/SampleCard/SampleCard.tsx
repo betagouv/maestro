@@ -3,7 +3,7 @@ import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { matrixKindLabel as getMatrixKindLabel } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import useWindowSize from 'src/hooks/useWindowSize';
 import './SampleCard.scss';
@@ -231,13 +232,17 @@ const MatrixBlock = ({
 }: {
   sample: PartialSample | PartialSampleToCreate;
 }) => {
+  const matrixReferential = useMatrixReferential();
   const matrixFullLabel = (sample.matrices ?? [])
     .flatMap((sampleMatrix) => {
       if (!sampleMatrix.matrixKind) {
         return [];
       }
-      const matrixKindLabel = MatrixKindLabels[sampleMatrix.matrixKind];
-      const matrixLabel = getSampleMatrixLabel(sampleMatrix);
+      const matrixKindLabel = getMatrixKindLabel(
+        matrixReferential,
+        sampleMatrix.matrixKind
+      );
+      const matrixLabel = getSampleMatrixLabel(matrixReferential, sampleMatrix);
       return [
         matrixLabel !== '' && matrixLabel !== matrixKindLabel
           ? `${matrixKindLabel} - ${matrixLabel}`

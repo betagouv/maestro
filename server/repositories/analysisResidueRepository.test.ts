@@ -1,3 +1,4 @@
+import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { PartialSample } from 'maestro-shared/schema/Sample/Sample';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
@@ -59,8 +60,8 @@ describe('findTopResiduesDetected', () => {
 
   test('compte le prélèvement dans chacune de ses matrices', async () => {
     await insertSampleWithResidue('DAOA-69-24-201-A', [
-      { matrixKind: 'A00QT', matrix: 'A00QV' },
-      { matrixKind: 'A01GP', matrix: 'A01GQ' }
+      { matrixKind: 'A00QT' as MatrixKind, matrix: 'A00QV' },
+      { matrixKind: 'A01GP' as MatrixKind, matrix: 'A01GQ' }
     ]);
     await insertSampleWithResidue('DAOA-69-24-202-A', null);
 

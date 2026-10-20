@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MatrixKind } from '../../referential/Matrix/MatrixKind';
+import { MatrixKind } from '../Matrix/MatrixReferential';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 export const FindLaboratoryAgreementsOptions = z.object({

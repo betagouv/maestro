@@ -4,7 +4,6 @@ import { z } from 'zod';
 import type { CheckFn } from 'zod/v4/core';
 import { Department } from '../../referential/Department';
 import { LegalContext } from '../../referential/LegalContext';
-import { MatrixList } from '../../referential/Matrix/Matrix';
 import { Region } from '../../referential/Region';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { maestroDateRefined, toMaestroDate } from '../../utils/date';
@@ -255,8 +254,7 @@ const sampleItemsCheck: CheckFn<{ items: SampleItem[] }> = (ctx) => {
     if (item.itemNumber !== 1 && !isNil(item.complianceOverride)) {
       ctx.issues.push({
         input: ctx.value,
-        code: 'invalid_value',
-        values: MatrixList,
+        code: 'custom',
         path: ['items', index, 'complianceOverride']
       });
     }

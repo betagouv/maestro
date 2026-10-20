@@ -1,16 +1,11 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import {
+  effectiveMatrices,
   type Matrix,
-  MatrixList
-} from 'maestro-shared/referential/Matrix/Matrix';
-import {
   type MatrixKind,
-  MatrixKindLabels,
-  MatrixKindList
-} from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
+  matricesOfKind
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -31,7 +26,9 @@ import {
   samplersOptions,
   selectOptionsFromList
 } from 'src/components/_app/AppSelect/AppSelectOption';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { t } from 'src/i18n';
+import { matrixKindLabels, matrixLabels } from 'src/utils/matrixLabels';
 import { pluralize } from '../../utils/stringUtils';
 
 interface Props {
@@ -51,6 +48,7 @@ const SamplePrimaryFilters = ({
   prescriptions,
   currentUserId
 }: Props) => {
+  const matrixReferential = useMatrixReferential();
   const prescriptionMatrixKinds = prescriptions?.flatMap((prescription) =>
     getSubPlanMatrixKinds(
       findPrescriptionSubPlan(programmingPlans ?? [], prescription)?.matrices ??
@@ -125,7 +123,7 @@ const SamplePrimaryFilters = ({
                 .filter((sp) => !filters.programmingSubPlanIds?.includes(sp.id))
                 .map((sp) => (
                   <option key={`subPlan-${sp.id}`} value={sp.id}>
-                    {subPlanLabel(sp)}
+                    {subPlanLabel(matrixReferential, sp)}
                   </option>
                 ))}
             </Select>
@@ -136,16 +134,18 @@ const SamplePrimaryFilters = ({
         <AppSearchInput
           value=""
           options={selectOptionsFromList(
-            MatrixKindList.filter(
-              (matrixKind) =>
-                !filters.matrixKinds?.includes(matrixKind) &&
-                ((filters.programmingPlanIds ?? []).length === 0 ||
-                  (filters.contexts ?? []).length === 0 ||
-                  !prescriptionMatrixKinds ||
-                  prescriptionMatrixKinds.includes(matrixKind))
-            ),
+            matrixReferential.matrixKinds
+              .map(({ code }) => code)
+              .filter(
+                (matrixKind) =>
+                  !filters.matrixKinds?.includes(matrixKind) &&
+                  ((filters.programmingPlanIds ?? []).length === 0 ||
+                    (filters.contexts ?? []).length === 0 ||
+                    !prescriptionMatrixKinds ||
+                    prescriptionMatrixKinds.includes(matrixKind))
+              ),
             {
-              labels: MatrixKindLabels,
+              labels: matrixKindLabels(matrixReferential),
               withDefault: false,
               withSort: true
             }
@@ -174,22 +174,24 @@ const SamplePrimaryFilters = ({
         <AppSearchInput
           value=""
           options={selectOptionsFromList(
-            MatrixList.filter(
+            effectiveMatrices(matrixReferential).filter(
               (matrix) =>
                 !filters.matrices?.includes(matrix) &&
                 ((filters.programmingPlanIds ?? []).length === 0 ||
                   (filters.contexts ?? []).length === 0 ||
                   !prescriptionMatrixKinds ||
                   prescriptionMatrixKinds.some((matrixKind) =>
-                    MatrixListByKind[matrixKind].includes(matrix)
+                    matricesOfKind(matrixReferential, matrixKind).includes(
+                      matrix
+                    )
                   )) &&
                 ((filters.matrixKinds ?? []).length === 0 ||
                   filters.matrixKinds!.some((kind) =>
-                    MatrixListByKind[kind].includes(matrix)
+                    matricesOfKind(matrixReferential, kind).includes(matrix)
                   ))
             ),
             {
-              labels: MatrixLabels,
+              labels: matrixLabels(matrixReferential),
               withDefault: false
             }
           )}

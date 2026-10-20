@@ -7,9 +7,9 @@ import clsx from 'clsx';
 import { uniqBy } from 'lodash-es';
 import {
   type MatrixKind,
-  MatrixKindLabels
-} from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+  matrixKindLabel,
+  matrixLabel
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { getSubPlanMatrixKinds } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
@@ -24,6 +24,7 @@ import {
 } from 'react';
 import BackToTopButton from 'src/components/BackToTopButton/BackToTopButton';
 import { LaboratoryAgreementDetailProvider } from 'src/components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { ApiClientContext } from '../../services/apiClient';
 import { getLaboratoryAgreementsExportURL } from '../../services/laboratory.service';
 import { groupSubstanceKindsBySample } from '../../utils/sampleLaboratories';
@@ -62,6 +63,7 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
+  const matrixReferential = useMatrixReferential();
   const [selectedStringRowKeys, setSelectedStringRowKeys] = useState<string[]>(
     []
   );
@@ -195,7 +197,7 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
     ]
       .map((kind) => ({
         value: `kind:${kind}`,
-        label: MatrixKindLabels[kind]
+        label: matrixKindLabel(matrixReferential, kind)
       }))
       .toSorted((a, b) => a.label.localeCompare(b.label));
 
@@ -208,12 +210,12 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
     const specificMatrixOptions = uniqBy(detailedMatrices, 'matrix')
       .map(({ matrixKind, matrix }) => ({
         value: `matrix:${matrix}`,
-        label: `${MatrixKindLabels[matrixKind]} > ${MatrixLabels[matrix]}`
+        label: `${matrixKindLabel(matrixReferential, matrixKind)} > ${matrixLabel(matrixReferential, matrix)}`
       }))
       .toSorted((a, b) => a.label.localeCompare(b.label));
 
     return [...kindOptions, ...specificMatrixOptions];
-  }, [programmingPlans]);
+  }, [programmingPlans, matrixReferential]);
 
   const filteredRows = useMemo(() => {
     const checksSet = new Set(
@@ -269,9 +271,10 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
         if (substanceCmp !== 0) {
           return substanceCmp;
         }
-        return subPlanLabel(a.programmingSubPlan).localeCompare(
-          subPlanLabel(b.programmingSubPlan)
-        );
+        return subPlanLabel(
+          matrixReferential,
+          a.programmingSubPlan
+        ).localeCompare(subPlanLabel(matrixReferential, b.programmingSubPlan));
       });
   }, [
     rows,
@@ -281,7 +284,8 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
     labFilter,
     labAgreementTypeFilter,
     showWithoutLab,
-    checks
+    checks,
+    matrixReferential
   ]);
 
   const deferredFilteredRows = useDeferredValue(filteredRows);

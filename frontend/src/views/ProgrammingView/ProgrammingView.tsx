@@ -8,10 +8,10 @@ import {
   type Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
-import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { Stage } from 'maestro-shared/referential/Stage';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';

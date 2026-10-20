@@ -5,6 +5,7 @@ import {
   NationalCoordinatorId,
   NationalCoordinatorName
 } from '../../test/programmingPlanFixtures';
+import type { MatrixKind } from '../Matrix/MatrixReferential';
 import type { SubstanceKind } from '../Substance/SubstanceKind';
 import { defaultProgrammingPlanSample } from './ProgrammingPlanSampleSetting';
 import {
@@ -21,7 +22,7 @@ import {
   ProgrammingSubPlanSettingsForm
 } from './ProgrammingPlanSettingsForm';
 
-const matrices = genSubPlanMatrices('A00GY');
+const matrices = genSubPlanMatrices('A00GY' as MatrixKind);
 
 const completedSettings: {
   [K in ProgrammingPlanRequiredSettingKey]: {

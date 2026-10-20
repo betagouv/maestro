@@ -29,6 +29,7 @@ import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaIn
 import PrescriptionCommentAuthor from 'src/components/Prescription/PrescriptionCommentsModal/PrescriptionCommentAuthor';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import './PrescriptionCommentsModal.scss';
@@ -61,6 +62,7 @@ const PrescriptionCommentsModal = ({
     hasRegionalView,
     hasDepartmentalView
   } = useAuthentication();
+  const matrixReferential = useMatrixReferential();
   const { prescriptionCommentsData } = useAppSelector(
     (state) => state.prescriptions
   );
@@ -119,7 +121,7 @@ const PrescriptionCommentsModal = ({
           (
             prescriptionCommentsData.currentPrescription ??
             [...prescriptionCommentsData.prescriptionCommentsList].sort(
-              PrescriptionCommentSort
+              PrescriptionCommentSort(matrixReferential)
             )[0].prescription
           ).id
         );
@@ -229,6 +231,7 @@ const PrescriptionCommentsModal = ({
         <>
           {prescriptionCommentsData?.viewBy === 'Prescription' &&
             getPrescriptionTitle(
+              matrixReferential,
               [prescriptionCommentsData.programmingPlan],
               prescriptionCommentsData.prescription
             )}
@@ -308,9 +311,9 @@ const PrescriptionCommentsModal = ({
                         }
                       }))
                   : [...prescriptionCommentsData.prescriptionCommentsList]
-                      .sort(PrescriptionCommentSort)
+                      .sort(PrescriptionCommentSort(matrixReferential))
                       .map((prescriptionComment) => ({
-                        children: `${getPrescriptionTitle([prescriptionComment.programmingPlan], prescriptionComment.prescription)} (${prescriptionComment.comments.length})`,
+                        children: `${getPrescriptionTitle(matrixReferential, [prescriptionComment.programmingPlan], prescriptionComment.prescription)} (${prescriptionComment.comments.length})`,
                         pressed:
                           currentTag === prescriptionComment.prescription.id,
                         nativeButtonProps: {

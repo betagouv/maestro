@@ -1,5 +1,10 @@
+import type {
+  Matrix,
+  MatrixKind
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
+import { MatrixReferentialFixture } from 'maestro-shared/test/matrixFixtures';
 import { PrescriptionFixture } from 'maestro-shared/test/prescriptionFixtures';
 import {
   genCreatedSample,
@@ -24,8 +29,8 @@ describe('buildAnalysisRequestData', () => {
     department: '44',
     company: CompanyFixture,
     matrices: [
-      { matrixKind: 'A00GY', matrix: 'A00GZ' },
-      { matrixKind: 'A00QT', matrix: 'A00QV' }
+      { matrixKind: 'A00GY' as MatrixKind, matrix: 'A00GZ' as Matrix },
+      { matrixKind: 'A00QT' as MatrixKind, matrix: 'A00QV' as Matrix }
     ],
     prescriptionId: PrescriptionFixture.id,
     sampler: { id: Sampler1Fixture.id, name: Sampler1Fixture.name },
@@ -40,6 +45,7 @@ describe('buildAnalysisRequestData', () => {
   test('builds AnalysisRequestData from sample', () => {
     expect(
       buildAnalysisRequestData(
+        MatrixReferentialFixture,
         sample,
         'PPV',
         sampleItem,

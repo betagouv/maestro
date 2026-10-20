@@ -7,6 +7,7 @@ import type {
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { useMatrixReferential } from '../../../hooks/useMatrixReferential';
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import config from '../../../utils/config';
 import DocumentLink from '../../DocumentLink/DocumentLink';
@@ -17,7 +18,9 @@ interface Props {
 
 const SampleProcedure = ({ partialSample }: Props) => {
   const { programmingSubPlan } = usePartialSample(partialSample);
+  const matrixReferential = useMatrixReferential();
   const items = sampleProcedureItems(
+    matrixReferential,
     programmingSubPlan?.sampleProcedure,
     partialSample.matrices
   );

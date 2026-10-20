@@ -1,7 +1,7 @@
 import type { Knex } from 'knex';
 import { intersection, isNil, omit, omitBy, uniq } from 'lodash-es';
-import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { SlaughterhouseStage } from 'maestro-shared/referential/Stage';
+import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';

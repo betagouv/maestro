@@ -1,8 +1,7 @@
 import z from 'zod';
 import { Department } from '../../referential/Department';
-import { Matrix } from '../../referential/Matrix/Matrix';
-import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { Region } from '../../referential/Region';
+import { Matrix, MatrixKind } from '../Matrix/MatrixReferential';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 
 export const ComplianceStat = z.object({

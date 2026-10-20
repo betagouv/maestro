@@ -1,6 +1,9 @@
 import Tag from '@codegouvfr/react-dsfr/Tag';
-import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import {
+  type Matrix,
+  matrixLabel
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { assert, type Equals } from 'tsafe';
 import './MatrixTag.scss';
 
@@ -11,6 +14,7 @@ type Props = {
 
 export const MatrixTag = ({ matrix, onDismiss, ..._rest }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
+  const matrixReferential = useMatrixReferential();
 
   return onDismiss ? (
     <Tag
@@ -19,11 +23,11 @@ export const MatrixTag = ({ matrix, onDismiss, ..._rest }: Props) => {
       className="matrix-tag"
       nativeButtonProps={{ onClick: onDismiss }}
     >
-      {MatrixLabels[matrix]}
+      {matrixLabel(matrixReferential, matrix)}
     </Tag>
   ) : (
     <Tag small className="matrix-tag">
-      {MatrixLabels[matrix]}
+      {matrixLabel(matrixReferential, matrix)}
     </Tag>
   );
 };

@@ -1,6 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
+import type { MatrixReferential } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   isProgrammingPlanDeletable,
@@ -16,6 +17,7 @@ import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { useState } from 'react';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { assert, type Equals } from 'tsafe';
 
 import {
@@ -45,14 +47,17 @@ const canDelete = (
   );
 };
 
-const duplicationLabel = (target: ProgrammingPlanDeletionTarget): string => {
+const duplicationLabel = (
+  matrixReferential: MatrixReferential,
+  target: ProgrammingPlanDeletionTarget
+): string => {
   switch (target.kind) {
     case 'domain':
       return `Le domaine ${target.domain.label}`;
     case 'plan':
       return `Le plan ${target.programmingPlan.title}`;
     case 'subPlan':
-      return `Le sous-plan ${target.subPlan.subPlanNumber} - ${subPlanLabel(target.subPlan)}`;
+      return `Le sous-plan ${target.subPlan.subPlanNumber} - ${subPlanLabel(matrixReferential, target.subPlan)}`;
     default:
       return assertUnreachable(target);
   }
@@ -111,6 +116,7 @@ export const ProgrammingPlanSettingsActions = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const { user, account } = useAuthentication();
+  const matrixReferential = useMatrixReferential();
 
   const forbiddenReason = deletionForbiddenReason(target);
   const canManage = canDelete(target, user, account?.roles);
@@ -144,7 +150,7 @@ export const ProgrammingPlanSettingsActions = ({
             modal={duplicateModal}
             target={target}
             onDuplicated={(duplicated) => {
-              setDuplicatedLabel(duplicationLabel(target));
+              setDuplicatedLabel(duplicationLabel(matrixReferential, target));
               onDuplicated(duplicated);
             }}
           />

@@ -45,6 +45,7 @@ import { analysisRepository } from '../repositories/analysisRepository';
 import { analysisResidueRepository } from '../repositories/analysisResidueRepository';
 import companyRepository from '../repositories/companyRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
+import { matrixRepository } from '../repositories/matrixRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import { programmingPlanDomainRepository } from '../repositories/programmingPlanDomainRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
@@ -55,6 +56,7 @@ import { specificDataFieldConfigRepository } from '../repositories/specificDataF
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 import { padReferenceSerial } from '../services/imapService/utils';
+import { hasUnknownSampleMatrixCodes } from '../services/matrixService';
 import { pdfService } from '../services/pdfService/pdfService';
 import { buildSampleItems } from '../services/sampleItemService';
 import { supportDocumentProcessor } from '../services/supportDocumentProcessor';
@@ -151,6 +153,15 @@ export const sampleRouter = {
 
       if (!user.region) {
         throw new NoRegionError();
+      }
+
+      if (
+        hasUnknownSampleMatrixCodes(
+          await matrixRepository.findReferential(),
+          sampleToCreate.matrices ?? []
+        )
+      ) {
+        return { status: HttpStatus.BAD_REQUEST };
       }
 
       if (sampleToCreate.company) {
@@ -501,6 +512,16 @@ export const sampleRouter = {
         return { status: HttpStatus.FORBIDDEN };
       }
 
+      const matrixReferential = await matrixRepository.findReferential();
+      if (
+        hasUnknownSampleMatrixCodes(
+          matrixReferential,
+          sampleUpdate.matrices ?? []
+        )
+      ) {
+        return { status: HttpStatus.BAD_REQUEST };
+      }
+
       if (['DraftItems', 'Sent', 'Submitted'].includes(sampleUpdate.step)) {
         const fieldConfigs =
           await specificDataFieldConfigRepository.findByPlanSubPlan(
@@ -539,8 +560,11 @@ export const sampleRouter = {
         }
         if (
           isProgrammingPlanSample(sampleUpdate) &&
-          sampleMatricesIssues(sampleUpdate.matrices ?? [], subPlan.matrices)
-            .length > 0
+          sampleMatricesIssues(
+            matrixReferential,
+            sampleUpdate.matrices ?? [],
+            subPlan.matrices
+          ).length > 0
         ) {
           return { status: HttpStatus.BAD_REQUEST };
         }
