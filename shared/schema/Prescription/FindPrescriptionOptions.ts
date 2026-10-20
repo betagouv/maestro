@@ -1,10 +1,10 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { Department } from '../../referential/Department';
-import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { Region } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 import { refineSchema } from '../../utils/zod';
+import { MatrixKind } from '../Matrix/MatrixReferential';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanDomainId } from '../ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';

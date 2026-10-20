@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { genSubPlanMatrices } from '../../test/programmingPlanFixtures';
+import type { MatrixKind } from '../Matrix/MatrixReferential';
 import {
   completedSubPlanSettingIssues,
   effectiveSubPlanSettings,
@@ -31,7 +32,7 @@ const planSettings: ProgrammingPlanSettings = {
   substanceKindsManaged: true,
   samples: [sample('Mono', 'Multi')],
   samplesManaged: true,
-  matrices: genSubPlanMatrices('A00GY'),
+  matrices: genSubPlanMatrices('A00GY' as MatrixKind),
   matricesManaged: true,
   context: 'Surveillance',
   contextManaged: true,
@@ -70,7 +71,7 @@ const ownSubPlan = {
   substanceKindsManaged: true,
   samples: [sample('Copper')],
   samplesManaged: true,
-  matrices: genSubPlanMatrices('A01QX'),
+  matrices: genSubPlanMatrices('A01QX' as MatrixKind),
   matricesManaged: true,
   context: 'Control' as const,
   contextManaged: true,

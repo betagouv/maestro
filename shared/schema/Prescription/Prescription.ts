@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { MatrixReferential } from '../Matrix/MatrixReferential';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import {
   findPrescriptionSubPlan,
@@ -79,9 +80,11 @@ export const hasPrescriptionPermission = (
 });
 
 export const getPrescriptionTitle = (
+  referential: MatrixReferential,
   programmingPlans: Pick<ProgrammingPlanChecked, 'subPlans'>[],
   prescription: Pick<Prescription, 'programmingSubPlanId'>
 ): string =>
   getSubPlanMatrixLabels(
+    referential,
     findPrescriptionSubPlan(programmingPlans, prescription)?.matrices ?? null
   ).join(', ');

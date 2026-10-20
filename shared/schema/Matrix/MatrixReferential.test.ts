@@ -20,6 +20,10 @@ describe('MatrixReferential', () => {
     ).toBe('UNKNOWN');
   });
 
+  test('should label the other matrix kind', () => {
+    expect(matrixKindLabel(MatrixReferentialFixture, 'Other')).toBe('Autre');
+  });
+
   test('should list the matrices of a kind', () => {
     expect(
       matricesOfKind(MatrixReferentialFixture, 'A00GY' as MatrixKind)

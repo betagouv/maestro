@@ -1,7 +1,7 @@
 import z from 'zod';
-import { Matrix } from '../../referential/Matrix/Matrix';
 import { Region } from '../../referential/Region';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
+import { Matrix } from '../Matrix/MatrixReferential';
 
 export const ResidueDetectionStat = z.object({
   residueReference: SSD2Id,

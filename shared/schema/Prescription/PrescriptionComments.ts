@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { LocalPrescriptionComment } from '../LocalPrescription/LocalPrescriptionComment';
+import type { MatrixReferential } from '../Matrix/MatrixReferential';
 import { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import { getPrescriptionTitle, Prescription } from './Prescription';
 
@@ -19,14 +20,14 @@ export const PrescriptionComments = z.object({
 
 export type PrescriptionComments = z.infer<typeof PrescriptionComments>;
 
-const prescriptionCommentsTitle = ({
-  programmingPlan,
-  prescription
-}: PrescriptionComments): string =>
-  getPrescriptionTitle([programmingPlan], prescription);
+const prescriptionCommentsTitle = (
+  referential: MatrixReferential,
+  { programmingPlan, prescription }: PrescriptionComments
+): string => getPrescriptionTitle(referential, [programmingPlan], prescription);
 
-export const PrescriptionCommentSort = (
-  pc1: PrescriptionComments,
-  pc2: PrescriptionComments
-) =>
-  prescriptionCommentsTitle(pc1).localeCompare(prescriptionCommentsTitle(pc2));
+export const PrescriptionCommentSort =
+  (referential: MatrixReferential) =>
+  (pc1: PrescriptionComments, pc2: PrescriptionComments) =>
+    prescriptionCommentsTitle(referential, pc1).localeCompare(
+      prescriptionCommentsTitle(referential, pc2)
+    );

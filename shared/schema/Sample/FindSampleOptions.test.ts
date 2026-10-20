@@ -17,6 +17,7 @@ import {
   SamplerDaoaFixture
 } from '../../test/userFixtures';
 import { toArray } from '../../utils/utils';
+import type { Matrix } from '../Matrix/MatrixReferential';
 import { departmentIsRequired } from '../User/User';
 import { buildFindSampleOptions } from './FindSampleOptions';
 
@@ -283,7 +284,7 @@ describe('buildFindSampleOptions', () => {
         ...baseQuery,
         contexts: ['Control' as const],
         statuses: ['Submitted' as const],
-        matrices: ['A01BR' as const],
+        matrices: ['A01BR' as Matrix],
         sampledDate: '2024-01-01',
         reference: 'REF-123',
         compliance: 'Compliant' as const,

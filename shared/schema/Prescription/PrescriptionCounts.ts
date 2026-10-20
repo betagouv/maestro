@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { Stage } from '../../referential/Stage';
+import { MatrixKind } from '../Matrix/MatrixReferential';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 

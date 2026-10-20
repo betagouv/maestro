@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const Matrix = z
   .string({ error: () => 'Veuillez renseigner la matrice.' })
+  .nonempty({ error: () => 'Veuillez renseigner la matrice.' })
   .brand<'Matrix'>();
 export type Matrix = z.infer<typeof Matrix>;
 
@@ -9,8 +10,14 @@ export const MatrixKind = z
   .string({
     error: () => 'Veuillez renseigner la catégorie de matrice programmée.'
   })
+  .nonempty({
+    error: () => 'Veuillez renseigner la catégorie de matrice programmée.'
+  })
   .brand<'MatrixKind'>();
 export type MatrixKind = z.infer<typeof MatrixKind>;
+
+export const OtherMatrixKind = z.literal('Other');
+export type OtherMatrixKind = z.infer<typeof OtherMatrixKind>;
 
 export const MatrixKindEntry = z.object({
   code: MatrixKind,
@@ -45,10 +52,12 @@ export const matrixLabel = (
 
 export const matrixKindLabel = (
   referential: MatrixReferential,
-  code: MatrixKind
+  code: MatrixKind | OtherMatrixKind
 ): string =>
-  referential.matrixKinds.find((matrixKind) => matrixKind.code === code)
-    ?.label ?? code;
+  code === OtherMatrixKind.value
+    ? 'Autre'
+    : (referential.matrixKinds.find((matrixKind) => matrixKind.code === code)
+        ?.label ?? code);
 
 export const matricesOfKind = (
   referential: MatrixReferential,

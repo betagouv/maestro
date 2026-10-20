@@ -5,6 +5,7 @@ import {
   type Stage,
   StageLabels
 } from '../../referential/Stage';
+import type { MatrixReferential } from '../Matrix/MatrixReferential';
 import { SubstanceKindLabels } from '../Substance/SubstanceKind';
 import type { UserRole } from '../User/UserRole';
 import { ContextLabels } from './Context';
@@ -27,6 +28,7 @@ export const ProgrammingSubPlan = z.object({
 export type ProgrammingSubPlan = z.infer<typeof ProgrammingSubPlan>;
 
 export const subPlanLabel = (
+  referential: MatrixReferential,
   subPlan: Pick<
     ProgrammingSubPlan,
     'stages' | 'matrices' | 'substanceKinds' | 'context'
@@ -34,7 +36,7 @@ export const subPlanLabel = (
 ): string =>
   [
     (subPlan.stages ?? []).map((stage) => StageLabels[stage]).join(', '),
-    subPlanMatrixNameParts(subPlan.matrices).join(', '),
+    subPlanMatrixNameParts(referential, subPlan.matrices).join(', '),
     (subPlan.substanceKinds ?? [])
       .map((substanceKind) => SubstanceKindLabels[substanceKind])
       .join(', '),

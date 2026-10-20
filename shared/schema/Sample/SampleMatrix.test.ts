@@ -1,27 +1,39 @@
 import { describe, expect, test } from 'vitest';
 import { CompanyFixture } from '../../test/companyFixtures';
+import { MatrixReferentialFixture } from '../../test/matrixFixtures';
 import { genCreatedSample } from '../../test/sampleFixtures';
+import type { Matrix, MatrixKind } from '../Matrix/MatrixReferential';
 import type { SubPlanMatrices } from '../ProgrammingPlan/SubPlanMatrices';
 import { SampleChecked } from './Sample';
 import {
   getSampleMatrixLabels,
+  type PartialSampleMatrix,
   SampleMatrix,
   sampleMatricesIssues
 } from './SampleMatrix';
 
-const radishAndPlums = (operator: SubPlanMatrices['operator']) =>
-  ({
-    operator,
-    items: [
-      { matrixKind: 'A00QT', matrices: ['A00QV', 'A00QX'] },
-      { matrixKind: 'A01GP', matrices: [] }
-    ]
-  }) satisfies SubPlanMatrices;
+const radishAndPlums = (
+  operator: SubPlanMatrices['operator']
+): SubPlanMatrices => ({
+  operator,
+  items: [
+    {
+      matrixKind: 'A00QT' as MatrixKind,
+      matrices: ['A00QV', 'A00QX'] as Matrix[]
+    },
+    { matrixKind: 'A01GP' as MatrixKind, matrices: [] }
+  ]
+});
+
+const issues = (
+  matrices: PartialSampleMatrix[],
+  subPlanMatrices: SubPlanMatrices | null
+) => sampleMatricesIssues(MatrixReferentialFixture, matrices, subPlanMatrices);
 
 describe('SampleMatrix', () => {
-  test('refuse une matrice hors référentiel pour une catégorie programmée', () => {
+  test('refuse une matrice vide pour une catégorie programmée', () => {
     expect(
-      SampleMatrix.safeParse({ matrixKind: 'A00QT', matrix: 'Navet' }).success
+      SampleMatrix.safeParse({ matrixKind: 'A00QT', matrix: '' }).success
     ).toBe(false);
   });
 
@@ -35,10 +47,10 @@ describe('SampleMatrix', () => {
 describe('getSampleMatrixLabels', () => {
   test('rend le libellé de chaque matrice, et le texte libre pour « Autre »', () => {
     expect(
-      getSampleMatrixLabels([
-        { matrixKind: 'A00GY', matrix: 'A00GZ' },
+      getSampleMatrixLabels(MatrixReferentialFixture, [
+        { matrixKind: 'A00GY' as MatrixKind, matrix: 'A00GZ' },
         { matrixKind: 'Other', matrix: 'Navet' },
-        { matrixKind: 'A00QT', matrix: null }
+        { matrixKind: 'A00QT' as MatrixKind, matrix: null }
       ])
     ).toStrictEqual(['Aulx', 'Navet']);
   });
@@ -47,14 +59,14 @@ describe('getSampleMatrixLabels', () => {
 describe('sampleMatricesIssues', () => {
   test('sans matrices au sous-plan, aucune contrainte', () => {
     expect(
-      sampleMatricesIssues([{ matrixKind: 'A00GY', matrix: 'A00GZ' }], null)
+      issues([{ matrixKind: 'A00GY' as MatrixKind, matrix: 'A00GZ' }], null)
     ).toStrictEqual([]);
   });
 
   test('OU : accepte une seule matrice parmi la sélection', () => {
     expect(
-      sampleMatricesIssues(
-        [{ matrixKind: 'A01GP', matrix: 'A01GQ' }],
+      issues(
+        [{ matrixKind: 'A01GP' as MatrixKind, matrix: 'A01GQ' }],
         radishAndPlums('Or')
       )
     ).toStrictEqual([]);
@@ -62,10 +74,10 @@ describe('sampleMatricesIssues', () => {
 
   test('OU : refuse plusieurs matrices', () => {
     expect(
-      sampleMatricesIssues(
+      issues(
         [
-          { matrixKind: 'A00QT', matrix: 'A00QV' },
-          { matrixKind: 'A01GP', matrix: 'A01GQ' }
+          { matrixKind: 'A00QT' as MatrixKind, matrix: 'A00QV' },
+          { matrixKind: 'A01GP' as MatrixKind, matrix: 'A01GQ' }
         ],
         radishAndPlums('Or')
       )
@@ -75,17 +87,17 @@ describe('sampleMatricesIssues', () => {
   });
 
   test('OU : refuse une liste vide', () => {
-    expect(sampleMatricesIssues([], radishAndPlums('Or'))).toStrictEqual([
+    expect(issues([], radishAndPlums('Or'))).toStrictEqual([
       { path: ['matrices'], message: 'Veuillez renseigner la matrice.' }
     ]);
   });
 
   test('ET : accepte une matrice de chaque catégorie', () => {
     expect(
-      sampleMatricesIssues(
+      issues(
         [
-          { matrixKind: 'A00QT', matrix: 'A00QX' },
-          { matrixKind: 'A01GP', matrix: 'A01GQ' }
+          { matrixKind: 'A00QT' as MatrixKind, matrix: 'A00QX' },
+          { matrixKind: 'A01GP' as MatrixKind, matrix: 'A01GQ' }
         ],
         radishAndPlums('And')
       )
@@ -94,10 +106,10 @@ describe('sampleMatricesIssues', () => {
 
   test('ET : signale une catégorie manquante et une catégorie en double', () => {
     expect(
-      sampleMatricesIssues(
+      issues(
         [
-          { matrixKind: 'A01GP', matrix: 'A01GQ' },
-          { matrixKind: 'A01GP', matrix: 'A01HA' }
+          { matrixKind: 'A01GP' as MatrixKind, matrix: 'A01GQ' },
+          { matrixKind: 'A01GP' as MatrixKind, matrix: 'A01HA' }
         ],
         radishAndPlums('And')
       )
@@ -117,16 +129,16 @@ describe('sampleMatricesIssues', () => {
 
   test('ET : refuse la même matrice dans deux catégories', () => {
     expect(
-      sampleMatricesIssues(
+      issues(
         [
-          { matrixKind: 'A00KR', matrix: 'A00KT' },
-          { matrixKind: 'A00KT', matrix: 'A00KT' }
+          { matrixKind: 'A00KR' as MatrixKind, matrix: 'A00KT' },
+          { matrixKind: 'A00KT' as MatrixKind, matrix: 'A00KT' }
         ],
         {
           operator: 'And',
           items: [
-            { matrixKind: 'A00KR', matrices: [] },
-            { matrixKind: 'A00KT', matrices: [] }
+            { matrixKind: 'A00KR' as MatrixKind, matrices: [] },
+            { matrixKind: 'A00KT' as MatrixKind, matrices: [] }
           ]
         }
       )
@@ -140,10 +152,10 @@ describe('sampleMatricesIssues', () => {
 
   test('signale une catégorie non programmée et une matrice hors sélection', () => {
     expect(
-      sampleMatricesIssues(
+      issues(
         [
-          { matrixKind: 'A00QT', matrix: 'A00QY' },
-          { matrixKind: 'A00GY', matrix: 'A00GZ' }
+          { matrixKind: 'A00QT' as MatrixKind, matrix: 'A00QY' },
+          { matrixKind: 'A00GY' as MatrixKind, matrix: 'A00GZ' }
         ],
         radishAndPlums('Or')
       )
