@@ -1,13 +1,20 @@
 import type { Knex } from 'knex';
-import { isArray, isNil, omit, omitBy } from 'lodash-es';
+import { groupBy, isArray, isNil, omit, omitBy } from 'lodash-es';
 import type { Region } from 'maestro-shared/referential/Region';
 import { residueResultExceedsLmr } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import { OtherMatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
+import { PPVSubPlanNumberPrefix } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   ComplianceStat,
   type FindComplianceStatsOptions
 } from 'maestro-shared/schema/Sample/ComplianceStat';
+import type {
+  DashboardStats,
+  DashboardTerritoryLevel,
+  FindDashboardStatsOptions,
+  SampleStatusCounts
+} from 'maestro-shared/schema/Sample/DashboardStats';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
@@ -19,6 +26,7 @@ import {
   isItemAchieved,
   isItemCompliant
 } from 'maestro-shared/schema/Sample/SampleItem';
+import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import type { SevesNotice } from 'maestro-shared/schema/Sample/Seves';
 import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import z from 'zod';
@@ -27,12 +35,14 @@ import { companiesTable } from './companyRepository';
 import { knexInstance as db, knexInstance } from './db';
 import { kysely } from './kysely';
 import type { KyselyMaestro, Samples as SamplesRow } from './kysely.type';
+import { programmingSubPlansTable } from './programmingSubPlanRepository';
 import sampleItemRepository, { sampleItemsTable } from './sampleItemRepository';
 import { usersTable } from './userRepository';
 
 export const samplesTable = 'samples';
 export const sampleStatusView = 'sample_status';
 export const sampleDocumentsTable = 'sample_documents';
+const analysisDaiTable = 'analysis_dai';
 const sampleSpecificDataValuesTable = 'sample_specific_data_values';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
 
@@ -751,6 +761,166 @@ const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
     specificData: omitBy(sample.specificData, isNil)
   });
 
+const dashboardTerritoryColumns: Record<DashboardTerritoryLevel, string> = {
+  Region: `${samplesTable}.region`,
+  Department: `${samplesTable}.department`,
+  Company: `${samplesTable}.companySiret`
+};
+
+const emptyStatusCounts = (): SampleStatusCounts =>
+  Object.fromEntries(
+    SampleStatus.options.map((status) => [status, 0])
+  ) as SampleStatusCounts;
+
+const toStatusCounts = (
+  rows: { status: SampleStatus; count: string }[]
+): SampleStatusCounts =>
+  rows.reduce((counts, row) => {
+    counts[row.status] = Number(row.count);
+    return counts;
+  }, emptyStatusCounts());
+
+export type DashboardSampleStats = Pick<
+  DashboardStats,
+  | 'countsByStatus'
+  | 'compliantCount'
+  | 'nonCompliantCount'
+  | 'receivedItemCount'
+  | 'notAdmissibleItemCount'
+  | 'sentByMonth'
+> & {
+  averageSampledToDaiHours: number | null;
+  byTerritory: { key: string; countsByStatus: SampleStatusCounts }[];
+};
+
+const firstDaiSentAt = () =>
+  db(analysisTable)
+    .join(
+      analysisDaiTable,
+      `${analysisDaiTable}.analysisId`,
+      `${analysisTable}.id`
+    )
+    .whereNotNull(`${analysisDaiTable}.sentAt`)
+    .groupBy(`${analysisTable}.sampleId`)
+    .select(
+      `${analysisTable}.sampleId as sample_id`,
+      db.raw(`min(${analysisDaiTable}.sent_at) as sent_at`)
+    );
+
+const findDashboardStats = async (
+  findOptions: FindDashboardStatsOptions
+): Promise<DashboardSampleStats> => {
+  const { territoryLevel, ...sampleOptions } = findOptions;
+  console.info('Compute dashboard stats', omitBy(sampleOptions, isNil));
+
+  const statusRows = await findRequest(sampleOptions)
+    .select(`${sampleStatusView}.status`, db.raw('count(*) as count'))
+    .groupBy(`${sampleStatusView}.status`);
+
+  const complianceRows = await findRequest(sampleOptions)
+    .select(`${samplesTable}.compliance`, db.raw('count(*) as count'))
+    .whereNotNull(`${samplesTable}.compliance`)
+    .groupBy(`${samplesTable}.compliance`);
+
+  const [itemRow] = await findRequest(sampleOptions)
+    .join(
+      sampleItemsTable,
+      `${sampleItemsTable}.sampleId`,
+      `${samplesTable}.id`
+    )
+    .leftJoin(analysisTable, (join) =>
+      join
+        .on(`${analysisTable}.sampleId`, `${sampleItemsTable}.sampleId`)
+        .andOn(`${analysisTable}.itemNumber`, `${sampleItemsTable}.itemNumber`)
+        .andOn(`${analysisTable}.copyNumber`, `${sampleItemsTable}.copyNumber`)
+    )
+    .whereNotNull(`${sampleItemsTable}.receiptDate`)
+    .select(
+      db.raw('count(*) as received_count'),
+      db.raw(
+        `count(*) filter (where ${analysisTable}.status = 'NotAdmissible') as not_admissible_count`
+      )
+    );
+
+  const monthRows = await findRequest(sampleOptions)
+    .whereNotNull(`${samplesTable}.sentAt`)
+    .select(
+      db.raw(
+        `extract(month from ${samplesTable}.sent_at at time zone 'Europe/Paris') as month`
+      ),
+      db.raw('count(*) as count')
+    )
+    .groupByRaw(
+      `extract(month from ${samplesTable}.sent_at at time zone 'Europe/Paris')`
+    );
+
+  const [daiRow] = await findRequest(sampleOptions)
+    .join(
+      firstDaiSentAt().as('first_dai'),
+      'first_dai.sample_id',
+      `${samplesTable}.id`
+    )
+    .select(
+      db.raw(
+        `avg(extract(epoch from (first_dai.sent_at - (${samplesTable}.sampled_date::timestamp + ${samplesTable}.sampled_time::time))) / 3600) as average_hours`
+      )
+    );
+
+  const territoryRows = territoryLevel
+    ? await findRequest(sampleOptions)
+        .select(
+          db.raw(`${dashboardTerritoryColumns[territoryLevel]} as key`),
+          `${sampleStatusView}.status`,
+          db.raw('count(*) as count')
+        )
+        .whereNotNull(dashboardTerritoryColumns[territoryLevel])
+        .whereNotExists((builder) =>
+          builder
+            .select(db.raw('1'))
+            .from(programmingSubPlansTable)
+            .whereRaw(
+              `${programmingSubPlansTable}.id = ${samplesTable}.programming_sub_plan_id`
+            )
+            .whereLike(
+              `${programmingSubPlansTable}.subPlanNumber`,
+              `${PPVSubPlanNumberPrefix}%`
+            )
+        )
+        .groupBy(
+          dashboardTerritoryColumns[territoryLevel],
+          `${sampleStatusView}.status`
+        )
+    : [];
+
+  return {
+    countsByStatus: toStatusCounts(statusRows),
+    compliantCount: Number(
+      complianceRows.find((row: any) => row.compliance === 'Compliant')
+        ?.count ?? 0
+    ),
+    nonCompliantCount: complianceRows
+      .filter((row: any) =>
+        ['NonCompliant', 'NonCompliantAndHarmful'].includes(row.compliance)
+      )
+      .reduce((total: number, row: any) => total + Number(row.count), 0),
+    receivedItemCount: Number(itemRow?.receivedCount ?? 0),
+    notAdmissibleItemCount: Number(itemRow?.notAdmissibleCount ?? 0),
+    sentByMonth: monthRows.map((row: any) => ({
+      month: Number(row.month),
+      count: Number(row.count)
+    })),
+    averageSampledToDaiHours: isNil(daiRow?.averageHours)
+      ? null
+      : Number(daiRow.averageHours),
+    byTerritory: Object.entries(
+      groupBy(territoryRows, (row: any) => row.key as string)
+    ).map(([key, rows]) => ({
+      key,
+      countsByStatus: toStatusCounts(rows as any)
+    }))
+  };
+};
+
 const findComplianceStats = async (
   options: FindComplianceStatsOptions
 ): Promise<ComplianceStat[]> => {
@@ -813,6 +983,7 @@ export const sampleRepository = {
   findMany,
   count,
   findComplianceStats,
+  findDashboardStats,
   getNextSequence,
   deleteOne,
   deleteDraftOnProgrammingPlan,
