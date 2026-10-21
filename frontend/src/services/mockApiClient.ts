@@ -127,7 +127,6 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
 };
 const defaultMockApiClientConf: MockApi = {
   useImportPrescriptionsMutation: [fn(), {}],
-  useAddPrescriptionMutation: [fn(), {}],
   useAuthenticateMutation: [fn(), {}],
   useCommentLocalPrescriptionMutation: [fn(), {}],
   useCountSamplesQuery: {
@@ -146,7 +145,6 @@ const defaultMockApiClientConf: MockApi = {
   useDeleteAnalysisReportDocumentMutation: [fn(), {}],
   useDeleteResourceDocumentMutation: [fn(), {}],
   useDeleteSampleDocumentMutation: [fn(), {}],
-  useDeletePrescriptionMutation: [fn(), {}],
   useDeleteProgrammingPlanDomainMutation: [fn(), {}],
   useDeleteProgrammingPlanMutation: [fn(), {}],
   useDeleteProgrammingSubPlanMutation: [fn(), {}],

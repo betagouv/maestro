@@ -3,6 +3,7 @@ import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingP
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { executeTransaction } from '../repositories/kysely';
 import type { DB } from '../repositories/kysely.type';
+import prescriptionRepository from '../repositories/prescriptionRepository';
 import { toProgrammingPlanSettingsRow } from '../repositories/programmingPlanSettingsRow';
 
 const COPY_SUFFIX = '(copie)';
@@ -174,6 +175,10 @@ const duplicateSubPlanWithin = async (
 
   await duplicateSubPlanFields(trx, id, copiedSubPlanId);
   await duplicateLaboratoryAgreements(trx, id, copiedSubPlanId);
+  await prescriptionRepository.insertEmpty(
+    { id: copiedSubPlanId, subPlanNumber },
+    trx
+  );
 
   return copiedSubPlanId;
 };

@@ -9,6 +9,8 @@ import {
   isPPVSubPlanNumber,
   type ProgrammingSubPlanId
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { executeTransaction } from '../repositories/kysely';
+import prescriptionRepository from '../repositories/prescriptionRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { nextSubPlanNumber } from './programmingPlanDuplicationService';
 
@@ -37,12 +39,23 @@ export const newSubPlanNumber = (subPlanNumbers: string[]): string => {
 const createSubPlan = async (
   programmingPlan: ProgrammingPlanChecked
 ): Promise<ProgrammingSubPlanId> =>
-  programmingSubPlanRepository.insert({
-    ...newSubPlanSettings(programmingPlan),
-    programmingPlanId: programmingPlan.id,
-    subPlanNumber: newSubPlanNumber(
+  executeTransaction(async (trx) => {
+    const subPlanNumber = newSubPlanNumber(
       programmingPlan.subPlans.map(({ subPlanNumber }) => subPlanNumber)
-    )
+    );
+
+    const id = await programmingSubPlanRepository.insert(
+      {
+        ...newSubPlanSettings(programmingPlan),
+        programmingPlanId: programmingPlan.id,
+        subPlanNumber
+      },
+      trx
+    );
+
+    await prescriptionRepository.insertEmpty({ id, subPlanNumber }, trx);
+
+    return id;
   });
 
 export const programmingSubPlanCreationService = {

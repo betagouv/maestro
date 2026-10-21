@@ -1,17 +1,24 @@
 import type { Knex } from 'knex';
 import { intersection, isNil, omit, omitBy, uniq } from 'lodash-es';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { SlaughterhouseStage } from 'maestro-shared/referential/Stage';
 import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  isPPVSubPlan,
+  type ProgrammingSubPlan,
+  type ProgrammingSubPlanId
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   getSubPlanMatrixKinds,
   type SubPlanMatrices
 } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type { PendingChangeVisibility } from 'maestro-shared/schema/User/UserRole';
 import { knexInstance as db } from './db';
+import { kysely } from './kysely';
+import type { KyselyMaestro } from './kysely.type';
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { programmingPlansTable } from './programmingPlanRepository';
 import { programmingSubPlansTable } from './programmingSubPlanRepository';
@@ -628,9 +635,38 @@ const findCounts = async (
     );
 };
 
-const insert = async (prescription: Prescription): Promise<void> => {
-  console.info('Insert prescription with id', prescription.id);
-  await Prescriptions().insert(prescription);
+const insertEmpty = async (
+  subPlan: Pick<ProgrammingSubPlan, 'id' | 'subPlanNumber'>,
+  executor: KyselyMaestro = kysely
+): Promise<void> => {
+  console.info('Insert empty prescription for sub-plan', subPlan.id);
+
+  const { id } = await executor
+    .insertInto('prescriptions')
+    .values({ programmingSubPlanId: subPlan.id, sampleCount: 0 })
+    .returning('id')
+    .executeTakeFirstOrThrow();
+
+  await executor
+    .insertInto('localPrescriptions')
+    .values([
+      ...RegionList.map((region) => ({
+        prescriptionId: id,
+        region,
+        sampleCount: 0
+      })),
+      ...(isPPVSubPlan(subPlan)
+        ? []
+        : RegionList.flatMap((region) =>
+            Regions[region].departments.map((department) => ({
+              prescriptionId: id,
+              region,
+              department,
+              sampleCount: 0
+            }))
+          ))
+    ])
+    .execute();
 };
 
 const update = async (prescription: Prescription): Promise<void> => {
@@ -638,16 +674,10 @@ const update = async (prescription: Prescription): Promise<void> => {
   await Prescriptions().where({ id: prescription.id }).update(prescription);
 };
 
-const deleteOne = async (id: string): Promise<void> => {
-  console.info('Delete prescription with id', id);
-  await Prescriptions().where({ id }).delete();
-};
-
 export default {
   findUnique,
   findMany,
   findCounts,
-  insert,
-  update,
-  deleteOne
+  insertEmpty,
+  update
 };

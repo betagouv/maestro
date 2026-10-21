@@ -22,8 +22,6 @@ import {
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { kysely } from '../../repositories/kysely';
-import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionChangeRepository';
-import { LocalPrescriptions } from '../../repositories/localPrescriptionRepository';
 import { PrescriptionChanges } from '../../repositories/prescriptionChangeRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
@@ -74,10 +72,6 @@ describe('Prescriptions router', () => {
     programmingPlanId: programmingPlanInProgress.id,
     subPlanNumber: 'TEST2',
     context: 'Surveillance'
-  });
-  const inProgressSubPlanWithoutPrescription = genProgrammingSubPlan({
-    programmingPlanId: programmingPlanInProgress.id,
-    subPlanNumber: 'TEST3'
   });
   const closedControlPrescription = genPrescription({
     programmingSubPlanId: programmingPlanClosed.subPlans[0].id
@@ -135,10 +129,7 @@ describe('Prescriptions router', () => {
           }))
         )
         .concat(
-          [
-            inProgressSurveillanceSubPlan,
-            inProgressSubPlanWithoutPrescription
-          ].map(toProgrammingPlanSettingsRow)
+          [inProgressSurveillanceSubPlan].map(toProgrammingPlanSettingsRow)
         )
     );
     await Prescriptions().insert([
@@ -257,106 +248,6 @@ describe('Prescriptions router', () => {
     });
   });
 
-  describe('POST /prescriptions', () => {
-    const validBody = genPrescription({
-      programmingSubPlanId: inProgressSubPlanWithoutPrescription.id
-    });
-    const testRoute = '/api/prescriptions';
-
-    test('should fail if the user is not authenticated', async () => {
-      await request(app)
-        .post(testRoute)
-        .send(validBody)
-        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    test('should get a valid body', async () => {
-      const badRequestTest = async (payload?: Record<string, unknown>) =>
-        request(app)
-          .post(testRoute)
-          .send(payload)
-          .use(tokenProvider(NationalCoordinator))
-          .expect(constants.HTTP_STATUS_BAD_REQUEST);
-
-      await badRequestTest();
-      await badRequestTest({ ...validBody, programmingSubPlanId: undefined });
-      await badRequestTest({
-        ...validBody,
-        programmingSubPlanId: crypto.randomUUID()
-      });
-    });
-
-    test('should fail if the user does not have the permission to create prescriptions', async () => {
-      const forbiddenRequestTest = async (user: UserRefined) =>
-        request(app)
-          .post(testRoute)
-          .send(validBody)
-          .use(tokenProvider(user))
-          .expect(constants.HTTP_STATUS_FORBIDDEN);
-
-      await forbiddenRequestTest(Sampler1Fixture);
-      await forbiddenRequestTest(RegionalObserver);
-      await forbiddenRequestTest(RegionalCoordinator);
-      await forbiddenRequestTest(NationalObserver);
-      await forbiddenRequestTest(AdminFixture);
-      await forbiddenRequestTest(LaboratoryUserFixture);
-      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
-    });
-
-    test('should fail if the programming plan is closed', async () => {
-      await request(app)
-        .post(testRoute)
-        .send({
-          ...validBody,
-          programmingSubPlanId: programmingPlanClosed.subPlans[0].id
-        })
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
-    test('should create the prescription and local prescriptions', async () => {
-      const res = await request(app)
-        .post(testRoute)
-        .send(validBody)
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_CREATED);
-
-      expect(res.body).toMatchObject({
-        ...validBody,
-        id: expect.any(String)
-      });
-
-      await expect(
-        Prescriptions().where({ id: res.body.id }).first()
-      ).resolves.toMatchObject({
-        ...validBody,
-        id: res.body.id
-      });
-
-      await expect(
-        LocalPrescriptions()
-          .where({ prescriptionId: res.body.id })
-          .count()
-          .first()
-      ).resolves.toMatchObject({ count: '18' });
-
-      const changes = await LocalPrescriptionChanges().where({
-        prescriptionId: res.body.id
-      });
-      expect(changes).toHaveLength(RegionList.length);
-      expect(
-        changes.every(
-          (change) =>
-            change.previousSampleCount === null &&
-            change.changesViewedAt === null
-        )
-      ).toBe(true);
-
-      //Cleanup
-      await Prescriptions().where({ id: res.body.id }).delete();
-    });
-  });
-
   describe('PUT /prescriptions/{prescriptionId}', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
       programmingPlanId: programmingPlanInProgress.id,
@@ -457,65 +348,6 @@ describe('Prescriptions router', () => {
         sampleCount: 42,
         previousSampleCount: inProgressControlPrescription.sampleCount
       });
-    });
-  });
-
-  describe('DELETE /prescriptions', () => {
-    const testRoute = (prescriptionId: string) =>
-      `/api/prescriptions/${prescriptionId}`;
-
-    test('should fail if the user is not authenticated', async () => {
-      await request(app)
-        .delete(testRoute(inProgressControlPrescription.id))
-        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    test('should fail if the prescription does not exist', async () => {
-      await request(app)
-        .delete(testRoute(crypto.randomUUID()))
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
-    test('should fail if the user does not have the permission to delete prescriptions', async () => {
-      const forbiddenRequestTest = async (user: UserRefined) =>
-        request(app)
-          .delete(testRoute(inProgressControlPrescription.id))
-          .use(tokenProvider(user))
-          .expect(constants.HTTP_STATUS_FORBIDDEN);
-
-      await forbiddenRequestTest(Sampler1Fixture);
-      await forbiddenRequestTest(RegionalObserver);
-      await forbiddenRequestTest(RegionalCoordinator);
-      await forbiddenRequestTest(NationalObserver);
-      await forbiddenRequestTest(AdminFixture);
-      await forbiddenRequestTest(LaboratoryUserFixture);
-      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
-    });
-
-    test('should fail if the programming plan is closed', async () => {
-      await request(app)
-        .delete(testRoute(closedControlPrescription.id))
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
-    test('should delete the prescription', async () => {
-      await request(app)
-        .delete(testRoute(inProgressControlPrescription.id))
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_NO_CONTENT);
-
-      await expect(
-        Prescriptions().where({ id: inProgressControlPrescription.id }).first()
-      ).resolves.toBeUndefined();
-
-      await expect(
-        LocalPrescriptions()
-          .where({ prescriptionId: inProgressControlPrescription.id })
-          .count()
-          .first()
-      ).resolves.toMatchObject({ count: '0' });
     });
   });
 });

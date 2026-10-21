@@ -27,13 +27,6 @@ const prescriptionApi = api.injectEndpoints({
         ]
       }
     ),
-    addPrescription: buildTypedMutation(builder, '/prescriptions', 'post', {
-      invalidatesTags: [
-        { type: 'Prescription', id: 'LIST' },
-        { type: 'LocalPrescription', id: 'LIST' },
-        { type: 'ProgrammingPlan', id: 'LIST' }
-      ]
-    }),
     updatePrescription: buildTypedMutation(
       builder,
       '/prescriptions/:prescriptionId',
@@ -42,18 +35,6 @@ const prescriptionApi = api.injectEndpoints({
         invalidatesTags: (_result, _error, { prescriptionId }) => [
           { type: 'Prescription', id: 'LIST' },
           { type: 'Prescription', id: prescriptionId },
-          { type: 'ProgrammingPlan', id: 'LIST' }
-        ]
-      }
-    ),
-    deletePrescription: buildTypedMutation(
-      builder,
-      '/prescriptions/:prescriptionId',
-      'delete',
-      {
-        invalidatesTags: [
-          { type: 'Prescription', id: 'LIST' },
-          { type: 'LocalPrescription', id: 'LIST' },
           { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
@@ -66,7 +47,5 @@ export const {
   useLazyFindPrescriptionsQuery,
   useFindPrescriptionCountsQuery,
   useImportPrescriptionsMutation,
-  useUpdatePrescriptionMutation,
-  useAddPrescriptionMutation,
-  useDeletePrescriptionMutation
+  useUpdatePrescriptionMutation
 } = prescriptionApi;

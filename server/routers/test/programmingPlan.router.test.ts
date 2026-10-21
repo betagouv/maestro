@@ -18,6 +18,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
@@ -74,7 +75,9 @@ import {
 import { kysely } from '../../repositories/kysely';
 import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionChangeRepository';
 import { PrescriptionChanges } from '../../repositories/prescriptionChangeRepository';
-import { Prescriptions } from '../../repositories/prescriptionRepository';
+import prescriptionRepository, {
+  Prescriptions
+} from '../../repositories/prescriptionRepository';
 import programmingPlanRepository, {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
@@ -2468,7 +2471,10 @@ describe('ProgrammingPlan router', () => {
     const subPlansRoute = (programmingPlanId: string) =>
       `/api/programming-plans/${programmingPlanId}/sub-plans`;
 
-    const genPlan = (status: ProgrammingPlanStatus) => {
+    const genPlan = (
+      status: ProgrammingPlanStatus,
+      subPlanNumber = 'PPV01'
+    ) => {
       const planId = crypto.randomUUID();
       return genDeletableProgrammingPlan({
         id: planId,
@@ -2476,7 +2482,7 @@ describe('ProgrammingPlan router', () => {
         subPlans: [
           genProgrammingSubPlan({
             programmingPlanId: planId,
-            subPlanNumber: 'PPV01',
+            subPlanNumber,
             stagesManaged: false,
             settingsCompleted: false
           })
@@ -2485,18 +2491,40 @@ describe('ProgrammingPlan router', () => {
       });
     };
 
+    const localPrescriptionsOf = (programmingSubPlanId: ProgrammingSubPlanId) =>
+      kysely
+        .selectFrom('prescriptions')
+        .innerJoin(
+          'localPrescriptions',
+          'localPrescriptions.prescriptionId',
+          'prescriptions.id'
+        )
+        .select([
+          'prescriptions.sampleCount as prescriptionSampleCount',
+          'localPrescriptions.region',
+          'localPrescriptions.department',
+          'localPrescriptions.companySiret',
+          'localPrescriptions.sampleCount'
+        ])
+        .where('prescriptions.programmingSubPlanId', '=', programmingSubPlanId)
+        .execute();
+
     let inProgressPlan: ProgrammingPlanChecked;
+    let inProgressDAOAPlan: ProgrammingPlanChecked;
     let launchedPlan: ProgrammingPlanChecked;
 
     beforeEach(async () => {
       inProgressPlan = genPlan('InProgress');
+      inProgressDAOAPlan = genPlan('InProgress', 'ALAN01');
       launchedPlan = genPlan('Validated');
       await programmingPlanRepository.insert(inProgressPlan);
+      await programmingPlanRepository.insert(inProgressDAOAPlan);
       await programmingPlanRepository.insert(launchedPlan);
     });
 
     afterEach(async () => {
       await programmingPlanRepository.deleteOne(inProgressPlan.id);
+      await programmingPlanRepository.deleteOne(inProgressDAOAPlan.id);
       await programmingPlanRepository.deleteOne(launchedPlan.id);
     });
 
@@ -2557,6 +2585,55 @@ describe('ProgrammingPlan router', () => {
         substanceKindsManaged: true
       });
     });
+
+    test('should give a PPV sub-plan an empty prescription in each region', async () => {
+      const res = await request(app)
+        .post(subPlansRoute(inProgressPlan.id))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      const localPrescriptions = await localPrescriptionsOf(res.body.id);
+
+      expect(localPrescriptions).toHaveLength(RegionList.length);
+      expect(localPrescriptions).toEqual(
+        expect.arrayContaining(
+          RegionList.map((region) => ({
+            prescriptionSampleCount: 0,
+            region,
+            department: 'None',
+            companySiret: 'None',
+            sampleCount: 0
+          }))
+        )
+      );
+    });
+
+    test('should give a non PPV sub-plan an empty prescription in each region and each department', async () => {
+      const res = await request(app)
+        .post(subPlansRoute(inProgressDAOAPlan.id))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      expect(res.body.subPlanNumber).toBe('ALAN02');
+
+      const departmentRows = RegionList.flatMap((region) =>
+        Regions[region].departments.map((department) => ({
+          prescriptionSampleCount: 0,
+          region,
+          department,
+          companySiret: 'None',
+          sampleCount: 0
+        }))
+      );
+      const localPrescriptions = await localPrescriptionsOf(res.body.id);
+
+      expect(localPrescriptions).toHaveLength(
+        RegionList.length + departmentRows.length
+      );
+      expect(localPrescriptions).toEqual(
+        expect.arrayContaining(departmentRows)
+      );
+    });
   });
 
   describe('DELETE /programming-plans/:programmingPlanId', () => {
@@ -2568,6 +2645,7 @@ describe('ProgrammingPlan router', () => {
     beforeEach(async () => {
       deletablePlan = genDeletableProgrammingPlan();
       await programmingPlanRepository.insert(deletablePlan);
+      await prescriptionRepository.insertEmpty(deletablePlan.subPlans[0]);
       await kysely
         .insertInto('laboratoryAgreements')
         .values({
@@ -2601,15 +2679,13 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should refuse to delete a plan carrying prescriptions', async () => {
+    test('should refuse to delete a plan carrying samples', async () => {
       const res = await request(app)
         .delete(planRoute(DAOAInProgressProgrammingPlanFixture.id))
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_CONFLICT);
 
-      expect(res.body.message).toContain(
-        'des prescriptions ou des prélèvements y sont rattachés'
-      );
+      expect(res.body.message).toContain('des prélèvements y sont rattachés');
 
       await expect(
         programmingPlanRepository.findUnique(
@@ -2618,7 +2694,7 @@ describe('ProgrammingPlan router', () => {
       ).resolves.toBeDefined();
     });
 
-    test('should delete the plan along with its sub-plans and their laboratory agreements', async () => {
+    test('should delete the plan along with its sub-plans, their prescriptions and their laboratory agreements', async () => {
       await request(app)
         .delete(planRoute(deletablePlan.id))
         .use(tokenProvider(AdminFixture))
@@ -2633,6 +2709,13 @@ describe('ProgrammingPlan router', () => {
       await expect(
         kysely
           .selectFrom('laboratoryAgreements')
+          .selectAll()
+          .where('programmingSubPlanId', '=', deletablePlan.subPlans[0].id)
+          .execute()
+      ).resolves.toEqual([]);
+      await expect(
+        kysely
+          .selectFrom('prescriptions')
           .selectAll()
           .where('programmingSubPlanId', '=', deletablePlan.subPlans[0].id)
           .execute()
@@ -2667,6 +2750,7 @@ describe('ProgrammingPlan router', () => {
         ]
       });
       await programmingPlanRepository.insert(deletablePlan);
+      await prescriptionRepository.insertEmpty(deletablePlan.subPlans[0]);
     });
 
     test('should fail if the user is not authenticated', async () => {
@@ -2689,7 +2773,7 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should delete the sub-plan and leave the plan with its other sub-plans', async () => {
+    test('should delete the sub-plan with its prescription and leave the plan with its other sub-plans', async () => {
       await request(app)
         .delete(subPlanRoute(deletablePlan.id, deletablePlan.subPlans[0].id))
         .use(tokenProvider(AdminFixture))
@@ -2703,6 +2787,13 @@ describe('ProgrammingPlan router', () => {
       ).resolves.toMatchObject({
         subPlans: [{ id: deletablePlan.subPlans[1].id }]
       });
+      await expect(
+        kysely
+          .selectFrom('prescriptions')
+          .selectAll()
+          .where('programmingSubPlanId', '=', deletablePlan.subPlans[0].id)
+          .execute()
+      ).resolves.toEqual([]);
     });
   });
 });

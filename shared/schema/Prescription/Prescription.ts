@@ -15,10 +15,6 @@ export const Prescription = z.object({
   sampleCount: z.coerce.number().int().min(0).default(0)
 });
 
-export const PrescriptionToCreate = Prescription.omit({
-  id: true
-});
-
 export const PrescriptionUpdate = z.object({
   programmingPlanId: z.guid(),
   ...Prescription.pick({
@@ -27,7 +23,6 @@ export const PrescriptionUpdate = z.object({
 });
 
 export type Prescription = z.infer<typeof Prescription>;
-export type PrescriptionToCreate = z.infer<typeof PrescriptionToCreate>;
 export type PrescriptionUpdate = z.infer<typeof PrescriptionUpdate>;
 
 export const sortPrescriptions = <T extends Prescription>(
@@ -54,7 +49,7 @@ export const sortPrescriptions = <T extends Prescription>(
   return prescriptions.toSorted((a, b) => sortKey(a).localeCompare(sortKey(b)));
 };
 
-const PrescriptionPermission = z.enum(['create', 'update', 'delete']);
+const PrescriptionPermission = z.enum(['update']);
 
 export type PrescriptionPermission = z.infer<typeof PrescriptionPermission>;
 
@@ -62,18 +57,8 @@ export const hasPrescriptionPermission = (
   userRole: UserRole,
   programmingPlan: ProgrammingPlanChecked
 ): Record<PrescriptionPermission, boolean> => ({
-  create:
-    hasPermission(userRole, 'createPrescription') &&
-    programmingPlan.regionalStatus.some(
-      (regionalStatus) => regionalStatus.status !== 'Closed'
-    ),
   update:
     hasPermission(userRole, 'updatePrescription') &&
-    programmingPlan.regionalStatus.some(
-      (regionalStatus) => regionalStatus.status !== 'Closed'
-    ),
-  delete:
-    hasPermission(userRole, 'deletePrescription') &&
     programmingPlan.regionalStatus.some(
       (regionalStatus) => regionalStatus.status !== 'Closed'
     )
