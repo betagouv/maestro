@@ -150,8 +150,6 @@ const ProgrammingPrescriptionList = ({
     pendingLaboratoryChanges.size > 0 ||
     pendingPrescriptionSampleCounts.size > 0;
 
-  const [_, { isSuccess: isAddSuccess }] =
-    apiClient.useAddPrescriptionMutation();
   const [updatePrescription] = apiClient.useUpdatePrescriptionMutation();
   const [updateLocalPrescription] =
     apiClient.useUpdateLocalPrescriptionMutation();
@@ -1017,7 +1015,6 @@ const ProgrammingPrescriptionList = ({
           />
         </div>
       )}
-      <AppToast open={isAddSuccess} description="Matrice ajoutée" />
       <AppToast
         open={saveSuccess}
         description={saveSuccessMessage}

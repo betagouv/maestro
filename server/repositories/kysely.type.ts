@@ -345,7 +345,8 @@ export interface LocalPrescriptionComments {
 }
 
 export interface LocalPrescriptions {
-  laboratoryId: string | null;
+  companySiret: Generated<string>;
+  department: Generated<string>;
   prescriptionId: string;
   region: string;
   sampleCount: number | null;

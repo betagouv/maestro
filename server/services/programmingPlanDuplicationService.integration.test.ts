@@ -1,3 +1,4 @@
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import {
   defaultProgrammingPlanSample,
@@ -28,6 +29,45 @@ const findOwnSettings = (id: ProgrammingSubPlanId) =>
     .select(ProgrammingPlanSettings.keyof().options)
     .where('id', '=', id)
     .executeTakeFirstOrThrow();
+
+const prescriptionsOf = (id: ProgrammingSubPlanId) =>
+  kysely
+    .selectFrom('prescriptions')
+    .leftJoin(
+      'localPrescriptions',
+      'localPrescriptions.prescriptionId',
+      'prescriptions.id'
+    )
+    .select([
+      'prescriptions.sampleCount as prescriptionSampleCount',
+      'localPrescriptions.region',
+      'localPrescriptions.department',
+      'localPrescriptions.companySiret',
+      'localPrescriptions.sampleCount'
+    ])
+    .where('prescriptions.programmingSubPlanId', '=', id)
+    .orderBy([
+      'localPrescriptions.region',
+      'localPrescriptions.department',
+      'localPrescriptions.companySiret'
+    ])
+    .execute();
+
+const expectEmptyPrescription = async (id: ProgrammingSubPlanId) => {
+  const rows = await prescriptionsOf(id);
+
+  expect(rows).toHaveLength(
+    RegionList.length +
+      RegionList.flatMap((region) => Regions[region].departments).length
+  );
+  for (const row of rows) {
+    expect(row).toMatchObject({
+      prescriptionSampleCount: 0,
+      companySiret: 'None',
+      sampleCount: 0
+    });
+  }
+};
 
 const createdSubPlanIds: ProgrammingSubPlanId[] = [];
 const createdPlanIds: string[] = [];
@@ -214,16 +254,15 @@ describe('duplicateSubPlan', () => {
     );
   });
 
-  test('should not carry any prescription over', async () => {
+  test('should give the copy its own empty prescription, leaving the source untouched', async () => {
+    const sourcePrescriptions = await prescriptionsOf(sourceSubPlanId);
+
     const copiedSubPlanId = await duplicateSubPlan();
 
-    await expect(
-      kysely
-        .selectFrom('prescriptions')
-        .select('id')
-        .where('programmingSubPlanId', '=', copiedSubPlanId)
-        .execute()
-    ).resolves.toStrictEqual([]);
+    await expectEmptyPrescription(copiedSubPlanId);
+    await expect(prescriptionsOf(sourceSubPlanId)).resolves.toStrictEqual(
+      sourcePrescriptions
+    );
   });
 });
 
@@ -303,6 +342,21 @@ describe('duplicatePlan', () => {
     await expect(numbersOf(copiedPlanId)).resolves.toStrictEqual(
       await numbersOf(sourcePlanId)
     );
+  });
+
+  test('should give each copied sub-plan an empty prescription', async () => {
+    const copiedPlanId = await duplicatePlan();
+
+    const copiedSubPlans = await kysely
+      .selectFrom('programmingSubPlansRaw')
+      .select('id')
+      .where('programmingPlanId', '=', copiedPlanId)
+      .execute();
+
+    expect(copiedSubPlans.length).toBeGreaterThan(0);
+    for (const { id } of copiedSubPlans) {
+      await expectEmptyPrescription(id);
+    }
   });
 });
 

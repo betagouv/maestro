@@ -28,7 +28,7 @@ const deleteOrConflict = async (
     }
 
     throw conflict(
-      'Suppression impossible : des prescriptions ou des prélèvements y sont rattachés.'
+      'Suppression impossible : des prélèvements y sont rattachés.'
     );
   }
 };

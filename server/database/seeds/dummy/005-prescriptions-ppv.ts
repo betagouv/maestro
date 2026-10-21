@@ -14,6 +14,7 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   genSubPlanMatrices,
+  PPVClosedSubPlanFixture,
   PPVInProgressProgrammingPlanFixture,
   PPVInProgressSubPlanFixture,
   PPVInProgressSubPlanId,
@@ -24,7 +25,9 @@ import {
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import { LocalPrescriptions } from '../../../repositories/localPrescriptionRepository';
 import { LocalPrescriptionSubstanceKindsLaboratories } from '../../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
-import { Prescriptions } from '../../../repositories/prescriptionRepository';
+import prescriptionRepository, {
+  Prescriptions
+} from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
 import { toProgrammingPlanSettingsRow } from '../../../repositories/programmingPlanSettingsRow';
 import { ProgrammingSubPlansRaw } from '../../../repositories/programmingSubPlanRepository';
@@ -623,4 +626,6 @@ export const seed = async () => {
       })
     )
   );
+
+  await prescriptionRepository.insertEmpty(PPVClosedSubPlanFixture);
 };

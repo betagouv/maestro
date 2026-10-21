@@ -83,20 +83,20 @@ const updateSettings = async (
     .execute();
 };
 
-const insert = async ({
-  programmingPlanId,
-  subPlanNumber,
-  ...settings
-}: ProgrammingPlanSettings &
-  Pick<
-    ProgrammingSubPlan,
-    'programmingPlanId' | 'subPlanNumber'
-  >): Promise<ProgrammingSubPlanId> => {
+const insert = async (
+  {
+    programmingPlanId,
+    subPlanNumber,
+    ...settings
+  }: ProgrammingPlanSettings &
+    Pick<ProgrammingSubPlan, 'programmingPlanId' | 'subPlanNumber'>,
+  executor: KyselyMaestro = kysely
+): Promise<ProgrammingSubPlanId> => {
   console.info('Insert programming sub-plan', programmingPlanId, subPlanNumber);
 
   const id = crypto.randomUUID() as ProgrammingSubPlanId;
 
-  await kysely
+  await executor
     .insertInto('programmingSubPlansRaw')
     .values({
       ...toProgrammingPlanSettingsRow(settings),

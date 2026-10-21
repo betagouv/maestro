@@ -1,9 +1,5 @@
 import { isNil, sumBy, uniq } from 'lodash-es';
-import {
-  type Region,
-  RegionList,
-  Regions
-} from 'maestro-shared/referential/Region';
+import { type Region, Regions } from 'maestro-shared/referential/Region';
 import { type Stage, StageList } from 'maestro-shared/referential/Stage';
 import {
   hasPrescriptionPermission,
@@ -21,7 +17,6 @@ import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
-import localPrescriptionChangeRepository from '../repositories/localPrescriptionChangeRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionChangeRepository from '../repositories/prescriptionChangeRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
@@ -102,78 +97,6 @@ export const prescriptionsRouter = {
       return {
         status: HttpStatus.OK,
         response: await withPendingPrescriptionChanges(prescriptions, userRole)
-      };
-    },
-    post: async ({ userRole, body }) => {
-      const subPlan = await programmingSubPlanRepository.findUnique(
-        body.programmingSubPlanId
-      );
-
-      if (!subPlan) {
-        return { status: HttpStatus.BAD_REQUEST };
-      }
-
-      const programmingPlan = await getAndCheckProgrammingPlan(
-        subPlan.programmingPlanId
-      );
-
-      if (!hasPrescriptionPermission(userRole, programmingPlan).create) {
-        return { status: HttpStatus.FORBIDDEN };
-      }
-
-      console.info(
-        'Create prescriptions for programming plan with id',
-        programmingPlan.id
-      );
-
-      const createdPrescription = {
-        ...body,
-        id: crypto.randomUUID()
-      };
-
-      await prescriptionRepository.insert(createdPrescription);
-
-      await localPrescriptionRepository.insertMany(
-        RegionList.map((region) => ({
-          prescriptionId: createdPrescription.id,
-          region,
-          sampleCount: 0
-        }))
-      );
-
-      await localPrescriptionChangeRepository.insertMany(
-        RegionList.map((region) => {
-          const now = new Date();
-          return {
-            prescriptionId: createdPrescription.id,
-            region,
-            echelon: 'National' as const,
-            kind: 'sampleCount' as const,
-            previousSampleCount: null,
-            changedAt: now,
-            diffusedAt: now
-          };
-        })
-      );
-
-      if (programmingPlan.distributionKind === 'SLAUGHTERHOUSE') {
-        await localPrescriptionRepository.insertMany(
-          RegionList.flatMap((region) =>
-            Regions[region].departments.map((department) => ({
-              prescriptionId: createdPrescription.id,
-              region,
-              department,
-              sampleCount: 0
-            }))
-          )
-        );
-      }
-
-      await programmingPlanRepository.touchLocalStatus(programmingPlan.id);
-
-      return {
-        status: HttpStatus.CREATED,
-        response: createdPrescription
       };
     }
   },
@@ -531,23 +454,6 @@ export const prescriptionsRouter = {
         status: HttpStatus.OK,
         response: { ...prescription, sampleCount: pendingSampleCount }
       };
-    },
-    delete: async ({ userRole }, { prescriptionId }) => {
-      console.info('Delete prescription with id', prescriptionId);
-
-      const { prescription, programmingPlan } = await getAndCheckPrescription(
-        prescriptionId,
-        undefined
-      );
-
-      if (!hasPrescriptionPermission(userRole, programmingPlan).delete) {
-        return { status: HttpStatus.FORBIDDEN };
-      }
-
-      await prescriptionRepository.deleteOne(prescription.id);
-      await programmingPlanRepository.touchLocalStatus(programmingPlan.id);
-
-      return { status: HttpStatus.NO_CONTENT };
     }
   }
 } as const satisfies ProtectedSubRouter;

@@ -16,7 +16,6 @@ import {
 } from '../schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
-  PrescriptionToCreate,
   PrescriptionUpdate
 } from '../schema/Prescription/Prescription';
 import { PrescriptionCounts } from '../schema/Prescription/PrescriptionCounts';
@@ -33,11 +32,6 @@ export const prescriptionsRoutes = {
       query: FindPrescriptionOptions,
       response: z.array(Prescription),
       permissions: ['readPrescriptions']
-    },
-    post: {
-      body: PrescriptionToCreate,
-      permissions: ['createPrescription'],
-      response: Prescription
     }
   },
   '/prescriptions/counts': {
@@ -160,10 +154,6 @@ export const prescriptionsRoutes = {
       body: PrescriptionUpdate,
       permissions: ['updatePrescription'],
       response: Prescription
-    },
-    delete: {
-      permissions: ['deletePrescription'],
-      response: z.undefined()
     }
   }
 } as const satisfies SubRoutes<'/prescriptions'>;
