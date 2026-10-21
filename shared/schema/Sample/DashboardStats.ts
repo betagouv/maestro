@@ -26,13 +26,11 @@ export const SampleStatusCounts = z.object(
 
 export type SampleStatusCounts = z.infer<typeof SampleStatusCounts>;
 
-export const DashboardTerritoryStat = z.object({
+const DashboardTerritoryStat = z.object({
   key: z.string(),
   programmedCount: z.coerce.number().default(0),
   countsByStatus: SampleStatusCounts
 });
-
-export type DashboardTerritoryStat = z.infer<typeof DashboardTerritoryStat>;
 
 export const DashboardStats = z.object({
   programmedCount: z.coerce.number().default(0),

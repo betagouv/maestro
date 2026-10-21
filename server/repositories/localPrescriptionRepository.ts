@@ -598,7 +598,7 @@ const programmedRequest = (
     });
 };
 
-export type FindProgrammedCountsOptions = {
+type FindProgrammedCountsOptions = {
   programmingPlanIds?: string[] | null;
   programmingSubPlanIds?: string[] | null;
   regions?: string[] | null;

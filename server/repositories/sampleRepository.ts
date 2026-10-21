@@ -780,7 +780,7 @@ const toStatusCounts = (
     return counts;
   }, emptyStatusCounts());
 
-export type DashboardSampleStats = Pick<
+type DashboardSampleStats = Pick<
   DashboardStats,
   | 'countsByStatus'
   | 'compliantCount'
