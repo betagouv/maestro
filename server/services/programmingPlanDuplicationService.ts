@@ -187,9 +187,12 @@ const duplicateSubPlanWithin = async (
 const duplicatePlanWithin = async (
   trx: Transaction<DB>,
   sourcePlanId: string,
-  targetDomainId: ProgrammingPlanDomainId,
-  createdBy: string,
-  title: string
+  target: {
+    domainId: ProgrammingPlanDomainId;
+    year: number;
+    title: string;
+    createdBy: string;
+  }
 ): Promise<string> => {
   const { id, ...sourcePlan } = await trx
     .selectFrom('programmingPlans')
@@ -203,14 +206,14 @@ const duplicatePlanWithin = async (
     .insertInto('programmingPlans')
     .values({
       ...toProgrammingPlanSettingsRow(sourcePlan),
+      ...target,
       id: copiedPlanId,
-      domainId: targetDomainId,
-      title,
       settingsCompleted: false,
       createdAt: new Date(),
-      createdBy,
       launchedAt: null,
-      launchedBy: null
+      launchedBy: null,
+      closedAt: null,
+      closedBy: null
     })
     .execute();
 
@@ -280,6 +283,30 @@ const duplicatePlanWithin = async (
   return copiedPlanId;
 };
 
+const duplicateDocumentLinks = async (
+  trx: Transaction<DB>,
+  sourcePlanId: string,
+  copiedPlanId: string
+): Promise<void> => {
+  const links = await trx
+    .selectFrom('documentProgrammingPlans')
+    .select('documentId')
+    .where('programmingPlanId', '=', sourcePlanId)
+    .execute();
+
+  if (links.length > 0) {
+    await trx
+      .insertInto('documentProgrammingPlans')
+      .values(
+        links.map(({ documentId }) => ({
+          documentId,
+          programmingPlanId: copiedPlanId
+        }))
+      )
+      .execute();
+  }
+};
+
 const duplicateSubPlan = async (
   programmingSubPlanId: ProgrammingSubPlanId,
   programmingPlanId: string
@@ -313,19 +340,18 @@ const duplicatePlan = async (
   createdBy: string
 ): Promise<string> =>
   executeTransaction(async (trx) => {
-    const { domainId, title } = await trx
+    const { domainId, year, title } = await trx
       .selectFrom('programmingPlans')
-      .select(['domainId', 'title'])
+      .select(['domainId', 'year', 'title'])
       .where('id', '=', programmingPlanId)
       .executeTakeFirstOrThrow();
 
-    return duplicatePlanWithin(
-      trx,
-      programmingPlanId,
+    return duplicatePlanWithin(trx, programmingPlanId, {
       domainId,
-      createdBy,
-      copiedLabel(title)
-    );
+      year,
+      title: copiedLabel(title),
+      createdBy
+    });
   });
 
 const duplicateDomain = async (
@@ -357,20 +383,57 @@ const duplicateDomain = async (
       .execute();
 
     for (const plan of plans) {
-      await duplicatePlanWithin(
-        trx,
-        plan.id,
-        copiedDomainId,
-        createdBy,
-        plan.title
-      );
+      await duplicatePlanWithin(trx, plan.id, {
+        domainId: copiedDomainId,
+        year: sourceDomain.year,
+        title: plan.title,
+        createdBy
+      });
     }
 
     return copiedDomainId;
   });
 
+const duplicateCampaign = async (
+  year: number,
+  createdBy: string
+): Promise<void> =>
+  executeTransaction(async (trx) => {
+    const domains = await trx
+      .selectFrom('programmingPlanDomains')
+      .selectAll()
+      .where('year', '=', year)
+      .execute();
+
+    for (const { id, ...domain } of domains) {
+      const copiedDomainId = crypto.randomUUID() as ProgrammingPlanDomainId;
+
+      await trx
+        .insertInto('programmingPlanDomains')
+        .values({ ...domain, id: copiedDomainId, year: year + 1 })
+        .execute();
+
+      const plans = await trx
+        .selectFrom('programmingPlans')
+        .select(['id', 'title'])
+        .where('domainId', '=', id)
+        .execute();
+
+      for (const plan of plans) {
+        const copiedPlanId = await duplicatePlanWithin(trx, plan.id, {
+          domainId: copiedDomainId,
+          year: year + 1,
+          title: plan.title,
+          createdBy
+        });
+        await duplicateDocumentLinks(trx, plan.id, copiedPlanId);
+      }
+    }
+  });
+
 export const programmingPlanDuplicationService = {
   duplicateSubPlan,
   duplicatePlan,
-  duplicateDomain
+  duplicateDomain,
+  duplicateCampaign
 };

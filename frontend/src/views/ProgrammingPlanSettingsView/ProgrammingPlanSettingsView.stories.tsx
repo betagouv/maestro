@@ -174,3 +174,85 @@ export const AddDomain: Story = {
     );
   }
 };
+
+const currentYear = new Date().getFullYear();
+const createProgrammingPlanCampaign = fn();
+
+export const InitiateCampaign: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsRoute.link({ year: currentYear })
+    ],
+    apiClient: getMockApi({
+      useFindProgrammingPlanDomainsQuery: {
+        data: [currentYear - 1, currentYear].map((year) =>
+          genProgrammingPlanDomain({ year })
+        )
+      },
+      useFindProgrammingPlansQuery: { data: [] },
+      useCreateProgrammingPlanCampaignMutation: [
+        createProgrammingPlanCampaign,
+        {}
+      ]
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    createProgrammingPlanCampaign.mockClear();
+
+    await userEvent.click(
+      canvas.getByRole('button', {
+        name: `Initier la campagne ${currentYear + 1}`
+      })
+    );
+
+    const modal = within(
+      canvasElement.querySelector<HTMLElement>(
+        '#programming-plan-campaign-initiate-modal'
+      ) as HTMLElement
+    );
+
+    await waitFor(() =>
+      expect(
+        modal.getByText(
+          `La campagne ${currentYear} sera dupliquée dans son intégralité pour servir de base à la campagne ${currentYear + 1}.`
+        )
+      ).toBeVisible()
+    );
+
+    await userEvent.click(
+      modal.getByRole('button', {
+        name: `Initier la campagne ${currentYear + 1}`
+      })
+    );
+
+    await waitFor(() =>
+      expect(createProgrammingPlanCampaign).toHaveBeenCalledOnce()
+    );
+  }
+};
+
+export const CampaignAlreadyInitiated: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsRoute.link({ year: currentYear })
+    ],
+    apiClient: getMockApi({
+      useFindProgrammingPlanDomainsQuery: {
+        data: [currentYear, currentYear + 1].map((year) =>
+          genProgrammingPlanDomain({ year })
+        )
+      },
+      useFindProgrammingPlansQuery: { data: [] }
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByText('Tous les domaines (1)')).toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: /Initier la campagne/ })
+    ).not.toBeInTheDocument();
+  }
+};

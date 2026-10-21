@@ -9,13 +9,15 @@ import {
   ProgrammingPlanSettings
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { genDocument } from 'maestro-shared/test/documentFixtures';
 import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAVolailleInProgressSubPlanFixture,
-  PPVInProgressProgrammingPlanFixture
+  PPVInProgressProgrammingPlanFixture, PPVSubmittedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { NationalCoordinatorDaoaFixture } from 'maestro-shared/test/userFixtures';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { documentRepository } from '../repositories/documentRepository';
 import { kysely } from '../repositories/kysely';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { programmingPlanDuplicationService } from './programmingPlanDuplicationService';
@@ -447,6 +449,172 @@ describe('duplicateDomain', () => {
 
     await expect(titlesOf(copiedDomainId)).resolves.toStrictEqual(
       await titlesOf(DAOAInProgressProgrammingPlanFixture.domainId)
+    );
+  });
+});
+
+describe('duplicateCampaign', () => {
+  const sourceYear = PPVSubmittedProgrammingPlanFixture.year;
+  const document = genDocument({
+    createdBy: NationalCoordinatorDaoaFixture.id,
+    year: null,
+    programmingPlanIds: [PPVSubmittedProgrammingPlanFixture.id]
+  });
+
+  const duplicateCampaign = async () => {
+    await programmingPlanDuplicationService.duplicateCampaign(
+      sourceYear,
+      NationalCoordinatorDaoaFixture.id
+    );
+    const copiedDomains = await kysely
+      .selectFrom('programmingPlanDomains')
+      .selectAll()
+      .where('year', '=', sourceYear + 1)
+      .execute();
+    createdDomainIds.push(...copiedDomains.map((_) => _.id));
+    return copiedDomains;
+  };
+
+  const plansOfYear = (year: number) =>
+    kysely
+      .selectFrom('programmingPlans')
+      .innerJoin(
+        'programmingPlanDomains',
+        'programmingPlanDomains.id',
+        'programmingPlans.domainId'
+      )
+      .select([
+        'programmingPlans.id',
+        'programmingPlans.title',
+        'programmingPlans.year',
+        'programmingPlans.settingsCompleted',
+        'programmingPlans.closedAt',
+        'programmingPlanDomains.label'
+      ])
+      .where('programmingPlanDomains.year', '=', year)
+      .orderBy('programmingPlans.title')
+      .execute();
+
+  const subPlanNumbersOfYear = async (year: number) =>
+    (
+      await kysely
+        .selectFrom('programmingSubPlansRaw')
+        .innerJoin(
+          'programmingPlans',
+          'programmingPlans.id',
+          'programmingSubPlansRaw.programmingPlanId'
+        )
+        .select('programmingSubPlansRaw.subPlanNumber')
+        .where('programmingPlans.year', '=', year)
+        .orderBy('programmingSubPlansRaw.subPlanNumber')
+        .execute()
+    ).map((_) => _.subPlanNumber);
+
+  beforeEach(async () => {
+    await documentRepository.insert(document);
+    await kysely
+      .updateTable('programmingPlans')
+      .set({
+        closedAt: new Date(),
+        closedBy: NationalCoordinatorDaoaFixture.id
+      })
+      .where('id', '=', PPVSubmittedProgrammingPlanFixture.id)
+      .execute();
+  });
+
+  afterEach(async () => {
+    await kysely
+      .deleteFrom('documents')
+      .where('id', '=', document.id)
+      .execute();
+    await kysely
+      .updateTable('programmingPlans')
+      .set({ closedAt: null, closedBy: null })
+      .where('id', '=', PPVSubmittedProgrammingPlanFixture.id)
+      .execute();
+  });
+
+  test('should copy the domains of the year into the next one, labels unchanged', async () => {
+    const copiedDomains = await duplicateCampaign();
+
+    const sourceDomains = await kysely
+      .selectFrom('programmingPlanDomains')
+      .select('label')
+      .where('year', '=', sourceYear)
+      .execute();
+
+    expect(copiedDomains.map((_) => _.label)).toStrictEqual(
+      sourceDomains.map((_) => _.label)
+    );
+  });
+
+  test('should copy the plans into the next year, titles unchanged and settings, launch and closure reset', async () => {
+    await duplicateCampaign();
+
+    const sourcePlans = await plansOfYear(sourceYear);
+    const copiedPlans = await plansOfYear(sourceYear + 1);
+
+    expect(copiedPlans.map((_) => [_.label, _.title])).toStrictEqual(
+      sourcePlans.map((_) => [_.label, _.title])
+    );
+    for (const plan of copiedPlans) {
+      expect(plan).toMatchObject({
+        year: sourceYear + 1,
+        settingsCompleted: false,
+        closedAt: null
+      });
+    }
+  });
+
+  test('should keep the sub-plan numbers and give each copy an empty prescription', async () => {
+    await duplicateCampaign();
+
+    await expect(subPlanNumbersOfYear(sourceYear + 1)).resolves.toStrictEqual(
+      await subPlanNumbersOfYear(sourceYear)
+    );
+
+    const copiedSubPlans = await kysely
+      .selectFrom('programmingSubPlansRaw')
+      .innerJoin(
+        'programmingPlans',
+        'programmingPlans.id',
+        'programmingSubPlansRaw.programmingPlanId'
+      )
+      .select('programmingSubPlansRaw.id')
+      .where('programmingPlans.year', '=', sourceYear + 1)
+      .execute();
+
+    expect(copiedSubPlans.length).toBeGreaterThan(0);
+    for (const { id } of copiedSubPlans) {
+      const rows = await prescriptionsOf(id);
+      expect(rows.length).toBeGreaterThan(0);
+      for (const row of rows) {
+        expect(row).toMatchObject({
+          prescriptionSampleCount: 0,
+          sampleCount: 0
+        });
+      }
+    }
+  });
+
+  test('should link the copied plans to the documents of their source', async () => {
+    await duplicateCampaign();
+
+    const [copiedPlan] = (await plansOfYear(sourceYear + 1)).filter(
+      (plan) => plan.title === PPVSubmittedProgrammingPlanFixture.title
+    );
+
+    await expect(
+      kysely
+        .selectFrom('documentProgrammingPlans')
+        .select('programmingPlanId')
+        .where('documentId', '=', document.id)
+        .orderBy('programmingPlanId')
+        .execute()
+    ).resolves.toStrictEqual(
+      [PPVSubmittedProgrammingPlanFixture.id, copiedPlan.id]
+        .sort()
+        .map((programmingPlanId) => ({ programmingPlanId }))
     );
   });
 });

@@ -11,12 +11,14 @@ interface Props {
   title: string;
   years?: number[];
   render: (year: number) => React.ReactNode;
+  action?: (year: number) => React.ReactNode;
 }
 
 export const AppPageWithYearTitle = ({
   title,
   years,
   render,
+  action,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -63,6 +65,7 @@ export const AppPageWithYearTitle = ({
         />
       }
       documentTitle={title}
+      action={isNil(year) ? undefined : action?.(year)}
     >
       {isNil(year) ? null : render(year)}
     </AppPage>

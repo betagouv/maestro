@@ -33,3 +33,12 @@ export const ProgrammingPlanDomainUpdateInput =
 export type ProgrammingPlanDomainUpdateInput = z.infer<
   typeof ProgrammingPlanDomainUpdateInput
 >;
+
+export const canInitiateNextCampaign = (
+  years: number[],
+  year: number,
+  today: Date
+) =>
+  year === today.getFullYear() &&
+  years.includes(year) &&
+  !years.includes(year + 1);

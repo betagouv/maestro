@@ -1,3 +1,4 @@
+import { canInitiateNextCampaign } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import { isProgrammingPlanDomainDeletable } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { HttpStatus } from '../constants/httpStatus';
@@ -19,6 +20,26 @@ export const programmingPlanDomainRouter = {
       const domain = await programmingPlanDomainRepository.insert(body);
 
       return { response: domain, status: HttpStatus.CREATED };
+    }
+  },
+  '/programming-plan-domains/campaigns': {
+    post: async ({ user }) => {
+      const today = new Date();
+      const year = today.getFullYear();
+      const years = [
+        ...(await programmingPlanDomainRepository.findMany()),
+        ...(await programmingPlanRepository.findMany({ year: year + 1 }))
+      ].map((_) => _.year);
+
+      if (!canInitiateNextCampaign(years, year, today)) {
+        return { status: HttpStatus.CONFLICT };
+      }
+
+      console.info('Initiate programming plan campaign', year + 1);
+
+      await programmingPlanDuplicationService.duplicateCampaign(year, user.id);
+
+      return { status: HttpStatus.CREATED };
     }
   },
   '/programming-plan-domains/:programmingPlanDomainId/duplicate': {

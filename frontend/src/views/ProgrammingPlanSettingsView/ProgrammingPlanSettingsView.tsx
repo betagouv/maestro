@@ -10,6 +10,7 @@ import { AppPageWithYearTitle } from 'src/components/_app/AppPage/AppPageWithYea
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 
+import { ProgrammingPlanCampaignInitiate } from './ProgrammingPlanCampaignInitiate/ProgrammingPlanCampaignInitiate';
 import { ProgrammingPlanDomainCreateModal } from './ProgrammingPlanDomainCreateModal';
 import { ProgrammingPlanSettingsCard } from './ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard';
 
@@ -28,10 +29,15 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
 
+  const years = domains.map((domain) => domain.year);
+
   return (
     <AppPageWithYearTitle
       title="Paramétrage des plans"
-      years={domains.map((domain) => domain.year)}
+      years={years}
+      action={(year) => (
+        <ProgrammingPlanCampaignInitiate year={year} years={years} />
+      )}
       render={(year) => {
         const plansByDomainId = groupBy(programmingPlans, 'domainId');
         const yearDomains = domains.filter((domain) => domain.year === year);
