@@ -11,6 +11,7 @@ import {
   RegionList,
   Regions
 } from 'maestro-shared/referential/Region';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import type { Company } from 'maestro-shared/schema/Company/Company';
 import {
   type LocalPrescription,
@@ -25,7 +26,11 @@ import type { Prescription } from 'maestro-shared/schema/Prescription/Prescripti
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  findPrescriptionSubPlan,
+  stagesFromSubPlans
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isDefined } from 'maestro-shared/utils/utils';
 import {
   Fragment,
   useCallback,
@@ -778,6 +783,13 @@ const ProgrammingPrescriptionTable = ({
                   subLocalPrescriptions.filter((r) =>
                     contextPrescriptionIds.has(r.prescriptionId)
                   );
+                const contextStages = stagesFromSubPlans(
+                  contextPrescriptions
+                    .map((prescription) =>
+                      findPrescriptionSubPlan(programmingPlans, prescription)
+                    )
+                    .filter(isDefined)
+                );
 
                 return (
                   <Fragment key={`plan-group-${planId}-${context}`}>
@@ -805,6 +817,9 @@ const ProgrammingPrescriptionTable = ({
                         {[
                           domainLabels[plan.domainId],
                           plan.title,
+                          contextStages
+                            .map((stage) => StageLabels[stage])
+                            .join(', '),
                           context ? ContextLabels[context] : ''
                         ]
                           .filter(Boolean)
