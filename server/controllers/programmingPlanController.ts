@@ -40,7 +40,8 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isProgrammingSubPlanDeletable,
-  stagesFromSubPlans
+  stagesFromSubPlans,
+  subPlanNumberIssue
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 
 import {
@@ -1251,6 +1252,18 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           return { status: HttpStatus.NOT_FOUND };
         }
 
+        const subPlanNumber =
+          body.subPlanNumber ?? programmingSubPlan.subPlanNumber;
+        const changesSubPlanNumber =
+          subPlanNumber !== programmingSubPlan.subPlanNumber;
+
+        if (
+          changesSubPlanNumber &&
+          !hasAccountPermission(account.roles, 'administrationMaestro')
+        ) {
+          return { status: HttpStatus.FORBIDDEN };
+        }
+
         if (
           hasUnknownSubPlanMatrixCodes(
             await matrixRepository.findReferential(),
@@ -1261,6 +1274,14 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
         }
 
         if (
+          (changesSubPlanNumber &&
+            subPlanNumberIssue(
+              programmingSubPlan.subPlanNumber,
+              subPlanNumber,
+              await programmingSubPlanRepository.findYearSubPlanNumbers(
+                programmingPlan.year
+              )
+            )) ||
           inheritsUnmanagedSetting(body, programmingPlan) ||
           (body.settingsCompleted &&
             completedSubPlanSettingIssues(

@@ -68,6 +68,34 @@ export const isPPVSubPlan = (
   subPlan?: Pick<ProgrammingSubPlan, 'subPlanNumber'> | null
 ): boolean => isPPVSubPlanNumber(subPlan?.subPlanNumber);
 
+type SubPlanNumberIssue = 'Empty' | 'Duplicate' | 'PPVPrefix';
+
+export const SubPlanNumberIssueMessages: Record<SubPlanNumberIssue, string> = {
+  Empty: 'Veuillez renseigner le code Nat.',
+  Duplicate: 'Ce code est déjà utilisé par un autre sous-plan de l’année.',
+  PPVPrefix: 'Le préfixe PPV ne peut être ni ajouté ni retiré.'
+};
+
+export const subPlanNumberIssue = (
+  currentSubPlanNumber: string,
+  subPlanNumber: string,
+  yearSubPlanNumbers: string[]
+): SubPlanNumberIssue | undefined => {
+  if (subPlanNumber === currentSubPlanNumber) {
+    return undefined;
+  }
+  if (subPlanNumber.trim() === '') {
+    return 'Empty';
+  }
+  if (
+    isPPVSubPlanNumber(subPlanNumber) !==
+    isPPVSubPlanNumber(currentSubPlanNumber)
+  ) {
+    return 'PPVPrefix';
+  }
+  return yearSubPlanNumbers.includes(subPlanNumber) ? 'Duplicate' : undefined;
+};
+
 export const analysisPermissionRoles = (
   subPlan: Pick<ProgrammingSubPlan, 'subPlanNumber' | 'stages'>
 ): UserRole[] =>

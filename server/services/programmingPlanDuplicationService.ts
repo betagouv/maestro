@@ -5,6 +5,7 @@ import { executeTransaction } from '../repositories/kysely';
 import type { DB } from '../repositories/kysely.type';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import { toProgrammingPlanSettingsRow } from '../repositories/programmingPlanSettingsRow';
+import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 
 const COPY_SUFFIX = '(copie)';
 
@@ -266,7 +267,13 @@ const duplicatePlanWithin = async (
       trx,
       subPlan.id,
       copiedPlanId,
-      subPlan.subPlanNumber
+      nextSubPlanNumber(
+        subPlan.subPlanNumber,
+        await programmingSubPlanRepository.findYearSubPlanNumbers(
+          sourcePlan.year,
+          trx
+        )
+      )
     );
   }
 
@@ -284,11 +291,11 @@ const duplicateSubPlan = async (
       .where('id', '=', programmingSubPlanId)
       .executeTakeFirstOrThrow();
 
-    const siblings = await trx
-      .selectFrom('programmingSubPlansRaw')
-      .select('subPlanNumber')
-      .where('programmingPlanId', '=', programmingPlanId)
-      .execute();
+    const { year } = await trx
+      .selectFrom('programmingPlans')
+      .select('year')
+      .where('id', '=', programmingPlanId)
+      .executeTakeFirstOrThrow();
 
     return duplicateSubPlanWithin(
       trx,
@@ -296,7 +303,7 @@ const duplicateSubPlan = async (
       programmingPlanId,
       nextSubPlanNumber(
         subPlanNumber,
-        siblings.map((_) => _.subPlanNumber)
+        await programmingSubPlanRepository.findYearSubPlanNumbers(year, trx)
       )
     );
   });

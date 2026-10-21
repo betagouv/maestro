@@ -5,7 +5,11 @@ import {
   genSubPlanMatrices
 } from '../../test/programmingPlanFixtures';
 import type { Matrix, MatrixKind } from '../Matrix/MatrixReferential';
-import { analysisPermissionRoles, subPlanLabel } from './ProgrammingSubPlan';
+import {
+  analysisPermissionRoles,
+  subPlanLabel,
+  subPlanNumberIssue
+} from './ProgrammingSubPlan';
 
 describe('subPlanLabel', () => {
   test('should join the stage, the matrices, the analytes and the context', () => {
@@ -105,5 +109,40 @@ describe('analysisPermissionRoles', () => {
         genProgrammingSubPlan({ subPlanNumber: 'M03', stages: null })
       )
     ).toEqual(['Sampler', 'DepartmentalCoordinator']);
+  });
+});
+
+describe('subPlanNumberIssue', () => {
+  const yearSubPlanNumbers = ['M01', 'M02', 'PPV01'];
+
+  test('should accept an unchanged number, even if another sub-plan uses it', () => {
+    expect(
+      subPlanNumberIssue('M01', 'M01', [...yearSubPlanNumbers, 'M01'])
+    ).toBeUndefined();
+  });
+
+  test('should accept a number free in the year', () => {
+    expect(
+      subPlanNumberIssue('M01', 'M09', yearSubPlanNumbers)
+    ).toBeUndefined();
+  });
+
+  test('should reject an empty number', () => {
+    expect(subPlanNumberIssue('M01', '  ', yearSubPlanNumbers)).toBe('Empty');
+  });
+
+  test('should reject a number used by another sub-plan of the year', () => {
+    expect(subPlanNumberIssue('M01', 'M02', yearSubPlanNumbers)).toBe(
+      'Duplicate'
+    );
+  });
+
+  test.each([
+    ['PPV01', 'M05'],
+    ['M01', 'PPV05']
+  ])('should reject %s → %s, which changes the PPV prefix', (current, next) => {
+    expect(subPlanNumberIssue(current, next, yearSubPlanNumbers)).toBe(
+      'PPVPrefix'
+    );
   });
 });

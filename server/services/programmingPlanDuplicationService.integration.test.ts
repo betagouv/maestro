@@ -4,11 +4,15 @@ import {
   defaultProgrammingPlanSample,
   type ProgrammingPlanSampleSetting
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
-import { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
+import {
+  emptyProgrammingPlanSettings,
+  ProgrammingPlanSettings
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   DAOAInProgressProgrammingPlanFixture,
-  DAOAVolailleInProgressSubPlanFixture
+  DAOAVolailleInProgressSubPlanFixture,
+  PPVInProgressProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { NationalCoordinatorDaoaFixture } from 'maestro-shared/test/userFixtures';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
@@ -178,6 +182,22 @@ describe('duplicateSubPlan', () => {
     });
   });
 
+  test('should skip a number taken by another plan of the year', async () => {
+    createdSubPlanIds.push(
+      await programmingSubPlanRepository.insert({
+        ...emptyProgrammingPlanSettings(false),
+        programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
+        subPlanNumber: 'M03'
+      })
+    );
+
+    const copiedSubPlanId = await duplicateSubPlan();
+
+    await expect(
+      programmingSubPlanRepository.findUnique(copiedSubPlanId)
+    ).resolves.toMatchObject({ subPlanNumber: 'M04' });
+  });
+
   test('should copy the own settings, samples included', async () => {
     const copiedSubPlanId = await duplicateSubPlan();
 
@@ -326,7 +346,7 @@ describe('duplicatePlan', () => {
     );
   });
 
-  test('should copy the sub-plans keeping their numbers', async () => {
+  test('should renumber the copied sub-plans to keep their numbers unique in the year', async () => {
     const copiedPlanId = await duplicatePlan();
 
     const numbersOf = async (planId: string) =>
@@ -339,9 +359,14 @@ describe('duplicatePlan', () => {
           .execute()
       ).map((_) => _.subPlanNumber);
 
-    await expect(numbersOf(copiedPlanId)).resolves.toStrictEqual(
-      await numbersOf(sourcePlanId)
-    );
+    await expect(numbersOf(sourcePlanId)).resolves.toStrictEqual([
+      'M01',
+      'M02'
+    ]);
+    await expect(numbersOf(copiedPlanId)).resolves.toStrictEqual([
+      'M03',
+      'M04'
+    ]);
   });
 
   test('should give each copied sub-plan an empty prescription', async () => {
@@ -380,6 +405,31 @@ describe('duplicateDomain', () => {
       label: `${source.label} (copie)`,
       year: source.year
     });
+  });
+
+  test('should renumber the copied sub-plans to keep their numbers unique in the year', async () => {
+    const copiedDomainId = await duplicateDomain();
+
+    const copiedNumbers = (
+      await kysely
+        .selectFrom('programmingSubPlansRaw')
+        .innerJoin(
+          'programmingPlans',
+          'programmingPlans.id',
+          'programmingSubPlansRaw.programmingPlanId'
+        )
+        .select('programmingSubPlansRaw.subPlanNumber')
+        .where('programmingPlans.domainId', '=', copiedDomainId)
+        .orderBy('programmingSubPlansRaw.subPlanNumber')
+        .execute()
+    ).map((_) => _.subPlanNumber);
+
+    expect(copiedNumbers).toStrictEqual(['M03', 'M04', 'PPV02']);
+
+    const numbers = await programmingSubPlanRepository.findYearSubPlanNumbers(
+      DAOAInProgressProgrammingPlanFixture.year
+    );
+    expect(new Set(numbers).size).toBe(numbers.length);
   });
 
   test('should copy its plans without suffixing their titles', async () => {

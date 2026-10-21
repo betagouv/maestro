@@ -26,13 +26,17 @@ export const newSubPlanSettings = (
     )
   );
 
-export const newSubPlanNumber = (subPlanNumbers: string[]): string => {
-  const ppvSubPlanNumbers = subPlanNumbers.filter(isPPVSubPlanNumber);
+export const newSubPlanNumber = (
+  planSubPlanNumbers: string[],
+  yearSubPlanNumbers: string[]
+): string => {
+  const ppvSubPlanNumbers = planSubPlanNumbers.filter(isPPVSubPlanNumber);
 
   return nextSubPlanNumber(
-    max(ppvSubPlanNumbers.length > 0 ? ppvSubPlanNumbers : subPlanNumbers) ??
-      '',
-    subPlanNumbers
+    max(
+      ppvSubPlanNumbers.length > 0 ? ppvSubPlanNumbers : planSubPlanNumbers
+    ) ?? '',
+    yearSubPlanNumbers
   );
 };
 
@@ -41,7 +45,11 @@ const createSubPlan = async (
 ): Promise<ProgrammingSubPlanId> =>
   executeTransaction(async (trx) => {
     const subPlanNumber = newSubPlanNumber(
-      programmingPlan.subPlans.map(({ subPlanNumber }) => subPlanNumber)
+      programmingPlan.subPlans.map(({ subPlanNumber }) => subPlanNumber),
+      await programmingSubPlanRepository.findYearSubPlanNumbers(
+        programmingPlan.year,
+        trx
+      )
     );
 
     const id = await programmingSubPlanRepository.insert(
