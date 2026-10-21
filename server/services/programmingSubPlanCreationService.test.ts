@@ -38,18 +38,31 @@ describe('newSubPlanSettings', () => {
 
 describe('newSubPlanNumber', () => {
   test('should number the first sub-plan of a plan', () => {
-    expect(newSubPlanNumber([])).toBe('01');
+    expect(newSubPlanNumber([], [])).toBe('01');
   });
 
   test('should take the number following the greatest one', () => {
-    expect(newSubPlanNumber(['M02', 'M01'])).toBe('M03');
+    expect(newSubPlanNumber(['M02', 'M01'], ['M02', 'M01'])).toBe('M03');
   });
 
   test('should keep the PPV prefix', () => {
-    expect(newSubPlanNumber(['PPV01', 'PPV02'])).toBe('PPV03');
+    expect(newSubPlanNumber(['PPV01', 'PPV02'], ['PPV01', 'PPV02'])).toBe(
+      'PPV03'
+    );
   });
 
   test('should follow the greatest PPV number when the plan mixes prefixes', () => {
-    expect(newSubPlanNumber(['PPV01', 'PPV07', 'Z01'])).toBe('PPV08');
+    const planSubPlanNumbers = ['PPV01', 'PPV07', 'Z01'];
+    expect(newSubPlanNumber(planSubPlanNumbers, planSubPlanNumbers)).toBe(
+      'PPV08'
+    );
+  });
+
+  test('should skip the numbers taken by the other plans of the year', () => {
+    expect(newSubPlanNumber(['M01', 'M02'], ['M01', 'M02', 'M03'])).toBe('M04');
+  });
+
+  test('should skip a number taken in the year for the first sub-plan of a plan', () => {
+    expect(newSubPlanNumber([], ['01'])).toBe('02');
   });
 });

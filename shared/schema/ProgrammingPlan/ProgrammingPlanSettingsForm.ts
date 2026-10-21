@@ -15,6 +15,7 @@ import {
   ProgrammingPlanRequiredSettingKey,
   ProgrammingPlanSettings
 } from './ProgrammingPlanSettings';
+import { SubPlanNumberIssueMessages } from './ProgrammingSubPlan';
 
 const hasUniqueFields = (fields: { fieldId: string }[]): boolean =>
   new Set(fields.map(({ fieldId }) => fieldId)).size === fields.length;
@@ -165,7 +166,13 @@ export type ProgrammingPlanSettingsForm = z.infer<
 >;
 
 export const ProgrammingSubPlanSettingsForm = checkSchema(
-  SubPlanSettingsFormShape,
+  SubPlanSettingsFormShape.extend({
+    subPlanNumber: z
+      .string()
+      .trim()
+      .min(1, SubPlanNumberIssueMessages.Empty)
+      .optional()
+  }),
   checkCompleteness('subPlan'),
   checkSamplesCoverSubstanceKinds('subPlan'),
   checkSubstancesOverlap('subPlan')

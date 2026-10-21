@@ -70,7 +70,8 @@ const findMany = async (
 const updateSettings = async (
   id: ProgrammingSubPlanId,
   settings: Partial<
-    ProgrammingPlanSettings & Pick<ProgrammingSubPlan, 'settingsCompleted'>
+    ProgrammingPlanSettings &
+      Pick<ProgrammingSubPlan, 'settingsCompleted' | 'subPlanNumber'>
   >,
   executor: KyselyMaestro = kysely
 ): Promise<void> => {
@@ -81,6 +82,24 @@ const updateSettings = async (
     .set(toProgrammingPlanSettingsRow(settings))
     .where('id', '=', id)
     .execute();
+};
+
+const findYearSubPlanNumbers = async (
+  year: number,
+  executor: KyselyMaestro = kysely
+): Promise<string[]> => {
+  const rows = await executor
+    .selectFrom('programmingSubPlansRaw')
+    .innerJoin(
+      'programmingPlans',
+      'programmingPlans.id',
+      'programmingSubPlansRaw.programmingPlanId'
+    )
+    .select('programmingSubPlansRaw.subPlanNumber')
+    .where('programmingPlans.year', '=', year)
+    .execute();
+
+  return rows.map(({ subPlanNumber }) => subPlanNumber);
 };
 
 const insert = async (
@@ -124,6 +143,7 @@ const deleteOne = async (id: ProgrammingSubPlanId): Promise<void> => {
 export const programmingSubPlanRepository = {
   findUnique,
   findMany,
+  findYearSubPlanNumbers,
   insert,
   updateSettings,
   deleteOne

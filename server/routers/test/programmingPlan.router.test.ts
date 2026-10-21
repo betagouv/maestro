@@ -140,6 +140,7 @@ describe('ProgrammingPlan router', () => {
         ...pickProgrammingPlanSettings(subPlan),
         matrices: subPlan.matrices,
         context: subPlan.context,
+        subPlanNumber: subPlan.subPlanNumber,
         settingsCompleted: false
       });
     }
@@ -2282,6 +2283,33 @@ describe('ProgrammingPlan router', () => {
         .send(validBody)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should let only an administrator change the sub-plan number', async () => {
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send({ ...validBody, subPlanNumber: 'M09' })
+        .use(tokenProvider(NationalCoordinatorDaoaFixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should change the sub-plan number', async () => {
+      const before = await request(app)
+        .get(daoaVolailleRoute)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send({ ...before.body, subPlanNumber: 'M09' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      await expect(
+        programmingSubPlanRepository.findUnique(
+          DAOAVolailleInProgressSubPlanFixture.id
+        )
+      ).resolves.toMatchObject({ subPlanNumber: 'M09' });
     });
 
     test('should get a valid body', async () => {

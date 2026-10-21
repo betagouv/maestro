@@ -552,8 +552,11 @@ export const SubPlan: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
+    await expect(canvas.getByRole('textbox', { name: 'Code Nat' })).toHaveValue(
+      '101'
+    );
     await expect(
-      canvas.getByRole('heading', { name: `101 - ${cerealesName}` })
+      canvas.getByRole('heading', { name: cerealesName })
     ).toBeInTheDocument();
 
     await expect(
@@ -660,6 +663,101 @@ export const SubPlanSave: Story = {
         })
       );
     }
+  }
+};
+
+export const SubPlanNumberSave: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    const subPlanNumber = canvas.getByRole('textbox', { name: 'Code Nat' });
+    await userEvent.clear(subPlanNumber);
+    await userEvent.type(subPlanNumber, '109');
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        programmingSubPlanId: CerealesSubPlanId,
+        ...subPlanSettings[CerealesSubPlanId],
+        subPlanNumber: '109',
+        settingsCompleted: false
+      })
+    );
+  }
+};
+
+export const SubPlanNumberAlreadyUsed: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    const subPlanNumber = canvas.getByRole('textbox', { name: 'Code Nat' });
+    await userEvent.clear(subPlanNumber);
+    await userEvent.type(subPlanNumber, '102');
+
+    await expect(
+      canvas.getByText(
+        'Ce code est déjà utilisé par un autre sous-plan de l’année.'
+      )
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await expect(updateProgrammingSubPlanSettings).not.toHaveBeenCalled();
+  }
+};
+
+export const SubPlanNumberReadOnlyForCoordinator: Story = {
+  parameters: {
+    preloadedState: {
+      auth: {
+        authUser: genAuthUser({
+          userRole: 'NationalCoordinator',
+          id: nationalCoordinator.id
+        })
+      }
+    },
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByRole('heading', { name: `101 - ${cerealesName}` })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('textbox', { name: 'Code Nat' })
+    ).not.toBeInTheDocument();
   }
 };
 
@@ -961,7 +1059,7 @@ export const SubPlanErrorsClearedOnNavigation: Story = {
     await userEvent.click(canvas.getByText(`102 - ${fruitsName}`));
     await discardUnsavedChanges(canvasElement);
     await expect(
-      await canvas.findByRole('heading', { name: `102 - ${fruitsName}` })
+      await canvas.findByRole('heading', { name: fruitsName })
     ).toBeInTheDocument();
     await userEvent.click(canvas.getByRole('tab', { name: 'Échantillons' }));
 
@@ -2317,7 +2415,7 @@ export const SubPlanAdd: Story = {
       })
     );
     await expect(
-      await canvas.findByRole('heading', { name: `102 - ${fruitsName}` })
+      await canvas.findByRole('heading', { name: fruitsName })
     ).toBeInTheDocument();
   }
 };

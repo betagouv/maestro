@@ -49,6 +49,9 @@ type Props = {
   subPlan: ProgrammingSubPlan | undefined;
   titleDraft: string | undefined;
   onResetTitle: () => void;
+  subPlanNumberDraft: string | undefined;
+  subPlanNumberInvalid: boolean;
+  onResetSubPlanNumber: () => void;
 };
 
 const emptySettings: ProgrammingLevelSettingsForm = {
@@ -110,6 +113,9 @@ export const ProgrammingPlanSettingsTabs = ({
   subPlan,
   titleDraft,
   onResetTitle,
+  subPlanNumberDraft,
+  subPlanNumberInvalid,
+  onResetSubPlanNumber,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -171,11 +177,16 @@ export const ProgrammingPlanSettingsTabs = ({
   const hasTitleChange =
     titleDraft !== undefined && titleDraft !== programmingPlan.title;
 
+  const hasSubPlanNumberChange =
+    subPlanNumberDraft !== undefined &&
+    subPlanNumberDraft !== subPlan?.subPlanNumber;
+
   const resetDraft = () => {
     setDraft(settings);
     setTechnicalInstructionFile(undefined);
     createDocumentUploadCall.reset();
     onResetTitle();
+    onResetSubPlanNumber();
   };
 
   useEffect(resetDraft, [settings]);
@@ -184,7 +195,8 @@ export const ProgrammingPlanSettingsTabs = ({
     !!draft &&
     (!isEqual(draft, settings) ||
       technicalInstructionFile !== undefined ||
-      hasTitleChange);
+      hasTitleChange ||
+      hasSubPlanNumberChange);
 
   const unsavedChangesGuard = useUnsavedChangesGuard({
     when: hasChanges,
@@ -244,6 +256,9 @@ export const ProgrammingPlanSettingsTabs = ({
         await updateProgrammingSubPlanSettings({
           programmingPlanId,
           programmingSubPlanId: subPlan.id,
+          subPlanNumber: hasSubPlanNumberChange
+            ? subPlanNumberDraft
+            : undefined,
           ...pickProgrammingPlanSettings(withoutOrphanSubstances(draft)),
           fields: draft.fields,
           settingsCompleted
@@ -291,7 +306,7 @@ export const ProgrammingPlanSettingsTabs = ({
   };
 
   useEffect(() => {
-    if (!validation || !draft) {
+    if (!validation || !draft || subPlanNumberInvalid) {
       return;
     }
     form.validate(async () => {
