@@ -18,7 +18,7 @@ export default {
       ]
     },
     frontend: {
-      ignoreDependencies: ['geojson', '@gouvfr/dsfr-chart'],
+      ignoreDependencies: ['geojson'],
       ignore: ['src/serviceWorker.js']
     },
     shared: {}
