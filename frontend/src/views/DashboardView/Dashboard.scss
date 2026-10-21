@@ -8,9 +8,6 @@
   }
 
   .fr-card__title {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
     font-size: 1rem;
   }
 
@@ -23,7 +20,11 @@
   }
 
   .fr-card__start {
-    display: none;
+    margin-bottom: 0.5rem;
+
+    &:empty {
+      display: none;
+    }
   }
 
   .bullet {
@@ -38,29 +39,11 @@
     }
 
     &.in-progress {
-      background-color: var(--orange-terre-battue-main-645);
+      background-color: var(--yellow-tournesol-main-731);
     }
 
     &.remaining {
       background-color: var(--beige-gris-galet-950-100);
     }
-  }
-}
-
-.dashboard-priority-actions-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  height: 100%;
-
-  .fr-card,
-  .fr-tile {
-    height: fit-content;
-  }
-
-  .more-actions-link {
-    flex-grow: 1;
-    align-content: end;
-    align-self: center;
   }
 }

@@ -1,0 +1,27 @@
+.territory-chart {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+
+  > *:first-child {
+    flex-grow: 1;
+    min-width: 0;
+  }
+}
+
+.territory-chart-overflows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  min-width: 2.5rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 1.25rem;
+  }
+}

@@ -176,6 +176,7 @@ const defaultMockApiClientConf: MockApi = {
   useFindMatrixReferentialQuery: { data: MatrixReferentialFixture },
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
+  useGetDashboardStatsQuery: { data: undefined },
   useFindPrescriptionCountsQuery: {
     data: {
       subPlanCount: 0,
@@ -327,9 +328,7 @@ const defaultMockApiClientConf: MockApi = {
   useCreateAnalysisDaiMutation: [fn(), {}],
   useUpdateAnalysisDaiErrorMutation: [fn(), {}],
   useGetAnalysisRaiQuery: { data: { rais: [], total: 0 } },
-  useReplayAnalysisRaiMutation: [fn(), {}],
-  useGetResidueStatsQuery: { data: [] },
-  useGetComplianceStatsQuery: { data: [] }
+  useReplayAnalysisRaiMutation: [fn(), {}]
 };
 
 export const mockApiClient = getMockApi({});

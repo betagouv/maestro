@@ -12,6 +12,10 @@ import {
   ComplianceStat,
   FindComplianceStatsOptions
 } from '../schema/Sample/ComplianceStat';
+import {
+  DashboardStats,
+  FindDashboardStatsOptions
+} from '../schema/Sample/DashboardStats';
 import { FindSampleOptions } from '../schema/Sample/FindSampleOptions';
 import {
   PartialSample,
@@ -22,6 +26,13 @@ import { SampleItemUpdate } from '../schema/Sample/SampleItem';
 import type { SubRoutes } from './routes';
 
 export const samplesRoutes = {
+  '/samples/dashboard-stats': {
+    get: {
+      query: FindDashboardStatsOptions,
+      permissions: ['readSamples'],
+      response: DashboardStats
+    }
+  },
   '/samples/compliance-stats': {
     get: {
       query: FindComplianceStatsOptions,

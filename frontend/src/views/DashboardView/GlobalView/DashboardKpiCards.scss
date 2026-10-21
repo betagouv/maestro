@@ -1,0 +1,19 @@
+.kpi-details {
+  background-color: var(--background-alt-blue-france);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem
+}
+
+.kpi-detail-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .kpi-detail-value {
+    flex-grow: 1;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
