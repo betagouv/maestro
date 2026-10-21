@@ -256,7 +256,11 @@ export const SelectMatrixInModal: Story = {
 
     await userEvent.click(modal.getByRole('button', { name: 'Enregistrer' }));
 
-    await waitFor(() => expect(modalElement).not.toBeVisible());
+    await waitFor(() =>
+      expect(
+        modal.queryByRole('button', { name: 'Enregistrer' })
+      ).not.toBeInTheDocument()
+    );
     await expect(args.onChange).toHaveBeenCalledWith({
       operator: 'Or',
       items: [
