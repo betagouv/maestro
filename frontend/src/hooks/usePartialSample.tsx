@@ -1,4 +1,8 @@
 import {
+  hasCompanyEchelon,
+  hasDepartmentalEchelon
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
+import {
   isCreatedPartialSample,
   type PartialSample,
   type PartialSampleToCreate
@@ -83,21 +87,30 @@ export const usePartialSample = (
               ? partialSample.region
               : user?.region)
         )
-        .filter((localPrescription) =>
-          programmingPlan?.distributionKind === 'SLAUGHTERHOUSE'
-            ? localPrescription.department ===
-                (isCreatedPartialSample(partialSample)
-                  ? partialSample.department
-                  : user?.department) &&
-              (isCreatedPartialSample(partialSample)
-                ? localPrescription.companySiret ===
-                  partialSample?.company?.siret
-                : user?.companies.some(
-                    (company) =>
-                      company.siret === localPrescription.companySiret
-                  ))
-            : true
-        ),
+        .filter((localPrescription) => {
+          if (
+            !programmingPlan ||
+            !hasDepartmentalEchelon(programmingPlan.distributionKind)
+          ) {
+            return true;
+          }
+          if (
+            localPrescription.department !==
+            (isCreatedPartialSample(partialSample)
+              ? partialSample.department
+              : user?.department)
+          ) {
+            return false;
+          }
+          if (!hasCompanyEchelon(programmingPlan.distributionKind)) {
+            return true;
+          }
+          return isCreatedPartialSample(partialSample)
+            ? localPrescription.companySiret === partialSample?.company?.siret
+            : user?.companies.some(
+                (company) => company.siret === localPrescription.companySiret
+              );
+        }),
     [
       programmingPlanLocalPrescriptionsData,
       partialSample,

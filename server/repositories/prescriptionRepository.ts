@@ -8,6 +8,7 @@ import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   isPPVSubPlan,
+  PPVSubPlanNumberPrefix,
   type ProgrammingSubPlan,
   type ProgrammingSubPlanId
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -339,6 +340,12 @@ const distributedToRegions = (visibility?: PendingChangeVisibility) => `
     visibility
   )}`;
 
+const hasDepartmentalEchelonExpression = `not exists (
+  select 1 from ${programmingSubPlansTable} sibling
+  where sibling.programming_plan_id = ${programmingPlanIdColumn}
+    and sibling.sub_plan_number like '${PPVSubPlanNumberPrefix}%'
+)`;
+
 const missingDistributionExpression = (
   findOptions: FindPrescriptionOptions,
   visibility?: PendingChangeVisibility
@@ -346,12 +353,18 @@ const missingDistributionExpression = (
   const bindings = scopeBindings(findOptions, visibility);
 
   if (findOptions.department) {
-    return [distributedToSlaughterhouses(findOptions, visibility), bindings];
+    return [
+      `case when '${SlaughterhouseStage}' = any(${programmingSubPlansTable}.stages)
+       then ${distributedToSlaughterhouses(findOptions, visibility)}
+       else false
+       end`,
+      bindings
+    ];
   }
 
   if (findOptions.region) {
     return [
-      `case when '${SlaughterhouseStage}' = any(${programmingSubPlansTable}.stages)
+      `case when ${hasDepartmentalEchelonExpression}
        then ${distributedToDepartments(visibility)}
        else false
        end`,

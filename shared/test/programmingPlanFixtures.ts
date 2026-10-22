@@ -89,6 +89,18 @@ const DaoaNationalCoordinators = [
   }
 ];
 
+export const NationalCoordinatorAlanId = '15151515-1515-1515-1515-151515151515';
+const NationalCoordinatorAlanName = 'Alice Coordination';
+const NationalCoordinatorAlanEmail = 'alice.coordination@example.net';
+
+const AlanNationalCoordinators = [
+  {
+    id: NationalCoordinatorAlanId,
+    name: NationalCoordinatorAlanName,
+    email: NationalCoordinatorAlanEmail
+  }
+];
+
 const PPVClosedProgrammingPlanId = 'f5d510ef-ab78-449a-acd6-392895a1994f';
 const PPVValidatedProgrammingPlanId = 'd78fb3eb-1998-482b-9014-282d51ae30b8';
 const PPVValidatedDromProgrammingPlanId =
@@ -97,6 +109,7 @@ const PPVInProgressProgrammingPlanId = 'bac693a5-9475-4e24-a775-5532b0117e5b';
 const PPVSubmittedProgrammingPlanId = 'e7c8a1b2-9c3d-4f0e-9c5a-1a2b3c4d5e6f';
 const DAOAValidatedProgrammingPlanId = 'd2680960-a3b5-4091-a87b-e4c2467077fb';
 const DAOAInProgressProgrammingPlanId = 'fafc6f2e-aec5-4998-adeb-84090d971a90';
+const ALANProgrammingPlanId = 'a4f0c2d1-8b7e-4c3a-9d5f-6e1b2c3d4a5b';
 
 export const PPVValidatedSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1'
@@ -124,6 +137,12 @@ export const DAOAInProgressVolailleSubPlanId = ProgrammingSubPlanId.parse(
 );
 export const DAOAInProgressBovinSubPlanId = ProgrammingSubPlanId.parse(
   'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c4'
+);
+export const ALANRuminantsSubPlanId = ProgrammingSubPlanId.parse(
+  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4'
+);
+export const ALANVolaillesSubPlanId = ProgrammingSubPlanId.parse(
+  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d5'
 );
 
 const SachaSubPlanIds = [
@@ -269,6 +288,26 @@ export const DAOABovinInProgressSubPlanFixture = genProgrammingSubPlan({
   settingsCompleted: false,
   programmingInstruction: 'Instructions pour le foie de bovin',
   notes: 'Prescription pour le foie de bovin'
+});
+
+export const ALANRuminantsSubPlanFixture = genProgrammingSubPlan({
+  id: ALANRuminantsSubPlanId,
+  programmingPlanId: ALANProgrammingPlanId,
+  subPlanNumber: 'ALAN01',
+  stages: ['ALIMENTATION_ANIMALE'],
+  substanceKinds: ['Mono', 'Multi'],
+  matrices: genSubPlanMatrices('TODO_16' as MatrixKind),
+  context: 'Surveillance'
+});
+
+export const ALANVolaillesSubPlanFixture = genProgrammingSubPlan({
+  id: ALANVolaillesSubPlanId,
+  programmingPlanId: ALANProgrammingPlanId,
+  subPlanNumber: 'ALAN02',
+  stages: ['ALIMENTATION_ANIMALE'],
+  substanceKinds: ['Mono', 'Multi'],
+  matrices: genSubPlanMatrices('TODO_18' as MatrixKind),
+  context: 'Surveillance'
 });
 
 export const genProgrammingPlan = (
@@ -501,6 +540,30 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
       region,
       department,
       status: 'Validated'
+    }))
+  ),
+  year: new Date().getFullYear()
+});
+
+export const ALANProgrammingPlanFixture = genProgrammingPlan({
+  id: ALANProgrammingPlanId,
+  nationalCoordinators: AlanNationalCoordinators,
+  domainId: ChemicalContaminantDomainId,
+  title: 'Alimentation animale',
+  subPlans: [ALANRuminantsSubPlanFixture, ALANVolaillesSubPlanFixture],
+  distributionKind: 'DEPARTMENTAL',
+  createdAt: new Date(),
+  createdBy: NationalCoordinatorAlanId,
+  nationalStatus: { status: 'SubmittedToRegion' },
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'SubmittedToDepartments'
+  })),
+  departmentalStatus: RegionList.flatMap((region) =>
+    Regions[region].departments.map((department) => ({
+      region,
+      department,
+      status: 'SubmittedToDepartments'
     }))
   ),
   year: new Date().getFullYear()

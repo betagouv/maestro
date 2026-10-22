@@ -4,6 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import type { PrescriptionCounts } from 'maestro-shared/schema/Prescription/PrescriptionCounts';
+import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ReactNode } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -116,7 +117,7 @@ const ProgrammingPrescriptionListHeader = ({
           (hasDepartmentalView ||
             (hasRegionalView &&
               programmingPlans.some(
-                (plan) => plan.distributionKind === 'REGIONAL'
+                (plan) => !hasDepartmentalEchelon(plan.distributionKind)
               ))) &&
           filterToggle(
             'missingLaboratory',

@@ -14,6 +14,7 @@ export const PrescriptionImportResult = z.object({
   localChanges: z.array(
     z.object({
       prescriptionId: z.guid(),
+      programmingPlanId: z.guid(),
       region: Region,
       department: Department.nullish(),
       companySiret: z.string().nullish(),
@@ -23,6 +24,7 @@ export const PrescriptionImportResult = z.object({
   totals: z.array(
     z.object({
       prescriptionId: z.guid(),
+      programmingPlanId: z.guid(),
       sampleCount: z.number().int().nonnegative()
     })
   ),

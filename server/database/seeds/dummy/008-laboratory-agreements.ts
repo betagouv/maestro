@@ -16,6 +16,8 @@ import {
   SCL91Id
 } from 'maestro-shared/schema/User/User';
 import {
+  ALANRuminantsSubPlanId,
+  ALANVolaillesSubPlanId,
   DAOABovinValidatedSubPlanId,
   DAOAInProgressBovinSubPlanId,
   DAOAInProgressVolailleSubPlanId,
@@ -37,6 +39,9 @@ export const DAOAVolailleMultiLaboratoryIds = [
   ANS94ALnrPestId
 ];
 export const DAOACopperLaboratoryIds = [LDA85Id];
+
+const ALANMonoLaboratoryIds = [ANS94ALnrPestId, CAP29Id];
+const ALANMultiLaboratoryIds = [CAP29Id, LDA22Id, SCL34Id];
 
 const PPVLaboratoryIds = [
   CAP29Id,
@@ -145,6 +150,22 @@ export const seed = async () => {
         substance_kind: 'Copper',
         detection_analysis: true
       }))
-    ])
+    ]),
+    ...[ALANRuminantsSubPlanId, ALANVolaillesSubPlanId].flatMap(
+      (programmingSubPlanId) => [
+        ...ALANMonoLaboratoryIds.map((laboratoryId) => ({
+          laboratory_id: laboratoryId,
+          programming_sub_plan_id: programmingSubPlanId,
+          substance_kind: 'Mono',
+          detection_analysis: true
+        })),
+        ...ALANMultiLaboratoryIds.map((laboratoryId) => ({
+          laboratory_id: laboratoryId,
+          programming_sub_plan_id: programmingSubPlanId,
+          substance_kind: 'Multi',
+          detection_analysis: true
+        }))
+      ]
+    )
   ]);
 };

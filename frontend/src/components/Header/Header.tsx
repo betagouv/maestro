@@ -260,8 +260,7 @@ const Header = () => {
                     ])
                   }
                 : undefined,
-              //FIXME availableRoutes.includes('ProgrammingPlanSettingsRoute')
-              hasAccountPermission('administrationMaestro')
+              availableRoutes.includes('ProgrammingPlanSettingsRoute')
                 ? {
                     linkProps: {
                       to: AuthenticatedAppRoutes.ProgrammingPlanSettingsRoute.link(),
