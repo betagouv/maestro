@@ -183,7 +183,8 @@ export type ProgrammingSubPlanSettingsForm = z.infer<
 
 const ProgrammingLevelSettingsFormShape = SubPlanSettingsFormShape.extend({
   nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator).nullable(),
-  technicalInstruction: ProgrammingPlanTechnicalInstruction.nullable()
+  technicalInstruction: ProgrammingPlanTechnicalInstruction.nullable(),
+  subPlanNumber: z.string().nullable()
 });
 
 export const ProgrammingLevelSettingsForm = checkSchema(

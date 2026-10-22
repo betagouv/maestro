@@ -20,6 +20,8 @@ import { AppMultiSelect } from 'src/components/_app/AppMultiSelect/AppMultiSelec
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
+import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import type { UseForm } from 'src/hooks/useForm';
 import { assert, type Equals } from 'tsafe';
 import { ProgrammingPlanDocuments } from '../ProgrammingPlanDocuments/ProgrammingPlanDocuments';
@@ -32,6 +34,7 @@ type Props<
   T extends ProgrammingPlanSettings & {
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
     technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
+    subPlanNumber: string | null;
   }
 > = {
   settings: T;
@@ -46,6 +49,7 @@ export const ProgrammingPlanGlobalSettings = <
   T extends ProgrammingPlanSettings & {
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
     technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
+    subPlanNumber: string | null;
   }
 >({
   settings,
@@ -58,8 +62,25 @@ export const ProgrammingPlanGlobalSettings = <
 }: Props<T>) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  const { hasAccountPermission } = useAuthentication();
+
   return (
     <div className={clsx('programming-plan-global-settings')}>
+      {settings.subPlanNumber !== null && (
+        <div className={clsx('border', cx('fr-p-2w'))}>
+          <AppTextInput
+            label="N° du sous-plan"
+            required
+            disabled={!hasAccountPermission('administrationMaestro')}
+            value={settings.subPlanNumber}
+            onChange={(event) =>
+              onChange({ ...settings, subPlanNumber: event.target.value })
+            }
+            inputForm={inputForm}
+            inputKey="subPlanNumber"
+          />
+        </div>
+      )}
       {settings.nationalCoordinators !== null && (
         <div className={clsx('border', cx('fr-p-2w'))}>
           <ProgrammingPlanNationalCoordinators
