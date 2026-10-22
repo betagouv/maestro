@@ -233,11 +233,7 @@ const ContextStep = ({ partialSample }: Props) => {
       legalContext: isPPV ? LegalContext : z.undefined()
     })
     .extend({ company: Company })
-    .extend({
-      companyWorkshop: companyWorkshops.length
-        ? CompanyWorkshop
-        : CompanyWorkshop.nullish()
-    });
+    .extend({ companyWorkshop: CompanyWorkshop.nullish() });
 
   const contextOptions = selectOptionsFromList(
     [...planContexts, 'OutsideProgrammingPlan'],

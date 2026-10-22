@@ -192,7 +192,6 @@ const SampleCompany = ({
             whenValid="Atelier correctement renseigné."
             data-testid="companyWorkshop-select"
             label="Atelier"
-            required
             disabled={readonly}
           />
         </div>
