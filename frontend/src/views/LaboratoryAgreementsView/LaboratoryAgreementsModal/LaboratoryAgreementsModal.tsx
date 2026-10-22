@@ -9,6 +9,7 @@ import type {
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { includesIgnoringAccents } from 'maestro-shared/utils/utils';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { AppSelectionModal } from '../../../components/_app/AppSelectionModal/AppSelectionModal';
@@ -129,14 +130,11 @@ const LaboratoryAgreementsModal = ({
   };
 
   const filteredLaboratories = useMemo(() => {
-    const term = search.toLowerCase().trim();
-    const filtered = term
-      ? laboratories.filter(
-          (lab) =>
-            lab.shortName.toLowerCase().includes(term) ||
-            lab.name.toLowerCase().includes(term)
-        )
-      : laboratories;
+    const filtered = laboratories.filter(
+      (lab) =>
+        includesIgnoringAccents(lab.shortName, search) ||
+        includesIgnoringAccents(lab.name, search)
+    );
     return filtered.toSorted((a, b) => a.shortName.localeCompare(b.shortName));
   }, [laboratories, search]);
 

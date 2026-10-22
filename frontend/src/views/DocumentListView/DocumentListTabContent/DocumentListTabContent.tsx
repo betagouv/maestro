@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import { includesIgnoringAccents } from 'maestro-shared/utils/utils';
 import { useMemo, useState } from 'react';
 import {
   getStoredListDisplay,
@@ -40,7 +41,8 @@ const DocumentListTabContent = ({
       resources?.filter(
         (resource) =>
           (isNil(documentKind) || resource.kind === documentKind) &&
-          resource.name?.toLowerCase().includes(searchQuery)
+          !isNil(resource.name) &&
+          includesIgnoringAccents(resource.name, searchQuery)
       ),
     [resources, searchQuery, documentKind]
   );

@@ -13,6 +13,7 @@ import {
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { includesIgnoringAccents } from 'maestro-shared/utils/utils';
 import { type ChangeEvent, useContext, useMemo, useState } from 'react';
 import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { t } from 'src/i18n';
@@ -92,9 +93,14 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
 
   const filteredPrescriptions = commentedPrescriptions
     .filter((prescription) =>
-      getPrescriptionTitle(matrixReferential, [programmingPlan], prescription)
-        .toLowerCase()
-        .includes(matrixQuery.toLowerCase())
+      includesIgnoringAccents(
+        getPrescriptionTitle(
+          matrixReferential,
+          [programmingPlan],
+          prescription
+        ),
+        matrixQuery
+      )
     )
     .filter(
       (prescription) =>

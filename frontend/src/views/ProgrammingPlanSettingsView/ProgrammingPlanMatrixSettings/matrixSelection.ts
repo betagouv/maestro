@@ -11,6 +11,7 @@ import {
   isMatrixSelected,
   type MatrixKindSelection
 } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
+import { includesIgnoringAccents } from 'maestro-shared/utils/utils';
 
 export type MatrixSelection = MatrixKindSelection[];
 
@@ -78,13 +79,12 @@ export const filterMatrixKinds = (
   referential: MatrixReferential,
   search: string
 ): MatrixKindOption[] => {
-  const term = search.toLowerCase().trim();
-  const matches = (label: string) => label.toLowerCase().includes(term);
+  const matches = (label: string) => includesIgnoringAccents(label, search);
 
   return effectiveMatrixKinds(referential).flatMap(
     (matrixKind): MatrixKindOption[] => {
       const matrices = subMatrices(referential, matrixKind);
-      if (!term || matches(matrixKindLabel(referential, matrixKind))) {
+      if (!search.trim() || matches(matrixKindLabel(referential, matrixKind))) {
         return [{ matrixKind, matrices, matchedByMatrix: false }];
       }
       const matchingMatrices = matrices.filter((matrix) =>

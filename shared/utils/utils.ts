@@ -1,9 +1,15 @@
-import { camelCase, flow, isArray, isPlainObject } from 'lodash-es';
+import { camelCase, deburr, flow, isArray, isPlainObject } from 'lodash-es';
 
 export const isDefined = <A>(a: A | undefined): a is A => a !== undefined;
 
 export const isDefinedAndNotNull = <A>(a: A | null | undefined): a is A =>
   a !== null && a !== undefined;
+
+export const normalizeForSearch = (text: string): string =>
+  deburr(text).toLowerCase();
+
+export const includesIgnoringAccents = (text: string, search: string) =>
+  normalizeForSearch(text).includes(normalizeForSearch(search).trim());
 
 export function toArray<T>(value?: T | T[]): T[] | undefined {
   return Array.isArray(value) ? value : value ? [value] : undefined;

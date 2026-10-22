@@ -12,6 +12,7 @@ import {
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { PPVSubPlanNumberPrefix } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { includesIgnoringAccents } from 'maestro-shared/utils/utils';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import microscope from 'src/assets/illustrations/microscope.svg';
@@ -61,12 +62,8 @@ const LaboratoryAnalyticalCompetencesView = () => {
         )
         .filter(([ssd2Code, ssd2Referential]) =>
           residueSearch
-            ? ssd2Code
-                .toLowerCase()
-                .includes(residueSearch.toLowerCase().trim()) ||
-              ssd2Referential.name
-                .toLowerCase()
-                .includes(residueSearch.toLowerCase().trim())
+            ? includesIgnoringAccents(ssd2Code, residueSearch) ||
+              includesIgnoringAccents(ssd2Referential.name, residueSearch)
             : true
         ),
     [allResidues, residueKind, residueSearch]

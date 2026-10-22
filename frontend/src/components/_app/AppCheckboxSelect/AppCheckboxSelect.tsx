@@ -3,6 +3,7 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import clsx from 'clsx';
+import { includesIgnoringAccents } from 'maestro-shared/utils/utils';
 import {
   useCallback,
   useEffect,
@@ -124,9 +125,7 @@ const AppCheckboxSelect = <T extends string>({
   }, [isMenuRendered, updateMenuPosition]);
 
   const filteredOptions = search.trim()
-    ? options.filter((option) =>
-        option.label.toLowerCase().includes(search.toLowerCase().trim())
-      )
+    ? options.filter((option) => includesIgnoringAccents(option.label, search))
     : options;
 
   const summary = (() => {

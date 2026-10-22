@@ -18,6 +18,7 @@ import {
   SSD2IdLabel,
   searchSSD2IdByLabel
 } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { includesIgnoringAccents } from 'maestro-shared/utils/utils';
 import { type SyntheticEvent, useContext, useMemo, useState } from 'react';
 import { ApiClientContext } from 'src/services/apiClient';
 
@@ -30,10 +31,9 @@ const toOption = (ssd2Id: SSD2Id | null): Option | null =>
   ssd2Id === null ? null : { code: ssd2Id, label: formatOptionLabel(ssd2Id) };
 
 const searchSSD2Options = (query: string): SSD2Id[] => {
-  const lower = query.toLowerCase();
   const byLabel = searchSSD2IdByLabel(query);
   const byReference = (SSD2Ids as SSD2Id[]).filter((id) =>
-    id.toLowerCase().includes(lower)
+    includesIgnoringAccents(id, query)
   );
   return Array.from(new Set([...byLabel, ...byReference]));
 };
@@ -195,11 +195,8 @@ export const LaboratoryResidueMappingsView = () => {
   const [ssd2IdFilter, setSsd2IdFilter] = useState<SSD2Id | null>(null);
 
   const filteredMappings = useMemo(() => {
-    const normalized = labelFilter.trim().toLowerCase();
     return mappings
-      .filter((m) =>
-        normalized === '' ? true : m.label.toLowerCase().includes(normalized)
-      )
+      .filter((m) => includesIgnoringAccents(m.label, labelFilter))
       .filter((m) => (ssd2IdFilter === null ? true : m.ssd2Id === ssd2IdFilter))
       .sort((a, b) => {
         if ((a.ssd2Id === null) !== (b.ssd2Id === null)) {

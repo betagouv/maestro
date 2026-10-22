@@ -197,6 +197,18 @@ describe('filterMatrixKinds', () => {
     });
   });
 
+  test('should ignore accents and case', () => {
+    expect(
+      filterMatrixKinds(MatrixReferentialFixture, 'AULX ET ECHALOTES').find(
+        ({ matrixKind }) => matrixKind === 'A00GY'
+      )
+    ).toStrictEqual({
+      matrixKind: 'A00GY',
+      matrices: subMatrices(MatrixReferentialFixture, 'A00GY' as MatrixKind),
+      matchedByMatrix: false
+    });
+  });
+
   test('should keep only the matching matrices of a matrix kind matching by matrix', () => {
     expect(
       filterMatrixKinds(MatrixReferentialFixture, 'mirabelle').find(
