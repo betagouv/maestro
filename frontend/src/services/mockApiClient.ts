@@ -141,6 +141,7 @@ const defaultMockApiClientConf: MockApi = {
   useCreateOrUpdateSampleMutation: [fn(), { isLoading: false }],
   useCreateProgrammingPlanMutation: [fn(), {}],
   useCreateProgrammingPlanDomainMutation: [fn(), {}],
+  useCreateProgrammingPlanCampaignMutation: [fn(), {}],
   useCreateProgrammingSubPlanMutation: [fn(), {}],
   useDeleteAnalysisReportDocumentMutation: [fn(), {}],
   useDeleteResourceDocumentMutation: [fn(), {}],

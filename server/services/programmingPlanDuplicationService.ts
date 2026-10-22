@@ -184,12 +184,40 @@ const duplicateSubPlanWithin = async (
   return copiedSubPlanId;
 };
 
+const duplicateDocumentLinks = async (
+  trx: Transaction<DB>,
+  sourcePlanId: string,
+  copiedPlanId: string
+): Promise<void> => {
+  const links = await trx
+    .selectFrom('documentProgrammingPlans')
+    .select('documentId')
+    .where('programmingPlanId', '=', sourcePlanId)
+    .execute();
+
+  if (links.length > 0) {
+    await trx
+      .insertInto('documentProgrammingPlans')
+      .values(
+        links.map(({ documentId }) => ({
+          documentId,
+          programmingPlanId: copiedPlanId
+        }))
+      )
+      .execute();
+  }
+};
+
 const duplicatePlanWithin = async (
   trx: Transaction<DB>,
   sourcePlanId: string,
-  targetDomainId: ProgrammingPlanDomainId,
-  createdBy: string,
-  title: string
+  target: {
+    domainId: ProgrammingPlanDomainId;
+    year: number;
+    title: string;
+    createdBy: string;
+  },
+  renumberSubPlans: boolean
 ): Promise<string> => {
   const { id, ...sourcePlan } = await trx
     .selectFrom('programmingPlans')
@@ -203,14 +231,14 @@ const duplicatePlanWithin = async (
     .insertInto('programmingPlans')
     .values({
       ...toProgrammingPlanSettingsRow(sourcePlan),
+      ...target,
       id: copiedPlanId,
-      domainId: targetDomainId,
-      title,
       settingsCompleted: false,
       createdAt: new Date(),
-      createdBy,
       launchedAt: null,
-      launchedBy: null
+      launchedBy: null,
+      closedAt: null,
+      closedBy: null
     })
     .execute();
 
@@ -267,15 +295,19 @@ const duplicatePlanWithin = async (
       trx,
       subPlan.id,
       copiedPlanId,
-      nextSubPlanNumber(
-        subPlan.subPlanNumber,
-        await programmingSubPlanRepository.findYearSubPlanNumbers(
-          sourcePlan.year,
-          trx
-        )
-      )
+      renumberSubPlans
+        ? nextSubPlanNumber(
+            subPlan.subPlanNumber,
+            await programmingSubPlanRepository.findYearSubPlanNumbers(
+              target.year,
+              trx
+            )
+          )
+        : subPlan.subPlanNumber
     );
   }
+
+  await duplicateDocumentLinks(trx, id, copiedPlanId);
 
   return copiedPlanId;
 };
@@ -313,64 +345,108 @@ const duplicatePlan = async (
   createdBy: string
 ): Promise<string> =>
   executeTransaction(async (trx) => {
-    const { domainId, title } = await trx
+    const { domainId, year, title } = await trx
       .selectFrom('programmingPlans')
-      .select(['domainId', 'title'])
+      .select(['domainId', 'year', 'title'])
       .where('id', '=', programmingPlanId)
       .executeTakeFirstOrThrow();
 
     return duplicatePlanWithin(
       trx,
       programmingPlanId,
-      domainId,
-      createdBy,
-      copiedLabel(title)
+      {
+        domainId,
+        year,
+        title: copiedLabel(title),
+        createdBy
+      },
+      true
     );
   });
+
+const duplicateDomainWithin = async (
+  trx: Transaction<DB>,
+  sourceDomainId: ProgrammingPlanDomainId,
+  target: {
+    year: number;
+    label: string;
+    createdBy: string;
+  },
+  renumberSubPlans: boolean
+): Promise<ProgrammingPlanDomainId> => {
+  const copiedDomainId = crypto.randomUUID() as ProgrammingPlanDomainId;
+
+  await trx
+    .insertInto('programmingPlanDomains')
+    .values({ id: copiedDomainId, year: target.year, label: target.label })
+    .execute();
+
+  const plans = await trx
+    .selectFrom('programmingPlans')
+    .select(['id', 'title'])
+    .where('domainId', '=', sourceDomainId)
+    .execute();
+
+  for (const plan of plans) {
+    await duplicatePlanWithin(
+      trx,
+      plan.id,
+      {
+        domainId: copiedDomainId,
+        year: target.year,
+        title: plan.title,
+        createdBy: target.createdBy
+      },
+      renumberSubPlans
+    );
+  }
+
+  return copiedDomainId;
+};
 
 const duplicateDomain = async (
   programmingPlanDomainId: ProgrammingPlanDomainId,
   createdBy: string
 ): Promise<ProgrammingPlanDomainId> =>
   executeTransaction(async (trx) => {
-    const { id, ...sourceDomain } = await trx
+    const { year, label } = await trx
       .selectFrom('programmingPlanDomains')
-      .selectAll()
+      .select(['year', 'label'])
       .where('id', '=', programmingPlanDomainId)
       .executeTakeFirstOrThrow();
 
-    const copiedDomainId = crypto.randomUUID() as ProgrammingPlanDomainId;
+    return duplicateDomainWithin(
+      trx,
+      programmingPlanDomainId,
+      { year, label: copiedLabel(label), createdBy },
+      true
+    );
+  });
 
-    await trx
-      .insertInto('programmingPlanDomains')
-      .values({
-        ...sourceDomain,
-        id: copiedDomainId,
-        label: copiedLabel(sourceDomain.label)
-      })
+const duplicateCampaign = async (
+  year: number,
+  createdBy: string
+): Promise<void> =>
+  executeTransaction(async (trx) => {
+    const domains = await trx
+      .selectFrom('programmingPlanDomains')
+      .select(['id', 'label'])
+      .where('year', '=', year)
       .execute();
 
-    const plans = await trx
-      .selectFrom('programmingPlans')
-      .select(['id', 'title'])
-      .where('domainId', '=', id)
-      .execute();
-
-    for (const plan of plans) {
-      await duplicatePlanWithin(
+    for (const domain of domains) {
+      await duplicateDomainWithin(
         trx,
-        plan.id,
-        copiedDomainId,
-        createdBy,
-        plan.title
+        domain.id,
+        { year: year + 1, label: domain.label, createdBy },
+        false
       );
     }
-
-    return copiedDomainId;
   });
 
 export const programmingPlanDuplicationService = {
   duplicateSubPlan,
   duplicatePlan,
-  duplicateDomain
+  duplicateDomain,
+  duplicateCampaign
 };

@@ -19,6 +19,12 @@ export const programmingPlanDomainsRoutes = {
       response: ProgrammingPlanDomain
     }
   },
+  '/programming-plan-domains/campaigns': {
+    post: {
+      accountPermissions: ['administrationMaestro'],
+      response: z.undefined()
+    }
+  },
   '/programming-plan-domains/:programmingPlanDomainId/duplicate': {
     params: {
       programmingPlanDomainId: ProgrammingPlanDomainId

@@ -5,13 +5,22 @@ import {
   ProgrammingPlanDomainFixtures
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
+  AdminBGIRFixture,
   AdminFixture,
   NationalCoordinatorDaoaFixture,
   RegionalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  test,
+  vi
+} from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import { programmingPlanDomainRepository } from '../../repositories/programmingPlanDomainRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
@@ -220,6 +229,84 @@ describe('Programming plan domain router', () => {
       await expect(
         programmingSubPlanRepository.findUnique(deletablePlan.subPlans[0].id)
       ).resolves.toBeUndefined();
+    });
+  });
+  describe('POST /programming-plan-domains/campaigns', () => {
+    const campaignRoute = `${testRoute}/campaigns`;
+    const sourceYear = new Date().getFullYear() + 2;
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    afterAll(async () => {
+      const planIds = (
+        await kysely
+          .selectFrom('programmingPlans')
+          .select('id')
+          .where('year', '=', sourceYear + 1)
+          .execute()
+      ).map((_) => _.id);
+
+      if (planIds.length > 0) {
+        await kysely
+          .deleteFrom('programmingSubPlansRaw')
+          .where('programmingPlanId', 'in', planIds)
+          .execute();
+        await kysely
+          .deleteFrom('programmingPlanLocalStatus')
+          .where('programmingPlanId', 'in', planIds)
+          .execute();
+        await kysely
+          .deleteFrom('programmingPlanNationalCoordinators')
+          .where('programmingPlanId', 'in', planIds)
+          .execute();
+        await kysely
+          .deleteFrom('programmingPlans')
+          .where('id', 'in', planIds)
+          .execute();
+      }
+      await kysely
+        .deleteFrom('programmingPlanDomains')
+        .where('year', '=', sourceYear + 1)
+        .execute();
+    });
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .post(campaignRoute)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user is not an administrator', async () => {
+      await request(app)
+        .post(campaignRoute)
+        .use(tokenProvider(NationalCoordinatorDaoaFixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should duplicate the domains of the current year into the next one', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date(`${sourceYear}-10-21T12:00:00Z`));
+
+      await request(app)
+        .post(campaignRoute)
+        .use(tokenProvider(AdminBGIRFixture))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      const labelsOf = async (year: number) =>
+        (
+          await kysely
+            .selectFrom('programmingPlanDomains')
+            .select('label')
+            .where('year', '=', year)
+            .orderBy('label')
+            .execute()
+        ).map((_) => _.label);
+
+      await expect(labelsOf(sourceYear + 1)).resolves.toStrictEqual(
+        await labelsOf(sourceYear)
+      );
     });
   });
 });
