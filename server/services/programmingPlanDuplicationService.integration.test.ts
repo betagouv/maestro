@@ -13,7 +13,8 @@ import { genDocument } from 'maestro-shared/test/documentFixtures';
 import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAVolailleInProgressSubPlanFixture,
-  PPVInProgressProgrammingPlanFixture, PPVSubmittedProgrammingPlanFixture
+  PPVInProgressProgrammingPlanFixture,
+  PPVSubmittedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { NationalCoordinatorDaoaFixture } from 'maestro-shared/test/userFixtures';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
@@ -346,6 +347,30 @@ describe('duplicatePlan', () => {
     await expect(coordinatorsOf(copiedPlanId)).resolves.toStrictEqual(
       await coordinatorsOf(sourcePlanId)
     );
+  });
+
+  test('should link the copy to the documents of its source', async () => {
+    const document = genDocument({
+      createdBy: NationalCoordinatorDaoaFixture.id,
+      year: null,
+      programmingPlanIds: [sourcePlanId]
+    });
+    await documentRepository.insert(document);
+
+    const copiedPlanId = await duplicatePlan();
+
+    await expect(
+      kysely
+        .selectFrom('documentProgrammingPlans')
+        .select('documentId')
+        .where('programmingPlanId', '=', copiedPlanId)
+        .execute()
+    ).resolves.toStrictEqual([{ documentId: document.id }]);
+
+    await kysely
+      .deleteFrom('documents')
+      .where('id', '=', document.id)
+      .execute();
   });
 
   test('should renumber the copied sub-plans to keep their numbers unique in the year', async () => {
