@@ -1,5 +1,11 @@
 import { expect, test } from 'vitest';
-import { convertKeysToCamelCase } from './utils';
+import { convertKeysToCamelCase, includesIgnoringAccents } from './utils';
+
+test('includesIgnoringAccents', () => {
+  expect(includesIgnoringAccents('Hélène Dupré', ' helene ')).toBe(true);
+  expect(includesIgnoringAccents('Helene Dupre', 'HÉLÈNE')).toBe(true);
+  expect(includesIgnoringAccents('Hélène Dupré', 'martin')).toBe(false);
+});
 
 test('convertKeysToCamelCase', () => {
   expect(convertKeysToCamelCase({})).toMatchInlineSnapshot(`{}`);

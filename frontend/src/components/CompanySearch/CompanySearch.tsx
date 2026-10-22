@@ -7,6 +7,7 @@ import {
   type Company,
   companyFromSearchResult
 } from 'maestro-shared/schema/Company/Company';
+import { includesIgnoringAccents } from 'maestro-shared/utils/utils';
 import type React from 'react';
 import {
   type ReactNode,
@@ -151,10 +152,9 @@ const CompanySearch = ({
         if (!value || value.length === 0) {
           return companies;
         }
-        const searchLower = value.toLowerCase();
         return companies.filter(
           (company) =>
-            company.name.toLowerCase().includes(searchLower) ||
+            includesIgnoringAccents(company.name, value) ||
             company.siret.includes(value) ||
             company.siret.replace(/\s/g, '').includes(value)
         );

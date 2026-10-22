@@ -3,6 +3,10 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import clsx from 'clsx';
+import {
+  includesIgnoringAccents,
+  normalizeForSearch
+} from 'maestro-shared/utils/utils';
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import './ColumnFilterHeader.scss';
@@ -64,9 +68,7 @@ const ColumnFilterHeader = <T extends string>({
     );
 
   const filteredOptions = search.trim()
-    ? options.filter((opt) =>
-        opt.label.toLowerCase().includes(search.toLowerCase().trim())
-      )
+    ? options.filter((opt) => includesIgnoringAccents(opt.label, search))
     : options;
 
   const highlightLabel = (label: string) => {
@@ -74,7 +76,9 @@ const ColumnFilterHeader = <T extends string>({
     if (!trimmed) {
       return label;
     }
-    const index = label.toLowerCase().indexOf(trimmed.toLowerCase());
+    const index = normalizeForSearch(label).indexOf(
+      normalizeForSearch(trimmed)
+    );
     if (index === -1) {
       return label;
     }

@@ -8,6 +8,7 @@ import {
   type ProgrammingSubPlanId,
   subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { includesIgnoringAccents } from 'maestro-shared/utils/utils';
 import { useContext, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import AppServiceErrorAlert from 'src/components/_app/AppErrorAlert/AppServiceErrorAlert';
@@ -42,13 +43,12 @@ export const ProgrammingSubPlanList = ({
   const [search, setSearch] = useState('');
 
   const filteredSubPlans = useMemo(() => {
-    const trimmedSearch = search.trim().toLowerCase();
-
     return subPlans
       .filter((subPlan) =>
-        `${subPlan.subPlanNumber} ${subPlanLabel(matrixReferential, subPlan)}`
-          .toLowerCase()
-          .includes(trimmedSearch)
+        includesIgnoringAccents(
+          `${subPlan.subPlanNumber} ${subPlanLabel(matrixReferential, subPlan)}`,
+          search
+        )
       )
       .sort((a, b) => a.subPlanNumber.localeCompare(b.subPlanNumber));
   }, [subPlans, search, matrixReferential]);

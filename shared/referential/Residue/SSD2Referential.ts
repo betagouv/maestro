@@ -1,3 +1,4 @@
+import { includesIgnoringAccents } from '../../utils/utils';
 import { SandreToSSD2 } from './SandreToSSD2';
 import type { SSD2Id } from './SSD2Id';
 
@@ -12101,12 +12102,9 @@ const getSSD2IdByLabel = (label: string): SSD2Id | null => {
 };
 
 export const searchSSD2IdByLabel = (query: string): SSD2Id[] => {
-  const queryLowerCase = query.toLowerCase();
   return values
     .filter(({ name, otherNames }) =>
-      [name, ...otherNames].some((n) =>
-        n.toLowerCase().includes(queryLowerCase)
-      )
+      [name, ...otherNames].some((n) => includesIgnoringAccents(n, query))
     )
     .map(({ reference }) => reference);
 };

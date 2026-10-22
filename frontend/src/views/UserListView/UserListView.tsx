@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
 import type { UserListItem } from 'maestro-shared/schema/User/User';
 import { toMaestroDate } from 'maestro-shared/utils/date';
+import { includesIgnoringAccents } from 'maestro-shared/utils/utils';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
@@ -132,8 +133,8 @@ export const UserListView = () => {
           if (
             filters.label &&
             filters.label !== '' &&
-            !u.name?.toLowerCase().includes(filters.label.toLowerCase()) &&
-            !u.email.toLowerCase().includes(filters.label.toLowerCase())
+            !includesIgnoringAccents(u.name ?? '', filters.label) &&
+            !includesIgnoringAccents(u.email, filters.label)
           ) {
             return false;
           }
