@@ -55,10 +55,6 @@ export const findPrescriptionSubPlan = <
     .flatMap((programmingPlan) => programmingPlan.subPlans)
     .find((subPlan) => subPlan.id === prescription.programmingSubPlanId);
 
-export const isProgrammingSubPlanDeletable = (
-  subPlan: Pick<ProgrammingSubPlan, 'settingsCompleted'>
-): boolean => !subPlan.settingsCompleted;
-
 export const PPVSubPlanNumberPrefix = 'PPV';
 
 export const isPPVSubPlanNumber = (subPlanNumber?: string | null): boolean =>

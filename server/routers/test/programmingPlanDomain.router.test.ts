@@ -73,11 +73,11 @@ describe('Programming plan domain router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should fail if the user does not have the permission', async () => {
+    test('should fail if the user is not an administrator', async () => {
       await request(app)
         .post(testRoute)
         .send(testDomain)
-        .use(tokenProvider(RegionalCoordinator))
+        .use(tokenProvider(NationalCoordinatorDaoaFixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -200,14 +200,7 @@ describe('Programming plan domain router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should fail if the user does not have the permission', async () => {
-      await request(app)
-        .delete(domainRoute(deletableDomain.id))
-        .use(tokenProvider(RegionalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
-    test('should fail if the user does not coordinate every plan of the domain', async () => {
+    test('should fail if the user is not an administrator', async () => {
       await request(app)
         .delete(domainRoute(deletableDomain.id))
         .use(tokenProvider(NationalCoordinatorDaoaFixture))

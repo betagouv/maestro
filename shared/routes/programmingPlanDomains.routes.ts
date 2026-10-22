@@ -14,7 +14,7 @@ export const programmingPlanDomainsRoutes = {
       response: z.array(ProgrammingPlanDomain)
     },
     post: {
-      permissions: ['manageProgrammingPlanSettings'],
+      accountPermissions: ['administrationMaestro'],
       body: ProgrammingPlanDomainCreateInput,
       response: ProgrammingPlanDomain
     }
@@ -44,7 +44,7 @@ export const programmingPlanDomainsRoutes = {
       response: ProgrammingPlanDomain
     },
     delete: {
-      accountPermissions: ['manageProgrammingPlanSettings'],
+      accountPermissions: ['administrationMaestro'],
       response: z.undefined()
     }
   }

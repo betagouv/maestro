@@ -1,6 +1,5 @@
 import { canInitiateNextCampaign } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
-import { isProgrammingPlanDomainDeletable } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { HttpStatus } from '../constants/httpStatus';
 import { programmingPlanDomainRepository } from '../repositories/programmingPlanDomainRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
@@ -116,29 +115,13 @@ export const programmingPlanDomainRouter = {
 
       return { response: updatedDomain, status: HttpStatus.OK };
     },
-    delete: async ({ user, account }, { programmingPlanDomainId }) => {
+    delete: async (_, { programmingPlanDomainId }) => {
       const domain = await programmingPlanDomainRepository.findUnique(
         programmingPlanDomainId
       );
 
       if (!domain) {
         return { status: HttpStatus.NOT_FOUND };
-      }
-
-      const domainPlans = (
-        await programmingPlanRepository.findMany({ year: domain.year })
-      ).filter((plan) => plan.domainId === programmingPlanDomainId);
-
-      if (
-        !domainPlans.every((plan) =>
-          canUpdateProgrammingPlanSettings(plan, user, account.roles)
-        )
-      ) {
-        return { status: HttpStatus.FORBIDDEN };
-      }
-
-      if (!isProgrammingPlanDomainDeletable(domainPlans)) {
-        throw programmingPlanDeletionService.settingsCompletedConflict();
       }
 
       console.info('Delete programming plan domain', programmingPlanDomainId);

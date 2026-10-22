@@ -14,8 +14,8 @@ const isForeignKeyViolation = (error: unknown): boolean =>
   'code' in error &&
   error.code === '23503';
 
-const settingsCompletedConflict = () =>
-  conflict('Suppression impossible : le paramétrage est terminé.');
+const submittedToRegionsConflict = () =>
+  conflict('Suppression impossible : le plan a été soumis aux régions.');
 
 const deleteOrConflict = async (
   deletion: () => Promise<void>
@@ -34,6 +34,6 @@ const deleteOrConflict = async (
 };
 
 export const programmingPlanDeletionService = {
-  settingsCompletedConflict,
+  submittedToRegionsConflict,
   deleteOrConflict
 };
