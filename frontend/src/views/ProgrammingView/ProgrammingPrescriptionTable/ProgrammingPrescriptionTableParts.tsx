@@ -1,9 +1,24 @@
 import clsx from 'clsx';
+import { Stage } from 'maestro-shared/referential/Stage';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
+
+export const PlanGroupKey = z.object({
+  context: ProgrammingPlanContext.nullish(),
+  stages: z.array(Stage)
+});
+export type PlanGroupKey = z.infer<typeof PlanGroupKey>;
+
+export const PlanGroupKeyString = z.string().brand('PlanGroupKeyString');
+export type PlanGroupKeyString = z.infer<typeof PlanGroupKeyString>;
+
+export const toPlanGroupKeyString = (key: PlanGroupKey): PlanGroupKeyString =>
+  PlanGroupKeyString.parse(
+    [key.context ?? '', [...key.stages].sort().join(',')].join('|')
+  );
 
 export const PlanHeaderRowKey = z.string().brand('PlanHeaderRowKey');
 export type PlanHeaderRowKey = z.infer<typeof PlanHeaderRowKey>;
@@ -15,9 +30,9 @@ export type RowWrapperKey = PlanHeaderRowKey | PrescriptionRowKey;
 
 export const toPlanHeaderRowKey = (
   planId: string,
-  context: ProgrammingPlanContext | null | undefined
+  groupKey: PlanGroupKeyString
 ): PlanHeaderRowKey =>
-  PlanHeaderRowKey.parse(`plan-header-${planId}-${context ?? ''}`);
+  PlanHeaderRowKey.parse(`plan-header-${planId}-${groupKey}`);
 
 export const toPrescriptionRowKey = (id: string): PrescriptionRowKey =>
   PrescriptionRowKey.parse(id);
