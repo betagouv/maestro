@@ -1,29 +1,35 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Select from '@codegouvfr/react-dsfr/Select';
-import clsx from 'clsx';
+import Tabs from '@codegouvfr/react-dsfr/Tabs';
+import { isNil, max, uniq } from 'lodash-es';
 import {
   hasNewerLaunchedCampaign,
   type ProgrammingPlanChecked,
-  ProgrammingPlanSort,
-  programmingPlanContexts
+  ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
+import { DashboardNotice } from 'src/components/DashboardNotice/DashboardNotice';
+import { YearTitle } from 'src/components/YearTitle/YearTitle';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { ApiClientContext } from '../../services/apiClient';
-import DashboardComplianceStats from './DashboardComplianceStats';
-import DashboardNoticeAndActions from './DashboardNoticeAndActions';
-import DashboardPrescriptions from './DashboardPrescriptions';
-import DashboardResidueStats from './DashboardResidueStats';
+import DashboardGlobalFilters, {
+  type DashboardFilters,
+  emptyDashboardFilters
+} from './GlobalView/DashboardGlobalFilters';
+import DashboardKpiCards from './GlobalView/DashboardKpiCards';
+import DashboardLaboratoryShipments from './GlobalView/DashboardLaboratoryShipments';
+import DashboardPlansProgress from './GlobalView/DashboardPlansProgress';
+import DashboardTerritoryChart from './GlobalView/DashboardTerritoryChart';
+import { useDashboardStats } from './GlobalView/useDashboardStats';
 
 const DashboardView = () => {
   const apiClient = useContext(ApiClientContext);
-  const { hasUserPermission, user, hasNationalView, hasRole } =
-    useAuthentication();
+  const { hasUserPermission, user, hasRole } = useAuthentication();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
     {
@@ -40,6 +46,8 @@ const DashboardView = () => {
   const { data: programmingPlanDomains } =
     apiClient.useFindProgrammingPlanDomainsQuery();
 
+  const { data: notice } = apiClient.useGetNoticeQuery({ type: 'dashboard' });
+
   const domainLabelById = useMemo(
     () =>
       new Map(
@@ -48,16 +56,67 @@ const DashboardView = () => {
     [programmingPlanDomains]
   );
 
-  const [currentValidatedProgrammingPlan, setCurrentValidatedProgrammingPlan] =
-    useState<ProgrammingPlanChecked>();
+  const years = useMemo(
+    () =>
+      uniq((programmingPlans ?? []).map((plan) => plan.year)).sort(
+        (a, b) => b - a
+      ),
+    [programmingPlans]
+  );
 
-  useEffect(() => {
-    setCurrentValidatedProgrammingPlan(
-      [...(programmingPlans ?? [])]
-        .sort(ProgrammingPlanSort)
-        .filter((pp) => pp.year <= new Date().getFullYear())[0]
-    );
-  }, [programmingPlans]);
+  const year = useMemo(() => {
+    const yearParam = searchParams.get('year');
+    if (yearParam && years.includes(Number(yearParam))) {
+      return Number(yearParam);
+    }
+    const currentYear = new Date().getFullYear();
+    return years.includes(currentYear) ? currentYear : max(years);
+  }, [searchParams, years]);
+
+  const [filters, setFilters] = useState<DashboardFilters>(
+    emptyDashboardFilters
+  );
+
+  const yearProgrammingPlans = useMemo(
+    () =>
+      (programmingPlans ?? [])
+        .filter((plan) => plan.year === year)
+        .sort(ProgrammingPlanSort),
+    [programmingPlans, year]
+  );
+
+  const currentProgrammingPlan: ProgrammingPlanChecked | undefined =
+    yearProgrammingPlans[0];
+
+  const filteredProgrammingPlans = useMemo(
+    () =>
+      yearProgrammingPlans
+        .filter(
+          (plan) =>
+            filters.programmingPlanDomainIds.length === 0 ||
+            filters.programmingPlanDomainIds.includes(plan.domainId)
+        )
+        .filter(
+          (plan) =>
+            filters.programmingPlanIds.length === 0 ||
+            filters.programmingPlanIds.includes(plan.id)
+        )
+        .filter(
+          (plan) =>
+            filters.stages.length === 0 ||
+            plan.subPlans.some((subPlan) =>
+              (subPlan.stages ?? []).some((stage) =>
+                filters.stages.includes(stage)
+              )
+            )
+        ),
+    [yearProgrammingPlans, filters]
+  );
+
+  const { stats, territoryLevel } = useDashboardStats(
+    filteredProgrammingPlans,
+    filters
+  );
 
   if (!user) {
     return null;
@@ -65,92 +124,98 @@ const DashboardView = () => {
 
   return (
     <AppPage
-      title="Tableau de bord"
-      subtitle="Un rapide coup d'oeil sur votre activité"
+      title={
+        <YearTitle
+          title="Tableau de bord"
+          year={year}
+          years={years}
+          onChange={(selectedYear) =>
+            setSearchParams({ year: String(selectedYear) })
+          }
+        />
+      }
       illustration={dashboard}
       documentTitle="Tableau de bord"
       action={
-        <>
-          {(programmingPlans?.length ?? 0) > 1 && (
-            <Select
-              label=""
-              nativeSelectProps={{
-                value: currentValidatedProgrammingPlan?.id ?? '',
-                onChange: (e) =>
-                  setCurrentValidatedProgrammingPlan(
-                    programmingPlans?.find((plan) => plan.id === e.target.value)
-                  )
-              }}
-              className={clsx(cx('fr-pt-4w'))}
-            >
-              {programmingPlans?.map((plan) => (
-                <option key={`plan-${plan.id}`} value={plan.id}>
-                  {plan.title} {plan.year}
-                </option>
-              ))}
-            </Select>
-          )}
-          {currentValidatedProgrammingPlan &&
-            !hasNewerLaunchedCampaign(
-              currentValidatedProgrammingPlan,
-              programmingPlans ?? [],
-              domainLabelById
-            ) &&
-            hasUserPermission('createSample') && (
-              <Button
-                size="large"
-                linkProps={{
-                  to: AuthenticatedAppRoutes.NewSampleRoute.link(
-                    currentValidatedProgrammingPlan.year
-                  ),
-                  target: '_self'
-                }}
-                iconId="fr-icon-microscope-line"
-              >
-                Saisir un prélèvement
-              </Button>
-            )}
-        </>
+        currentProgrammingPlan &&
+        !hasNewerLaunchedCampaign(
+          currentProgrammingPlan,
+          programmingPlans ?? [],
+          domainLabelById
+        ) &&
+        hasUserPermission('createSample') && (
+          <Button
+            size="large"
+            linkProps={{
+              to: AuthenticatedAppRoutes.NewSampleRoute.link(
+                currentProgrammingPlan.year
+              ),
+              target: '_self'
+            }}
+            iconId="fr-icon-microscope-line"
+          >
+            Saisir un prélèvement
+          </Button>
+        )
       }
     >
-      <DashboardNoticeAndActions
-        currentValidatedProgrammingPlan={currentValidatedProgrammingPlan}
-      />
-      <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>
-        {hasNationalView &&
-          currentValidatedProgrammingPlan &&
-          programmingPlanContexts(currentValidatedProgrammingPlan).map(
-            (context) => (
-              <div
-                className={cx('fr-col-12', 'fr-col-md-6')}
-                key={`${currentValidatedProgrammingPlan.id}-${context}`}
-              >
-                <ProgrammingPlanCard
-                  programmingPlan={currentValidatedProgrammingPlan}
-                  context={context}
+      {notice?.description && (
+        <DashboardNotice
+          description={notice.description}
+          className={cx('fr-col')}
+          fullWidth
+        />
+      )}
+      <Tabs
+        tabs={[
+          {
+            label: 'Vue globale',
+            content: (
+              <>
+                <DashboardGlobalFilters
+                  programmingPlans={yearProgrammingPlans}
+                  filters={filters}
+                  onChange={(changes) =>
+                    setFilters((previous) => ({ ...previous, ...changes }))
+                  }
                 />
-              </div>
+                <DashboardKpiCards stats={stats} />
+                <div
+                  className={cx(
+                    'fr-grid-row',
+                    'fr-grid-row--gutters',
+                    'fr-mb-3w'
+                  )}
+                >
+                  {territoryLevel && (
+                    <div className={cx('fr-col-12', 'fr-col-lg-6')}>
+                      <DashboardTerritoryChart
+                        stats={stats}
+                        territoryLevel={territoryLevel}
+                      />
+                    </div>
+                  )}
+                  <div
+                    className={cx(
+                      'fr-col-12',
+                      territoryLevel ? 'fr-col-lg-6' : 'fr-col-lg-12'
+                    )}
+                  >
+                    <DashboardLaboratoryShipments stats={stats} />
+                  </div>
+                </div>
+                {!isNil(year) && (
+                  <DashboardPlansProgress
+                    year={year}
+                    programmingPlans={filteredProgrammingPlans}
+                    filters={filters}
+                  />
+                )}
+              </>
             )
-          )}
-
-        {currentValidatedProgrammingPlan && (
-          <DashboardPrescriptions
-            programmingPlan={currentValidatedProgrammingPlan}
-            className={clsx(cx('fr-col-12'))}
-          />
-        )}
-
-        {hasNationalView && currentValidatedProgrammingPlan && (
-          <DashboardResidueStats
-            programmingPlan={currentValidatedProgrammingPlan}
-          />
-        )}
-        {hasNationalView && currentValidatedProgrammingPlan && (
-          <DashboardComplianceStats
-            programmingPlan={currentValidatedProgrammingPlan}
-          />
-        )}
-      </div>
+          }
+        ]}
+      />
     </AppPage>
   );
 };

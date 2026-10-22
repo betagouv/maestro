@@ -12,6 +12,7 @@ import {
   toLocalPrescriptionKeyString
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { PPVSubPlanNumberPrefix } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { DashboardTerritoryLevel } from 'maestro-shared/schema/Sample/DashboardStats';
 import type { PendingChangeVisibility } from 'maestro-shared/schema/User/UserRole';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
@@ -515,9 +516,157 @@ const parseLocalPrescription = (
     )
   );
 
+const programmedLevelColumns: Record<
+  DashboardTerritoryLevel,
+  { territory: string; filters: [string, string][] }
+> = {
+  Region: {
+    territory: `${localPrescriptionsTable}.region`,
+    filters: [
+      [`${localPrescriptionsTable}.department`, 'None'],
+      [`${localPrescriptionsTable}.companySiret`, 'None']
+    ]
+  },
+  Department: {
+    territory: `${localPrescriptionsTable}.department`,
+    filters: [[`${localPrescriptionsTable}.companySiret`, 'None']]
+  },
+  Company: {
+    territory: `${localPrescriptionsTable}.companySiret`,
+    filters: []
+  }
+};
+
+const programmedRequest = (
+  options: FindProgrammedCountsOptions,
+  level: DashboardTerritoryLevel
+) => {
+  const { territory, filters } = programmedLevelColumns[level];
+
+  return LocalPrescriptions()
+    .join(
+      prescriptionsTable,
+      `${localPrescriptionsTable}.prescription_id`,
+      `${prescriptionsTable}.id`
+    )
+    .join(
+      programmingSubPlansTable,
+      `${programmingSubPlansTable}.id`,
+      `${prescriptionsTable}.programming_sub_plan_id`
+    )
+    .modify((builder) => {
+      for (const [column, value] of filters) {
+        builder.where(column, value);
+      }
+      if (level !== 'Region') {
+        builder.whereNot(territory, 'None');
+      }
+      if (options.programmingPlanIds?.length) {
+        builder.whereIn(
+          `${programmingSubPlansTable}.programming_plan_id`,
+          options.programmingPlanIds
+        );
+      }
+      if (options.programmingSubPlanIds?.length) {
+        builder.whereIn(
+          `${prescriptionsTable}.programming_sub_plan_id`,
+          options.programmingSubPlanIds
+        );
+      }
+      if (options.regions?.length) {
+        builder.whereIn(`${localPrescriptionsTable}.region`, options.regions);
+      }
+      if (options.departments?.length) {
+        builder.whereIn(
+          `${localPrescriptionsTable}.department`,
+          options.departments
+        );
+      }
+      if (options.companySirets?.length) {
+        builder.whereIn(
+          `${localPrescriptionsTable}.company_siret`,
+          options.companySirets
+        );
+      }
+      if (options.excludePPV) {
+        builder.whereNot(
+          `${programmingSubPlansTable}.sub_plan_number`,
+          'like',
+          `${PPVSubPlanNumberPrefix}%`
+        );
+      }
+    });
+};
+
+type FindProgrammedCountsOptions = {
+  programmingPlanIds?: string[] | null;
+  programmingSubPlanIds?: string[] | null;
+  regions?: string[] | null;
+  departments?: string[] | null;
+  companySirets?: string[] | null;
+  territoryLevel?: DashboardTerritoryLevel | null;
+  excludePPV?: boolean;
+};
+
+const findProgrammedCounts = async (
+  options: FindProgrammedCountsOptions
+): Promise<{
+  programmedCount: number;
+  planCount: number;
+  subPlanCount: number;
+  byTerritory: { key: string; programmedCount: number }[];
+}> => {
+  console.info('Compute programmed counts', omitBy(options, isNil));
+
+  const totalLevel: DashboardTerritoryLevel = options.companySirets?.length
+    ? 'Company'
+    : options.departments?.length
+      ? 'Department'
+      : 'Region';
+
+  const [totals] = await programmedRequest(options, totalLevel).select(
+    db.raw(
+      `coalesce(sum(${localPrescriptionsTable}.sample_count), 0) as programmed_count`
+    ),
+    db.raw(
+      `count(distinct ${programmingSubPlansTable}.programming_plan_id) as plan_count`
+    ),
+    db.raw(
+      `count(distinct ${prescriptionsTable}.programming_sub_plan_id) as sub_plan_count`
+    )
+  );
+
+  const territoryRows = options.territoryLevel
+    ? await programmedRequest(
+        { ...options, excludePPV: true },
+        options.territoryLevel
+      )
+        .select(
+          db.raw(
+            `${programmedLevelColumns[options.territoryLevel].territory} as key`
+          ),
+          db.raw(
+            `coalesce(sum(${localPrescriptionsTable}.sample_count), 0) as programmed_count`
+          )
+        )
+        .groupBy(programmedLevelColumns[options.territoryLevel].territory)
+    : [];
+
+  return {
+    programmedCount: Number(totals?.programmedCount ?? 0),
+    planCount: Number(totals?.planCount ?? 0),
+    subPlanCount: Number(totals?.subPlanCount ?? 0),
+    byTerritory: territoryRows.map((row: any) => ({
+      key: String(row.key),
+      programmedCount: Number(row.programmedCount)
+    }))
+  };
+};
+
 export default {
   findUnique,
   findMany,
+  findProgrammedCounts,
   insertMany,
   update,
   updateMany
