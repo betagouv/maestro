@@ -1,6 +1,8 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { checkSchema } from '../../utils/zod';
+import { hasAccountPermission } from '../User/User';
+import type { UserRole } from '../User/UserRole';
 import {
   type ProgrammingPlanContext,
   ProgrammingPlanContextList
@@ -14,10 +16,7 @@ import {
 } from './ProgrammingPlanLocalStatus';
 import { ProgrammingPlanNationalCoordinator } from './ProgrammingPlanNationalCoordinator';
 import { ProgrammingPlanSettings } from './ProgrammingPlanSettings';
-import {
-  isProgrammingSubPlanDeletable,
-  ProgrammingSubPlan
-} from './ProgrammingSubPlan';
+import { ProgrammingSubPlan } from './ProgrammingSubPlan';
 
 export const ProgrammingPlanBase = z.object({
   id: z.guid(),
@@ -105,21 +104,12 @@ export const isClosed = (plan: ProgrammingPlanChecked): boolean => {
   return !isNil(plan.closedAt);
 };
 
-type DeletableProgrammingPlan = Pick<
-  ProgrammingPlanChecked,
-  'settingsCompleted'
-> & {
-  subPlans: Pick<ProgrammingSubPlan, 'settingsCompleted'>[];
-};
-
 export const isProgrammingPlanDeletable = (
-  plan: DeletableProgrammingPlan
+  plan: Pick<ProgrammingPlanChecked, 'nationalStatus'>,
+  userRoles: UserRole[]
 ): boolean =>
-  !plan.settingsCompleted && plan.subPlans.every(isProgrammingSubPlanDeletable);
-
-export const isProgrammingPlanDomainDeletable = (
-  plans: DeletableProgrammingPlan[]
-): boolean => plans.every(isProgrammingPlanDeletable);
+  hasAccountPermission(userRoles, 'administrationMaestro') ||
+  ['InProgress', 'SubmittedToAdmin'].includes(plan.nationalStatus.status);
 
 export const hasNewerLaunchedCampaign = (
   plan: Pick<ProgrammingPlanChecked, 'domainId' | 'title' | 'year'>,

@@ -2284,14 +2284,32 @@ export const PlanNationalCoordinatorWithoutName: Story = {
   }
 };
 
-export const PlanDeleteForbiddenWhenSubPlanCompleted: Story = {
+const submittedToRegionsForCoordinator = {
+  preloadedState: {
+    auth: {
+      authUser: genAuthUser({
+        userRole: 'NationalCoordinator',
+        id: nationalCoordinator.id
+      })
+    }
+  },
+  apiClient: getMockApi({
+    ...mockApiConf,
+    useFindProgrammingPlansQuery: {
+      data: [
+        { ...ppvPlan, nationalStatus: { status: 'SubmittedToRegion' as const } }
+      ]
+    }
+  })
+};
+
+export const PlanDeleteForbiddenForCoordinatorWhenSubmitted: Story = {
+  parameters: submittedToRegionsForCoordinator,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.getByTitle(
-        'Le paramétrage de ce plan ou de l’un de ses sous-plans est terminé.'
-      )
+      await canvas.findByTitle('Ce plan a été soumis aux régions.')
     ).toBeDisabled();
   }
 };
@@ -2387,12 +2405,13 @@ export const SubPlanDelete: Story = {
   }
 };
 
-export const SubPlanDeleteForbiddenWhenCompleted: Story = {
+export const SubPlanDeleteForbiddenForCoordinatorWhenSubmitted: Story = {
   parameters: {
+    ...submittedToRegionsForCoordinator,
     initialEntries: [
       AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
         PPVPlanId,
-        AnimauxSubPlanId
+        CerealesSubPlanId
       )
     ]
   },
@@ -2400,7 +2419,9 @@ export const SubPlanDeleteForbiddenWhenCompleted: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.getByTitle('Le paramétrage de ce sous-plan est terminé.')
+      await canvas.findByTitle(
+        'Le plan de ce sous-plan a été soumis aux régions.'
+      )
     ).toBeDisabled();
   }
 };

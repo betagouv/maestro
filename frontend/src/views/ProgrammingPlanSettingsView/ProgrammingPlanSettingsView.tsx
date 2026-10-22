@@ -7,6 +7,7 @@ import { groupBy } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { useContext } from 'react';
 import { AppPageWithYearTitle } from 'src/components/_app/AppPage/AppPageWithYearTitle';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 
@@ -25,6 +26,7 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
+  const { hasAccountPermission } = useAuthentication();
   const { data: domains = [] } = apiClient.useFindProgrammingPlanDomainsQuery();
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
@@ -60,13 +62,15 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
               <h4 className={clsx(cx('fr-m-0'))}>
                 Tous les domaines ({yearDomains.length})
               </h4>
-              <Button
-                priority="tertiary"
-                iconId="fr-icon-file-add-line"
-                onClick={domainCreateModal.open}
-              >
-                Ajouter un domaine
-              </Button>
+              {hasAccountPermission('administrationMaestro') && (
+                <Button
+                  priority="tertiary"
+                  iconId="fr-icon-file-add-line"
+                  onClick={domainCreateModal.open}
+                >
+                  Ajouter un domaine
+                </Button>
+              )}
             </div>
             <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
               {yearDomains.map((domain) => (
