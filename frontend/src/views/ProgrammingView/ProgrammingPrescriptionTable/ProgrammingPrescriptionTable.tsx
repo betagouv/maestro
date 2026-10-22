@@ -26,7 +26,6 @@ import type { Prescription } from 'maestro-shared/schema/Prescription/Prescripti
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   Fragment,
   useCallback,
@@ -498,7 +497,7 @@ const ProgrammingPrescriptionTable = ({
     const groups = new Map<PlanGroupKeyString, PlanGroup>();
 
     for (const prescription of planPrescriptions) {
-      const subPlan = findPrescriptionSubPlan(programmingPlans, prescription);
+      const subPlan = getSubPlan(prescription);
       const context = subPlan?.context ?? undefined;
       const stages = subPlan?.stages ?? [];
       const key = toPlanGroupKeyString({ context, stages });
