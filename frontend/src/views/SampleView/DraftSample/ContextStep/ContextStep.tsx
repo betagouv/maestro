@@ -10,6 +10,7 @@ import {
   LegalContextList
 } from 'maestro-shared/referential/LegalContext';
 import { Company } from 'maestro-shared/schema/Company/Company';
+import { CompanyWorkshop } from 'maestro-shared/schema/Company/CompanyWorkshop';
 import {
   Context,
   ContextLabels,
@@ -130,6 +131,14 @@ const ContextStep = ({ partialSample }: Props) => {
     partialSample?.company ??
       (user?.companies?.length === 1 ? user?.companies?.[0] : undefined)
   );
+  const [companyWorkshop, setCompanyWorkshop] = useState(
+    partialSample?.companyWorkshop ?? undefined
+  );
+  const { data: companyWorkshops = [] } =
+    apiClient.useFindCompanyWorkshopsQuery(
+      { siret: company?.siret as string },
+      { skip: !company?.siret }
+    );
   const [isBrowserGeolocation, setIsBrowserGeolocation] = useState(false);
   const [sampler, setSampler] = useState<Sampler | undefined>(
     partialSample?.sampler ?? user
@@ -228,7 +237,8 @@ const ContextStep = ({ partialSample }: Props) => {
         context === 'OutsideProgrammingPlan' ? Context : z.undefined(),
       legalContext: isPPV ? LegalContext : z.undefined()
     })
-    .extend({ company: Company });
+    .extend({ company: Company })
+    .extend({ companyWorkshop: CompanyWorkshop.nullish() });
 
   const contextOptions = selectOptionsFromList(
     [...planContexts, 'OutsideProgrammingPlan'],
@@ -324,6 +334,7 @@ const ContextStep = ({ partialSample }: Props) => {
         : context,
     legalContext: sampleLegalContext({ isPPV, context, legalContext }),
     company,
+    companyWorkshop,
     companyOffline,
     resytalId: resytalId || undefined,
     notesOnCreation,
@@ -405,6 +416,7 @@ const ContextStep = ({ partialSample }: Props) => {
     outsideProgrammingPlanContext,
     legalContext: isPPV ? legalContext : undefined,
     company,
+    companyWorkshop,
     companyOffline,
     resytalId: resytalId || undefined,
     notesOnCreation,
@@ -689,9 +701,15 @@ const ContextStep = ({ partialSample }: Props) => {
         programmingSubPlanId={programmingSubPlanId as ProgrammingSubPlanId}
         company={company}
         companyOffline={companyOffline ?? undefined}
+        companyWorkshop={companyWorkshop}
+        companyWorkshops={companyWorkshops}
         readonly={readonly}
         form={form}
-        onCompanyChange={setCompany}
+        onCompanyChange={(selected) => {
+          setCompany(selected);
+          setCompanyWorkshop(undefined);
+        }}
+        onCompanyWorkshopChange={setCompanyWorkshop}
         onGeolocationChange={(x, y) => {
           setGeolocationX(x);
           setGeolocationY(y);

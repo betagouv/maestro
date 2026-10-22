@@ -30,6 +30,7 @@ export const MaestroRoutes = [
   '/auth/logout',
   '/auth/redirect-url',
   '/companies',
+  '/companies/:siret/workshops',
   '/documents/resources',
   '/documents/resources/:documentId',
   '/documents/resources/:documentId/download',

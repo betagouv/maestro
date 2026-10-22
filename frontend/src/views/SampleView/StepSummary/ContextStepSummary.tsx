@@ -2,6 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
+import { companyWorkshopLabel } from 'maestro-shared/schema/Company/CompanyWorkshop';
 import type { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { programmingPlanContexts } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -184,6 +185,14 @@ const ContextStepSummary = ({
           )}
         </div>
       </div>
+      {sample.companyWorkshop && (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-building-line')}></div>
+          <div>
+            Atelier : <b>{companyWorkshopLabel(sample.companyWorkshop)}</b>
+          </div>
+        </div>
+      )}
       {isPPVSubPlan(programmingSubPlan) && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-map-pin-user-line')}></div>

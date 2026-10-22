@@ -24,6 +24,7 @@ import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import z from 'zod';
 import { analysisResiduesTable, analysisTable } from './analysisRepository';
 import { companiesTable } from './companyRepository';
+import { companyWorkshopsTable } from './companyWorkshopRepository';
 import { knexInstance as db, knexInstance } from './db';
 import { kysely } from './kysely';
 import type { KyselyMaestro, Samples as SamplesRow } from './kysely.type';
@@ -40,6 +41,7 @@ const PartialSampleDbo = z.object({
   ...PartialSample.omit({
     items: true,
     company: true,
+    companyWorkshop: true,
     sampler: true,
     additionalSampler: true,
     geolocation: true,
@@ -47,6 +49,7 @@ const PartialSampleDbo = z.object({
     status: true
   }).shape,
   companySiret: z.string().nullish(),
+  companyWorkshopId: z.string().nullish(),
   geolocation: z.any().nullish(),
   sampledBy: z.guid(),
   additionalSampledBy: z.guid().nullish(),
@@ -64,6 +67,17 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
     companyCity: z.string().nullish(),
     companyNafCode: z.string().nullish(),
     companyKinds: z.array(z.string()).nullish(),
+    workshopAteIdentifiant: z.string().nullish(),
+    workshopAteLb: z.string().nullish(),
+    workshopTypeIdentEta: z.string().nullish(),
+    workshopEtaId: z.string().nullish(),
+    workshopEtaLb: z.string().nullish(),
+    workshopIdeLb: z.string().nullish(),
+    workshopAdrLigne1: z.string().nullish(),
+    workshopCpEtab: z.string().nullish(),
+    workshopCommuneEtab: z.string().nullish(),
+    workshopCataLbs: z.string().nullish(),
+    workshopCataLb: z.string().nullish(),
     samplerId: z.guid(),
     samplerName: z.string(),
     additionalSamplerId: z.guid().nullish(),
@@ -90,6 +104,17 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       `${companiesTable}.city as company_city`,
       `${companiesTable}.naf_code as company_naf_code`,
       `${companiesTable}.kinds as company_kinds`,
+      `${companyWorkshopsTable}.ate_identifiant as workshop_ate_identifiant`,
+      `${companyWorkshopsTable}.ate_lb as workshop_ate_lb`,
+      `${companyWorkshopsTable}.type_ident_eta as workshop_type_ident_eta`,
+      `${companyWorkshopsTable}.eta_id as workshop_eta_id`,
+      `${companyWorkshopsTable}.eta_lb as workshop_eta_lb`,
+      `${companyWorkshopsTable}.ide_lb as workshop_ide_lb`,
+      `${companyWorkshopsTable}.adr_ligne1 as workshop_adr_ligne1`,
+      `${companyWorkshopsTable}.cp_etab as workshop_cp_etab`,
+      `${companyWorkshopsTable}.commune_etab as workshop_commune_etab`,
+      `${companyWorkshopsTable}.cata_lbs as workshop_cata_lbs`,
+      `${companyWorkshopsTable}.cata_lb as workshop_cata_lb`,
       `${usersTable}.id as sampler_id`,
       `${usersTable}.name as sampler_name`,
       db.raw(`additional_sampler.id as additional_sampler_id`),
@@ -107,6 +132,11 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       companiesTable,
       `${samplesTable}.companySiret`,
       `${companiesTable}.siret`
+    )
+    .leftJoin(
+      companyWorkshopsTable,
+      `${samplesTable}.companyWorkshopId`,
+      `${companyWorkshopsTable}.id`
     )
     .join(usersTable, `${samplesTable}.sampled_by`, `${usersTable}.id`)
     .leftJoin(
@@ -138,6 +168,7 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
     .groupBy(
       `${samplesTable}.id`,
       `${companiesTable}.siret`,
+      `${companyWorkshopsTable}.id`,
       `${usersTable}.id`,
       `additional_sampler.id`,
       `${sampleStatusView}.status`
@@ -302,6 +333,17 @@ const findMany = async (
       `${companiesTable}.postal_code as company_postal_code`,
       `${companiesTable}.city as company_city`,
       `${companiesTable}.naf_code as company_naf_code`,
+      `${companyWorkshopsTable}.ate_identifiant as workshop_ate_identifiant`,
+      `${companyWorkshopsTable}.ate_lb as workshop_ate_lb`,
+      `${companyWorkshopsTable}.type_ident_eta as workshop_type_ident_eta`,
+      `${companyWorkshopsTable}.eta_id as workshop_eta_id`,
+      `${companyWorkshopsTable}.eta_lb as workshop_eta_lb`,
+      `${companyWorkshopsTable}.ide_lb as workshop_ide_lb`,
+      `${companyWorkshopsTable}.adr_ligne1 as workshop_adr_ligne1`,
+      `${companyWorkshopsTable}.cp_etab as workshop_cp_etab`,
+      `${companyWorkshopsTable}.commune_etab as workshop_commune_etab`,
+      `${companyWorkshopsTable}.cata_lbs as workshop_cata_lbs`,
+      `${companyWorkshopsTable}.cata_lb as workshop_cata_lb`,
       `${usersTable}.id as sampler_id`,
       `${usersTable}.name as sampler_name`,
       db.raw(`additional_sampler.id as additional_sampler_id`),
@@ -318,6 +360,11 @@ const findMany = async (
       companiesTable,
       `${samplesTable}.companySiret`,
       `${companiesTable}.siret`
+    )
+    .leftJoin(
+      companyWorkshopsTable,
+      `${samplesTable}.companyWorkshopId`,
+      `${companyWorkshopsTable}.id`
     )
     .join(usersTable, `${samplesTable}.sampled_by`, `${usersTable}.id`)
     .leftJoin(
@@ -344,6 +391,7 @@ const findMany = async (
     .groupBy(
       `${samplesTable}.id`,
       `${companiesTable}.siret`,
+      `${companyWorkshopsTable}.id`,
       `${usersTable}.id`,
       `additional_sampler.id`,
       `${sampleStatusView}.status`
@@ -695,6 +743,7 @@ export const formatPartialSample = (
   ...omit(partialSample, [
     'items',
     'company',
+    'companyWorkshop',
     'sampler',
     'additionalSampler',
     'documentIds',
@@ -711,6 +760,7 @@ export const formatPartialSample = (
       ])
     : null,
   companySiret: partialSample.company?.siret,
+  companyWorkshopId: partialSample.companyWorkshop?.id ?? null,
   sampledBy: partialSample.sampler.id,
   additionalSampledBy: partialSample.additionalSampler?.id,
   sentAt: partialSample.sentAt?.toISOString()
@@ -719,7 +769,7 @@ export const formatPartialSample = (
 const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
   sample &&
   PartialSample.parse({
-    ...omit(omitBy(sample, isNil), ['companySiret']),
+    ...omit(omitBy(sample, isNil), ['companySiret', 'companyWorkshopId']),
     geolocation: sample.geolocation && {
       x: sample.geolocation.x,
       y: sample.geolocation.y
@@ -738,6 +788,24 @@ const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
           kind: null
         }
       : undefined,
+    companyWorkshop:
+      sample.companyWorkshopId && sample.companySiret
+        ? {
+            id: sample.companyWorkshopId,
+            siret: sample.companySiret,
+            ateIdentifiant: sample.workshopAteIdentifiant ?? '',
+            ateLb: sample.workshopAteLb ?? '',
+            typeIdentEta: sample.workshopTypeIdentEta ?? null,
+            etaId: sample.workshopEtaId ?? null,
+            etaLb: sample.workshopEtaLb ?? null,
+            ideLb: sample.workshopIdeLb ?? null,
+            adrLigne1: sample.workshopAdrLigne1 ?? null,
+            cpEtab: sample.workshopCpEtab ?? null,
+            communeEtab: sample.workshopCommuneEtab ?? null,
+            cataLbs: sample.workshopCataLbs ?? null,
+            cataLb: sample.workshopCataLb ?? null
+          }
+        : undefined,
     sampler: {
       id: sample.samplerId,
       name: sample.samplerName

@@ -8,6 +8,7 @@ export const tagTypes = [
   'AnalysisReportDocuments',
   'AuthUser',
   'Company',
+  'CompanyWorkshop',
   'DashboardNotice',
   'Document',
   'Laboratory',

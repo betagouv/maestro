@@ -180,6 +180,18 @@
                 {{/if}}
               </div>
             </div>
+            {{#if showCompanyWorkshop}}
+              <div class='fr-col-12'>
+                <div class='sample-section-item'>
+                  <div class='label'>
+                    Atelier
+                  </div>
+                  <div class='value {{#if (isEmpty companyWorkshop.ateLb)}}empty{{/if}}'>
+                    {{companyWorkshop.ateLb}}
+                  </div>
+                </div>
+              </div>
+            {{/if}}
             <div class='fr-col-6'>
               <div class='sample-section-item'>
                 <div class='label'>

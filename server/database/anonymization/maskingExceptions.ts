@@ -23,6 +23,7 @@ export const maskingExceptions: Record<string, string[]> = {
     'substance_authorised'
   ],
   companies: ['kinds', 'naf_code'],
+  company_workshops: ['cata_lb', 'cata_lbs', 'id', 'type_ident_eta'],
   departments: ['geometry', 'id'],
   document_programming_plans: ['document_id', 'programming_plan_id'],
   documents: ['created_by', 'id', 'kind'],

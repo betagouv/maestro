@@ -44,6 +44,7 @@ import {
 } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatMaestroDate } from 'maestro-shared/utils/date';
 import puppeteer from 'puppeteer-core';
+import companyWorkshopRepository from '../../repositories/companyWorkshopRepository';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import { matrixRepository } from '../../repositories/matrixRepository';
@@ -339,9 +340,17 @@ const generateSamplePDF = async (
 
   const planLabel = `${subPlanNumber} / ${domain?.label ?? ''} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan ? subPlanLabel(matrixReferential, subPlan) : ''}`;
 
+  const companyWorkshops = sample.company?.siret
+    ? await companyWorkshopRepository.findMany(sample.company.siret)
+    : [];
+
   return generatePDF(template, {
     fullVersion,
     ...sample,
+    showCompanyWorkshop:
+      !isNil(sample.companyWorkshop) ||
+      isNil(sample.company) ||
+      companyWorkshops.length > 0,
     subPlanNumber,
     sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
       (sampleItem) => ({
