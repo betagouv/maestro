@@ -789,6 +789,7 @@ describe('getCommemoratifs', () => {
 
 test("alimente l'établissement et l'atelier depuis le référentiel atelier", async () => {
   const xmlFile = await generateXMLDAI(
+    MatrixReferentialFixture,
     {
       ...daiSample,
       companyWorkshop: {
