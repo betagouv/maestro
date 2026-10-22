@@ -180,13 +180,13 @@
                 {{/if}}
               </div>
             </div>
-            {{#if companyWorkshop}}
+            {{#if showCompanyWorkshop}}
               <div class='fr-col-12'>
                 <div class='sample-section-item'>
                   <div class='label'>
                     Atelier
                   </div>
-                  <div class='value'>
+                  <div class='value {{#if (isEmpty companyWorkshop.ateLb)}}empty{{/if}}'>
                     {{companyWorkshop.ateLb}}
                   </div>
                 </div>
