@@ -134,6 +134,8 @@ const ProgrammingPrescriptionList = ({
   >(new Map());
   const [pendingPrescriptionSampleCounts, setPendingPrescriptionSampleCounts] =
     useState<Map<string, number>>(new Map());
+  const [importedPlanIdByPrescriptionId, setImportedPlanIdByPrescriptionId] =
+    useState<Map<string, string>>(new Map());
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState(false);
@@ -351,6 +353,17 @@ const ProgrammingPrescriptionList = ({
   const handleImported = useCallback(
     (result: PrescriptionImportResult) => {
       setImportResult(result);
+
+      setImportedPlanIdByPrescriptionId((current) => {
+        const next = new Map(current);
+        for (const { prescriptionId, programmingPlanId } of [
+          ...result.localChanges,
+          ...result.totals
+        ]) {
+          next.set(prescriptionId, programmingPlanId);
+        }
+        return next;
+      });
 
       setPendingLocalChanges((current) => {
         const next = new Map(current);
@@ -591,19 +604,22 @@ const ProgrammingPrescriptionList = ({
 
   const changePrescription = useCallback(
     async (
-      prescription: Prescription,
+      prescriptionId: string,
+      programmingPlanId: string,
       prescriptionUpdate: Omit<PrescriptionUpdate, 'programmingPlanId'>
     ) => {
-      const plan = getPrescriptionPlan(prescription);
+      const plan = yearProgrammingPlans.find(
+        (programmingPlan) => programmingPlan.id === programmingPlanId
+      );
       if (plan && hasUserPrescriptionPermission(plan)?.update) {
         await updatePrescription({
-          prescriptionId: prescription.id,
+          prescriptionId,
           programmingPlanId: plan.id,
           ...prescriptionUpdate
         }).unwrap();
       }
     },
-    [getPrescriptionPlan, hasUserPrescriptionPermission, updatePrescription]
+    [yearProgrammingPlans, hasUserPrescriptionPermission, updatePrescription]
   );
 
   const changeLocalPrescription = useCallback(
@@ -664,6 +680,7 @@ const ProgrammingPrescriptionList = ({
     setPendingLocalChanges(new Map());
     setPendingLaboratoryChanges(new Map());
     setPendingPrescriptionSampleCounts(new Map());
+    setImportedPlanIdByPrescriptionId(new Map());
   }, []);
 
   useEffect(() => {
@@ -675,13 +692,15 @@ const ProgrammingPrescriptionList = ({
     setSaveError(false);
     try {
       const planIdForPrescriptionId = (prescriptionId: string): string => {
-        const plan = getPlanForPrescriptionId(prescriptionId);
-        if (!plan) {
+        const planId =
+          importedPlanIdByPrescriptionId.get(prescriptionId) ??
+          getPlanForPrescriptionId(prescriptionId)?.id;
+        if (!planId) {
           throw new Error(
             `Plan de programmation introuvable pour la prescription ${prescriptionId}`
           );
         }
-        return plan.id;
+        return planId;
       };
 
       const plainLocalChanges = Array.from(pendingLocalChanges.values()).filter(
@@ -696,14 +715,15 @@ const ProgrammingPrescriptionList = ({
         )
       );
 
-      await Promise.all([
-        ...plainLocalChanges.map(({ key, sampleCount }) =>
-          changeLocalPrescription(key, {
-            key: 'sampleCount',
+      const localPrescriptionUpdates = [
+        ...plainLocalChanges.map(({ key, sampleCount }) => ({
+          key,
+          update: {
+            key: 'sampleCount' as const,
             sampleCount,
             programmingPlanId: planIdForPrescriptionId(key.prescriptionId)
-          })
-        ),
+          }
+        })),
         ...slaughterhouseChangeGroups.map((entries) => {
           const { prescriptionId, region, department } = entries[0].key;
           const pendingBySiret = new Map(
@@ -725,33 +745,44 @@ const ProgrammingPrescriptionList = ({
                 0
             })
           );
-          return changeLocalPrescription(
-            { prescriptionId, region, department },
-            {
-              key: 'slaughterhouseSampleCounts',
+          return {
+            key: { prescriptionId, region, department },
+            update: {
+              key: 'slaughterhouseSampleCounts' as const,
               slaughterhouseSampleCounts,
               programmingPlanId: planIdForPrescriptionId(prescriptionId)
             }
-          );
+          };
         }),
         ...Array.from(pendingLaboratoryChanges.values()).map(
-          ({ key, substanceKindsLaboratories }) =>
-            changeLocalPrescription(key, {
-              key: 'laboratories',
+          ({ key, substanceKindsLaboratories }) => ({
+            key,
+            update: {
+              key: 'laboratories' as const,
               substanceKindsLaboratories,
               programmingPlanId: planIdForPrescriptionId(key.prescriptionId)
-            })
-        ),
-        ...Array.from(pendingPrescriptionSampleCounts.entries()).map(
-          ([prescriptionId, sampleCount]) => {
-            const prescription = allPrescriptions?.find(
-              (p) => p.id === prescriptionId
-            );
-            if (!prescription) {
-              throw new Error(`Prescription introuvable : ${prescriptionId}`);
             }
-            return changePrescription(prescription, { sampleCount });
-          }
+          })
+        )
+      ];
+
+      const prescriptionUpdates = Array.from(
+        pendingPrescriptionSampleCounts.entries()
+      ).map(([prescriptionId, sampleCount]) => ({
+        prescriptionId,
+        programmingPlanId: planIdForPrescriptionId(prescriptionId),
+        sampleCount
+      }));
+
+      await Promise.all([
+        ...localPrescriptionUpdates.map(({ key, update }) =>
+          changeLocalPrescription(key, update)
+        ),
+        ...prescriptionUpdates.map(
+          ({ prescriptionId, programmingPlanId, sampleCount }) =>
+            changePrescription(prescriptionId, programmingPlanId, {
+              sampleCount
+            })
         )
       ]);
       await Promise.all([
@@ -766,6 +797,7 @@ const ProgrammingPrescriptionList = ({
       setPendingLocalChanges(new Map());
       setPendingLaboratoryChanges(new Map());
       setPendingPrescriptionSampleCounts(new Map());
+      setImportedPlanIdByPrescriptionId(new Map());
       setSaveSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
@@ -781,7 +813,7 @@ const ProgrammingPrescriptionList = ({
     changeLocalPrescription,
     changePrescription,
     getPlanForPrescriptionId,
-    allPrescriptions,
+    importedPlanIdByPrescriptionId,
     effectiveCompanies,
     subLocalPrescriptions,
     refetchPrescriptions,
