@@ -7,11 +7,7 @@ import clsx from 'clsx';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import { isCampaignLaunched } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  SubPlanNumberIssueMessages,
-  subPlanLabel,
-  subPlanNumberIssue
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { subPlanLabel } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
@@ -52,20 +48,12 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
     ? `${subPlan.subPlanNumber} - ${subPlanLabel(matrixReferential, subPlan)}`
     : programmingPlan?.title;
 
-  const { user, account, hasAccountPermission } = useAuthentication();
+  const { user, account } = useAuthentication();
   const [planTitle, setPlanTitle] = useState(programmingPlan?.title ?? '');
-  const [subPlanNumber, setSubPlanNumber] = useState(
-    subPlan?.subPlanNumber ?? ''
-  );
 
   useEffect(
     () => setPlanTitle(programmingPlan?.title ?? ''),
     [programmingPlan?.title]
-  );
-
-  useEffect(
-    () => setSubPlanNumber(subPlan?.subPlanNumber ?? ''),
-    [subPlan?.subPlanNumber]
   );
 
   const canUpdatePlanSettings =
@@ -75,21 +63,6 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
     canUpdateProgrammingPlanSettings(programmingPlan, user, account.roles);
 
   const canRenamePlan = !subPlan && canUpdatePlanSettings;
-
-  const canEditSubPlanNumber =
-    !!subPlan &&
-    canUpdatePlanSettings &&
-    hasAccountPermission('administrationMaestro');
-
-  const subPlanNumberIssueKind =
-    subPlan &&
-    subPlanNumberIssue(
-      subPlan.subPlanNumber,
-      subPlanNumber,
-      programmingPlans
-        .filter(({ year }) => year === programmingPlan?.year)
-        .flatMap(({ subPlans }) => subPlans.map((_) => _.subPlanNumber))
-    );
 
   return !programmingPlan ? null : (
     <AppPage
@@ -160,31 +133,7 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                       )
                 }}
               />
-              {subPlan && canEditSubPlanNumber ? (
-                <div className={clsx('d-flex-column', cx('fr-mr-2w'))}>
-                  <Input
-                    label="Code Nat"
-                    hideLabel
-                    className={cx('fr-mb-1w')}
-                    style={{ width: '8rem' }}
-                    classes={{ nativeInputOrTextArea: cx('fr-mt-0') }}
-                    state={subPlanNumberIssueKind ? 'error' : 'default'}
-                    stateRelatedMessage={
-                      subPlanNumberIssueKind &&
-                      SubPlanNumberIssueMessages[subPlanNumberIssueKind]
-                    }
-                    nativeInputProps={{
-                      value: subPlanNumber,
-                      'aria-label': 'Code Nat',
-                      onChange: (event) =>
-                        setSubPlanNumber(event.currentTarget.value)
-                    }}
-                  />
-                  <h4 className={cx('fr-m-0')}>
-                    {subPlanLabel(matrixReferential, subPlan)}
-                  </h4>
-                </div>
-              ) : canRenamePlan ? (
+              {canRenamePlan ? (
                 <Input
                   label="Nom du plan"
                   hideLabel
@@ -197,7 +146,9 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                   }}
                 />
               ) : (
-                <h4 className={clsx(cx('fr-m-0', 'fr-mr-2w'))}>{title}</h4>
+                <h4 className={clsx(cx('fr-m-0', 'fr-mr-2w'))}>
+                  {subPlan ? subPlanLabel(matrixReferential, subPlan) : title}
+                </h4>
               )}
               <ProgrammingPlanSettingsBadge
                 programmingPlans={programmingPlan ? [programmingPlan] : []}
@@ -256,13 +207,6 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
               subPlan={subPlan}
               titleDraft={canRenamePlan ? planTitle : undefined}
               onResetTitle={() => setPlanTitle(programmingPlan.title ?? '')}
-              subPlanNumberDraft={
-                canEditSubPlanNumber ? subPlanNumber : undefined
-              }
-              subPlanNumberInvalid={!!subPlanNumberIssueKind}
-              onResetSubPlanNumber={() =>
-                setSubPlanNumber(subPlan?.subPlanNumber ?? '')
-              }
             />
           </div>
         </div>

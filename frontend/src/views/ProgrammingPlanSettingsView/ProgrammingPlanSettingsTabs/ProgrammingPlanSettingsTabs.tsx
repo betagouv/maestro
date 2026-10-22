@@ -16,9 +16,11 @@ import {
   ProgrammingSubPlanLevelSettingsForm
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type {
-  ProgrammingSubPlan,
-  ProgrammingSubPlanId
+import {
+  type ProgrammingSubPlan,
+  type ProgrammingSubPlanId,
+  SubPlanNumberIssueMessages,
+  subPlanNumberIssue
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { checkSchema } from 'maestro-shared/utils/zod';
@@ -49,9 +51,6 @@ type Props = {
   subPlan: ProgrammingSubPlan | undefined;
   titleDraft: string | undefined;
   onResetTitle: () => void;
-  subPlanNumberDraft: string | undefined;
-  subPlanNumberInvalid: boolean;
-  onResetSubPlanNumber: () => void;
 };
 
 const emptySettings: ProgrammingLevelSettingsForm = {
@@ -59,6 +58,7 @@ const emptySettings: ProgrammingLevelSettingsForm = {
   settingsCompleted: false,
   nationalCoordinators: null,
   technicalInstruction: null,
+  subPlanNumber: null,
   fields: []
 };
 
@@ -94,6 +94,7 @@ const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   multiSubstances: 'analyses',
   nationalCoordinators: 'global',
   technicalInstruction: 'global',
+  subPlanNumber: 'global',
   fields: 'sampler-form'
 };
 
@@ -113,9 +114,6 @@ export const ProgrammingPlanSettingsTabs = ({
   subPlan,
   titleDraft,
   onResetTitle,
-  subPlanNumberDraft,
-  subPlanNumberInvalid,
-  onResetSubPlanNumber,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -124,6 +122,8 @@ export const ProgrammingPlanSettingsTabs = ({
 
   const programmingPlanId = programmingPlan.id;
 
+  const { data: programmingPlans = [] } =
+    apiClient.useFindProgrammingPlansQuery({});
   const { data: planSettings } = apiClient.useFindProgrammingPlanSettingsQuery(
     { programmingPlanId },
     { skip: !!subPlan }
@@ -157,10 +157,12 @@ export const ProgrammingPlanSettingsTabs = ({
         ? subPlanSettings && {
             ...subPlanSettings,
             nationalCoordinators: null,
-            technicalInstruction: null
+            technicalInstruction: null,
+            subPlanNumber: subPlan.subPlanNumber
           }
         : planSettings && {
             ...planSettings,
+            subPlanNumber: null,
             fields: planSettings.fields.map((field) => ({
               ...field,
               inheritance: 'Own' as const,
@@ -177,16 +179,11 @@ export const ProgrammingPlanSettingsTabs = ({
   const hasTitleChange =
     titleDraft !== undefined && titleDraft !== programmingPlan.title;
 
-  const hasSubPlanNumberChange =
-    subPlanNumberDraft !== undefined &&
-    subPlanNumberDraft !== subPlan?.subPlanNumber;
-
   const resetDraft = () => {
     setDraft(settings);
     setTechnicalInstructionFile(undefined);
     createDocumentUploadCall.reset();
     onResetTitle();
-    onResetSubPlanNumber();
   };
 
   useEffect(resetDraft, [settings]);
@@ -195,8 +192,7 @@ export const ProgrammingPlanSettingsTabs = ({
     !!draft &&
     (!isEqual(draft, settings) ||
       technicalInstructionFile !== undefined ||
-      hasTitleChange ||
-      hasSubPlanNumberChange);
+      hasTitleChange);
 
   const unsavedChangesGuard = useUnsavedChangesGuard({
     when: hasChanges,
@@ -208,7 +204,23 @@ export const ProgrammingPlanSettingsTabs = ({
   const formSchema = useMemo(
     () =>
       subPlan
-        ? ProgrammingSubPlanLevelSettingsForm
+        ? checkSchema(ProgrammingSubPlanLevelSettingsForm, (ctx) => {
+            const issue = subPlanNumberIssue(
+              subPlan.subPlanNumber,
+              ctx.value.subPlanNumber ?? '',
+              programmingPlans
+                .filter(({ year }) => year === programmingPlan.year)
+                .flatMap(({ subPlans }) => subPlans.map((_) => _.subPlanNumber))
+            );
+            if (issue) {
+              ctx.issues.push({
+                input: ctx.value,
+                code: 'custom',
+                message: SubPlanNumberIssueMessages[issue],
+                path: ['subPlanNumber']
+              });
+            }
+          })
         : checkSchema(ProgrammingLevelSettingsForm, (ctx) => {
             for (const conflict of planSaveConflicts(
               programmingPlan.subPlans,
@@ -223,7 +235,7 @@ export const ProgrammingPlanSettingsTabs = ({
               });
             }
           }),
-    [subPlan, programmingPlan]
+    [subPlan, programmingPlan, programmingPlans]
   );
 
   const [validation, setValidation] = useState<{
@@ -256,9 +268,10 @@ export const ProgrammingPlanSettingsTabs = ({
         await updateProgrammingSubPlanSettings({
           programmingPlanId,
           programmingSubPlanId: subPlan.id,
-          subPlanNumber: hasSubPlanNumberChange
-            ? subPlanNumberDraft
-            : undefined,
+          subPlanNumber:
+            draft.subPlanNumber !== subPlan.subPlanNumber
+              ? (draft.subPlanNumber ?? undefined)
+              : undefined,
           ...pickProgrammingPlanSettings(withoutOrphanSubstances(draft)),
           fields: draft.fields,
           settingsCompleted
@@ -306,7 +319,7 @@ export const ProgrammingPlanSettingsTabs = ({
   };
 
   useEffect(() => {
-    if (!validation || !draft || subPlanNumberInvalid) {
+    if (!validation || !draft) {
       return;
     }
     form.validate(async () => {

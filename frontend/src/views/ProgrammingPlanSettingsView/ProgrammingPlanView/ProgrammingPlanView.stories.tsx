@@ -552,9 +552,9 @@ export const SubPlan: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByRole('textbox', { name: 'Code Nat' })).toHaveValue(
-      '101'
-    );
+    await expect(
+      canvas.getByRole('textbox', { name: /N° du sous-plan/ })
+    ).toHaveValue('101');
     await expect(
       canvas.getByRole('heading', { name: cerealesName })
     ).toBeInTheDocument();
@@ -680,7 +680,9 @@ export const SubPlanNumberSave: Story = {
 
     updateProgrammingSubPlanSettings.mockClear();
 
-    const subPlanNumber = canvas.getByRole('textbox', { name: 'Code Nat' });
+    const subPlanNumber = canvas.getByRole('textbox', {
+      name: /N° du sous-plan/
+    });
     await userEvent.clear(subPlanNumber);
     await userEvent.type(subPlanNumber, '109');
 
@@ -714,25 +716,33 @@ export const SubPlanNumberAlreadyUsed: Story = {
 
     updateProgrammingSubPlanSettings.mockClear();
 
-    const subPlanNumber = canvas.getByRole('textbox', { name: 'Code Nat' });
+    const subPlanNumber = canvas.getByRole('textbox', {
+      name: /N° du sous-plan/
+    });
     await userEvent.clear(subPlanNumber);
     await userEvent.type(subPlanNumber, '102');
 
+    await userEvent.click(canvas.getByRole('tab', { name: 'Analyses' }));
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await expect(
+      await canvas.findByRole('textbox', { name: /N° du sous-plan/ })
+    ).toHaveValue('102');
     await expect(
       canvas.getByText(
         'Ce code est déjà utilisé par un autre sous-plan de l’année.'
       )
     ).toBeInTheDocument();
-
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
-    );
-
+    await expect(
+      canvas.getByRole('tab', { name: 'Paramétrage global' })
+    ).toHaveAttribute('aria-selected', 'true');
     await expect(updateProgrammingSubPlanSettings).not.toHaveBeenCalled();
   }
 };
 
-export const SubPlanNumberReadOnlyForCoordinator: Story = {
+export const SubPlanNumberDisabledForCoordinator: Story = {
   parameters: {
     preloadedState: {
       auth: {
@@ -753,11 +763,11 @@ export const SubPlanNumberReadOnlyForCoordinator: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.getByRole('heading', { name: `101 - ${cerealesName}` })
+      canvas.getByRole('heading', { name: cerealesName })
     ).toBeInTheDocument();
     await expect(
-      canvas.queryByRole('textbox', { name: 'Code Nat' })
-    ).not.toBeInTheDocument();
+      canvas.getByRole('textbox', { name: /N° du sous-plan/ })
+    ).toBeDisabled();
   }
 };
 
