@@ -2,6 +2,10 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
+import {
+  areFieldsLocked,
+  type ProgrammingPlanEditionPhase
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEditionPhase';
 import type { ProgrammingSubPlanFieldSetting } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { useContext } from 'react';
 import { ApiClientContext } from 'src/services/apiClient';
@@ -16,15 +20,19 @@ const addFieldModal = createModal({
 
 type Props = {
   fields: ProgrammingSubPlanFieldSetting[];
+  editionPhase: ProgrammingPlanEditionPhase;
   onChange: (fields: ProgrammingSubPlanFieldSetting[]) => void;
 };
 
 export const ProgrammingPlanSamplerFormSettings = ({
   fields,
+  editionPhase,
   onChange,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const locked = areFieldsLocked(editionPhase);
 
   const apiClient = useContext(ApiClientContext);
 
@@ -48,7 +56,7 @@ export const ProgrammingPlanSamplerFormSettings = ({
           className={cx('fr-ml-auto')}
           iconId="fr-icon-add-line"
           onClick={() => addFieldModal.open()}
-          disabled={availableFields.length === 0}
+          disabled={locked || availableFields.length === 0}
         >
           Ajouter un descripteur
         </Button>
@@ -56,6 +64,7 @@ export const ProgrammingPlanSamplerFormSettings = ({
 
       <ProgrammingSubPlanFieldList
         fields={fields}
+        locked={locked}
         onChange={onChange}
         allFields={allFields}
       />

@@ -3,6 +3,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import { isEqual } from 'lodash-es';
 import { planSaveConflicts } from 'maestro-shared/schema/ProgrammingPlan/completedSubPlanSettings';
+import { programmingPlanEditionPhase } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEditionPhase';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   emptyProgrammingPlanSettings,
@@ -150,6 +151,8 @@ export const ProgrammingPlanSettingsTabs = ({
     !user ||
     !account ||
     !canUpdateProgrammingPlanSettings(programmingPlan, user, account.roles);
+
+  const editionPhase = programmingPlanEditionPhase(programmingPlan);
 
   const settings: ProgrammingLevelSettingsForm | undefined = useMemo(
     () =>
@@ -341,6 +344,7 @@ export const ProgrammingPlanSettingsTabs = ({
           <ProgrammingPlanGlobalSettings
             settings={draft}
             planSettings={subPlan ? programmingPlan : undefined}
+            editionPhase={editionPhase}
             technicalInstructionFile={technicalInstructionFile}
             inputForm={form}
             onChange={changeDraft}
@@ -351,6 +355,7 @@ export const ProgrammingPlanSettingsTabs = ({
         return (
           <ProgrammingPlanSamplerFormSettings
             fields={draft.fields}
+            editionPhase={editionPhase}
             onChange={(fields) => setDraft({ ...draft, fields })}
           />
         );
@@ -359,6 +364,7 @@ export const ProgrammingPlanSettingsTabs = ({
           <ProgrammingPlanSampleSettings
             settings={draft}
             planSettings={subPlan ? programmingPlan : undefined}
+            editionPhase={editionPhase}
             inputForm={form}
             onChange={changeDraft}
           />
@@ -368,6 +374,7 @@ export const ProgrammingPlanSettingsTabs = ({
           <ProgrammingPlanAnalysisSettings
             settings={draft}
             planSettings={subPlan ? programmingPlan : undefined}
+            editionPhase={editionPhase}
             inputForm={form}
             onChange={changeDraft}
           />

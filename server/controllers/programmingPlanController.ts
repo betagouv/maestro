@@ -21,6 +21,11 @@ import {
   type ProgrammingPlanEchelon
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
+import {
+  lockedFieldsChanged,
+  lockedSettingsChanged,
+  programmingPlanEditionPhase
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEditionPhase';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   inheritsUnmanagedSetting,
@@ -1152,7 +1157,19 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
         orphanSubstancesSettingKeys(body).length > 0 ||
         resumesDraft(programmingPlan, body) ||
         planSaveConflicts(programmingPlan.subPlans, programmingPlan, body)
-          .length > 0
+          .length > 0 ||
+        lockedSettingsChanged(
+          programmingPlanEditionPhase(programmingPlan),
+          programmingPlan,
+          body
+        ) ||
+        lockedFieldsChanged(
+          programmingPlanEditionPhase(programmingPlan),
+          await specificDataFieldConfigRepository.findPlanFieldSettings(
+            programmingPlanId
+          ),
+          body.fields
+        )
       ) {
         return { status: HttpStatus.CONFLICT };
       }
@@ -1291,7 +1308,19 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           orphanSubstancesSettingKeys(
             effectiveSubPlanSettings(body, programmingPlan)
           ).length > 0 ||
-          resumesDraft(programmingSubPlan, body)
+          resumesDraft(programmingSubPlan, body) ||
+          lockedSettingsChanged(
+            programmingPlanEditionPhase(programmingPlan),
+            programmingSubPlan,
+            body
+          ) ||
+          lockedFieldsChanged(
+            programmingPlanEditionPhase(programmingPlan),
+            await specificDataFieldConfigRepository.findSubPlanFieldSettings(
+              programmingSubPlanId
+            ),
+            body.fields
+          )
         ) {
           return { status: HttpStatus.CONFLICT };
         }
