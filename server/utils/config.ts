@@ -44,6 +44,7 @@ const configValidator = z
     AUTH_USER_INFO_ALGORITHM: z.string().nullish(),
     DATABASE_URL: z.string(),
     MAIL_FROM: z.email().default('contact@maestro.beta.gouv.fr'),
+    MAIL_SUPPORT: z.email().default('contact@maestro.beta.gouv.fr'),
     MAILER_PROVIDER: MailProvider.default('fake'),
     MAILER_HOST: z.string().nullish(),
     MAILER_PORT: z.coerce.number().nullish(),
@@ -110,7 +111,8 @@ const configValidator = z
       },
       databaseUrl: c.DATABASE_URL,
       mail: {
-        from: c.MAIL_FROM
+        from: c.MAIL_FROM,
+        support: c.MAIL_SUPPORT
       },
       mailer: {
         provider: c.MAILER_PROVIDER,
