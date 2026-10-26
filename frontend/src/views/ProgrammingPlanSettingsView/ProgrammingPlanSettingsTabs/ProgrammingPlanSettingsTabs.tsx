@@ -124,11 +124,12 @@ export const ProgrammingPlanSettingsTabs = ({
 
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
-  const { data: planSettings } = apiClient.useFindProgrammingPlanSettingsQuery(
-    { programmingPlanId },
-    { skip: !!subPlan }
-  );
-  const { data: subPlanSettings } =
+  const { data: planSettings, isFetching: isFetchingPlanSettings } =
+    apiClient.useFindProgrammingPlanSettingsQuery(
+      { programmingPlanId },
+      { skip: !!subPlan }
+    );
+  const { data: subPlanSettings, isFetching: isFetchingSubPlanSettings } =
     apiClient.useFindProgrammingSubPlanSettingsQuery(
       {
         programmingPlanId,
@@ -143,6 +144,13 @@ export const ProgrammingPlanSettingsTabs = ({
     apiClient.useUpdateProgrammingSubPlanSettingsMutation();
   const [createDocumentUpload, createDocumentUploadCall] =
     apiClient.useCreateDocumentUploadMutation();
+
+  const saving =
+    createDocumentUploadCall.isLoading ||
+    updatePlanSettingsCall.isLoading ||
+    updateSubPlanSettingsCall.isLoading ||
+    isFetchingPlanSettings ||
+    isFetchingSubPlanSettings;
 
   const { user, account } = useAuthentication();
 
@@ -263,6 +271,9 @@ export const ProgrammingPlanSettingsTabs = ({
     draft: ProgrammingLevelSettingsForm,
     settingsCompleted: boolean
   ): Promise<boolean> => {
+    if (saving) {
+      return false;
+    }
     try {
       if (subPlan) {
         await updateProgrammingSubPlanSettings({
@@ -405,6 +416,7 @@ export const ProgrammingPlanSettingsTabs = ({
           <ProgrammingSubPlanActionBar
             completed={draft.settingsCompleted}
             hasChanges={hasChanges}
+            saving={saving}
             saveCall={
               subPlan
                 ? updateSubPlanSettingsCall
