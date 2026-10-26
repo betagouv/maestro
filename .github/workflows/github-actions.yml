@@ -5,31 +5,10 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
-  lint:
+  check:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    steps:
-      - uses: actions/checkout@v7.0.1
-      - name: Setup Biome
-        uses: biomejs/setup-biome@v2
-      - name: Run Biome
-        run: biome ci . --error-on-warnings
-  knip:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7.0.1
-      - name: Use Node.js
-        uses: actions/setup-node@v7.1.0
-        with:
-          node-version: 'lts/*'
-          cache: npm
-      - name: Install
-        run: npm ci
-      - name: Run Knip
-        run: npm run knip
-  build:
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Use Node.js
@@ -39,8 +18,14 @@ jobs:
           cache: npm
       - name: NPM install
         run: npm ci
+      - name: Run Biome
+        run: npx biome ci . --error-on-warnings
+      - name: Run Knip
+        run: npm run knip
       - name: build
         run: npm run build --workspaces
+      - name: Shared tests
+        run: npm -w shared test
   server_test:
     runs-on: ubuntu-latest
     services:
@@ -102,22 +87,9 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
       - name: Frontend tests
         run: npm -w frontend test -- --test-timeout=30000
-  shared_test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7.0.1
-      - name: Use Node.js
-        uses: actions/setup-node@v7.1.0
-        with:
-          node-version: 'lts/*'
-          cache: npm
-      - name: NPM install
-        run: npm ci
-      - name: Shared tests
-        run: npm -w shared test
   release:
     if: github.ref == 'refs/heads/prod'
-    needs: [lint, knip, build, server_test, frontend_test, shared_test]
+    needs: [check, server_test, frontend_test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
