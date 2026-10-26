@@ -64,6 +64,8 @@ jobs:
           M2M_BASIC_TOKEN: fakeBasicToken
   frontend_test:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Use Node.js
@@ -73,18 +75,6 @@ jobs:
           cache: npm
       - name: NPM install
         run: npm ci
-      - name: Cache Playwright browsers
-        uses: actions/cache@v6.1.0
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ hashFiles('frontend/package-lock.json', 'package-lock.json') }}
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-      - name: Install Playwright system deps only
-        run: npx playwright install-deps chromium
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
       - name: Frontend tests
         run: npm -w frontend test -- --test-timeout=30000
   release:
