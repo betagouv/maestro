@@ -154,12 +154,31 @@ const applyLocalPrescriptionFilters = (
             .whereRaw(`c.prescription_id = ${prescriptionsTable}.id`)
             .where('c.kind', 'sampleCount')
             .whereNull('c.applied_at')
+            .where('c.sample_count', '>', 0)
             .modify((query) => {
               query.where((sub) => {
                 sub.whereNotNull('c.diffused_at');
                 if (visibility?.echelon) {
                   sub.orWhere('c.echelon', visibility.echelon);
                 }
+              });
+              query.whereNotExists((newer) => {
+                newer
+                  .select(db.raw('1'))
+                  .from(`${localPrescriptionChangesTable} as newer`)
+                  .whereRaw('newer.prescription_id = c.prescription_id')
+                  .whereRaw('newer.region = c.region')
+                  .whereRaw('newer.department = c.department')
+                  .whereRaw('newer.company_siret = c.company_siret')
+                  .where('newer.kind', 'sampleCount')
+                  .whereNull('newer.applied_at')
+                  .whereRaw('newer.changed_at > c.changed_at')
+                  .where((sub) => {
+                    sub.whereNotNull('newer.diffused_at');
+                    if (visibility?.echelon) {
+                      sub.orWhere('newer.echelon', visibility.echelon);
+                    }
+                  });
               });
               if (findOptions.region) {
                 query.where('c.region', findOptions.region);
