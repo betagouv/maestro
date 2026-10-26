@@ -20,15 +20,18 @@ import {
 import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { sampleProcedureItems } from 'maestro-shared/schema/ProgrammingPlan/SampleProcedure';
 import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { memo, useState } from 'react';
+import { memo, useContext, useState } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import LaboratorySelect from 'src/components/LaboratorySelect/LaboratorySelect';
 import PrescriptionDistributionBadge from 'src/components/Prescription/PrescriptionDistributionBadge/PrescriptionDistributionBadge';
 import SelectionCheckbox from 'src/components/SelectionCheckbox/SelectionCheckbox';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
+import { ApiClientContext } from 'src/services/apiClient';
+import { getDocumentDownloadURL } from 'src/services/document.service';
 import {
   assignSampleLaboratory,
   groupSubstanceKindsLaboratoriesBySample,
@@ -118,6 +121,19 @@ const ProgrammingPrescriptionRow = ({
     useAuthentication();
   const matrixReferential = useMatrixReferential();
   const [isExpanded, setIsExpanded] = useState(false);
+  const apiClient = useContext(ApiClientContext);
+  const { data: planDocuments = [] } = apiClient.useFindResourcesQuery(
+    { programmingPlanIds: [plan.id] },
+    { skip: !isExpanded }
+  );
+  const technicalInstruction = planDocuments.find(
+    ({ kind }) => kind === 'TechnicalInstruction'
+  );
+  const sampleProcedure = sampleProcedureItems(
+    matrixReferential,
+    subPlan?.sampleProcedure,
+    null
+  );
 
   const totalSampleCount = sumBy(localPrescriptions, 'sampleCount');
   const showDistributionBadge =
@@ -652,7 +668,7 @@ const ProgrammingPrescriptionRow = ({
       </div>
       {isExpanded && (
         <div className="prescription-expanded-content">
-          <div className={cx('fr-grid-row')}>
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-3')}>
               {showComments && (
                 <div className={cx('fr-mb-3w')}>
@@ -686,6 +702,19 @@ const ProgrammingPrescriptionRow = ({
               </div>
             </div>
             <div className={cx('fr-col-3')}>
+              <div className="d-flex-align-center">
+                <span className={cx('fr-icon-archive-line', 'fr-pr-1v')} />
+                <b>Modalités d'échantillonnage</b>
+              </div>
+              {sampleProcedure.length > 0
+                ? sampleProcedure.map(({ label, value }) => (
+                    <div key={label} className={cx('fr-py-1v')}>
+                      {label} : <b>{value}</b>
+                    </div>
+                  ))
+                : 'Aucune modalité'}
+            </div>
+            <div className={cx('fr-col-3')}>
               <PrescriptionSubstances
                 programmingPlan={
                   findPrescriptionPlan(programmingPlans, prescription) ??
@@ -693,6 +722,29 @@ const ProgrammingPrescriptionRow = ({
                 }
                 prescription={prescription}
               />
+            </div>
+            <div className={cx('fr-col-3')}>
+              <div className="d-flex-align-center">
+                <span className={cx('fr-icon-file-line', 'fr-pr-1v')} />
+                <b>Documents</b>
+              </div>
+              {technicalInstruction ? (
+                <>
+                  <div>Instruction technique</div>
+                  <a
+                    href={getDocumentDownloadURL(technicalInstruction.id, {
+                      type: 'resource'
+                    })}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={cx('fr-link')}
+                  >
+                    {technicalInstruction.name ?? technicalInstruction.filename}
+                  </a>
+                </>
+              ) : (
+                'Aucun document'
+              )}
             </div>
           </div>
         </div>
