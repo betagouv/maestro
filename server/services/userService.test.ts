@@ -33,7 +33,7 @@ describe('userService.insert', () => {
 
     expect(mailService.send).toHaveBeenCalledExactlyOnceWith({
       templateName: 'GenericTemplate',
-      recipients: [config.mail.from],
+      recipients: [config.mail.support],
       params: {
         object: '[Support] Nouvel utilisateur à former',
         content: `Un nouvel utilisateur doit être formé avant de pouvoir accéder à Maestro : ${config.application.host}/utilisateurs`

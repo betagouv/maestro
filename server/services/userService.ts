@@ -49,7 +49,7 @@ const insert = async (user: UserToPersist): Promise<void> => {
   if (!user.certified) {
     await mailService.send({
       templateName: 'GenericTemplate',
-      recipients: [config.mail.from],
+      recipients: [config.mail.support],
       params: {
         object: '[Support] Nouvel utilisateur à former',
         content: `Un nouvel utilisateur doit être formé avant de pouvoir accéder à ${Brand} : ${config.application.host}${AppRouteLinks.UsersRoute.link()}`
