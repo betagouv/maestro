@@ -1,13 +1,16 @@
 import type { Request } from 'express';
+import { unescape as unescapeHtml } from 'lodash-es';
 import sanitizeHtml from 'sanitize-html';
 import { type ZodObject, type ZodType, z } from 'zod';
 
 const sanitizeObject = (obj: unknown): any => {
   if (typeof obj === 'string') {
-    return sanitizeHtml(obj, {
-      allowedTags: [],
-      allowedAttributes: {}
-    }).trim();
+    return unescapeHtml(
+      sanitizeHtml(obj, {
+        allowedTags: [],
+        allowedAttributes: {}
+      })
+    ).trim();
   }
 
   if (Array.isArray(obj)) {

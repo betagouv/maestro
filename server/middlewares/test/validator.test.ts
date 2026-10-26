@@ -110,6 +110,14 @@ describe('Validator middleware', () => {
         })
         .expect(constants.HTTP_STATUS_CREATED)
         .expect({ name: '67890' });
+
+      await request(app)
+        .post(testRoute)
+        .send({
+          name: '< 4°C & > 0°C'
+        })
+        .expect(constants.HTTP_STATUS_CREATED)
+        .expect({ name: '< 4°C & > 0°C' });
     });
   });
 });
