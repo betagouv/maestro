@@ -2164,6 +2164,28 @@ export const PlanNewTechnicalInstruction: Story = {
   }
 };
 
+export const PlanSaveInProgress: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useCreateDocumentUploadMutation: [
+        createDocumentUpload,
+        { isLoading: true }
+      ]
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    ).toBeDisabled();
+    await expect(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    ).toBeDisabled();
+  }
+};
+
 export const PlanExistingTechnicalInstruction: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

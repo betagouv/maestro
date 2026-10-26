@@ -7,6 +7,7 @@ import './ProgrammingSubPlanActionBar.scss';
 type Props = {
   completed: boolean;
   hasChanges: boolean;
+  saving: boolean;
   saveCall: { isError: boolean; error?: unknown };
   onReset: () => void;
   onSaveDraft: () => void;
@@ -16,6 +17,7 @@ type Props = {
 export const ProgrammingSubPlanActionBar = ({
   completed,
   hasChanges,
+  saving,
   saveCall,
   onReset,
   onSaveDraft,
@@ -45,11 +47,13 @@ export const ProgrammingSubPlanActionBar = ({
                   {
                     children: 'Enregistrer en brouillon',
                     priority: 'secondary' as const,
+                    disabled: saving,
                     onClick: onSaveDraft
                   }
                 ]),
             {
               children: completed ? 'Enregistrer' : 'Enregistrer et terminer',
+              disabled: saving,
               onClick: onComplete
             }
           ]}
