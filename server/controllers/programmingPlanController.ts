@@ -21,6 +21,10 @@ import {
   type ProgrammingPlanEchelon
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
+import {
+  lockedSettingsChanged,
+  programmingPlanEditionPhase
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEditionPhase';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   inheritsUnmanagedSetting,
@@ -1151,7 +1155,18 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
         orphanSubstancesSettingKeys(body).length > 0 ||
         resumesDraft(programmingPlan, body) ||
         planSaveConflicts(programmingPlan.subPlans, programmingPlan, body)
-          .length > 0
+          .length > 0 ||
+        lockedSettingsChanged(
+          programmingPlanEditionPhase(programmingPlan),
+          {
+            ...programmingPlan,
+            fields:
+              await specificDataFieldConfigRepository.findPlanFieldSettings(
+                programmingPlanId
+              )
+          },
+          body
+        )
       ) {
         return { status: HttpStatus.CONFLICT };
       }
@@ -1290,7 +1305,18 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           orphanSubstancesSettingKeys(
             effectiveSubPlanSettings(body, programmingPlan)
           ).length > 0 ||
-          resumesDraft(programmingSubPlan, body)
+          resumesDraft(programmingSubPlan, body) ||
+          lockedSettingsChanged(
+            programmingPlanEditionPhase(programmingPlan),
+            {
+              ...programmingSubPlan,
+              fields:
+                await specificDataFieldConfigRepository.findSubPlanFieldSettings(
+                  programmingSubPlanId
+                )
+            },
+            body
+          )
         ) {
           return { status: HttpStatus.CONFLICT };
         }

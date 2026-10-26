@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import type { ProgrammingPlanEditionPhase } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEditionPhase';
 import type { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingLevelSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import {
@@ -16,6 +17,7 @@ import './ProgrammingPlanSampleSettings.scss';
 type Props<T extends ProgrammingPlanSettings> = {
   settings: T;
   planSettings: ProgrammingPlanSettings | undefined;
+  editionPhase: ProgrammingPlanEditionPhase;
   inputForm: UseForm<typeof ProgrammingLevelSettingsForm>;
   onChange: (settings: T) => void;
 };
@@ -25,24 +27,22 @@ export const ProgrammingPlanSampleProcedureSettings = <
 >({
   settings,
   planSettings,
+  editionPhase,
   inputForm,
   onChange,
   ..._rest
 }: Props<T>) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const {
-    isInherited: disabled,
-    isFieldVisible,
-    lockButton,
-    toggle
-  } = useSettingInheritance({
-    settingKey: 'sampleProcedure',
-    label: 'Modalités d’échantillonnage',
-    settings,
-    planSettings,
-    onChange
-  });
+  const { disabled, isFieldVisible, lockButton, toggle } =
+    useSettingInheritance({
+      settingKey: 'sampleProcedure',
+      label: 'Modalités d’échantillonnage',
+      settings,
+      planSettings,
+      editionPhase,
+      onChange
+    });
 
   const changeField = (changedKey: SampleProcedureKey, value: string) => {
     const sampleProcedure = Object.fromEntries(

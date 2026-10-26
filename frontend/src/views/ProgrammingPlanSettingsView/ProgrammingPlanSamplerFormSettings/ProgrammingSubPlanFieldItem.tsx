@@ -16,6 +16,7 @@ import { ProgrammingSubPlanFieldActiveOptions } from './ProgrammingSubPlanFieldA
 interface Props {
   field: ProgrammingSubPlanFieldSetting;
   globalField: AdminFieldConfig | undefined;
+  locked: boolean;
   canMoveUp: boolean;
   canMoveDown: boolean;
   onChange: (field: ProgrammingSubPlanFieldSetting) => void;
@@ -27,6 +28,7 @@ interface Props {
 export const ProgrammingSubPlanFieldItem = ({
   field,
   globalField,
+  locked,
   canMoveUp,
   canMoveDown,
   onChange,
@@ -69,6 +71,7 @@ export const ProgrammingSubPlanFieldItem = ({
             <SettingInheritanceLockButton
               isInherited={isReadOnly}
               title={FieldInheritanceLabels[inheritance]}
+              disabled={locked}
               onClick={() =>
                 onChange({
                   ...field,
@@ -95,7 +98,7 @@ export const ProgrammingSubPlanFieldItem = ({
           label="Obligatoire"
           labelPosition={'left'}
           checked={field.required}
-          disabled={isReadOnly}
+          disabled={isReadOnly || locked}
           onChange={(required) => onChange({ ...field, required })}
           showCheckedHint={false}
         />
@@ -125,6 +128,7 @@ export const ProgrammingSubPlanFieldItem = ({
             iconId="fr-icon-delete-line"
             size="small"
             title="Retirer"
+            disabled={locked}
             onClick={onDelete}
           />
         </div>
@@ -134,7 +138,7 @@ export const ProgrammingSubPlanFieldItem = ({
         <ProgrammingSubPlanFieldActiveOptions
           optionIds={field.optionIds}
           globalField={globalField}
-          disabled={isReadOnly}
+          disabled={isReadOnly || locked}
           onChange={(optionIds) => onChange({ ...field, optionIds })}
         />
       )}

@@ -449,6 +449,8 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   distributionKind: 'REGIONAL',
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
+  launchedAt: null,
+  launchedBy: null,
   nationalStatus: { status: 'InProgress' },
   regionalStatus: RegionList.map((region) => ({
     region,
@@ -519,6 +521,8 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   settingsCompleted: false,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
+  launchedAt: null,
+  launchedBy: null,
   nationalStatus: { status: 'InProgress' },
   regionalStatus: RegionList.map((region) => ({
     region,

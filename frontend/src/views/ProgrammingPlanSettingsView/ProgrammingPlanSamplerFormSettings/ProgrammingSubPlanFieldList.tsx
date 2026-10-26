@@ -8,12 +8,14 @@ import { ProgrammingSubPlanFieldItem } from './ProgrammingSubPlanFieldItem';
 
 interface Props {
   fields: ProgrammingSubPlanFieldSetting[];
+  locked: boolean;
   onChange: (fields: ProgrammingSubPlanFieldSetting[]) => void;
   allFields: AdminFieldConfig[];
 }
 
 export const ProgrammingSubPlanFieldList = ({
   fields,
+  locked,
   onChange,
   allFields,
   ..._rest
@@ -63,6 +65,7 @@ export const ProgrammingSubPlanFieldList = ({
             key={field.fieldId}
             field={field}
             globalField={globalField}
+            locked={locked}
             canMoveUp={i > 0 && !visibleFields[i - 1].field.managedAtPlanLevel}
             canMoveDown={i < visibleFields.length - 1}
             onChange={(updated) => replaceAt(index, updated)}
