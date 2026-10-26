@@ -12,10 +12,7 @@ import { getApiUrl } from 'src/utils/fetchUtils';
 
 const sampleApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getResidueStats: buildTypedQuery(builder, '/samples/residue-stats', {
-      providesTags: ['SampleCount']
-    }),
-    getComplianceStats: buildTypedQuery(builder, '/samples/compliance-stats', {
+    getDashboardStats: buildTypedQuery(builder, '/samples/dashboard-stats', {
       providesTags: ['SampleCount']
     }),
     getSample: buildTypedQuery(builder, '/samples/:sampleId', {
@@ -127,8 +124,7 @@ export const getSampleListExportURL = (findOptions: FindSampleOptions) =>
   getApiUrl('/samples/export', findOptions);
 
 export const {
-  useGetResidueStatsQuery,
-  useGetComplianceStatsQuery,
+  useGetDashboardStatsQuery,
   useCreateOrUpdateSampleMutation,
   useFindSamplesQuery,
   useLazyFindSamplesQuery,

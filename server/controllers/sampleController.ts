@@ -119,6 +119,45 @@ export const getNewReference = async (
 };
 
 export const sampleRouter = {
+  '/samples/dashboard-stats': {
+    get: async ({ user, userRole, query }) => {
+      const { territoryLevel, ...sampleQuery } = query;
+      const findOptions = buildFindSampleOptions(user, userRole, sampleQuery);
+
+      const [sampleStats, programmedStats] = await Promise.all([
+        sampleRepository.findDashboardStats({ ...findOptions, territoryLevel }),
+        localPrescriptionRepository.findProgrammedCounts({
+          programmingPlanIds: findOptions.programmingPlanIds,
+          programmingSubPlanIds: findOptions.programmingSubPlanIds,
+          regions: findOptions.regions,
+          departments: findOptions.departments,
+          companySirets: findOptions.companySirets,
+          territoryLevel
+        })
+      ]);
+
+      const programmedByTerritory = new Map(
+        programmedStats.byTerritory.map(({ key, programmedCount }) => [
+          key,
+          programmedCount
+        ])
+      );
+
+      return {
+        status: HttpStatus.OK,
+        response: {
+          ...sampleStats,
+          programmedCount: programmedStats.programmedCount,
+          planCount: programmedStats.planCount,
+          subPlanCount: programmedStats.subPlanCount,
+          byTerritory: sampleStats.byTerritory.map((territory) => ({
+            ...territory,
+            programmedCount: programmedByTerritory.get(territory.key) ?? 0
+          }))
+        }
+      };
+    }
+  },
   '/samples/compliance-stats': {
     get: async ({ query }) => {
       const stats = await sampleRepository.findComplianceStats(query);
