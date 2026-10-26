@@ -18,14 +18,14 @@ export const ProgrammingPlanEchelon = z.enum([
 ]);
 export type ProgrammingPlanEchelon = z.infer<typeof ProgrammingPlanEchelon>;
 
-export const ProgrammingPlanDisplayStatus = z.enum([
+const ProgrammingPlanDisplayStatus = z.enum([
   'Pending',
   'InProgress',
   'Submitted',
   'ReadyToSend',
   'NotApplicable'
 ]);
-export type ProgrammingPlanDisplayStatus = z.infer<
+type ProgrammingPlanDisplayStatus = z.infer<
   typeof ProgrammingPlanDisplayStatus
 >;
 

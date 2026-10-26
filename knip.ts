@@ -1,7 +1,8 @@
+import type { KnipConfig } from 'knip';
+
 export default {
   ignore: ['types/**/*.d.ts'],
-  ignoreDependencies: ['vite', '@gouvfr/dsfr'],
-  ignoreBinaries: ['playwright', 'semantic-release'],
+  ignoreDependencies: ['@gouvfr/dsfr'],
   workspaces: {
     '.': {
       entry: ['.github/semanticReleaseTchap.mjs']
@@ -22,4 +23,4 @@ export default {
     },
     shared: {}
   }
-};
+} satisfies KnipConfig;
