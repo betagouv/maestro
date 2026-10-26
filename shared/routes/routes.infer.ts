@@ -2,7 +2,7 @@ import type z from 'zod';
 import type { ZodType } from 'zod';
 import type { MaestroRoutes, routes } from './routes';
 
-export type InferZod<T> = T extends ZodType ? z.infer<T> : never;
+type InferZod<T> = T extends ZodType ? z.infer<T> : never;
 
 export type RouteResponse<
   P extends MaestroRoutes,

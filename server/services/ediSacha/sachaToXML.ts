@@ -18,7 +18,7 @@ import {
 import { validateSachaXml } from './validateSachaXml';
 
 const xml = z.string().brand('XML');
-export type Xml = z.infer<typeof xml>;
+type Xml = z.infer<typeof xml>;
 
 export type XmlFile = {
   fileName: string;
