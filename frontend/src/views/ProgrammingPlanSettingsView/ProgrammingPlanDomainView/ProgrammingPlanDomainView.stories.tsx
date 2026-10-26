@@ -158,18 +158,6 @@ export const Default: Story = {
   }
 };
 
-export const DeleteForbiddenWhenSettingsCompleted: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await expect(
-      canvas.getByTitle(
-        'Ce domaine contient un plan ou un sous-plan dont le paramétrage est terminé.'
-      )
-    ).toBeDisabled();
-  }
-};
-
 export const DeleteDomain: Story = {
   parameters: {
     apiClient: getMockApi({

@@ -39,7 +39,6 @@ import {
   isProgrammingPlanDeletable
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
-  isProgrammingSubPlanDeletable,
   stagesFromSubPlans,
   subPlanNumberIssue
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -952,8 +951,8 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      if (!isProgrammingPlanDeletable(programmingPlan)) {
-        throw programmingPlanDeletionService.settingsCompletedConflict();
+      if (!isProgrammingPlanDeletable(programmingPlan, account.roles)) {
+        throw programmingPlanDeletionService.submittedToRegionsConflict();
       }
 
       console.info('Delete programming plan', programmingPlanId);
@@ -1090,8 +1089,8 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
         return { status: HttpStatus.NOT_FOUND };
       }
 
-      if (!isProgrammingSubPlanDeletable(programmingSubPlan)) {
-        throw programmingPlanDeletionService.settingsCompletedConflict();
+      if (!isProgrammingPlanDeletable(programmingPlan, account.roles)) {
+        throw programmingPlanDeletionService.submittedToRegionsConflict();
       }
 
       console.info('Delete programming sub-plan', programmingSubPlanId);

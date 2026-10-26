@@ -3,14 +3,8 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import type { MatrixReferential } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
-import {
-  isProgrammingPlanDeletable,
-  isProgrammingPlanDomainDeletable
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  isProgrammingSubPlanDeletable,
-  subPlanLabel
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isProgrammingPlanDeletable } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { subPlanLabel } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserBase } from 'maestro-shared/schema/User/User';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
@@ -64,21 +58,20 @@ const duplicationLabel = (
 };
 
 const deletionForbiddenReason = (
-  target: ProgrammingPlanDeletionTarget
+  target: ProgrammingPlanDeletionTarget,
+  userRoles: UserRole[]
 ): string | undefined => {
   switch (target.kind) {
     case 'domain':
-      return isProgrammingPlanDomainDeletable(target.programmingPlans)
-        ? undefined
-        : 'Ce domaine contient un plan ou un sous-plan dont le paramétrage est terminé.';
+      return undefined;
     case 'plan':
-      return isProgrammingPlanDeletable(target.programmingPlan)
+      return isProgrammingPlanDeletable(target.programmingPlan, userRoles)
         ? undefined
-        : 'Le paramétrage de ce plan ou de l’un de ses sous-plans est terminé.';
+        : 'Ce plan a été soumis aux régions.';
     case 'subPlan':
-      return isProgrammingSubPlanDeletable(target.subPlan)
+      return isProgrammingPlanDeletable(target.programmingPlan, userRoles)
         ? undefined
-        : 'Le paramétrage de ce sous-plan est terminé.';
+        : 'Le plan de ce sous-plan a été soumis aux régions.';
     default:
       return assertUnreachable(target);
   }
@@ -115,11 +108,14 @@ export const ProgrammingPlanSettingsActions = ({
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const { user, account } = useAuthentication();
+  const { user, account, hasAccountPermission } = useAuthentication();
   const matrixReferential = useMatrixReferential();
 
-  const forbiddenReason = deletionForbiddenReason(target);
+  const forbiddenReason = deletionForbiddenReason(target, account?.roles ?? []);
   const canManage = canDelete(target, user, account?.roles);
+  const canDeleteTarget =
+    canManage &&
+    (target.kind !== 'domain' || hasAccountPermission('administrationMaestro'));
   const [duplicatedLabel, setDuplicatedLabel] = useState<string>();
 
   return (
@@ -156,7 +152,7 @@ export const ProgrammingPlanSettingsActions = ({
           />
         </>
       )}
-      {canManage && (
+      {canDeleteTarget && (
         <>
           <Button
             title={forbiddenReason ?? 'Supprimer'}
