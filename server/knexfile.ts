@@ -7,6 +7,7 @@ const knexConfig: Knex.Config = {
   acquireConnectionTimeout: 10000,
   ...knexStringcase(),
   connection: config.databaseUrl,
+  pool: { max: config.databasePool.knexMax },
   migrations: {
     tableName: 'knex_migrations',
     directory: 'database/migrations'
