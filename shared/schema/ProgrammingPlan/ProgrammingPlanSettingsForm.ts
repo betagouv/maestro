@@ -15,7 +15,10 @@ import {
   ProgrammingPlanRequiredSettingKey,
   ProgrammingPlanSettings
 } from './ProgrammingPlanSettings';
-import { SubPlanNumberIssueMessages } from './ProgrammingSubPlan';
+import {
+  SachaContextSigle,
+  SubPlanNumberIssueMessages
+} from './ProgrammingSubPlan';
 
 const hasUniqueFields = (fields: { fieldId: string }[]): boolean =>
   new Set(fields.map(({ fieldId }) => fieldId)).size === fields.length;
@@ -171,7 +174,8 @@ export const ProgrammingSubPlanSettingsForm = checkSchema(
       .string()
       .trim()
       .min(1, SubPlanNumberIssueMessages.Empty)
-      .optional()
+      .optional(),
+    sachaContextSigle: SachaContextSigle.nullable().optional()
   }),
   checkCompleteness('subPlan'),
   checkSamplesCoverSubstanceKinds('subPlan'),
@@ -184,7 +188,8 @@ export type ProgrammingSubPlanSettingsForm = z.infer<
 const ProgrammingLevelSettingsFormShape = SubPlanSettingsFormShape.extend({
   nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator).nullable(),
   technicalInstruction: ProgrammingPlanTechnicalInstruction.nullable(),
-  subPlanNumber: z.string().nullable()
+  subPlanNumber: z.string().nullable(),
+  sachaContextSigle: SachaContextSigle.nullable()
 });
 
 export const ProgrammingLevelSettingsForm = checkSchema(

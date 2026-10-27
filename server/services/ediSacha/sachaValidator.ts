@@ -1,11 +1,9 @@
 import { MatrixSigleSacha } from 'maestro-shared/schema/Matrix/MatrixReferential';
+import { SachaContextSigle } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { NumeroEtiquette } from './sachaReferences';
-import {
-  sigleContexteInterventionValidator,
-  siglePlanAnalyseValidator
-} from './sachaReferential';
+import { siglePlanAnalyseValidator } from './sachaReferential';
 
 // FIXME EDI à supprimer et remplir correctement isArray de XMLParser
 const coerceToArray = <Schema extends z.ZodObject>(
@@ -263,7 +261,7 @@ export const demandesAnalysesValidator = z.object({
   DemandeType: z.object({
     DialogueDemandeIntervention: z.object({
       NumeroDAP: z.coerce.number().int(),
-      SigleContexteIntervention: sigleContexteInterventionValidator,
+      SigleContexteIntervention: SachaContextSigle,
       DateIntervention: sachaDate,
       DateModification: sachaDateTime
     }),

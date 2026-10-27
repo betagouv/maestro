@@ -1,6 +1,7 @@
 import { uniq } from 'lodash-es';
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { MatrixReferential } from 'maestro-shared/schema/Matrix/MatrixReferential';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type {
   CommemoratifSigle,
   CommemoratifValueSigle,
@@ -19,10 +20,7 @@ import { specificDataFieldConfigRepository } from '../../repositories/specificDa
 import type { DaiSentResult } from '../daiSendingService';
 import { documentService } from '../documentService';
 import { referencesFromSample, SampleReference } from './sachaReferences';
-import {
-  SigleContexteIntervention,
-  SiglePlanAnalyse
-} from './sachaReferential';
+import { SiglePlanAnalyse } from './sachaReferential';
 import { sendSachaFile } from './sachaSender';
 import { generateXML, getSenderSachaSigle, type XmlFile } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
@@ -86,7 +84,7 @@ export const generateXMLDAI = (
     | 'reference'
     | 'sentAt'
   >,
-  subPlanNumber: string,
+  subPlan: Pick<ProgrammingSubPlan, 'subPlanNumber' | 'sachaContextSigle'>,
   sampleItem: Pick<
     SampleItem,
     'sealId' | 'itemNumber' | 'copyNumber' | 'substanceKinds'
@@ -99,7 +97,14 @@ export const generateXMLDAI = (
   withSacha = true
 ): Promise<XmlFile> => {
   if (!withSacha) {
-    throw new Error(`Pas d'EDI Sacha pour ${subPlanNumber}`);
+    throw new Error(`Pas d'EDI Sacha pour ${subPlan.subPlanNumber}`);
+  }
+
+  const { sachaContextSigle } = subPlan;
+  if (!sachaContextSigle) {
+    throw new Error(
+      `Pas de contexte d'intervention SIGAL pour le sous-plan ${subPlan.subPlanNumber}.`
+    );
   }
 
   const siglesMatrice = sample.matrices.map(({ matrix }) => {
@@ -158,7 +163,7 @@ export const generateXMLDAI = (
       DemandeType: {
         DialogueDemandeIntervention: {
           NumeroDAP: Number(numeroDAP),
-          SigleContexteIntervention: SigleContexteIntervention[subPlanNumber],
+          SigleContexteIntervention: sachaContextSigle,
           DateIntervention: sample.sampledDate,
           DateModification: toSachaDateTime(sample.lastUpdatedAt)
         },
@@ -267,7 +272,7 @@ export const getCommemoratifs = (
 
 export const sendDAIWithEDI = async (
   sample: SampleChecked,
-  subPlanNumber: string,
+  subPlan: Pick<ProgrammingSubPlan, 'subPlanNumber' | 'sachaContextSigle'>,
   sampleItem: SampleItem,
   laboratory: LaboratoryWithSacha
 ): Promise<DaiSentResult> => {
@@ -287,7 +292,7 @@ export const sendDAIWithEDI = async (
   const xmlFile = await generateXMLDAI(
     matrixReferential,
     sample,
-    subPlanNumber,
+    subPlan,
     sampleItem,
     dateNow,
     specificDataRecord,

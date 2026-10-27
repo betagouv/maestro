@@ -69,16 +69,10 @@ const processAnalysisDai = async (
     checkedSample.programmingSubPlanId
   );
   const subPlanNumber = subPlan?.subPlanNumber ?? '';
-  const programmingPlanWithEdiSacha = subPlan?.withSacha ?? false;
 
-  if (programmingPlanWithEdiSacha && !laboratory.legacyDai) {
+  if (subPlan?.withSacha && !laboratory.legacyDai) {
     return {
-      ...(await sendDAIWithEDI(
-        checkedSample,
-        subPlanNumber,
-        sampleItem,
-        laboratory
-      )),
+      ...(await sendDAIWithEDI(checkedSample, subPlan, sampleItem, laboratory)),
       edi: true
     };
   }

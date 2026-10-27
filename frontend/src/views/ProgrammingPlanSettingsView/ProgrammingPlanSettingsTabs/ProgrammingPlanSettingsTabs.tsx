@@ -60,6 +60,7 @@ const emptySettings: ProgrammingLevelSettingsForm = {
   nationalCoordinators: null,
   technicalInstruction: null,
   subPlanNumber: null,
+  sachaContextSigle: null,
   fields: []
 };
 
@@ -96,6 +97,7 @@ const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   nationalCoordinators: 'global',
   technicalInstruction: 'global',
   subPlanNumber: 'global',
+  sachaContextSigle: 'global',
   fields: 'sampler-form'
 };
 
@@ -169,11 +171,13 @@ export const ProgrammingPlanSettingsTabs = ({
             ...subPlanSettings,
             nationalCoordinators: null,
             technicalInstruction: null,
-            subPlanNumber: subPlan.subPlanNumber
+            subPlanNumber: subPlan.subPlanNumber,
+            sachaContextSigle: subPlan.sachaContextSigle
           }
         : planSettings && {
             ...planSettings,
             subPlanNumber: null,
+            sachaContextSigle: null,
             fields: planSettings.fields.map((field) => ({
               ...field,
               inheritance: 'Own' as const,
@@ -285,6 +289,10 @@ export const ProgrammingPlanSettingsTabs = ({
           subPlanNumber:
             draft.subPlanNumber !== subPlan.subPlanNumber
               ? (draft.subPlanNumber ?? undefined)
+              : undefined,
+          sachaContextSigle:
+            draft.sachaContextSigle !== subPlan.sachaContextSigle
+              ? draft.sachaContextSigle
               : undefined,
           ...pickProgrammingPlanSettings(withoutOrphanSubstances(draft)),
           fields: draft.fields,

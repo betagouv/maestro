@@ -13,6 +13,7 @@ import type {
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   ProgrammingSubPlanId,
+  type SachaContextSigle,
   subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
@@ -135,7 +136,8 @@ const animauxSubPlan = genProgrammingSubPlan({
   stages: ['ELEVAGE'],
   matrices: genSubPlanMatrices('A01SN' as MatrixKind),
   context: 'Control',
-  settingsCompleted: true
+  settingsCompleted: true,
+  sachaContextSigle: 'PR17_2026_PCRC_PBOV' as SachaContextSigle
 });
 
 const cerealesName = subPlanLabel(MatrixReferentialFixture, cerealesSubPlan);
@@ -774,6 +776,74 @@ export const SubPlanNumberDisabledForCoordinator: Story = {
     await expect(
       canvas.getByRole('textbox', { name: /N° du sous-plan/ })
     ).toBeDisabled();
+    await expect(
+      canvas.queryByRole('textbox', {
+        name: /Contexte d'intervention SIGAL/
+      })
+    ).not.toBeInTheDocument();
+  }
+};
+
+export const SachaContextSigleSave: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await userEvent.type(
+      canvas.getByRole('textbox', { name: /Contexte d'intervention SIGAL/ }),
+      'PR17_2026_PCRC_PBOV'
+    );
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        programmingSubPlanId: CerealesSubPlanId,
+        ...subPlanSettings[CerealesSubPlanId],
+        sachaContextSigle: 'PR17_2026_PCRC_PBOV',
+        settingsCompleted: false
+      })
+    );
+  }
+};
+
+export const SachaContextSigleDisabledForCoordinator: Story = {
+  parameters: {
+    preloadedState: {
+      auth: {
+        authUser: genAuthUser({
+          userRole: 'NationalCoordinator',
+          id: nationalCoordinator.id
+        })
+      }
+    },
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        AnimauxSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const sachaContextSigle = await canvas.findByRole('textbox', {
+      name: /Contexte d'intervention SIGAL/
+    });
+    await expect(sachaContextSigle).toHaveValue('PR17_2026_PCRC_PBOV');
+    await expect(sachaContextSigle).toBeDisabled();
   }
 };
 

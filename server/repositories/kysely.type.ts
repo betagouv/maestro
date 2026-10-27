@@ -38,7 +38,10 @@ import type {
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanSampleSetting } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type {
+  ProgrammingSubPlanId,
+  SachaContextSigle
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SampleProcedure } from 'maestro-shared/schema/ProgrammingPlan/SampleProcedure';
 import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type {
@@ -517,6 +520,7 @@ export interface ProgrammingSubPlans extends ProgrammingPlanSettings {
   subPlanNumber: string;
   contactListId: number | null;
   withSacha: boolean;
+  sachaContextSigle: SachaContextSigle | null;
 }
 
 type ProgrammingSubPlanManagedColumns = {

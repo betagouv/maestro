@@ -1272,9 +1272,12 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           body.subPlanNumber ?? programmingSubPlan.subPlanNumber;
         const changesSubPlanNumber =
           subPlanNumber !== programmingSubPlan.subPlanNumber;
+        const changesSachaContextSigle =
+          body.sachaContextSigle !== undefined &&
+          body.sachaContextSigle !== programmingSubPlan.sachaContextSigle;
 
         if (
-          changesSubPlanNumber &&
+          (changesSubPlanNumber || changesSachaContextSigle) &&
           !hasAccountPermission(account.roles, 'administrationMaestro')
         ) {
           return { status: HttpStatus.FORBIDDEN };

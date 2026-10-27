@@ -13,7 +13,8 @@ import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/Programming
 import type { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import {
   type ProgrammingSubPlan,
-  ProgrammingSubPlanId
+  ProgrammingSubPlanId,
+  type SachaContextSigle
 } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubPlanMatrices } from '../schema/ProgrammingPlan/SubPlanMatrices';
 import { MatrixReferentialFixture } from './matrixFixtures';
@@ -170,6 +171,7 @@ export const genProgrammingSubPlan = (
   stagesManaged: true,
   settingsCompleted: true,
   withSacha: (data?.id && SachaSubPlanIds.includes(data.id)) ?? false,
+  sachaContextSigle: null,
   substanceKinds: ['Mono', 'Multi'],
   substanceKindsManaged: true,
   samples: (data?.substanceKinds ?? ['Mono', 'Multi']).map((substanceKind) => ({
@@ -253,6 +255,7 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   stages: ['ABATTAGE'],
   contactListId: 9,
   withSacha: true,
+  sachaContextSigle: 'PR17_2026_RPDA_PVOL' as SachaContextSigle,
   substanceKinds: ['Mono', 'Multi', 'Copper'],
   matrices: genSubPlanMatrices('A01SN' as MatrixKind),
   sampleProcedure: DAOASampleProcedure,
@@ -273,6 +276,7 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   stages: ['ABATTAGE'],
   contactListId: 9,
   withSacha: true,
+  sachaContextSigle: 'PR17_2026_RPDA_PBOV' as SachaContextSigle,
   substanceKinds: ['Mono', 'Multi', 'Copper'],
   matrices: genSubPlanMatrices('A01QX' as MatrixKind, [
     'A01XF#F28.A0C0S' as Matrix

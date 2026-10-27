@@ -142,6 +142,7 @@ describe('ProgrammingPlan router', () => {
         matrices: subPlan.matrices,
         context: subPlan.context,
         subPlanNumber: subPlan.subPlanNumber,
+        sachaContextSigle: subPlan.sachaContextSigle,
         settingsCompleted: false
       });
     }
@@ -2368,6 +2369,33 @@ describe('ProgrammingPlan router', () => {
           DAOAVolailleInProgressSubPlanFixture.id
         )
       ).resolves.toMatchObject({ subPlanNumber: 'M09' });
+    });
+
+    test('should let only an administrator change the SIGAL context', async () => {
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send({ ...validBody, sachaContextSigle: 'PR17_2026_RPDA_PBOV' })
+        .use(tokenProvider(NationalCoordinatorDaoaFixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should change the SIGAL context', async () => {
+      const before = await request(app)
+        .get(daoaVolailleRoute)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send({ ...before.body, sachaContextSigle: ' PR17_2027_RPDA_PVOL ' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      await expect(
+        programmingSubPlanRepository.findUnique(
+          DAOAVolailleInProgressSubPlanFixture.id
+        )
+      ).resolves.toMatchObject({ sachaContextSigle: 'PR17_2027_RPDA_PVOL' });
     });
 
     test('should get a valid body', async () => {
