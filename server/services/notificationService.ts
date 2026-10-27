@@ -29,6 +29,10 @@ const categoryToEmailTemplate = {
   Exploratory: 'NewLocalPrescriptionCommentTemplate'
 } as const satisfies Record<NotificationCategory, TemplateName | null>;
 
+const categoriesExcludedFromTchap: NotificationCategory[] = [
+  'AnalysisReviewTodo'
+];
+
 const NotificationCategoryMessages = {
   Control: ({ matrix }) =>
     `Nouveau commentaire sur la matrice **${matrix.toLowerCase()}**`,
@@ -92,9 +96,11 @@ const sendNotification = async <
 
   const fullLink = `${config.application.host}${notificationToCreate.link}`;
 
-  await tchapService.send(
-    `[${NotificationCategoryTitles[notificationToCreate.category]}] ${message} ${fullLink}`
-  );
+  if (!categoriesExcludedFromTchap.includes(notificationToCreate.category)) {
+    await tchapService.send(
+      `[${NotificationCategoryTitles[notificationToCreate.category]}] ${message} ${fullLink}`
+    );
+  }
 
   const emailTemplateName =
     categoryToEmailTemplate[notificationToCreate.category];
