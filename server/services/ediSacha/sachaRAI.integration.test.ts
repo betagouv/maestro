@@ -28,7 +28,7 @@ const etiquetteFromRai = (rai: SachaResultats): NumeroEtiquette =>
 
 describe('processSachaRAI', () => {
   const rai = decodeValidRai();
-  const { reference, itemNumber } = referencesFromEtiquette(
+  const { referenceSuffix, itemNumber } = referencesFromEtiquette(
     etiquetteFromRai(rai)
   );
   const sampleId = 'aaaaaaaa-bbbb-cccc-dddd-000000000099';
@@ -45,7 +45,7 @@ describe('processSachaRAI', () => {
       status: 'Sent',
       region: '44',
       department: '08',
-      reference
+      reference: `GES-${referenceSuffix}`
     });
     await sampleRepository.insert(sample);
 
@@ -121,7 +121,7 @@ describe('processSachaRAI', () => {
 
   test('lève une RaiMaestroError pour un prélèvement à plusieurs matrices', async () => {
     const multiMatricesEtiquette = NumeroEtiquette.parse(
-      '022026440009982026113002'
+      '029600260009982026113002'
     );
     const multiMatricesSampleId = 'aaaaaaaa-bbbb-cccc-dddd-000000000098';
     await sampleRepository.insert(
@@ -136,7 +136,7 @@ describe('processSachaRAI', () => {
         status: 'Sent',
         region: '44',
         department: '08',
-        reference: referencesFromEtiquette(multiMatricesEtiquette).reference,
+        reference: `PDL-${referencesFromEtiquette(multiMatricesEtiquette).referenceSuffix}`,
         matrices: [
           { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SN#F26.A07XE' },
           { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SQ#F28.A0C0S' }
@@ -171,7 +171,7 @@ describe('processSachaRAI', () => {
   });
 
   test('lève une RaiLabError quand l’échantillon est introuvable', async () => {
-    const unknownEtiquette = NumeroEtiquette.parse('022026440008882026113002');
+    const unknownEtiquette = NumeroEtiquette.parse('029600260008882026113002');
     const orphanRai: SachaResultats = structuredClone(rai);
     orphanRai.DialogueResultatType.DialogueEchantillonCommemoratifType![0]
       .DialogueEchantillonComplet!.NumeroEtiquette = unknownEtiquette;
