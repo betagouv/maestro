@@ -14,7 +14,7 @@ export const programmingPlanDomainsRoutes = {
       response: z.array(ProgrammingPlanDomain)
     },
     post: {
-      accountPermissions: ['manageProgrammingPlanSettings'],
+      accountPermissions: ['administrationMaestro'],
       body: ProgrammingPlanDomainCreateInput,
       response: ProgrammingPlanDomain
     }

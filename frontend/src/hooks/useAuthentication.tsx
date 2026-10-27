@@ -154,7 +154,7 @@ export const useAuthentication = () => {
           hasUserPermission('manageLaboratoryAgreements')
             ? 'LaboratoryAgreementsRoute'
             : undefined,
-          hasAccountPermission('manageProgrammingPlanSettings')
+          hasUserPermission('manageProgrammingPlanSettings')
             ? [
                 'ProgrammingPlanSettingsRoute',
                 'ProgrammingPlanSettingsDomainRoute',
