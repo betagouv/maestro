@@ -19,12 +19,6 @@ SECURITY LABEL FOR anon ON COLUMN users.logged_secrets
 
 SECURITY LABEL FOR anon ON COLUMN laboratories.sacha_recipient_email
   IS 'MASKED WITH VALUE NULL';
-SECURITY LABEL FOR anon ON COLUMN laboratories.sacha_gpg_email
-  IS 'MASKED WITH VALUE NULL';
-SECURITY LABEL FOR anon ON COLUMN laboratories.sacha_gpg_public_key
-  IS 'MASKED WITH VALUE NULL';
-SECURITY LABEL FOR anon ON COLUMN laboratories.sacha_sftp_login
-  IS 'MASKED WITH VALUE NULL';
 
 SECURITY LABEL FOR anon ON COLUMN laboratories.emails
   IS 'MASKED WITH VALUE ''{}''';
