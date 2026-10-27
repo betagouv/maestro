@@ -1,8 +1,8 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Pagination from '@codegouvfr/react-dsfr/Pagination';
+import type { DaiSentMethod } from 'maestro-shared/schema/AnalysisDai/DaiSentMethod';
 import type { FindAnalysisDaiOptions } from 'maestro-shared/schema/AnalysisDai/FindAnalysisDaiOptions';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
-import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import { useContext, useState } from 'react';
 import { ApiClientContext } from 'src/services/apiClient';
 import { AnalysisDaiHistory } from 'src/views/SampleView/SampleOverview/AnalysisDaiHistory/AnalysisDaiHistory';
@@ -11,7 +11,7 @@ import { AnalysisDaiFilters } from './AnalysisDaiFilters';
 export type Filters = {
   [K in 'states' | 'laboratoryIds']: NonNullable<FindAnalysisDaiOptions[K]>;
 } & {
-  sentMethod: SachaCommunicationMethod | undefined;
+  sentMethod: DaiSentMethod | undefined;
   edi: Exclude<FindAnalysisDaiOptions['edi'], null>;
   sentDateFrom: string | undefined;
   sentDateTo: string | undefined;

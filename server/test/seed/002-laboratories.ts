@@ -20,23 +20,7 @@ export const toDbRow = (lab: LaboratoryWithSacha) => ({
   legacyDai: lab.legacyDai,
   sachaActivated: lab.sacha?.activated ?? false,
   sachaSigle: lab.sacha?.sigle ?? null,
-  sachaCommunicationMethod: lab.sacha?.communication?.method ?? null,
-  sachaRecipientEmail:
-    lab.sacha?.communication?.method === 'EMAIL'
-      ? lab.sacha.communication.recipientEmail
-      : null,
-  sachaGpgEmail:
-    lab.sacha?.communication?.method === 'EMAIL'
-      ? lab.sacha.communication.gpgEmail
-      : null,
-  sachaGpgPublicKey:
-    lab.sacha?.communication?.method === 'EMAIL'
-      ? lab.sacha.communication.gpgPublicKey
-      : null,
-  sachaSftpLogin:
-    lab.sacha?.communication?.method === 'SFTP'
-      ? lab.sacha.communication.sftpLogin
-      : null
+  sachaRecipientEmail: lab.sacha?.recipientEmail ?? null
 });
 
 export const seed = async (): Promise<void> => {
