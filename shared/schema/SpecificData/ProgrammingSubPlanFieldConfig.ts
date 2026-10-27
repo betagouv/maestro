@@ -46,14 +46,16 @@ export const FieldInputType = z.enum([
   'select',
   'selectWithUnknown',
   'checkbox',
-  'radio'
+  'radio',
+  'multiselect'
 ]);
 export type FieldInputType = z.infer<typeof FieldInputType>;
 
 export const fieldInputTypeHasOptions = (inputType: FieldInputType): boolean =>
   inputType === 'select' ||
   inputType === 'selectWithUnknown' ||
-  inputType === 'radio';
+  inputType === 'radio' ||
+  inputType === 'multiselect';
 
 export const FieldConfig = z.object({
   key: z.string(),

@@ -7,7 +7,9 @@ import {
   UnknownValue,
   UnknownValueLabel
 } from 'maestro-shared/schema/SpecificData/SpecificData';
+import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { Fragment, useMemo } from 'react';
+import { AppMultiSelect } from 'src/components/_app/AppMultiSelect/AppMultiSelect';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
@@ -298,8 +300,41 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
               </div>
             );
 
+          case 'multiselect':
+            return (
+              <div
+                className={clsx(
+                  cx('fr-col-12', 'fr-col-sm-6'),
+                  inputProps.classes?.container
+                )}
+              >
+                <AppMultiSelect
+                  items={optionValues}
+                  values={((specificData as any)[inputKey] as string[]) ?? []}
+                  onChange={(values) =>
+                    onChange({
+                      ...specificData,
+                      [inputKey]: values.length > 0 ? values : null
+                    })
+                  }
+                  keysWithLabels={optionLabels}
+                  defaultLabel="option sélectionnée"
+                  withSort={false}
+                  inputForm={inputForm}
+                  inputKey="specificData"
+                  inputPathFromKey={[inputKey]}
+                  label={label}
+                  hint={field.hintText ?? undefined}
+                  whenValid={whenValid}
+                  required={required}
+                  disabled={disabled}
+                  data-testid={testId}
+                />
+              </div>
+            );
+
           default:
-            return null;
+            return assertUnreachable(field.inputType);
         }
       })()}
     </Fragment>

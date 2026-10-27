@@ -520,6 +520,43 @@ describe('getCommemoratifs', () => {
     ).toEqual([{ sigle: 'ESPECE', sigleValue: 'POULE' }]);
   });
 
+  test('retourne un commémoratif par valeur d’un choix multiple', () => {
+    expect(
+      getCommemoratifs(
+        { species: ['ESP7', 'ESP8'] },
+        [
+          {
+            key: 'species',
+            inputType: 'multiselect',
+            label: 'species',
+            hintText: null,
+            sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
+            inDai: true,
+            optional: false,
+            options: [
+              {
+                value: 'ESP7',
+                label: 'ESP7',
+                order: 0,
+                sachaCommemoratifValueSigle: 'POULE' as CommemoratifValueSigle
+              },
+              {
+                value: 'ESP8',
+                label: 'ESP8',
+                order: 1,
+                sachaCommemoratifValueSigle: 'CANARD' as CommemoratifValueSigle
+              }
+            ]
+          }
+        ],
+        sachaCommemoratifRecord
+      )
+    ).toEqual([
+      { sigle: 'ESPECE', sigleValue: 'POULE' },
+      { sigle: 'ESPECE', sigleValue: 'CANARD' }
+    ]);
+  });
+
   test('ignore les attributs qui ne sont pas dans specificData', () => {
     expect(
       getCommemoratifs(

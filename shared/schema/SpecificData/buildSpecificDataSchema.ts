@@ -86,6 +86,19 @@ export const buildSpecificDataSchema = (
         fieldSchema = z.boolean().nullish();
         break;
 
+      case 'multiselect': {
+        const valueSchema =
+          optionValues.length > 0
+            ? z.enum(optionValues as [string, ...string[]], {
+                error: () => errMsg
+              })
+            : z.string();
+        fieldSchema = required
+          ? z.array(valueSchema, { error: () => errMsg }).min(1, errMsg)
+          : z.array(valueSchema).nullish();
+        break;
+      }
+
       default:
         fieldSchema = assertUnreachable(field.inputType);
     }

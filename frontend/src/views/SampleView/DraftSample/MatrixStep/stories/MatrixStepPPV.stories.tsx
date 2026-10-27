@@ -21,7 +21,10 @@ import {
   genCreatedSampleData,
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
-import { PPVFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
+import {
+  PPVFieldConfigs,
+  TargetingCriteriaFieldConfig
+} from 'maestro-shared/test/specificDataFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import {
@@ -131,6 +134,53 @@ export const MatrixStepPPV: Story = {
     await expect(canvas.getAllByTestId('previous-button')).toHaveLength(2);
     await expect(canvas.getByTestId('save-button')).toBeInTheDocument();
     await expect(canvas.getByTestId('submit-button')).toBeInTheDocument();
+  }
+};
+
+export const MatrixStepPPVMultiselect: Story = {
+  ...story,
+  parameters: {
+    ...story.parameters,
+    apiClient: getMockApi({
+      ...storyMockApi,
+      useFindProgrammingSubPlanFieldConfigsQuery: {
+        data: [
+          ...PPVFieldConfigs,
+          {
+            ...PPVFieldConfigs[0],
+            order: PPVFieldConfigs.length,
+            field: TargetingCriteriaFieldConfig
+          }
+        ]
+      }
+    })
+  },
+  args: {
+    ...story.args,
+    partialSample: {
+      ...story.args.partialSample,
+      specificData: { targetingCriteria: ['TREATED'] }
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const [targetingCriteria] = await canvas.findAllByRole('combobox', {
+      name: /Critères de ciblage/
+    });
+    await expect(canvas.getAllByText('Traitement récent')[0]).toBeVisible();
+
+    await userEvent.selectOptions(targetingCriteria, 'THIN');
+
+    await expect(canvas.getAllByText('Animal maigre')[0]).toBeVisible();
+    const [updatedTargetingCriteria] = canvas.getAllByRole('combobox', {
+      name: /Critères de ciblage/
+    });
+    await expect(
+      Array.from((updatedTargetingCriteria as HTMLSelectElement).options).map(
+        ({ label }) => label
+      )
+    ).toEqual(['2 options sélectionnées', 'Animal blessé']);
   }
 };
 

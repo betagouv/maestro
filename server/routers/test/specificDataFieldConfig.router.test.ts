@@ -8,6 +8,7 @@ import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAInProgressVolailleSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
+import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { DAOAVolailleFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import {
   AdminFixture,
@@ -443,6 +444,7 @@ describe('SpecificDataFieldConfig router', () => {
     const testKey = 'testAdminOptionDelete';
     let fieldId: string;
     let optionId: SpecificDataFieldOptionId;
+    let usedOptionId: SpecificDataFieldOptionId;
 
     beforeAll(async () => {
       const field = await kysely
@@ -468,9 +470,36 @@ describe('SpecificDataFieldConfig router', () => {
         .returning('id')
         .executeTakeFirstOrThrow();
       optionId = opt.id;
+
+      const usedOption = await kysely
+        .insertInto('specificDataFieldOptions')
+        .values({
+          fieldKey: testKey,
+          value: 'v2',
+          label: 'Option 2',
+          order: 2,
+          sachaCommemoratifValueSigle: null
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow();
+      usedOptionId = usedOption.id;
+
+      await kysely
+        .insertInto('sampleSpecificDataValues')
+        .values({
+          sampleId: Sample11Fixture.id,
+          fieldId: field.id,
+          value: null,
+          optionId: usedOptionId
+        })
+        .execute();
     });
 
     afterAll(async () => {
+      await kysely
+        .deleteFrom('sampleSpecificDataValues')
+        .where('optionId', '=', usedOptionId)
+        .execute();
       await kysely
         .deleteFrom('specificDataFields')
         .where('key', '=', testKey)
@@ -504,6 +533,26 @@ describe('SpecificDataFieldConfig router', () => {
         'delete',
         `/api/specific-data-fields/${fieldId}/options/${optionId}`
       );
+    });
+
+    test('should refuse to delete an option used by a sample', async () => {
+      const res = await request(app)
+        .delete(`/api/specific-data-fields/${fieldId}/options/${usedOptionId}`)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CONFLICT);
+
+      expect(res.body).toMatchObject({
+        name: 'SpecificDataFieldOptionInUseError',
+        message:
+          'Cette option est utilisée par des prélèvements : elle ne peut pas être supprimée.'
+      });
+
+      const remaining = await kysely
+        .selectFrom('specificDataFieldOptions')
+        .select('id')
+        .where('id', '=', usedOptionId)
+        .executeTakeFirst();
+      expect(remaining).toBeDefined();
     });
 
     test('should delete an option', async () => {
