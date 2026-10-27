@@ -1,4 +1,5 @@
 import {
+  type FieldConfig,
   type ProgrammingSubPlanFieldConfig,
   ProgrammingSubPlanFieldId
 } from '../schema/SpecificData/ProgrammingSubPlanFieldConfig';
@@ -452,6 +453,18 @@ export const StageFieldConfig = {
   label: 'Stade de prélèvement',
   hintText: null,
   options: StageFieldOptions
+};
+
+export const TargetingCriteriaFieldConfig: FieldConfig = {
+  key: 'targetingCriteria',
+  inputType: 'multiselect',
+  label: 'Critères de ciblage',
+  hintText: null,
+  options: [
+    { value: 'THIN', label: 'Animal maigre', order: 1 },
+    { value: 'TREATED', label: 'Traitement récent', order: 2 },
+    { value: 'INJURED', label: 'Animal blessé', order: 3 }
+  ]
 };
 
 export const AllFieldConfigs = [

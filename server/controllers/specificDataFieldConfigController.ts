@@ -1,3 +1,4 @@
+import SpecificDataFieldOptionInUseError from 'maestro-shared/errors/specificDataFieldOptionInUseError';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   SpecificDataFieldId,
@@ -7,6 +8,7 @@ import { HttpStatus } from '../constants/httpStatus';
 import { sampleSpecificDataRepository } from '../repositories/sampleSpecificDataRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
+import { isForeignKeyViolation } from '../services/programmingPlanDeletionService';
 
 export const specificDataFieldConfigRouter = {
   '/specific-data-fields': {
@@ -99,9 +101,16 @@ export const specificDataFieldConfigRouter = {
     delete: async (_, { fieldId: _fieldId, optionId }) => {
       console.info('Delete option', optionId);
 
-      await specificDataFieldConfigRepository.deleteFieldOption(
-        SpecificDataFieldOptionId.parse(optionId)
-      );
+      try {
+        await specificDataFieldConfigRepository.deleteFieldOption(
+          SpecificDataFieldOptionId.parse(optionId)
+        );
+      } catch (error) {
+        if (!isForeignKeyViolation(error)) {
+          throw error;
+        }
+        throw new SpecificDataFieldOptionInUseError();
+      }
 
       return { status: HttpStatus.NO_CONTENT };
     }

@@ -221,9 +221,10 @@ export const getCommemoratifs = (
     if (specificDataKey in specificData) {
       const conf = sachaFieldConfigs.find((fc) => fc.key === specificDataKey);
       if (conf?.inDai) {
-        const specificDataValue: string = specificData[
-          specificDataKey
-        ] as string;
+        const rawValue = specificData[specificDataKey];
+        const specificDataValues = (
+          Array.isArray(rawValue) ? rawValue : [rawValue]
+        ) as string[];
 
         if (!conf.sachaCommemoratifSigle) {
           throw new Error(
@@ -234,33 +235,35 @@ export const getCommemoratifs = (
         const typeDonnee =
           sachaCommemoratifRecord[conf.sachaCommemoratifSigle].typeDonnee;
 
-        if (typeDonnee === 'list') {
-          const sigleValue =
-            conf.options.find((o) => o.value === specificDataValue)
-              ?.sachaCommemoratifValueSigle ?? null;
-          if (!sigleValue) {
-            if (!conf.optional) {
-              throw new Error(
-                `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
-              );
+        for (const specificDataValue of specificDataValues) {
+          if (typeDonnee === 'list') {
+            const sigleValue =
+              conf.options.find((o) => o.value === specificDataValue)
+                ?.sachaCommemoratifValueSigle ?? null;
+            if (!sigleValue) {
+              if (!conf.optional) {
+                throw new Error(
+                  `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
+                );
+              }
+            } else {
+              commemoratifs.push({
+                sigle: conf.sachaCommemoratifSigle,
+                sigleValue: sigleValue
+              });
             }
           } else {
+            let textValue: string;
+            if (typeDonnee === 'date') {
+              textValue = toSachaDateTime(new Date(specificDataValue));
+            } else {
+              textValue = `${specificDataValue}`;
+            }
             commemoratifs.push({
               sigle: conf.sachaCommemoratifSigle,
-              sigleValue: sigleValue
+              textValue
             });
           }
-        } else {
-          let textValue: string;
-          if (typeDonnee === 'date') {
-            textValue = toSachaDateTime(new Date(specificDataValue));
-          } else {
-            textValue = `${specificDataValue}`;
-          }
-          commemoratifs.push({
-            sigle: conf.sachaCommemoratifSigle,
-            textValue
-          });
         }
       } else if (conf === undefined) {
         throw new Error(`Configuration SACHA incomplète: ${specificDataKey}`);

@@ -35,6 +35,24 @@ export const samplesTable = 'samples';
 export const sampleStatusView = 'sample_status';
 export const sampleDocumentsTable = 'sample_documents';
 const sampleSpecificDataValuesTable = 'sample_specific_data_values';
+
+const specificDataSelect = `coalesce((
+  select jsonb_object_agg(v.key, v.value)
+  from (
+    select sdf.key,
+      case sdf.input_type
+        when 'multiselect' then jsonb_agg(sdfo.value order by sdfo."order")
+        when 'checkbox' then to_jsonb(min(sdv.value) = 'true')
+        when 'number' then to_jsonb(min(sdv.value)::numeric)
+        else coalesce(to_jsonb(min(sdv.value)), to_jsonb(min(sdfo.value)))
+      end as value
+    from ${sampleSpecificDataValuesTable} sdv
+    join specific_data_fields sdf on sdf.id = sdv.field_id
+    left join specific_data_field_options sdfo on sdfo.id = sdv.option_id
+    where sdv.sample_id = ${samplesTable}.id
+    group by sdf.key, sdf.input_type
+  ) v
+), '{}'::jsonb) as specific_data`;
 const sampleSequenceNumbers = 'sample_sequence_numbers';
 
 const PartialSampleDbo = z.object({
@@ -122,9 +140,7 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       db.raw(
         `coalesce(array_agg(distinct ${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
       ),
-      db.raw(
-        `coalesce(jsonb_object_agg(sdf_sd.key, case sdf_sd.input_type when 'checkbox' then to_jsonb(sdv_sd.value = 'true') when 'number' then to_jsonb(sdv_sd.value::numeric) else coalesce(to_jsonb(sdv_sd.value), to_jsonb(sdfo_sd.value)) end) filter (where sdv_sd.field_id is not null), '{}'::jsonb) as specific_data`
-      ),
+      db.raw(specificDataSelect),
       db.raw(`${sampleStatusView}.status`)
     )
     .where(`${samplesTable}.id`, id)
@@ -148,17 +164,6 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       sampleDocumentsTable,
       `${samplesTable}.id`,
       `${sampleDocumentsTable}.sample_id`
-    )
-    .leftJoin(
-      `${sampleSpecificDataValuesTable} as sdv_sd`,
-      `${samplesTable}.id`,
-      'sdv_sd.sample_id'
-    )
-    .leftJoin('specific_data_fields as sdf_sd', 'sdv_sd.field_id', 'sdf_sd.id')
-    .leftJoin(
-      'specific_data_field_options as sdfo_sd',
-      'sdv_sd.option_id',
-      'sdfo_sd.id'
     )
     .join(
       sampleStatusView,
@@ -351,9 +356,7 @@ const findMany = async (
       db.raw(
         `coalesce(array_agg(distinct ${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
       ),
-      db.raw(
-        `coalesce(jsonb_object_agg(sdf_sd.key, case sdf_sd.input_type when 'checkbox' then to_jsonb(sdv_sd.value = 'true') when 'number' then to_jsonb(sdv_sd.value::numeric) else coalesce(to_jsonb(sdv_sd.value), to_jsonb(sdfo_sd.value)) end) filter (where sdv_sd.field_id is not null), '{}'::jsonb) as specific_data`
-      ),
+      db.raw(specificDataSelect),
       db.raw(`${sampleStatusView}.status`)
     )
     .leftJoin(
@@ -376,17 +379,6 @@ const findMany = async (
       sampleDocumentsTable,
       `${samplesTable}.id`,
       `${sampleDocumentsTable}.sample_id`
-    )
-    .leftJoin(
-      `${sampleSpecificDataValuesTable} as sdv_sd`,
-      `${samplesTable}.id`,
-      'sdv_sd.sample_id'
-    )
-    .leftJoin('specific_data_fields as sdf_sd', 'sdv_sd.field_id', 'sdf_sd.id')
-    .leftJoin(
-      'specific_data_field_options as sdfo_sd',
-      'sdv_sd.option_id',
-      'sdfo_sd.id'
     )
     .groupBy(
       `${samplesTable}.id`,
@@ -455,7 +447,7 @@ const upsertSpecificDataValues = async (
     .delete();
 
   const entries = Object.entries(specificData).filter(
-    ([, v]) => v != null && v !== ''
+    ([, v]) => v != null && v !== '' && !(Array.isArray(v) && v.length === 0)
   );
   if (entries.length === 0) return;
 
@@ -469,13 +461,15 @@ const upsertSpecificDataValues = async (
     fields.map((f: { id: string; key: string }) => [f.key, f.id])
   );
 
-  const valuePairs = entries.map(([key, value]) => [key, String(value)]);
+  const valuePairs = entries.flatMap(([key, value]) =>
+    (Array.isArray(value) ? value : [value]).map((v) => [key, String(v)])
+  );
   const options = await trx('specific_data_field_options')
     .whereIn(['field_key', 'value'], valuePairs)
     .select('id', 'field_key', 'value');
   const optionMap = new Map<string, string>(
-    options.map((o: { id: string; field_key: string; value: string }) => [
-      `${o.field_key}:${o.value}`,
+    options.map((o: { id: string; fieldKey: string; value: string }) => [
+      `${o.fieldKey}:${o.value}`,
       o.id
     ])
   );

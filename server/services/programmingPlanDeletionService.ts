@@ -8,11 +8,11 @@ const conflict = (message: string) =>
     message
   });
 
-const isForeignKeyViolation = (error: unknown): boolean =>
+export const isForeignKeyViolation = (error: unknown): boolean =>
   typeof error === 'object' &&
   error !== null &&
   'code' in error &&
-  error.code === '23503';
+  (error.code === '23503' || error.code === '23001');
 
 const submittedToRegionsConflict = () =>
   conflict('Suppression impossible : le plan a été soumis aux régions.');

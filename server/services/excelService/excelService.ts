@@ -285,7 +285,12 @@ const generateSamplesExportExcel = async (
           key: fc.field.key,
           label: fc.field.label,
           value,
-          code: rawValue !== value ? (rawValue as string) : undefined
+          code:
+            rawValue === value
+              ? undefined
+              : Array.isArray(rawValue)
+                ? rawValue.join(', ')
+                : (rawValue as string)
         };
       }),
       notesOnMatrix: sample.notesOnMatrix,

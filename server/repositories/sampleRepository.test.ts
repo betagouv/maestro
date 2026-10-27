@@ -35,6 +35,7 @@ import { toArray } from 'maestro-shared/utils/utils';
 import { describe, expect, test } from 'vitest';
 import { analysisRepository } from './analysisRepository';
 import { documentRepository } from './documentRepository';
+import { kysely } from './kysely';
 import { SampleItems } from './sampleItemRepository';
 import { sampleRepository } from './sampleRepository';
 
@@ -542,6 +543,82 @@ describe('findUnique', async () => {
     expect(sample?.documentIds).toEqual([document.id]);
 
     await sampleRepository.updateDocumentIds(Sample11Fixture.id, []);
+  });
+
+  test('reads each specific data kind, a multiselect as values sorted by option order', async () => {
+    await kysely
+      .insertInto('specificDataFields')
+      .values({
+        key: 'targetingCriteria',
+        inputType: 'multiselect',
+        label: 'Critères de ciblage',
+        hintText: null,
+        sachaCommemoratifSigle: null
+      })
+      .execute();
+    await kysely
+      .insertInto('specificDataFieldOptions')
+      .values([
+        {
+          fieldKey: 'targetingCriteria',
+          value: 'THIN',
+          label: 'Animal maigre',
+          order: 1,
+          sachaCommemoratifValueSigle: null
+        },
+        {
+          fieldKey: 'targetingCriteria',
+          value: 'TREATED',
+          label: 'Traitement récent',
+          order: 2,
+          sachaCommemoratifValueSigle: null
+        }
+      ])
+      .execute();
+
+    const sample = genCreatedPartialSample({
+      sampler: SamplerDaoaFixture,
+      company: SlaughterhouseCompanyFixture1,
+      programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+      programmingSubPlanId: DAOAInProgressBovinSubPlanId,
+      specificData: {
+        targetingCriteria: ['TREATED', 'THIN'],
+        species: 'ESP7',
+        ageInDays: 12,
+        releaseControl: true,
+        matrixDetails: 'Détail'
+      }
+    });
+    await sampleRepository.insert(sample);
+
+    await expect(sampleRepository.findUnique(sample.id)).resolves.toMatchObject(
+      {
+        specificData: {
+          targetingCriteria: ['THIN', 'TREATED'],
+          species: 'ESP7',
+          ageInDays: 12,
+          releaseControl: true,
+          matrixDetails: 'Détail'
+        }
+      }
+    );
+
+    await sampleRepository.update({
+      ...sample,
+      specificData: { targetingCriteria: ['TREATED'] }
+    });
+
+    await expect(sampleRepository.findUnique(sample.id)).resolves.toMatchObject(
+      {
+        specificData: { targetingCriteria: ['TREATED'] }
+      }
+    );
+
+    await sampleRepository.deleteOne(sample.id);
+    await kysely
+      .deleteFrom('specificDataFields')
+      .where('key', '=', 'targetingCriteria')
+      .execute();
   });
 });
 

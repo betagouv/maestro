@@ -28,6 +28,16 @@ export const getFieldValueLabel = (
         sortedOptions.find((o) => o.value === rawValue)?.label ||
         String(rawValue)
       );
+    case 'multiselect': {
+      const values = rawValue as string[];
+      if (values.length === 0) return null;
+      return values
+        .map(
+          (value) =>
+            sortedOptions.find((o) => o.value === value)?.label || value
+        )
+        .join(', ');
+    }
     case 'date':
       return formatMaestroDate(rawValue as MaestroDate);
     case 'text':

@@ -10,7 +10,8 @@ export const FieldInputTypeLabels: Record<FieldInputType, string> = {
   select: 'Liste',
   selectWithUnknown: `Liste avec "${UnknownValueLabel}"`,
   checkbox: 'Case à cocher',
-  radio: 'Bouton radio'
+  radio: 'Bouton radio',
+  multiselect: 'Liste à choix multiple'
 };
 
 export const fieldInputTypeOptions = selectOptionsFromList(
