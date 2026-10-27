@@ -28,8 +28,8 @@ const { processSachaContent, replayRai } = await import('./sftpService');
 
 const LAB_SIGLE = 'LABTEST';
 const SAMPLE_ID = 'aaaaaaaa-bbbb-cccc-dddd-000000000098';
-const KNOWN_ETIQUETTE = '026666260009992026113002';
-const UNKNOWN_ETIQUETTE = '026666260008882026113002';
+const KNOWN_ETIQUETTE = '029600260009992026113002';
+const UNKNOWN_ETIQUETTE = '029600260008882026113002';
 
 const baseXml = readSachaExample('example-rai-daoa-valid.xml');
 

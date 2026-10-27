@@ -15,9 +15,9 @@ describe('referencesFromSample', () => {
       dateMay20_2026,
       2
     );
-    expect(numeroDAP).toBe('666626000073');
+    expect(numeroDAP).toBe('960026000073');
     expect(numeroEtiquette).toBe(
-      `02${'666626000073'}${'2026'}${'140'}${'002'}`
+      `02${'960026000073'}${'2026'}${'140'}${'002'}`
     );
   });
 
@@ -27,7 +27,7 @@ describe('referencesFromSample', () => {
       dateMay20_2026,
       1
     );
-    expect(numeroDAP).toBe('666626012345');
+    expect(numeroDAP).toBe('960026012345');
   });
 
   test('rejette une référence au format pré-2026 (sérial 4 digits)', () => {
@@ -43,7 +43,7 @@ describe('referencesFromEtiquette', () => {
       2
     );
     expect(referencesFromEtiquette(numeroEtiquette)).toEqual({
-      numeroDAP: '666626000073',
+      numeroDAP: '960026000073',
       referenceSuffix: '26-00073',
       itemNumber: 2,
       year: 2026,
@@ -62,10 +62,18 @@ describe('referencesFromEtiquette', () => {
     expect(decoded.itemNumber).toBe(26);
   });
 
-  test('rejette un numéro DAP sans le préfixe 6666', () => {
-    expect(() =>
+  test('ne rejette pas un numéro DAP sans le préfixe 9600 pour être rétrocompatible', () => {
+    expect(
       referencesFromEtiquette(NumeroEtiquette.parse('022026840000732026140002'))
-    ).toThrow();
+    ).toMatchInlineSnapshot(`
+      {
+        "dayOfYear": 140,
+        "itemNumber": 2,
+        "numeroDAP": "202684000073",
+        "referenceSuffix": "84-00073",
+        "year": 2026,
+      }
+    `);
   });
 
   test('rejette une étiquette au format invalide', () => {

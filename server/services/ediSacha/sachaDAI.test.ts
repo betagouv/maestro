@@ -251,7 +251,7 @@ test(`génère un XML de DAI`, async () => {
       </Destinataire>
       <DemandeType>
         <DialogueDemandeIntervention>
-          <NumeroDAP>666625000073</NumeroDAP>
+          <NumeroDAP>960025000073</NumeroDAP>
           <SigleContexteIntervention>PR17_2026_RPDA_PVOL</SigleContexteIntervention>
           <DateIntervention>2025-12-16</DateIntervention>
           <DateModification>2025-12-16T10:07:36</DateModification>
@@ -275,7 +275,7 @@ test(`génère un XML de DAI`, async () => {
           <DialogueEchantillonComplet>
             <NumeroEchantillon>1</NumeroEchantillon>
             <SigleMatriceSpecifique>MSCL_VOL</SigleMatriceSpecifique>
-            <NumeroEtiquette>026666250000732025350001</NumeroEtiquette>
+            <NumeroEtiquette>029600250000732025350001</NumeroEtiquette>
             <Commentaire>sealId</Commentaire>
           </DialogueEchantillonComplet>
           <DialogueCommemoratif>
@@ -325,7 +325,7 @@ test(`fige le NumeroEtiquette sur sentAt (date d'envoi), tout en datant le fichi
   );
 
   expect(xmlFile.content).toContain(
-    '<NumeroEtiquette>026666250000732025350001</NumeroEtiquette>'
+    '<NumeroEtiquette>029600250000732025350001</NumeroEtiquette>'
   );
   expect(xmlFile.fileName).toContain('260105');
   expect(xmlFile.fileName).not.toContain('251216');
@@ -393,8 +393,8 @@ test('génère un échantillon par matrice, avec la même étiquette et le même
       )
     ].map(([, echantillon]) => echantillon.replace(/\s+/g, ''))
   ).toEqual([
-    '<NumeroEchantillon>1</NumeroEchantillon><SigleMatriceSpecifique>MSCL_VOL</SigleMatriceSpecifique><NumeroEtiquette>022025840000732025350001</NumeroEtiquette><Commentaire>sealId</Commentaire>',
-    '<NumeroEchantillon>2</NumeroEchantillon><SigleMatriceSpecifique>VDE_FRA_DIND</SigleMatriceSpecifique><NumeroEtiquette>022025840000732025350001</NumeroEtiquette><Commentaire>sealId</Commentaire>'
+    '<NumeroEchantillon>1</NumeroEchantillon><SigleMatriceSpecifique>MSCL_VOL</SigleMatriceSpecifique><NumeroEtiquette>029600250000732025350001</NumeroEtiquette><Commentaire>sealId</Commentaire>',
+    '<NumeroEchantillon>2</NumeroEchantillon><SigleMatriceSpecifique>VDE_FRA_DIND</SigleMatriceSpecifique><NumeroEtiquette>029600250000732025350001</NumeroEtiquette><Commentaire>sealId</Commentaire>'
   ]);
 });
 
@@ -413,7 +413,7 @@ test('numérote les échantillons à partir de 1, quel que soit le numéro de l�
 
   expect(xmlFile.content).toContain('<NumeroEchantillon>1</NumeroEchantillon>');
   expect(xmlFile.content).toContain(
-    '<NumeroEtiquette>022025840000732025350002</NumeroEtiquette>'
+    '<NumeroEtiquette>029600250000732025350002</NumeroEtiquette>'
   );
 });
 

@@ -2,6 +2,7 @@ import { getDayOfYear } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { z } from 'zod';
 
+const MAESTRO_PREFIX_NUMERO_DAP = 9600;
 export const SampleReference = z
   .string()
   .regex(/^[A-Z]{3}-\d{2}-\d{5}$/)
@@ -10,7 +11,7 @@ export type SampleReference = z.infer<typeof SampleReference>;
 
 const NumeroDAP = z
   .string()
-  .regex(/^6666\d{8}$/)
+  .regex(/^\d{12}$/)
   .brand('NumeroDAP');
 type NumeroDAP = z.infer<typeof NumeroDAP>;
 
@@ -24,7 +25,9 @@ export const numeroDAPFromReference = (
   reference: SampleReference
 ): NumeroDAP => {
   const [, year, serial] = reference.split('-');
-  return NumeroDAP.parse(`6666${year}${serial.padStart(6, '0')}`);
+  return NumeroDAP.parse(
+    `${MAESTRO_PREFIX_NUMERO_DAP}${year}${serial.padStart(6, '0')}`
+  );
 };
 
 export const referencesFromSample = (

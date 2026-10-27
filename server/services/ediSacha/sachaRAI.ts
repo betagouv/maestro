@@ -239,6 +239,8 @@ export const processSachaRAI = async (
     );
   }
 
+  const { laboratoryId, reference, department: departmentValue } = sampleItem;
+
   if ((sampleItem.matrices?.length ?? 0) > 1) {
     throw new RaiMaestroError(
       `RAI d'un prélèvement à plusieurs matrices : non supportée (${reference})`,
@@ -246,7 +248,6 @@ export const processSachaRAI = async (
     );
   }
 
-  const { laboratoryId, reference, department: departmentValue } = sampleItem;
   if (!laboratoryId) {
     throw new RaiMaestroError(
       `Aucun laboratoire associé à l'échantillon ${reference}`,
