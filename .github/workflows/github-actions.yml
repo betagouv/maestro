@@ -5,6 +5,23 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            server:
+              - '!frontend/**'
+            frontend:
+              - '!server/**'
   check:
     runs-on: ubuntu-latest
     permissions:
@@ -27,6 +44,8 @@ jobs:
       - name: Shared tests
         run: npm -w shared test
   server_test:
+    needs: changes
+    if: needs.changes.outputs.server == 'true'
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -63,6 +82,8 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
           M2M_BASIC_TOKEN: fakeBasicToken
   frontend_test:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
@@ -78,7 +99,7 @@ jobs:
       - name: Frontend tests
         run: npm -w frontend test -- --test-timeout=30000
   release:
-    if: github.ref == 'refs/heads/prod'
+    if: ${{ !failure() && !cancelled() && github.ref == 'refs/heads/prod' }}
     needs: [check, server_test, frontend_test]
     runs-on: ubuntu-latest
     steps:
