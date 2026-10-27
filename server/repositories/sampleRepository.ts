@@ -44,6 +44,7 @@ const specificDataSelect = `coalesce((
         when 'multiselect' then jsonb_agg(sdfo.value order by sdfo."order")
         when 'checkbox' then to_jsonb(min(sdv.value) = 'true')
         when 'number' then to_jsonb(min(sdv.value)::numeric)
+        when 'decimal' then to_jsonb(min(sdv.value)::numeric)
         else coalesce(to_jsonb(min(sdv.value)), to_jsonb(min(sdfo.value)))
       end as value
     from ${sampleSpecificDataValuesTable} sdv

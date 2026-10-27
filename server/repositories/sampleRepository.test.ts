@@ -548,13 +548,22 @@ describe('findUnique', async () => {
   test('reads each specific data kind, a multiselect as values sorted by option order', async () => {
     await kysely
       .insertInto('specificDataFields')
-      .values({
-        key: 'targetingCriteria',
-        inputType: 'multiselect',
-        label: 'Critères de ciblage',
-        hintText: null,
-        sachaCommemoratifSigle: null
-      })
+      .values([
+        {
+          key: 'targetingCriteria',
+          inputType: 'multiselect',
+          label: 'Critères de ciblage',
+          hintText: null,
+          sachaCommemoratifSigle: null
+        },
+        {
+          key: 'batchWeight',
+          inputType: 'decimal',
+          label: 'Taille du lot (kg)',
+          hintText: null,
+          sachaCommemoratifSigle: null
+        }
+      ])
       .execute();
     await kysely
       .insertInto('specificDataFieldOptions')
@@ -583,6 +592,7 @@ describe('findUnique', async () => {
       programmingSubPlanId: DAOAInProgressBovinSubPlanId,
       specificData: {
         targetingCriteria: ['TREATED', 'THIN'],
+        batchWeight: 2.5,
         species: 'ESP7',
         ageInDays: 12,
         releaseControl: true,
@@ -595,6 +605,7 @@ describe('findUnique', async () => {
       {
         specificData: {
           targetingCriteria: ['THIN', 'TREATED'],
+          batchWeight: 2.5,
           species: 'ESP7',
           ageInDays: 12,
           releaseControl: true,
@@ -617,7 +628,7 @@ describe('findUnique', async () => {
     await sampleRepository.deleteOne(sample.id);
     await kysely
       .deleteFrom('specificDataFields')
-      .where('key', '=', 'targetingCriteria')
+      .where('key', 'in', ['targetingCriteria', 'batchWeight'])
       .execute();
   });
 });

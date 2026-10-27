@@ -136,6 +136,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
             );
 
           case 'number':
+          case 'decimal':
             return (
               <div className={cx('fr-col-12', 'fr-col-sm-6')}>
                 <AppTextInput
@@ -156,6 +157,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   required={required}
                   disabled={disabled}
                   min={0}
+                  step={field.inputType === 'decimal' ? 'any' : undefined}
                   data-testid={testId}
                 />
               </div>

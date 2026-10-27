@@ -1,10 +1,16 @@
 import { describe, expect, test } from 'vitest';
 import { PPVValidatedSubPlanId } from '../../test/programmingPlanFixtures';
-import { TargetingCriteriaFieldConfig } from '../../test/specificDataFixtures';
+import {
+  BatchWeightFieldConfig,
+  TargetingCriteriaFieldConfig
+} from '../../test/specificDataFixtures';
 import { buildSpecificDataSchema } from './buildSpecificDataSchema';
-import { ProgrammingSubPlanFieldId } from './ProgrammingSubPlanFieldConfig';
+import {
+  type FieldConfig,
+  ProgrammingSubPlanFieldId
+} from './ProgrammingSubPlanFieldConfig';
 
-const targetingCriteriaSchema = (required: boolean) =>
+const fieldSchema = (field: FieldConfig, required: boolean) =>
   buildSpecificDataSchema([
     {
       id: ProgrammingSubPlanFieldId.parse(crypto.randomUUID()),
@@ -12,9 +18,12 @@ const targetingCriteriaSchema = (required: boolean) =>
       inheritance: 'Own',
       required,
       order: 0,
-      field: TargetingCriteriaFieldConfig
+      field
     }
   ]);
+
+const targetingCriteriaSchema = (required: boolean) =>
+  fieldSchema(TargetingCriteriaFieldConfig, required);
 
 describe('buildSpecificDataSchema', () => {
   describe('multiselect', () => {
@@ -49,6 +58,24 @@ describe('buildSpecificDataSchema', () => {
             .success
         ).toBe(true);
       }
+    });
+  });
+
+  describe('decimal', () => {
+    test('accepts a decimal value', () => {
+      expect(
+        fieldSchema(BatchWeightFieldConfig, true).safeParse({
+          batchWeight: '2.5'
+        }).data
+      ).toEqual({ batchWeight: 2.5 });
+    });
+
+    test('refuses a negative value', () => {
+      expect(
+        fieldSchema(BatchWeightFieldConfig, false).safeParse({
+          batchWeight: -1
+        }).success
+      ).toBe(false);
     });
   });
 });

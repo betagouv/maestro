@@ -5,6 +5,7 @@ import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSel
 export const FieldInputTypeLabels: Record<FieldInputType, string> = {
   text: 'Texte court',
   number: 'Nombre',
+  decimal: 'Nombre décimal',
   textarea: 'Texte long',
   date: 'Date',
   select: 'Liste',

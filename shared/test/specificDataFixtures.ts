@@ -467,6 +467,14 @@ export const TargetingCriteriaFieldConfig: FieldConfig = {
   ]
 };
 
+export const BatchWeightFieldConfig: FieldConfig = {
+  key: 'batchWeight',
+  inputType: 'decimal',
+  label: 'Taille du lot (kg)',
+  hintText: null,
+  options: []
+};
+
 export const AllFieldConfigs = [
   ...PPVFieldConfigs,
   ...DAOAVolailleFieldConfigs,
