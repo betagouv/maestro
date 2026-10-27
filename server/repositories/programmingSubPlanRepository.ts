@@ -71,7 +71,10 @@ const updateSettings = async (
   id: ProgrammingSubPlanId,
   settings: Partial<
     ProgrammingPlanSettings &
-      Pick<ProgrammingSubPlan, 'settingsCompleted' | 'subPlanNumber'>
+      Pick<
+        ProgrammingSubPlan,
+        'settingsCompleted' | 'subPlanNumber' | 'sachaContextSigle'
+      >
   >,
   executor: KyselyMaestro = kysely
 ): Promise<void> => {

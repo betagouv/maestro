@@ -13,6 +13,7 @@ import type {
   ProgrammingLevelSettingsForm,
   ProgrammingPlanTechnicalInstruction
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
+import type { SachaContextSigle } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   SubstanceKind,
   SubstanceKindLabels
@@ -36,6 +37,7 @@ type Props<
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
     technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
     subPlanNumber: string | null;
+    sachaContextSigle: SachaContextSigle | null;
   }
 > = {
   settings: T;
@@ -52,6 +54,7 @@ export const ProgrammingPlanGlobalSettings = <
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
     technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
     subPlanNumber: string | null;
+    sachaContextSigle: SachaContextSigle | null;
   }
 >({
   settings,
@@ -66,6 +69,7 @@ export const ProgrammingPlanGlobalSettings = <
   assert<Equals<keyof typeof _rest, never>>();
 
   const { hasAccountPermission } = useAuthentication();
+  const isMaestroAdministrator = hasAccountPermission('administrationMaestro');
 
   return (
     <div className={clsx('programming-plan-global-settings')}>
@@ -74,7 +78,7 @@ export const ProgrammingPlanGlobalSettings = <
           <AppTextInput
             label="N° du sous-plan"
             required
-            disabled={!hasAccountPermission('administrationMaestro')}
+            disabled={!isMaestroAdministrator}
             value={settings.subPlanNumber}
             onChange={(event) =>
               onChange({ ...settings, subPlanNumber: event.target.value })
@@ -82,6 +86,23 @@ export const ProgrammingPlanGlobalSettings = <
             inputForm={inputForm}
             inputKey="subPlanNumber"
           />
+          {(isMaestroAdministrator || settings.sachaContextSigle !== null) && (
+            <AppTextInput
+              label="Contexte d'intervention SIGAL"
+              hintText="Sigle SIGAL, ex. PR17_2026_PCRC_PBOV"
+              disabled={!isMaestroAdministrator}
+              value={settings.sachaContextSigle ?? ''}
+              onChange={(event) =>
+                onChange({
+                  ...settings,
+                  sachaContextSigle: (event.target.value ||
+                    null) as SachaContextSigle | null
+                })
+              }
+              inputForm={inputForm}
+              inputKey="sachaContextSigle"
+            />
+          )}
         </div>
       )}
       {settings.nationalCoordinators !== null && (

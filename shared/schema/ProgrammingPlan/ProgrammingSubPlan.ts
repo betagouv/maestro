@@ -15,6 +15,13 @@ import { subPlanMatrixNameParts } from './SubPlanMatrices';
 export const ProgrammingSubPlanId = z.string().brand<'ProgrammingSubPlanId'>();
 export type ProgrammingSubPlanId = z.infer<typeof ProgrammingSubPlanId>;
 
+export const SachaContextSigle = z
+  .string()
+  .trim()
+  .nonempty()
+  .brand<'SachaContextSigle'>();
+export type SachaContextSigle = z.infer<typeof SachaContextSigle>;
+
 export const ProgrammingSubPlan = z.object({
   id: ProgrammingSubPlanId,
   programmingPlanId: z.guid(),
@@ -22,7 +29,8 @@ export const ProgrammingSubPlan = z.object({
   ...ProgrammingPlanSettings.shape,
   settingsCompleted: z.boolean(),
   contactListId: z.number().int().nullish(),
-  withSacha: z.boolean()
+  withSacha: z.boolean(),
+  sachaContextSigle: SachaContextSigle.nullable()
 });
 
 export type ProgrammingSubPlan = z.infer<typeof ProgrammingSubPlan>;

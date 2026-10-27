@@ -87,7 +87,8 @@ describe('ProgrammingPlanSettingsForm', () => {
       {
         nationalCoordinators: null,
         technicalInstruction: null,
-        subPlanNumber: null
+        subPlanNumber: null,
+        sachaContextSigle: null
       },
       'plan'
     ],
@@ -97,7 +98,8 @@ describe('ProgrammingPlanSettingsForm', () => {
       {
         nationalCoordinators: null,
         technicalInstruction: null,
-        subPlanNumber: null
+        subPlanNumber: null,
+        sachaContextSigle: null
       },
       'subPlan'
     ]
@@ -351,6 +353,7 @@ describe('ProgrammingPlanSettingsForm', () => {
         nationalCoordinators: null,
         technicalInstruction: null,
         subPlanNumber: null,
+        sachaContextSigle: null,
         fields: []
       });
 
@@ -469,6 +472,7 @@ describe('ProgrammingPlanSettingsForm', () => {
           nationalCoordinators: null,
           technicalInstruction: null,
           subPlanNumber: null,
+          sachaContextSigle: null,
           fields: []
         }).success
       ).toBe(true);

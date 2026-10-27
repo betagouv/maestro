@@ -1,6 +1,10 @@
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type {
+  ProgrammingSubPlan,
+  SachaContextSigle
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type {
   CommemoratifSigle,
   CommemoratifValueSigle,
   SachaCommemoratifRecord
@@ -149,6 +153,14 @@ const daiSample = {
   sampler: Sampler1Fixture
 } as const;
 
+const daiSubPlan: Pick<
+  ProgrammingSubPlan,
+  'subPlanNumber' | 'sachaContextSigle'
+> = {
+  subPlanNumber: 'M01',
+  sachaContextSigle: 'PR17_2026_RPDA_PVOL' as SachaContextSigle
+};
+
 const daiSampleItem: Pick<
   SampleItem,
   'sealId' | 'itemNumber' | 'copyNumber' | 'substanceKinds'
@@ -216,7 +228,7 @@ test(`génère un XML de DAI`, async () => {
     await generateXMLDAI(
       MatrixReferentialFixture,
       daiSample,
-      'M01',
+      daiSubPlan,
       daiSampleItem,
       1765876056798,
       daiFieldConfigs,
@@ -315,7 +327,7 @@ test(`fige le NumeroEtiquette sur sentAt (date d'envoi), tout en datant le fichi
   const xmlFile = await generateXMLDAI(
     MatrixReferentialFixture,
     { ...daiSample, sentAt: new Date('2025-12-16T09:00:00') },
-    'M01',
+    daiSubPlan,
     daiSampleItem,
     dateNow,
     daiFieldConfigs,
@@ -335,7 +347,7 @@ test('génère un plan d’analyse par sigle distinct des analytes de l’exempl
   const xmlFile = await generateXMLDAI(
     MatrixReferentialFixture,
     daiSample,
-    'M01',
+    daiSubPlan,
     { ...daiSampleItem, substanceKinds: ['Mono', 'Copper', 'Multi'] },
     1765876056798,
     daiFieldConfigs,
@@ -351,12 +363,28 @@ test('génère un plan d’analyse par sigle distinct des analytes de l’exempl
   ).toEqual(['RPDA', 'RPDA_CU']);
 });
 
+test('refuse un sous-plan sans contexte d’intervention SIGAL', () => {
+  expect(() =>
+    generateXMLDAI(
+      MatrixReferentialFixture,
+      daiSample,
+      { ...daiSubPlan, sachaContextSigle: null },
+      daiSampleItem,
+      1765876056798,
+      daiFieldConfigs,
+      daiCommemoratifRecord,
+      sachaConf,
+      laboratory
+    )
+  ).toThrow("Pas de contexte d'intervention SIGAL pour le sous-plan M01.");
+});
+
 test('refuse un exemplaire dont un analyte n’a pas de plan d’analyse', () => {
   expect(() =>
     generateXMLDAI(
       MatrixReferentialFixture,
       daiSample,
-      'M01',
+      daiSubPlan,
       { ...daiSampleItem, substanceKinds: ['Copper', 'ANALYTE1'] },
       1765876056798,
       daiFieldConfigs,
@@ -377,7 +405,7 @@ test('génère un échantillon par matrice, avec la même étiquette et le même
         { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SQ#F28.A0C0S' }
       ]
     },
-    'M01',
+    daiSubPlan,
     daiSampleItem,
     1765876056798,
     daiFieldConfigs,
@@ -402,7 +430,7 @@ test('numérote les échantillons à partir de 1, quel que soit le numéro de l�
   const xmlFile = await generateXMLDAI(
     MatrixReferentialFixture,
     daiSample,
-    'M01',
+    daiSubPlan,
     { ...daiSampleItem, itemNumber: 2 },
     1765876056798,
     daiFieldConfigs,
@@ -428,7 +456,7 @@ test('refuse deux matrices de même sigle SACHA', () => {
           { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SP#F31.A0CSD' }
         ]
       },
-      'M01',
+      daiSubPlan,
       daiSampleItem,
       1765876056798,
       daiFieldConfigs,
@@ -807,7 +835,7 @@ test("alimente l'établissement et l'atelier depuis le référentiel atelier", a
         communeEtab: 'CHERRE'
       }
     },
-    'M01',
+    daiSubPlan,
     daiSampleItem,
     1765876056798,
     daiFieldConfigs,

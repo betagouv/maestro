@@ -117,6 +117,7 @@ export const maskingExceptions: Record<string, string[]> = {
     'mono_substances',
     'multi_substances',
     'programming_plan_id',
+    'sacha_context_sigle',
     'samples',
     'sample_procedure',
     'stages',
