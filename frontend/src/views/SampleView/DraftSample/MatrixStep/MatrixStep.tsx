@@ -19,6 +19,10 @@ import {
   ContextLabels,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import {
+  hasCompanyEchelon,
+  hasDepartmentalEchelon
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   findPrescriptionSubPlan,
@@ -145,11 +149,16 @@ const MatrixStep = ({ partialSample }: Props) => {
       region: isCreatedPartialSample(partialSample)
         ? partialSample.region
         : user?.region,
-      ...((programmingPlan as ProgrammingPlanChecked).distributionKind ===
-      'SLAUGHTERHOUSE'
+      ...(hasDepartmentalEchelon(
+        (programmingPlan as ProgrammingPlanChecked).distributionKind
+      )
         ? {
             department: partialSample.department,
-            companySiret: partialSample.company?.siret
+            ...(hasCompanyEchelon(
+              (programmingPlan as ProgrammingPlanChecked).distributionKind
+            )
+              ? { companySiret: partialSample.company?.siret }
+              : {})
           }
         : {})
     },

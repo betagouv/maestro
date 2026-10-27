@@ -40,6 +40,10 @@ import {
   sortPrescriptions
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import {
+  hasCompanyEchelon,
+  hasDepartmentalEchelon
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   type ProgrammingSubPlanId,
@@ -437,17 +441,20 @@ const generatePrescriptionsExportExcel = async (
   const hasRegionalPlan = programmingPlans.some(
     (plan) => plan.distributionKind === 'REGIONAL'
   );
-  const hasSlaughterhousePlan = programmingPlans.some(
-    (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+  const hasCompanyEchelonPlan = programmingPlans.some((plan) =>
+    hasCompanyEchelon(plan.distributionKind)
+  );
+  const hasDepartmentalEchelonPlan = programmingPlans.some((plan) =>
+    hasDepartmentalEchelon(plan.distributionKind)
   );
 
   const hasCompanyColumns =
-    hasSlaughterhousePlan &&
+    hasCompanyEchelonPlan &&
     !isNil(exportedRegion) &&
     !isNil(exportedDepartment);
 
   const exportedRegions = exportedRegion ? [exportedRegion] : RegionList;
-  const exportedDepartments = !hasSlaughterhousePlan
+  const exportedDepartments = !hasDepartmentalEchelonPlan
     ? []
     : exportedDepartment
       ? [exportedDepartment]
@@ -514,7 +521,7 @@ const generatePrescriptionsExportExcel = async (
       ])
     );
   }
-  if (hasSlaughterhousePlan) {
+  if (hasDepartmentalEchelonPlan) {
     columnTitles.push(
       ...exportedDepartments.flatMap((department) => [
         `Département ${department}\nProgrammés`,
@@ -588,7 +595,7 @@ const generatePrescriptionsExportExcel = async (
         })
       );
     }
-    if (hasSlaughterhousePlan) {
+    if (hasDepartmentalEchelonPlan) {
       columns.push(
         ...exportedDepartments.flatMap((exportedDepartmentColumn) => {
           const localPrescription = localPrescriptions.find(
@@ -600,7 +607,8 @@ const generatePrescriptionsExportExcel = async (
           return [
             localPrescription?.sampleCount ?? 0,
             ...effectiveSubstanceKinds.map((substanceKind) =>
-              prescriptionPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
+              !isNil(prescriptionPlan) &&
+              hasDepartmentalEchelon(prescriptionPlan.distributionKind) &&
               (prescriptionSubPlan?.substanceKinds ?? []).includes(
                 substanceKind
               )
@@ -671,7 +679,7 @@ const generatePrescriptionsExportExcel = async (
     );
   }
 
-  if (hasSlaughterhousePlan) {
+  if (hasDepartmentalEchelonPlan) {
     totalColums.push(
       ...exportedDepartments.flatMap((dept) => {
         const filteredLocalPrescriptions = localPrescriptions.filter(

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { ProgrammingPlanEchelon } from '../ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import type { ProgrammingPlanEchelon } from '../ProgrammingPlan/ProgrammingPlanEchelon';
 import type { UserPermission } from './UserPermission';
 
 const NationalUserRole = z.enum([

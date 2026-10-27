@@ -1,4 +1,5 @@
 import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
+import { pendingChangeVisibilityForRole } from 'maestro-shared/schema/User/UserRole';
 import {
   FoieDeBovinPrescriptionFixture,
   PrescriptionFixture,
@@ -10,6 +11,7 @@ import {
   DAOAInProgressVolailleSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import localPrescriptionChangeRepository from './localPrescriptionChangeRepository';
 import localPrescriptionRepository from './localPrescriptionRepository';
 import prescriptionRepository, {
   Prescriptions
@@ -72,6 +74,59 @@ describe('findMany missingDistribution', () => {
     expect(prescriptions.map(({ id }) => id)).toStrictEqual([
       FoieDeBovinPrescriptionFixture.id
     ]);
+  });
+});
+
+describe('findMany withSampleCountOnly', () => {
+  test('should find in a region the prescriptions whose last unapplied change has samples, and exclude those brought back to 0', async () => {
+    const regionalChange = {
+      prescriptionId: VolaillePrescriptionFixture.id,
+      echelon: 'Regional' as const,
+      kind: 'sampleCount' as const,
+      previousSampleCount: null
+    };
+    await localPrescriptionChangeRepository.insertMany([
+      {
+        ...regionalChange,
+        region: '44',
+        sampleCount: 2,
+        changedAt: new Date('2026-10-01T10:00:00+02:00')
+      },
+      {
+        ...regionalChange,
+        region: '44',
+        sampleCount: 0,
+        changedAt: new Date('2026-10-02T10:00:00+02:00')
+      },
+      {
+        ...regionalChange,
+        region: '52',
+        sampleCount: 0,
+        changedAt: new Date('2026-10-01T10:00:00+02:00')
+      },
+      {
+        ...regionalChange,
+        region: '52',
+        sampleCount: 2,
+        changedAt: new Date('2026-10-02T10:00:00+02:00')
+      }
+    ]);
+    const visibility = pendingChangeVisibilityForRole('RegionalCoordinator');
+
+    const [inGrandEst, inPaysDeLaLoire] = await Promise.all(
+      (['44', '52'] as const).map(async (region) =>
+        (
+          await prescriptionRepository.findMany(
+            { region, withSampleCountOnly: true },
+            visibility
+          )
+        ).map(({ id }) => id)
+      )
+    );
+
+    expect(inGrandEst).toContain(FoieDeBovinPrescriptionFixture.id);
+    expect(inGrandEst).not.toContain(VolaillePrescriptionFixture.id);
+    expect(inPaysDeLaLoire).toContain(VolaillePrescriptionFixture.id);
   });
 });
 

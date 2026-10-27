@@ -8,6 +8,10 @@ import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { getSupportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import {
+  hasCompanyEchelon,
+  hasDepartmentalEchelon
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import { hasNewerLaunchedCampaign } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
@@ -653,10 +657,12 @@ export const sampleRouter = {
         const localPrescription = await localPrescriptionRepository.findUnique({
           prescriptionId: prescription.id,
           region: sample.region,
-          ...(programmingPlan.distributionKind === 'SLAUGHTERHOUSE'
+          ...(hasDepartmentalEchelon(programmingPlan.distributionKind)
             ? {
                 department: sampleUpdate.department,
-                companySiret: sampleUpdate.company?.siret
+                ...(hasCompanyEchelon(programmingPlan.distributionKind)
+                  ? { companySiret: sampleUpdate.company?.siret }
+                  : {})
               }
             : {}),
           includes: ['laboratories']

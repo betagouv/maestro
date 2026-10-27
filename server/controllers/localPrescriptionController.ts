@@ -10,10 +10,8 @@ import type { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescr
 import { toLocalPrescriptionKeyString } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import {
-  hasEverSentOnward,
-  type ProgrammingPlanEchelon
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import { hasEverSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';

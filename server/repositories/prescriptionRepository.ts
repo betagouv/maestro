@@ -8,6 +8,7 @@ import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   isPPVSubPlan,
+  PPVSubPlanNumberPrefix,
   type ProgrammingSubPlan,
   type ProgrammingSubPlanId
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -153,12 +154,31 @@ const applyLocalPrescriptionFilters = (
             .whereRaw(`c.prescription_id = ${prescriptionsTable}.id`)
             .where('c.kind', 'sampleCount')
             .whereNull('c.applied_at')
+            .where('c.sample_count', '>', 0)
             .modify((query) => {
               query.where((sub) => {
                 sub.whereNotNull('c.diffused_at');
                 if (visibility?.echelon) {
                   sub.orWhere('c.echelon', visibility.echelon);
                 }
+              });
+              query.whereNotExists((newer) => {
+                newer
+                  .select(db.raw('1'))
+                  .from(`${localPrescriptionChangesTable} as newer`)
+                  .whereRaw('newer.prescription_id = c.prescription_id')
+                  .whereRaw('newer.region = c.region')
+                  .whereRaw('newer.department = c.department')
+                  .whereRaw('newer.company_siret = c.company_siret')
+                  .where('newer.kind', 'sampleCount')
+                  .whereNull('newer.applied_at')
+                  .whereRaw('newer.changed_at > c.changed_at')
+                  .where((sub) => {
+                    sub.whereNotNull('newer.diffused_at');
+                    if (visibility?.echelon) {
+                      sub.orWhere('newer.echelon', visibility.echelon);
+                    }
+                  });
               });
               if (findOptions.region) {
                 query.where('c.region', findOptions.region);
@@ -339,6 +359,12 @@ const distributedToRegions = (visibility?: PendingChangeVisibility) => `
     visibility
   )}`;
 
+const hasDepartmentalEchelonExpression = `not exists (
+  select 1 from ${programmingSubPlansTable} sibling
+  where sibling.programming_plan_id = ${programmingPlanIdColumn}
+    and sibling.sub_plan_number like '${PPVSubPlanNumberPrefix}%'
+)`;
+
 const missingDistributionExpression = (
   findOptions: FindPrescriptionOptions,
   visibility?: PendingChangeVisibility
@@ -346,12 +372,18 @@ const missingDistributionExpression = (
   const bindings = scopeBindings(findOptions, visibility);
 
   if (findOptions.department) {
-    return [distributedToSlaughterhouses(findOptions, visibility), bindings];
+    return [
+      `case when '${SlaughterhouseStage}' = any(${programmingSubPlansTable}.stages)
+       then ${distributedToSlaughterhouses(findOptions, visibility)}
+       else false
+       end`,
+      bindings
+    ];
   }
 
   if (findOptions.region) {
     return [
-      `case when '${SlaughterhouseStage}' = any(${programmingSubPlansTable}.stages)
+      `case when ${hasDepartmentalEchelonExpression}
        then ${distributedToDepartments(visibility)}
        else false
        end`,

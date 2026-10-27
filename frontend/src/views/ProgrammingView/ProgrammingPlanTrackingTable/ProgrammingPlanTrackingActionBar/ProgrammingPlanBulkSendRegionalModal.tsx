@@ -2,6 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
+import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useState } from 'react';
 import { pluralize } from 'src/utils/stringUtils';
@@ -37,17 +38,17 @@ const ProgrammingPlanBulkSendRegionalModal = ({
   const submit = async () => {
     setIsError(false);
     try {
-      const slaughterhousePlanIds = plans
-        .filter((plan) => plan.distributionKind === 'SLAUGHTERHOUSE')
+      const departmentalEchelonPlanIds = plans
+        .filter((plan) => hasDepartmentalEchelon(plan.distributionKind))
         .map((plan) => plan.id);
       const regionalKindPlanIds = plans
-        .filter((plan) => plan.distributionKind !== 'SLAUGHTERHOUSE')
+        .filter((plan) => !hasDepartmentalEchelon(plan.distributionKind))
         .map((plan) => plan.id);
 
       await Promise.all([
-        slaughterhousePlanIds.length > 0
+        departmentalEchelonPlanIds.length > 0
           ? sendProgrammingPlansToDepartments({
-              programmingPlanIds: slaughterhousePlanIds
+              programmingPlanIds: departmentalEchelonPlanIds
             }).unwrap()
           : undefined,
         regionalKindPlanIds.length > 0
@@ -63,13 +64,13 @@ const ProgrammingPlanBulkSendRegionalModal = ({
     }
   };
 
-  const allSlaughterhouse = plans.every(
-    (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+  const allDepartmentalEchelon = plans.every((plan) =>
+    hasDepartmentalEchelon(plan.distributionKind)
   );
   const allRegionalKind =
     plans.length > 0 &&
-    plans.every((plan) => plan.distributionKind !== 'SLAUGHTERHOUSE');
-  const title = allSlaughterhouse
+    plans.every((plan) => !hasDepartmentalEchelon(plan.distributionKind));
+  const title = allDepartmentalEchelon
     ? 'Envoyer aux départements'
     : allRegionalKind
       ? modified

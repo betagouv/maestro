@@ -16,6 +16,7 @@ import {
   sortPrescriptions
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import {
   type ProgrammingPlanChecked,
   programmingPlanContexts
@@ -91,10 +92,9 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
     () =>
       filteredLocalPrescriptions(localPrescriptionsData ?? [], {
         region: regionFilter ?? undefined,
-        department:
-          programmingPlan.distributionKind === 'REGIONAL'
-            ? undefined
-            : (user?.department ?? undefined),
+        department: hasDepartmentalEchelon(programmingPlan.distributionKind)
+          ? (user?.department ?? undefined)
+          : undefined,
         companies: user?.companies
       }),
     [localPrescriptionsData, regionFilter, user, programmingPlan]

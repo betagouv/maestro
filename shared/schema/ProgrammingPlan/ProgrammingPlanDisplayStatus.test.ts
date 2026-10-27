@@ -20,6 +20,36 @@ describe('hasSentOnward — Regional, REGIONAL distributionKind', () => {
   });
 });
 
+describe('Regional echelon, DEPARTMENTAL distributionKind', () => {
+  test('SubmittedToRegion is not sent onward yet, the region still owes its departments', () => {
+    expect(hasSentOnward('Regional', 'DEPARTMENTAL', 'SubmittedToRegion')).toBe(
+      false
+    );
+  });
+
+  test('SubmittedToDepartments counts as sent onward', () => {
+    expect(
+      hasSentOnward('Regional', 'DEPARTMENTAL', 'SubmittedToDepartments')
+    ).toBe(true);
+  });
+
+  test('the submitted label targets the departments, not the samplers', () => {
+    const result = computeDisplayStatus({
+      status: 'SubmittedToDepartments',
+      sentAt: new Date('2026-01-10'),
+      lastSentAt: new Date('2026-01-10'),
+      lastModifiedAt: new Date('2026-01-05'),
+      hasPendingChange: false,
+      hasAnyProgrammedSample: true,
+      isComplete: true,
+      echelon: 'Regional',
+      distributionKind: 'DEPARTMENTAL'
+    });
+    expect(result.value).toBe('Submitted');
+    expect(result.label).toBe('Soumis aux départements');
+  });
+});
+
 describe('isCampaignLaunchable', () => {
   const plan = {
     launchedAt: null,
@@ -546,6 +576,105 @@ describe('computeCompleteness — SLAUGHTERHOUSE: Regional/Departmental must als
       ],
       'Departmental',
       'SLAUGHTERHOUSE',
+      '01',
+      '75'
+    );
+    expect(result.isComplete).toBe(false);
+  });
+});
+
+describe('computeCompleteness — DEPARTMENTAL: region reconciles with departments, department is terminal', () => {
+  const prescriptions = [{ id: 'p1', sampleCount: 40 }];
+
+  test("DEPARTMENTAL: region row exists but departments haven't caught up -> incomplete", () => {
+    const result = computeCompleteness(
+      prescriptions,
+      [
+        {
+          prescriptionId: 'p1',
+          region: '01',
+          department: null,
+          sampleCount: 40
+        },
+        {
+          prescriptionId: 'p1',
+          region: '01',
+          department: '75',
+          sampleCount: 10
+        }
+      ],
+      'Regional',
+      'DEPARTMENTAL',
+      '01'
+    );
+    expect(result.isComplete).toBe(false);
+  });
+
+  test("DEPARTMENTAL: departments reconcile with the region's total -> complete", () => {
+    const result = computeCompleteness(
+      prescriptions,
+      [
+        {
+          prescriptionId: 'p1',
+          region: '01',
+          department: null,
+          sampleCount: 40
+        },
+        {
+          prescriptionId: 'p1',
+          region: '01',
+          department: '75',
+          sampleCount: 25
+        },
+        {
+          prescriptionId: 'p1',
+          region: '01',
+          department: '77',
+          sampleCount: 15
+        }
+      ],
+      'Regional',
+      'DEPARTMENTAL',
+      '01'
+    );
+    expect(result.isComplete).toBe(true);
+  });
+
+  test('DEPARTMENTAL: no abattoir split expected, laboratories are enough -> complete', () => {
+    const result = computeCompleteness(
+      prescriptions,
+      [
+        {
+          prescriptionId: 'p1',
+          region: '01',
+          department: '75',
+          companySiret: null,
+          sampleCount: 40,
+          substanceKindsLaboratories: assignedLaboratories
+        }
+      ],
+      'Departmental',
+      'DEPARTMENTAL',
+      '01',
+      '75'
+    );
+    expect(result.isComplete).toBe(true);
+  });
+
+  test('DEPARTMENTAL: laboratories still missing on the department row -> incomplete', () => {
+    const result = computeCompleteness(
+      prescriptions,
+      [
+        {
+          prescriptionId: 'p1',
+          region: '01',
+          department: '75',
+          companySiret: null,
+          sampleCount: 40
+        }
+      ],
+      'Departmental',
+      'DEPARTMENTAL',
       '01',
       '75'
     );

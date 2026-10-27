@@ -5,6 +5,7 @@ import {
   type Transaction
 } from 'kysely';
 import pg from 'pg';
+import config from '../utils/config';
 import type { DB, KyselyMaestro } from './kysely.type';
 
 export let kysely: KyselyMaestro;
@@ -30,7 +31,8 @@ export const initKysely = (connectionString: string) =>
     dialect: new PostgresDialect({
       pool: new pg.Pool({
         connectionString,
-        max: 30
+        max: config.databasePool.kyselyMax,
+        connectionTimeoutMillis: 10000
       })
     }),
     plugins: [new CamelCasePlugin()]

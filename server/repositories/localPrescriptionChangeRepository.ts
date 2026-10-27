@@ -6,7 +6,7 @@ import {
   LocalPrescriptionChange,
   type LocalPrescriptionChangeKind
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
-import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ChangeViewAudience } from 'maestro-shared/schema/User/UserRole';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
