@@ -31,6 +31,7 @@ import {
   DAOAVolailleInProgressSubPlanFixture,
   DAOAVolailleValidatedSubPlanFixture,
   genDeletableProgrammingPlan,
+  genProgrammingPlan,
   genProgrammingSubPlan,
   PesticideResidueDomainId,
   PPVClosedProgrammingPlanFixture,
@@ -1147,6 +1148,63 @@ describe('ProgrammingPlan router', () => {
         })
         .andWhere('department', '!=', 'None')
         .delete();
+    });
+
+    test('a DEPARTMENTAL plan lets the departmental coordinator diffuse to the samplers', async () => {
+      const region = DepartmentalCoordinator.region as Region;
+      const department = DepartmentalCoordinator.department as Department;
+
+      const departmentalPlanId = crypto.randomUUID();
+      const departmentalPlan = genProgrammingPlan({
+        id: departmentalPlanId,
+        domainId: PesticideResidueDomainId,
+        createdBy: NationalCoordinator.id,
+        nationalCoordinators: [],
+        subPlans: [
+          genProgrammingSubPlan({
+            programmingPlanId: departmentalPlanId,
+            subPlanNumber: 'DEP01',
+            stages: ['TRANSFORMATION']
+          })
+        ],
+        nationalStatus: { status: 'SubmittedToRegion' },
+        regionalStatus: RegionList.map((regionColumn) => ({
+          region: regionColumn,
+          status: 'SubmittedToDepartments' as const
+        }))
+      });
+      await programmingPlanRepository.insert(departmentalPlan);
+      await ProgrammingPlanLocalStatus().insert(
+        Regions[region].departments.map((dept) => ({
+          programmingPlanId: departmentalPlanId,
+          region,
+          department: dept,
+          status: 'SubmittedToDepartments' as const
+        }))
+      );
+
+      const res = await request(app)
+        .put(testRoute(departmentalPlanId))
+        .send({
+          programmingPlanLocalStatusList: [
+            { region, department, status: 'Validated' as const }
+          ]
+        })
+        .use(tokenProvider(DepartmentalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({
+        distributionKind: 'DEPARTMENTAL'
+      });
+
+      await expect(
+        ProgrammingPlanLocalStatus()
+          .where({ programmingPlanId: departmentalPlanId, region, department })
+          .first()
+      ).resolves.toMatchObject({ status: 'Validated' });
+
+      // Cleanup
+      await ProgrammingPlans().where({ id: departmentalPlanId }).delete();
     });
   });
 

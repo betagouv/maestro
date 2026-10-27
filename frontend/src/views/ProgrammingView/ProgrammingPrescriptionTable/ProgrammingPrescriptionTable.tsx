@@ -11,6 +11,7 @@ import {
   RegionList,
   Regions
 } from 'maestro-shared/referential/Region';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import type { Company } from 'maestro-shared/schema/Company/Company';
 import {
   type LocalPrescription,
@@ -23,8 +24,8 @@ import type {
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   Fragment,
   useCallback,
@@ -43,7 +44,10 @@ import { findPrescriptionPlan } from '../prescriptionPlan';
 import ProgrammingPrescriptionRow from './ProgrammingPrescriptionRow';
 import {
   Colgroup,
+  type PlanGroupKey,
+  type PlanGroupKeyString,
   type RowWrapperKey,
+  toPlanGroupKeyString,
   toPlanHeaderRowKey,
   toPrescriptionRowKey
 } from './ProgrammingPrescriptionTableParts';
@@ -90,6 +94,11 @@ const mergeOwnLocalPrescriptions = (
           (localPrescription.previousSampleCount ?? 0),
     changedAt: changedAts.toSorted((a, b) => b.getTime() - a.getTime())[0]
   };
+};
+
+type PlanGroup = PlanGroupKey & {
+  key: PlanGroupKeyString;
+  prescriptions: Prescription[];
 };
 
 const EMPTY_COMPANIES: Company[] = [];
@@ -472,9 +481,7 @@ const ProgrammingPrescriptionTable = ({
     !!region &&
     userRole !== 'Sampler' &&
     programmingPlans.some(
-      (p) =>
-        p.distributionKind === 'REGIONAL' ||
-        (p.distributionKind === 'SLAUGHTERHOUSE' && !!department)
+      (p) => !hasDepartmentalEchelon(p.distributionKind) || !!department
     );
 
   const prescriptions = region
@@ -486,17 +493,38 @@ const ProgrammingPrescriptionTable = ({
     (prescription) => findPrescriptionPlan(programmingPlans, prescription)?.id
   );
 
-  const prescriptionContext = (prescription: Prescription) =>
-    findPrescriptionSubPlan(programmingPlans, prescription)?.context;
+  const planGroupsOf = (planPrescriptions: Prescription[]): PlanGroup[] => {
+    const groups = new Map<PlanGroupKeyString, PlanGroup>();
+
+    for (const prescription of planPrescriptions) {
+      const subPlan = getSubPlan(prescription);
+      const context = subPlan?.context ?? undefined;
+      const stages = subPlan?.stages ?? [];
+      const key = toPlanGroupKeyString({ context, stages });
+      const group = groups.get(key);
+
+      if (group) {
+        group.prescriptions.push(prescription);
+      } else {
+        groups.set(key, {
+          key,
+          context,
+          stages: [...stages].sort(),
+          prescriptions: [prescription]
+        });
+      }
+    }
+
+    return [...groups.values()];
+  };
   const planOrder = Object.keys(prescriptionsByPlan);
 
-  const hasVisibleSlaughterhousePlan = planOrder.some(
-    (planId) =>
-      programmingPlans.find((p) => p.id === planId)?.distributionKind ===
-      'SLAUGHTERHOUSE'
-  );
+  const hasVisibleDepartmentalEchelonPlan = planOrder.some((planId) => {
+    const plan = programmingPlans.find((p) => p.id === planId);
+    return !isNil(plan) && hasDepartmentalEchelon(plan.distributionKind);
+  });
 
-  const departmentList = hasVisibleSlaughterhousePlan
+  const departmentList = hasVisibleDepartmentalEchelonPlan
     ? regionDepartmentList
     : EMPTY_DEPARTMENTS;
 
@@ -510,13 +538,11 @@ const ProgrammingPrescriptionTable = ({
 
   const renderedPrescriptionIds = new Set(
     planOrder
-      .flatMap((planId) => {
-        const planPrescriptions = prescriptionsByPlan[planId] ?? [];
-        const byContext = groupBy(planPrescriptions, prescriptionContext);
-        return [...new Set(planPrescriptions.map(prescriptionContext))].flatMap(
-          (context) => byContext[String(context)] ?? []
-        );
-      })
+      .flatMap((planId) =>
+        planGroupsOf(prescriptionsByPlan[planId] ?? []).flatMap(
+          (group) => group.prescriptions
+        )
+      )
       .slice(0, renderedRowCount)
       .map((p) => p.id)
   );
@@ -718,7 +744,7 @@ const ProgrammingPrescriptionTable = ({
                                 'align-center'
                               )}
                             >
-                              {hasVisibleSlaughterhousePlan
+                              {hasVisibleDepartmentalEchelonPlan
                                 ? sumBy(
                                     visibleSubLocalPrescriptions.filter(
                                       (r) => r.department === departmentColumn
@@ -756,19 +782,12 @@ const ProgrammingPrescriptionTable = ({
             programmingPlans.find((p) => p.id === planId) ??
             programmingPlans[0];
           const planPrescriptions = prescriptionsByPlan[planId] ?? [];
-          const contextOrder = [
-            ...new Set(planPrescriptions.map(prescriptionContext))
-          ];
-          const prescriptionsByContext = groupBy(
-            planPrescriptions,
-            prescriptionContext
-          );
 
           return (
             <Fragment key={`plan-group-${planId}`}>
-              {contextOrder.map((context) => {
-                const contextPrescriptions =
-                  prescriptionsByContext[String(context)] ?? [];
+              {planGroupsOf(planPrescriptions).map((group) => {
+                const { context } = group;
+                const contextPrescriptions = group.prescriptions;
                 const contextPrescriptionIds = new Set(
                   contextPrescriptions.map((p) => p.id)
                 );
@@ -782,7 +801,7 @@ const ProgrammingPrescriptionTable = ({
                   );
 
                 return (
-                  <Fragment key={`plan-group-${planId}-${context}`}>
+                  <Fragment key={`plan-group-${planId}-${group.key}`}>
                     <div
                       className="plan-group-sticky-container"
                       style={{ top: topOffset + headerHeight }}
@@ -807,6 +826,9 @@ const ProgrammingPrescriptionTable = ({
                         {[
                           domainLabels[plan.domainId],
                           plan.title,
+                          group.stages
+                            .map((stage) => StageLabels[stage])
+                            .join(', '),
                           context ? ContextLabels[context] : ''
                         ]
                           .filter(Boolean)
@@ -817,7 +839,7 @@ const ProgrammingPrescriptionTable = ({
                         className="table-scroll-wrapper"
                         ref={(el) =>
                           registerWrapper(
-                            toPlanHeaderRowKey(planId, context),
+                            toPlanHeaderRowKey(planId, group.key),
                             el
                           )
                         }
@@ -902,8 +924,9 @@ const ProgrammingPrescriptionTable = ({
                                                   departmentList[0]
                                               })}
                                             >
-                                              {plan.distributionKind ===
-                                              'SLAUGHTERHOUSE'
+                                              {hasDepartmentalEchelon(
+                                                plan.distributionKind
+                                              )
                                                 ? sumBy(
                                                     contextSubLocalPrescriptions.filter(
                                                       (r) =>

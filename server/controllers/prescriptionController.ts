@@ -165,11 +165,19 @@ export const prescriptionsRouter = {
       const prescriptionsBySubPlanNumber =
         await prescriptionsBySubPlanNumberOf(programmingPlans);
 
-      const resolvePrescriptionId = (
+      const planIdBySubPlanId = new Map(
+        programmingPlans.flatMap((programmingPlan) =>
+          programmingPlan.subPlans.map(
+            (subPlan) => [subPlan.id, programmingPlan.id] as const
+          )
+        )
+      );
+
+      const resolvePrescription = (
         subPlanNumber: string,
         rowNumber: number,
         allowedSubPlanIds: Set<ProgrammingSubPlanId>
-      ): string | undefined => {
+      ): { prescriptionId: string; programmingPlanId: string } | undefined => {
         const matching = prescriptionsBySubPlanNumber.get(subPlanNumber);
 
         if (matching?.length !== 1) {
@@ -178,13 +186,19 @@ export const prescriptionsRouter = {
         }
 
         const [prescription] = matching;
+        const programmingPlanId = planIdBySubPlanId.get(
+          prescription.programmingSubPlanId
+        );
 
-        if (!allowedSubPlanIds.has(prescription.programmingSubPlanId)) {
+        if (
+          !allowedSubPlanIds.has(prescription.programmingSubPlanId) ||
+          !programmingPlanId
+        ) {
           unrecognized.push(`Ligne ${rowNumber}`);
           return undefined;
         }
 
-        return prescription.id;
+        return { prescriptionId: prescription.id, programmingPlanId };
       };
 
       const localChanges = cells.flatMap((cell) => {
@@ -193,19 +207,20 @@ export const prescriptionsRouter = {
           return [];
         }
 
-        const prescriptionId = resolvePrescriptionId(
+        const resolved = resolvePrescription(
           cell.subPlanNumber,
           cell.rowNumber,
           cell.scope.echelon === 'Region' ? updatableSubPlanIds : openSubPlanIds
         );
 
-        if (!prescriptionId) {
+        if (!resolved) {
           return [];
         }
 
         return [
           {
-            prescriptionId,
+            prescriptionId: resolved.prescriptionId,
+            programmingPlanId: resolved.programmingPlanId,
             region:
               cell.scope.echelon === 'Region'
                 ? cell.scope.region
@@ -225,13 +240,13 @@ export const prescriptionsRouter = {
 
       const resolvedTotals = canWriteRegion
         ? totals.flatMap((total) => {
-            const prescriptionId = resolvePrescriptionId(
+            const resolved = resolvePrescription(
               total.subPlanNumber,
               total.rowNumber,
               updatableSubPlanIds
             );
-            return prescriptionId
-              ? [{ prescriptionId, sampleCount: total.sampleCount }]
+            return resolved
+              ? [{ ...resolved, sampleCount: total.sampleCount }]
               : [];
           })
         : [];

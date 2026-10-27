@@ -14,6 +14,7 @@ import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescripti
 import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
+import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -272,16 +273,16 @@ const ProgrammingView = () => {
       return `${plural} à être soumis à l'administrateur et/ou aux régions.`;
     }
     if (hasRole('RegionalCoordinator')) {
-      const hasSlaughterhouse = readyToSendPlans.some(
-        (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+      const hasDepartmentalEchelonPlan = readyToSendPlans.some((plan) =>
+        hasDepartmentalEchelon(plan.distributionKind)
       );
       const hasRegional = readyToSendPlans.some(
-        (plan) => plan.distributionKind !== 'SLAUGHTERHOUSE'
+        (plan) => !hasDepartmentalEchelon(plan.distributionKind)
       );
-      if (hasSlaughterhouse && hasRegional) {
+      if (hasDepartmentalEchelonPlan && hasRegional) {
         return `${plural} à être soumis aux départements et/ou ${diffused} aux préleveurs.`;
       }
-      return hasSlaughterhouse
+      return hasDepartmentalEchelonPlan
         ? `${plural} à être soumis aux départements.`
         : `${plural} à être ${diffused} aux préleveurs.`;
     }

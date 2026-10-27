@@ -8,6 +8,11 @@ import {
 } from '../LocalPrescription/LocalPrescription';
 import type { Prescription } from '../Prescription/Prescription';
 import type { DistributionKind } from './DistributionKind';
+import {
+  hasCompanyEchelon,
+  hasDepartmentalEchelon,
+  isTerminalEchelon
+} from './ProgrammingPlanEchelon';
 import type { ProgrammingPlanLocalStatus } from './ProgrammingPlanLocalStatus';
 import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 
@@ -51,7 +56,7 @@ const submittedLabel = (
       : 'Soumis aux régions';
   }
   if (echelon === 'Regional') {
-    return distributionKind === 'SLAUGHTERHOUSE'
+    return hasDepartmentalEchelon(distributionKind)
       ? 'Soumis aux départements'
       : 'Diffusé aux préleveurs';
   }
@@ -364,7 +369,9 @@ export const computeCompleteness = (
           );
           return departmentSum === regionalSampleCount;
         })
-      : echelon === 'Departmental' && distributionKind === 'SLAUGHTERHOUSE'
+      : echelon === 'Departmental' &&
+          !isNil(distributionKind) &&
+          hasCompanyEchelon(distributionKind)
         ? scopedPrescriptions.every((p) => {
             const departmentalRow = scopedByPrescription[p.id]?.[0];
             const departmentalSampleCount =
@@ -385,14 +392,11 @@ export const computeCompleteness = (
           })
         : true;
 
-  const isTerminalEchelon = isNil(distributionKind)
-    ? false
-    : distributionKind === 'REGIONAL'
-      ? echelon === 'Regional'
-      : echelon === 'Departmental';
+  const laboratoriesExpected =
+    !isNil(distributionKind) && isTerminalEchelon(echelon, distributionKind);
 
   const hasLaboratoriesAssigned =
-    !isTerminalEchelon ||
+    !laboratoriesExpected ||
     scopedPrescriptions.every((p) =>
       isLaboratoryAssignmentComplete(
         scopedByPrescription[p.id]?.[0]?.substanceKindsLaboratories

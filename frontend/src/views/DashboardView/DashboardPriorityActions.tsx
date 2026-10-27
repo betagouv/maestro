@@ -2,6 +2,7 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tile from '@codegouvfr/react-dsfr/Tile';
 import clsx from 'clsx';
+import { uniqBy } from 'lodash-es';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { PartialSample } from 'maestro-shared/schema/Sample/Sample';
 import type { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -31,6 +32,10 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
 
   const { user, hasUserPermission } = useAuthentication();
 
+  const isClosable = (programmingPlan: ProgrammingPlanChecked) =>
+    hasUserPermission('manageProgrammingPlan') &&
+    programmingPlan.regionalStatus.every((_) => _.status === 'Validated');
+
   if (!prioritySamples?.length && !priorityProgrammingPlans?.length) {
     return null;
   }
@@ -47,41 +52,42 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
         {priorityProgrammingPlans && priorityProgrammingPlans.length > 0 && (
           <>
             <h4 className={cx('fr-mb-1w')}>Actions prioritaires</h4>
-            {priorityProgrammingPlans
-              .filter(
+            {uniqBy(
+              priorityProgrammingPlans.filter(
                 (programmingPlan) =>
                   programmingPlan.id !== currentValidatedProgrammingPlan?.id
-              )
-              .map((programmingPlan) => (
-                <>
-                  {hasUserPermission('manageProgrammingPlan') &&
-                  programmingPlan.regionalStatus.every(
-                    (_) => _.status === 'Validated'
-                  ) ? (
-                    <ProgrammingPlanClosing
-                      programmingPlan={programmingPlan}
-                      render={({ open }) => (
-                        <PriorityActionCard
-                          title={`Clôturer la programmation ${programmingPlan.year}`}
-                          badgeLabel="Programmation"
-                          description="À réaliser"
-                          onClick={open}
-                        />
-                      )}
-                    />
-                  ) : (
-                    <PriorityActionCard
-                      key={programmingPlan.id}
-                      title={`Éditer la programmation ${programmingPlan.year}`}
-                      badgeLabel="Programmation"
-                      description="À compléter"
-                      to={AuthenticatedAppRoutes.ProgrammingRoute.link({
-                        year: programmingPlan.year
-                      })}
-                    />
-                  )}
-                </>
-              ))}
+              ),
+              (programmingPlan) =>
+                isClosable(programmingPlan)
+                  ? programmingPlan.id
+                  : programmingPlan.year
+            ).map((programmingPlan) => (
+              <>
+                {isClosable(programmingPlan) ? (
+                  <ProgrammingPlanClosing
+                    programmingPlan={programmingPlan}
+                    render={({ open }) => (
+                      <PriorityActionCard
+                        title={`Clôturer la programmation ${programmingPlan.year}`}
+                        badgeLabel="Programmation"
+                        description="À réaliser"
+                        onClick={open}
+                      />
+                    )}
+                  />
+                ) : (
+                  <PriorityActionCard
+                    key={programmingPlan.id}
+                    title={`Éditer la programmation ${programmingPlan.year}`}
+                    badgeLabel="Programmation"
+                    description="À compléter"
+                    to={AuthenticatedAppRoutes.ProgrammingRoute.link({
+                      year: programmingPlan.year
+                    })}
+                  />
+                )}
+              </>
+            ))}
           </>
         )}
         {!priorityProgrammingPlans?.length &&

@@ -12,6 +12,7 @@ import {
   RegionList,
   Regions
 } from 'maestro-shared/referential/Region';
+import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { isDefined } from 'maestro-shared/utils/utils';
@@ -155,8 +156,8 @@ const ProgrammingPlanTrackingTable = ({
     localPrescriptionsByPrescription
   } = useProgrammingPlanTrackingStatus(programmingPlans, region, department);
 
-  const hasSlaughterhousePlan = programmingPlans.some(
-    (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+  const hasDepartmentalEchelonPlan = programmingPlans.some((plan) =>
+    hasDepartmentalEchelon(plan.distributionKind)
   );
 
   const { data: programmingPlanDomains } =
@@ -317,7 +318,9 @@ const ProgrammingPlanTrackingTable = ({
 
   const selectedAllRegionalKind =
     selectedPlans.length > 0 &&
-    selectedPlans.every((plan) => plan.distributionKind !== 'SLAUGHTERHOUSE');
+    selectedPlans.every(
+      (plan) => !hasDepartmentalEchelon(plan.distributionKind)
+    );
   const regionalActionLabel = selectedAllRegionalKind
     ? selectedRegionalModified
       ? 'Diffuser les modifications aux préleveurs'
@@ -429,7 +432,7 @@ const ProgrammingPlanTrackingTable = ({
     1 +
     (region ? 0 : 1) +
     (department ? 0 : 1) +
-    (hasSlaughterhousePlan ? 1 : 0);
+    (hasDepartmentalEchelonPlan ? 1 : 0);
 
   if (!programmingPlanDomains) {
     return null;
@@ -520,7 +523,7 @@ const ProgrammingPlanTrackingTable = ({
                 </th>
                 {!region && <th scope="col">Statut BGIR</th>}
                 {!department && <th scope="col">Statut région</th>}
-                {hasSlaughterhousePlan && (
+                {hasDepartmentalEchelonPlan && (
                   <th scope="col">Statut département</th>
                 )}
               </tr>
@@ -584,7 +587,8 @@ const ProgrammingPlanTrackingTable = ({
 
                     const isPlanExpanded = expandedPlanIds.has(plan.id);
                     const canExpandDepartments =
-                      plan.distributionKind === 'SLAUGHTERHOUSE' && !department;
+                      hasDepartmentalEchelon(plan.distributionKind) &&
+                      !department;
 
                     const relevantStatus = department
                       ? departmentalDisplayStatus
@@ -668,7 +672,7 @@ const ProgrammingPlanTrackingTable = ({
                               )}
                             </td>
                           )}
-                          {hasSlaughterhousePlan && (
+                          {hasDepartmentalEchelonPlan && (
                             <td>
                               {department ? (
                                 departmentalDisplayStatus ? (

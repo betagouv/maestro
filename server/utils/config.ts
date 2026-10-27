@@ -43,6 +43,8 @@ const configValidator = z
     AUTH_TOKEN_ALGORITHM: z.string().default('RS256'),
     AUTH_USER_INFO_ALGORITHM: z.string().nullish(),
     DATABASE_URL: z.string(),
+    DATABASE_KYSELY_POOL_MAX: z.coerce.number().default(30),
+    DATABASE_KNEX_POOL_MAX: z.coerce.number().default(10),
     MAIL_FROM: z.email().default('contact@maestro.beta.gouv.fr'),
     MAIL_SUPPORT: z.email().default('contact@maestro.beta.gouv.fr'),
     MAILER_PROVIDER: MailProvider.default('fake'),
@@ -110,6 +112,10 @@ const configValidator = z
         userInfoAlgorithm: c.AUTH_USER_INFO_ALGORITHM
       },
       databaseUrl: c.DATABASE_URL,
+      databasePool: {
+        kyselyMax: c.DATABASE_KYSELY_POOL_MAX,
+        knexMax: c.DATABASE_KNEX_POOL_MAX
+      },
       mail: {
         from: c.MAIL_FROM,
         support: c.MAIL_SUPPORT
