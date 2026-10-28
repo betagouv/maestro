@@ -20,12 +20,14 @@ const addFieldModal = createModal({
 
 type Props = {
   fields: ProgrammingSubPlanFieldSetting[];
+  errorMessage: string | undefined;
   editionPhase: ProgrammingPlanEditionPhase;
   onChange: (fields: ProgrammingSubPlanFieldSetting[]) => void;
 };
 
 export const ProgrammingPlanSamplerFormSettings = ({
   fields,
+  errorMessage,
   editionPhase,
   onChange,
   ..._rest
@@ -61,6 +63,10 @@ export const ProgrammingPlanSamplerFormSettings = ({
           Ajouter un descripteur
         </Button>
       </div>
+
+      {errorMessage && (
+        <p className={cx('fr-error-text', 'fr-mb-2w')}>{errorMessage}</p>
+      )}
 
       <ProgrammingSubPlanFieldList
         fields={fields}

@@ -1,0 +1,103 @@
+import { uniq, uniqBy } from 'lodash-es';
+import SachaReferentialError from 'maestro-shared/errors/sachaReferentialError';
+import type { SachaContextSigle } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import { executeTransaction } from '../../repositories/kysely';
+import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
+import { sachaConfRepository } from '../../repositories/sachaConfRepository';
+import {
+  type ImportedSachaContext,
+  sachaContextRepository
+} from '../../repositories/sachaContextRepository';
+
+interface ReferenceCommemoratifATransmettre {
+  SigleCommemoratif: string;
+}
+
+interface ReferenceContextesType {
+  ReferenceContextesIntervention: {
+    Sigle: string;
+    Libelle: string;
+    Statut: 'G' | 'V';
+  };
+  ReferenceCommemoratifsInterventionContexte?: ReferenceCommemoratifATransmettre[];
+  ReferenceCommemoratifsEchantillonContexte?: ReferenceCommemoratifATransmettre[];
+}
+
+export interface ReferentielPrescripteur {
+  MessageParametres: { NomFichier: string };
+  ReferenceContextesType?: ReferenceContextesType[];
+}
+
+export const parseReferentielPrescripteur = (
+  referentielPrescripteur: ReferentielPrescripteur
+): { fileName: string; contexts: ImportedSachaContext[] } => {
+  const contexts = uniqBy(
+    (referentielPrescripteur.ReferenceContextesType ?? []).map((item) => ({
+      sigle: item.ReferenceContextesIntervention.Sigle as SachaContextSigle,
+      libelle: item.ReferenceContextesIntervention.Libelle,
+      deprecated: item.ReferenceContextesIntervention.Statut === 'G',
+      commemoratifs: uniqBy(
+        [
+          ...(item.ReferenceCommemoratifsInterventionContexte ?? []).map(
+            ({ SigleCommemoratif }) => ({
+              sigle: SigleCommemoratif as CommemoratifSigle,
+              level: 'Sample' as const
+            })
+          ),
+          ...(item.ReferenceCommemoratifsEchantillonContexte ?? []).map(
+            ({ SigleCommemoratif }) => ({
+              sigle: SigleCommemoratif as CommemoratifSigle,
+              level: 'Analysis' as const
+            })
+          )
+        ],
+        'sigle'
+      )
+    })),
+    'sigle'
+  );
+
+  if (contexts.length === 0) {
+    throw new SachaReferentialError(
+      'Ce fichier ne contient aucun contexte d’intervention.'
+    );
+  }
+
+  return {
+    fileName: referentielPrescripteur.MessageParametres.NomFichier,
+    contexts
+  };
+};
+
+export const updateSachaContexts = async (
+  referentielPrescripteur: ReferentielPrescripteur
+): Promise<string> => {
+  const { fileName, contexts } = parseReferentielPrescripteur(
+    referentielPrescripteur
+  );
+
+  await executeTransaction(async (trx) => {
+    const knownSigles = await sachaCommemoratifRepository.findAllSigles(trx);
+    const unknownSigles = uniq(
+      contexts.flatMap(({ commemoratifs }) =>
+        commemoratifs
+          .map(({ sigle }) => sigle)
+          .filter((sigle) => !knownSigles.includes(sigle))
+      )
+    );
+    if (unknownSigles.length > 0) {
+      throw new SachaReferentialError(
+        `Importer d’abord les données standardisées (DS01) : commémoratif${unknownSigles.length > 1 ? 's' : ''} ${unknownSigles.join(', ')} inconnu${unknownSigles.length > 1 ? 's' : ''}.`
+      );
+    }
+
+    await sachaConfRepository.update(
+      { versionReferencePrescripteur: fileName },
+      trx
+    );
+    await sachaContextRepository.synchronize(contexts, trx);
+  });
+
+  return fileName;
+};

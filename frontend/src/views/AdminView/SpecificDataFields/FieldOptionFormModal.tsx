@@ -72,9 +72,7 @@ export const FieldOptionFormModal = ({
         .sort((a, b) => a.label.localeCompare(b.label))
     : [];
   const showSachaField =
-    field.sachaInDai &&
-    selectedSigle !== null &&
-    sachaCommemoratifs !== undefined;
+    selectedSigle !== null && sachaCommemoratifs !== undefined;
 
   const form = useForm(CreateFieldOptionInput, {
     value: formData.value,

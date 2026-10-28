@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { expect, within } from 'storybook/test';
 import { getMockApi } from '../../../services/mockApiClient';
@@ -39,7 +40,10 @@ export const ConfigurationIncomplete: Story = {
       useFindAllFieldConfigsQuery: { data: storyFields },
       useFindSachaFieldConfigsQuery: {
         data: [
-          { ...storySachaFields[0], inDai: true, sachaCommemoratifSigle: null }
+          {
+            ...storySachaFields[0],
+            sachaCommemoratifSigle: 'TYPCULT' as CommemoratifSigle
+          }
         ]
       }
     })
@@ -56,7 +60,7 @@ export const ReadOnlyForNationalCoordinator: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.queryByText('Importer le nouveau référentiel Sacha')
+      canvas.queryByText('Importer un référentiel Sacha (DS01 ou RP01)')
     ).not.toBeInTheDocument();
     await expect(
       canvas.queryByTitle('Ajouter un descripteur')

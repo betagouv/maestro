@@ -98,9 +98,7 @@ export const FieldOptionsTable = ({
   };
 
   const showSachaColumn =
-    field.sachaInDai &&
-    selectedSigle !== null &&
-    sachaCommemoratifs !== undefined;
+    selectedSigle !== null && sachaCommemoratifs !== undefined;
 
   const actionsHeader = (
     <div

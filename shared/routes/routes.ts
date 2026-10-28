@@ -12,7 +12,7 @@ import { notificationsRoutes } from './notifications.routes';
 import { prescriptionsRoutes } from './prescriptions.routes';
 import { programmingPlanDomainsRoutes } from './programmingPlanDomains.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
-import { sachaCommemoratifsRoute } from './sachaCommemoratifs.route';
+import { sachaRoutes } from './sacha.routes';
 import { samplesRoutes } from './samples.routes';
 import { specificDataFieldsRoutes } from './specificDataFields.routes';
 import { usersRoutes } from './users.routes';
@@ -83,6 +83,8 @@ export const MaestroRoutes = [
   '/programming-plans/:programmingPlanId/local-status',
   '/programming-plans/:programmingPlanId/settings',
   '/sacha/commemoratifs',
+  '/sacha/contexts',
+  '/sacha/referentials',
   '/samples',
   '/samples/count',
   '/samples/export',
@@ -121,7 +123,7 @@ type Routes = typeof analysisRoutes &
   typeof prescriptionsRoutes &
   typeof programmingPlanDomainsRoutes &
   typeof programmingPlansRoutes &
-  typeof sachaCommemoratifsRoute &
+  typeof sachaRoutes &
   typeof samplesRoutes &
   typeof specificDataFieldsRoutes &
   typeof usersRoutes;
@@ -139,7 +141,7 @@ export const routes: Routes = {
   ...prescriptionsRoutes,
   ...programmingPlanDomainsRoutes,
   ...programmingPlansRoutes,
-  ...sachaCommemoratifsRoute,
+  ...sachaRoutes,
   ...samplesRoutes,
   ...specificDataFieldsRoutes,
   ...usersRoutes

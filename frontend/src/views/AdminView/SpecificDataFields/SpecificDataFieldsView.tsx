@@ -15,7 +15,7 @@ import { FieldDeleteConfirm } from './FieldDeleteConfirm';
 import { FieldForm } from './FieldForm';
 import { FieldOptionsSection } from './FieldOptionsSection';
 import { FieldsTable } from './FieldsTable';
-import { SachaCommemoratifsUpload } from './SachaCommemoratifsUpload';
+import { SachaReferentialUpload } from './SachaReferentialUpload';
 
 const fieldDeleteModal = createModal({
   id: 'specific-data-field-delete-modal',
@@ -42,16 +42,13 @@ export const SpecificDataFieldsView = () => {
 
   const isComplete = useMemo(() => {
     for (const fc of sachaFields) {
-      if (fc.inDai && !fc.optional) {
-        if (!fc.sachaCommemoratifSigle) {
-          return false;
-        }
-        if (
-          fieldInputTypeHasOptions(fc.inputType) &&
-          fc.options.some((o) => !o.sachaCommemoratifValueSigle)
-        ) {
-          return false;
-        }
+      if (
+        fc.sachaCommemoratifSigle &&
+        !fc.optional &&
+        fieldInputTypeHasOptions(fc.inputType) &&
+        fc.options.some((o) => !o.sachaCommemoratifValueSigle)
+      ) {
+        return false;
       }
     }
     return true;
@@ -122,7 +119,7 @@ export const SpecificDataFieldsView = () => {
         className={clsx('d-flex-row', 'd-flex-align-center', cx('fr-mb-2w'))}
       >
         <h3 className={cx('fr-mb-0')}>Dictionnaire des descripteurs</h3>
-        {!readOnly && <SachaCommemoratifsUpload />}
+        {!readOnly && <SachaReferentialUpload />}
       </div>
 
       {!isComplete && (
@@ -136,7 +133,6 @@ export const SpecificDataFieldsView = () => {
 
       <FieldsTable
         fields={fields}
-        sachaFields={sachaFields}
         readOnly={readOnly}
         onAdd={() =>
           navigate(

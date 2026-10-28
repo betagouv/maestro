@@ -240,7 +240,6 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
       'sdf.label',
       'sdf.hintText',
       'sdf.sachaCommemoratifSigle',
-      'sdf.sachaInDai',
       'sdf.sachaOptional'
     ])
     .where('psp.withSacha', '=', true)
@@ -294,7 +293,6 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
     label: f.label,
     hintText: f.hintText,
     sachaCommemoratifSigle: f.sachaCommemoratifSigle,
-    inDai: f.sachaInDai,
     optional: f.sachaOptional,
     options: optionsByFieldKey[f.key] ?? []
   }));
@@ -312,7 +310,6 @@ const findAllFields = async (): Promise<AdminFieldConfig[]> => {
       'label',
       'hintText',
       'sachaCommemoratifSigle',
-      'sachaInDai',
       'sachaOptional'
     ])
     .orderBy('key')
@@ -358,7 +355,6 @@ const findAllFields = async (): Promise<AdminFieldConfig[]> => {
     label: f.label,
     hintText: f.hintText,
     sachaCommemoratifSigle: f.sachaCommemoratifSigle,
-    sachaInDai: f.sachaInDai,
     sachaOptional: f.sachaOptional,
     options: optionsByFieldKey[f.key] ?? []
   }));
@@ -382,7 +378,6 @@ const createField = async (
     ...field,
     inputType: FieldInputType.parse(field.inputType),
     sachaCommemoratifSigle: null,
-    sachaInDai: false,
     sachaOptional: false,
     options: []
   };
@@ -407,7 +402,6 @@ const updateField = async (
       'label',
       'hintText',
       'sachaCommemoratifSigle',
-      'sachaInDai',
       'sachaOptional'
     ])
     .executeTakeFirst();
