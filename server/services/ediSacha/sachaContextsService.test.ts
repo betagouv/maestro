@@ -1,3 +1,5 @@
+import type { SachaContextSigle } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { describe, expect, test } from 'vitest';
 import { parseReferentielPrescripteur } from './sachaContextsService';
 
@@ -11,29 +13,29 @@ describe('parseReferentielPrescripteur', () => {
         ReferenceContextesType: [
           {
             ReferenceContextesIntervention: {
-              Sigle: 'PR17_2026_RPDA_PBOV',
+              Sigle: 'PR17_2026_RPDA_PBOV' as SachaContextSigle,
               Libelle: 'Plan de surveillance résidus de pesticides bovin',
               Statut: 'V'
             },
             ReferenceCommemoratifsInterventionContexte: [
-              { SigleCommemoratif: 'TAXOEF' },
-              { SigleCommemoratif: 'SEX1' },
-              { SigleCommemoratif: 'SEX1' }
+              { SigleCommemoratif: 'TAXOEF' as CommemoratifSigle },
+              { SigleCommemoratif: 'SEX1' as CommemoratifSigle },
+              { SigleCommemoratif: 'SEX1' as CommemoratifSigle }
             ],
             ReferenceCommemoratifsEchantillonContexte: [
-              { SigleCommemoratif: 'TEMPREC' }
+              { SigleCommemoratif: 'TEMPREC' as CommemoratifSigle }
             ]
           },
           {
             ReferenceContextesIntervention: {
-              Sigle: 'PR17_2019_PREC_PBOV',
+              Sigle: 'PR17_2019_PREC_PBOV' as SachaContextSigle,
               Libelle: 'Plan 2019',
               Statut: 'G'
             }
           },
           {
             ReferenceContextesIntervention: {
-              Sigle: 'PR17_2019_PREC_PBOV',
+              Sigle: 'PR17_2019_PREC_PBOV' as SachaContextSigle,
               Libelle: 'Doublon',
               Statut: 'V'
             }

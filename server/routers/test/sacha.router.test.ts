@@ -13,9 +13,14 @@ import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 const ds01XmlContent = `
-        <DonneesStandardisees>
+        <DonneesStandardisees schemavalidation="DonneesStandardisees.xsd">
           <MessageParametres>
+            <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
+            <VersionScenario>1.0.1</VersionScenario>
+            <TypeFichier>DS01</TypeFichier>
             <NomFichier>DS01DGALDGAL251224111923306</NomFichier>
+            <NomLogicielCreation>SIGAL</NomLogicielCreation>
+            <VersionLogicielCreation>4.0</VersionLogicielCreation>
           </MessageParametres>
           <ReferenceCommemoratifType>
             <ReferenceCommemoratif>
@@ -23,8 +28,8 @@ const ds01XmlContent = `
               <Sigle>SIGLE_TEST</Sigle>
               <Libelle>Libellé Test</Libelle>
               <Statut>V</Statut>
-              <TypeDonnee>A</TypeDonnee>
               <Unite>kg</Unite>
+              <TypeDonnee>A</TypeDonnee>
             </ReferenceCommemoratif>
             <ReferenceCommemoratifsValeurs>
               <Cle>CLE_VAL_1</Cle>
@@ -107,16 +112,14 @@ describe('Sacha router', () => {
       await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
-    test('should refuse a file which is neither a DS01 nor a RP01', async () => {
+    test('should refuse a file not compliant with the XSD', async () => {
       const res = await request(app)
         .post(referentialsRoute)
         .send({ xmlContent: '<Resultats></Resultats>' })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
-      expect(res.body.message).toBe(
-        'Ce fichier n’est ni un référentiel des données standardisées (DS01) ni un référentiel prescripteur (RP01).'
-      );
+      expect(res.body.message).toMatch(/^Fichier non conforme à la XSD Sacha/);
     });
 
     test('should create commemoratifs from XML and retrieve them', async () => {
@@ -181,16 +184,27 @@ describe('Sacha router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       const xmlContent = `
-        <ReferentielPrescripteur>
+        <ReferentielPrescripteur schemavalidation="ReferentielPrescripteur.xsd">
           <MessageParametres>
+            <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
+            <VersionScenario>1.0.1</VersionScenario>
+            <TypeFichier>RP01</TypeFichier>
             <NomFichier>RP01DGALDGAL260803195529876</NomFichier>
+            <NomLogicielCreation>SIGAL</NomLogicielCreation>
+            <VersionLogicielCreation>4.0</VersionLogicielCreation>
           </MessageParametres>
+          <Emetteur>
+            <Sigle>DGAL</Sigle>
+            <LibellePartenaire>DGAL</LibellePartenaire>
+            <EmailPartenaire>sigal.dgal@agriculture.gouv.fr</EmailPartenaire>
+          </Emetteur>
           <ReferenceContextesType>
             <ReferenceContextesIntervention>
               <Cle>100000001494</Cle>
               <Sigle>PR17_2026_RPDA_PBOV</Sigle>
               <Libelle>Plan de surveillance résidus de pesticides bovin</Libelle>
               <Statut>V</Statut>
+              <DateModification>2026-08-03T19:55:29</DateModification>
             </ReferenceContextesIntervention>
             <ReferenceCommemoratifsInterventionContexte>
               <SigleCommemoratif>SIGLE_TEST</SigleCommemoratif>
@@ -202,6 +216,7 @@ describe('Sacha router', () => {
               <Sigle>PR17_2019_PREC_PBOV</Sigle>
               <Libelle>Plan 2019</Libelle>
               <Statut>G</Statut>
+              <DateModification>2026-08-03T19:55:29</DateModification>
             </ReferenceContextesIntervention>
           </ReferenceContextesType>
         </ReferentielPrescripteur>

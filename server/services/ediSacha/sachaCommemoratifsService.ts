@@ -1,29 +1,14 @@
 import SachaReferentialError from 'maestro-shared/errors/sachaReferentialError';
 import {
-  type CommemoratifSigle,
-  type CommemoratifValueSigle,
+  CommemoratifSigle,
+  CommemoratifValueSigle,
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import z from 'zod';
 import { executeTransaction } from '../../repositories/kysely';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
-
-interface ReferenceCommemoratif {
-  Sigle: string;
-  Libelle: string;
-  // Validé ou Gelé
-  Statut: 'G' | 'V';
-  //  A (Alphanumérique) ; N (Numérique) ; D (Date) ; V (Liste de valeur)
-  TypeDonnee: 'V' | 'N' | 'A' | 'D';
-  Unite?: string;
-}
-
-interface ReferenceCommemoratifsValeurs {
-  Sigle: string;
-  Libelle: string;
-  Statut: 'G' | 'V';
-}
+import { statusValidator } from './sachaValidator';
 
 export const TypeDonneeCodec = z.codec(
   z.enum(['V', 'N', 'A', 'D']),
@@ -57,18 +42,34 @@ export const TypeDonneeCodec = z.codec(
   }
 );
 
-interface ReferenceCommemoratifType {
-  ReferenceCommemoratif: ReferenceCommemoratif;
-  ReferenceCommemoratifsValeurs?: ReferenceCommemoratifsValeurs[];
-}
-
-export interface DonneesStandardisees {
-  MessageParametres: { NomFichier: string };
-  ReferenceCommemoratifType?: ReferenceCommemoratifType[];
-}
+export const DonneesStandardiseesXml = z.object({
+  MessageParametres: z.object({ NomFichier: z.string() }),
+  ReferenceCommemoratifType: z
+    .array(
+      z.object({
+        ReferenceCommemoratif: z.object({
+          Sigle: CommemoratifSigle,
+          Libelle: z.string(),
+          Statut: statusValidator,
+          Unite: z.string().optional(),
+          TypeDonnee: TypeDonneeCodec
+        }),
+        ReferenceCommemoratifsValeurs: z
+          .array(
+            z.object({
+              Sigle: CommemoratifValueSigle,
+              Libelle: z.string(),
+              Statut: statusValidator
+            })
+          )
+          .optional()
+      })
+    )
+    .optional()
+});
 
 export const updateSachaCommemoratifs = async (
-  donneesStandardisees: DonneesStandardisees
+  donneesStandardisees: z.output<typeof DonneesStandardiseesXml>
 ): Promise<string> => {
   const nomFichier = donneesStandardisees.MessageParametres.NomFichier;
 
@@ -82,13 +83,13 @@ export const updateSachaCommemoratifs = async (
   }
 
   const commemoratifs = referenceCommemoratifTypes.map((item) => ({
-    sigle: item.ReferenceCommemoratif.Sigle as CommemoratifSigle,
+    sigle: item.ReferenceCommemoratif.Sigle,
     libelle: item.ReferenceCommemoratif.Libelle,
-    typeDonnee: TypeDonneeCodec.decode(item.ReferenceCommemoratif.TypeDonnee),
+    typeDonnee: item.ReferenceCommemoratif.TypeDonnee,
     unite: item.ReferenceCommemoratif.Unite || null,
     deprecated: item.ReferenceCommemoratif.Statut === 'G',
     values: (item.ReferenceCommemoratifsValeurs ?? []).map((valeur) => ({
-      sigle: valeur.Sigle as CommemoratifValueSigle,
+      sigle: valeur.Sigle,
       libelle: valeur.Libelle,
       deprecated: valeur.Statut === 'G'
     }))

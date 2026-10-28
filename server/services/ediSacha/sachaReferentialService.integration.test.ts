@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { fakerFR } from '@faker-js/faker';
 import type { SachaContextSigle } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
@@ -57,8 +59,8 @@ const buildXML = (
           <Sigle>${comm.sigle}</Sigle>
           <Libelle>${comm.libelle}</Libelle>
           <Statut>${comm.statut}</Statut>
-          ${comm.typeDonnee ? `<TypeDonnee>${comm.typeDonnee}</TypeDonnee>` : ''}
           ${comm.unite ? `<Unite>${comm.unite}</Unite>` : ''}
+          <TypeDonnee>${comm.typeDonnee}</TypeDonnee>
         </ReferenceCommemoratif>
         ${valuesXML}
       </ReferenceCommemoratifType>
@@ -67,7 +69,7 @@ const buildXML = (
     .join('');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-    <DonneesStandardisees>
+    <DonneesStandardisees schemavalidation="DonneesStandardisees.xsd">
       <MessageParametres>
           <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
           <VersionScenario>1.0.1</VersionScenario>
@@ -92,9 +94,18 @@ const buildRP01XML = (
 ) => `<?xml version="1.0" encoding="UTF-8"?>
     <ReferentielPrescripteur schemavalidation="ReferentielPrescripteur.xsd">
       <MessageParametres>
+        <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
+        <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>RP01</TypeFichier>
         <NomFichier>RP01DGALDGAL260803195529876</NomFichier>
+        <NomLogicielCreation>SIGAL</NomLogicielCreation>
+        <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>
+      <Emetteur>
+        <Sigle>DGAL</Sigle>
+        <LibellePartenaire>DGAL</LibellePartenaire>
+        <EmailPartenaire>sigal.dgal@agriculture.gouv.fr</EmailPartenaire>
+      </Emetteur>
       ${contexts
         .map(
           (context) => `
@@ -104,6 +115,7 @@ const buildRP01XML = (
           <Sigle>${context.sigle}</Sigle>
           <Libelle>Libellé ${context.sigle}</Libelle>
           <Statut>${context.statut}</Statut>
+          <DateModification>2026-08-03T19:55:29</DateModification>
         </ReferenceContextesIntervention>
         ${(context.intervention ?? [])
           .map(
@@ -121,9 +133,6 @@ const buildRP01XML = (
         </ReferenceCommemoratifsEchantillonContexte>`
           )
           .join('')}
-        <ReferencePlansAnalyseContexte>
-          <SiglePlanAnalyse>RPDA_CU</SiglePlanAnalyse>
-        </ReferencePlansAnalyseContexte>
       </ReferenceContextesType>`
         )
         .join('')}
@@ -372,13 +381,15 @@ describe('importSachaReferential (DS01)', () => {
     expect(result[commemoratif.sigle]?.libelle).toBe(updatedLibelle);
   });
 
-  test('handles XML with no commemoratifs', async () => {
+  test('refuses a file not compliant with the XSD', async () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-      <DonneesStandardisees>
+      <DonneesStandardisees schemavalidation="DonneesStandardisees.xsd">
       </DonneesStandardisees>
     `;
 
-    await expect(importSachaReferential(xml)).rejects.toThrow();
+    await expect(importSachaReferential(xml)).rejects.toThrow(
+      /^Fichier non conforme à la XSD Sacha/
+    );
   });
 
   test('handles commemoratifs without values', async () => {
@@ -573,7 +584,12 @@ describe('importSachaReferential (RP01)', () => {
 
   test('refuses a file which is neither a DS01 nor a RP01', async () => {
     await expect(
-      importSachaReferential('<?xml version="1.0"?><Resultats></Resultats>')
+      importSachaReferential(
+        readFileSync(
+          path.join(import.meta.dirname, 'example-rai-1.xml'),
+          'utf-8'
+        )
+      )
     ).rejects.toThrow(
       'Ce fichier n’est ni un référentiel des données standardisées (DS01) ni un référentiel prescripteur (RP01).'
     );

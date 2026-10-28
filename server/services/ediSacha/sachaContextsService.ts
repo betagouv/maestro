@@ -1,7 +1,8 @@
 import { uniq, uniqBy } from 'lodash-es';
 import SachaReferentialError from 'maestro-shared/errors/sachaReferentialError';
-import type { SachaContextSigle } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import type { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import { SachaContextSigle } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import z from 'zod';
 import { executeTransaction } from '../../repositories/kysely';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
@@ -9,45 +10,50 @@ import {
   type ImportedSachaContext,
   sachaContextRepository
 } from '../../repositories/sachaContextRepository';
+import { statusValidator } from './sachaValidator';
 
-interface ReferenceCommemoratifATransmettre {
-  SigleCommemoratif: string;
-}
+const ReferenceCommemoratifsATransmettreXml = z
+  .array(z.object({ SigleCommemoratif: CommemoratifSigle }))
+  .optional();
 
-interface ReferenceContextesType {
-  ReferenceContextesIntervention: {
-    Sigle: string;
-    Libelle: string;
-    Statut: 'G' | 'V';
-  };
-  ReferenceCommemoratifsInterventionContexte?: ReferenceCommemoratifATransmettre[];
-  ReferenceCommemoratifsEchantillonContexte?: ReferenceCommemoratifATransmettre[];
-}
-
-export interface ReferentielPrescripteur {
-  MessageParametres: { NomFichier: string };
-  ReferenceContextesType?: ReferenceContextesType[];
-}
+export const ReferentielPrescripteurXml = z.object({
+  MessageParametres: z.object({ NomFichier: z.string() }),
+  ReferenceContextesType: z
+    .array(
+      z.object({
+        ReferenceContextesIntervention: z.object({
+          Sigle: SachaContextSigle,
+          Libelle: z.string(),
+          Statut: statusValidator
+        }),
+        ReferenceCommemoratifsInterventionContexte:
+          ReferenceCommemoratifsATransmettreXml,
+        ReferenceCommemoratifsEchantillonContexte:
+          ReferenceCommemoratifsATransmettreXml
+      })
+    )
+    .optional()
+});
 
 export const parseReferentielPrescripteur = (
-  referentielPrescripteur: ReferentielPrescripteur
+  referentielPrescripteur: z.output<typeof ReferentielPrescripteurXml>
 ): { fileName: string; contexts: ImportedSachaContext[] } => {
   const contexts = uniqBy(
     (referentielPrescripteur.ReferenceContextesType ?? []).map((item) => ({
-      sigle: item.ReferenceContextesIntervention.Sigle as SachaContextSigle,
+      sigle: item.ReferenceContextesIntervention.Sigle,
       libelle: item.ReferenceContextesIntervention.Libelle,
       deprecated: item.ReferenceContextesIntervention.Statut === 'G',
       commemoratifs: uniqBy(
         [
           ...(item.ReferenceCommemoratifsInterventionContexte ?? []).map(
             ({ SigleCommemoratif }) => ({
-              sigle: SigleCommemoratif as CommemoratifSigle,
+              sigle: SigleCommemoratif,
               level: 'Sample' as const
             })
           ),
           ...(item.ReferenceCommemoratifsEchantillonContexte ?? []).map(
             ({ SigleCommemoratif }) => ({
-              sigle: SigleCommemoratif as CommemoratifSigle,
+              sigle: SigleCommemoratif,
               level: 'Analysis' as const
             })
           )
@@ -71,7 +77,7 @@ export const parseReferentielPrescripteur = (
 };
 
 export const updateSachaContexts = async (
-  referentielPrescripteur: ReferentielPrescripteur
+  referentielPrescripteur: z.output<typeof ReferentielPrescripteurXml>
 ): Promise<string> => {
   const { fileName, contexts } = parseReferentielPrescripteur(
     referentielPrescripteur

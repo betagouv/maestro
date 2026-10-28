@@ -48,7 +48,7 @@ const booleanLabel = z.codec(z.literal(['O', 'N']), z.boolean(), {
   encode: (b) => (b ? 'O' : 'N')
 });
 
-const statusValidator = z.literal(['G', 'V']);
+export const statusValidator = z.literal(['G', 'V']);
 const indicateurPrelevementPartielValidator = z.literal(['C', 'P', 'F']);
 
 const referenceEtablissement = z.object({
