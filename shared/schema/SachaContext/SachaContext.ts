@@ -5,7 +5,7 @@ import { CommemoratifSigle } from '../SachaCommemoratif/SachaCommemoratif';
 import type { FieldInheritance } from '../SpecificData/FieldInheritance';
 import type { SpecificDataFieldId } from '../SpecificData/ProgrammingSubPlanFieldConfig';
 
-export const SachaCommemoratifLevel = z.enum(['Sample', 'Analysis']);
+export const SachaCommemoratifLevel = z.enum(['Sample', 'SampleMatrix']);
 export type SachaCommemoratifLevel = z.infer<typeof SachaCommemoratifLevel>;
 
 export const SachaContext = z.object({

@@ -148,7 +148,7 @@ const sachaContext = (
 
 const commemoratifsContext = sachaContext([
   ['ESPECE', 'Sample'],
-  ['MODE_ELEVAGE', 'Analysis'],
+  ['MODE_ELEVAGE', 'SampleMatrix'],
   ['IDA', 'Sample'],
   ['AGED', 'Sample']
 ]);
@@ -247,7 +247,7 @@ const daiCommemoratifRecord: SachaCommemoratifRecord = {
 
 const daiContext = sachaContext([
   ['SIGLE_SACHA', 'Sample'],
-  ['AGED', 'Analysis']
+  ['AGED', 'SampleMatrix']
 ]);
 
 test(`génère un XML de DAI`, async () => {
@@ -757,7 +757,7 @@ describe('getCommemoratifs', () => {
     });
     expect(result).toContainEqual({
       sigle: 'MODE_ELEVAGE',
-      level: 'Analysis',
+      level: 'SampleMatrix',
       sigleValue: 'INTENSIF'
     });
   });

@@ -192,7 +192,7 @@ export const generateXMLDAI = (
               NumeroEtiquette: numeroEtiquette,
               Commentaire: sampleItem.sealId ?? ''
             },
-            DialogueCommemoratif: dialogueCommemoratifs('Analysis')
+            DialogueCommemoratif: dialogueCommemoratifs('SampleMatrix')
           })
         ),
         ReferencePlanAnalyseType: siglesPlanAnalyse.map((siglePlanAnalyse) => ({
