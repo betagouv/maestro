@@ -5,6 +5,10 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import clsx from 'clsx';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import {
+  lockedSettingReason,
+  programmingPlanEditionPhase
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEditionPhase';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import { isCampaignLaunched } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { subPlanLabel } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -63,6 +67,10 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
     canUpdateProgrammingPlanSettings(programmingPlan, user, account.roles);
 
   const canRenamePlan = !subPlan && canUpdatePlanSettings;
+
+  const lockedReason =
+    programmingPlan &&
+    lockedSettingReason(programmingPlanEditionPhase(programmingPlan));
 
   return !programmingPlan ? null : (
     <AppPage
@@ -183,14 +191,8 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                 }
               />
             </div>
-            {isCampaignLaunched(programmingPlan) && (
-              <Alert
-                severity={'error'}
-                small
-                description={
-                  'La campagne est lancée pour ce plan. Seuls certains paramètres sont modifiables.'
-                }
-              />
+            {lockedReason && (
+              <Alert severity={'error'} small description={lockedReason} />
             )}
             {!subPlan && (
               <Alert

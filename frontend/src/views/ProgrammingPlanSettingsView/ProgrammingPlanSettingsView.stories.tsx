@@ -42,7 +42,8 @@ const meta = {
           genProgrammingPlan({
             year: 2024,
             domainId: pesticide2024.id,
-            regionalStatus: regionalStatus('InProgress')
+            regionalStatus: regionalStatus('InProgress'),
+            launchedAt: null
           }),
           genProgrammingPlan({
             year: 2025,
@@ -58,7 +59,8 @@ const meta = {
           genProgrammingPlan({
             year: 2026,
             domainId: pesticide2026.id,
-            regionalStatus: regionalStatus('SubmittedToRegion')
+            regionalStatus: regionalStatus('SubmittedToRegion'),
+            launchedAt: null
           }),
           genProgrammingPlan({
             year: 2026,

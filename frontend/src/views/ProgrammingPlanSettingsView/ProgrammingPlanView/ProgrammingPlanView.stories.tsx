@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { RegionList } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import type {
   Matrix,
@@ -10,7 +9,6 @@ import type {
   ProgrammingPlanSettingsForm,
   ProgrammingSubPlanSettingsForm
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
-import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   ProgrammingSubPlanId,
   type SachaContextSigle,
@@ -301,20 +299,6 @@ const ppvPlan = genProgrammingPlan({
   launchedAt: null,
   launchedBy: null,
   nationalStatus: { status: 'InProgress' }
-});
-
-const withPPVPlanRegionalStatus = (
-  status: ProgrammingPlanStatus
-): Partial<MockApi> => ({
-  ...mockApiConf,
-  useFindProgrammingPlansQuery: {
-    data: [
-      {
-        ...ppvPlan,
-        regionalStatus: RegionList.map((region) => ({ region, status }))
-      }
-    ]
-  }
 });
 
 const mockApiConf: Partial<MockApi> = {
@@ -2527,7 +2511,7 @@ export const SubPlanDeleteForbiddenForCoordinatorWhenSubmitted: Story = {
 export const SubPlanAdd: Story = {
   parameters: {
     apiClient: getMockApi({
-      ...withPPVPlanRegionalStatus('InProgress'),
+      ...mockApiConf,
       useCreateProgrammingSubPlanMutation: [createProgrammingSubPlan, {}]
     })
   },
@@ -2551,7 +2535,18 @@ export const SubPlanAdd: Story = {
 
 export const SubPlanAddHiddenWhenCampaignLaunched: Story = {
   parameters: {
-    apiClient: getMockApi(withPPVPlanRegionalStatus('Validated'))
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useFindProgrammingPlansQuery: {
+        data: [
+          {
+            ...ppvPlan,
+            launchedAt: new Date('2026-03-01'),
+            launchedBy: NationalCoordinatorId
+          }
+        ]
+      }
+    })
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -2584,10 +2579,10 @@ export const PlanSubmittedToRegionLocksSettings: Story = {
       )
     ).toBeDisabled();
     await expect(
-      canvas.getAllByText(
-        'Non modifiable après la soumission du plan aux régions.'
+      canvas.getByText(
+        'Le plan a été soumis aux régions. Certains paramètres ne sont plus modifiables.'
       )
-    ).toHaveLength(4);
+    ).toBeInTheDocument();
     await expect(
       canvas.getByTitle('Paramétrer « Note additionnelle » au niveau du plan')
     ).toBeEnabled();

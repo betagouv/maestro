@@ -2,7 +2,6 @@ import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import {
   isSettingLocked,
-  lockedSettingReason,
   type ProgrammingPlanEditionPhase
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEditionPhase';
 import {
@@ -39,9 +38,7 @@ export const useSettingInheritance = <T extends ProgrammingPlanSettings>({
   const managedAtPlanLevel = planSettings?.[managedKey(settingKey)] ?? false;
   const isInherited = managedAtPlanLevel && !managed;
   const locked = isSettingLocked(editionPhase, settingKey);
-  const disabledReason = locked
-    ? lockedSettingReason(editionPhase)
-    : inheritanceDisabledReason;
+  const disabledReason = locked ? null : inheritanceDisabledReason;
 
   const change = (patch: Partial<ProgrammingPlanSettings>) =>
     onChange({ ...settings, ...patch });
