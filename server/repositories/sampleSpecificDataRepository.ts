@@ -10,7 +10,6 @@ const updateSampleSpecificDataAttribute = async (
   sampleSpecificDataAttribute: {
     attribute: string;
     sachaCommemoratifSigle: CommemoratifSigle | null;
-    inDai: boolean;
     optional: boolean;
   },
   trx: KyselyMaestro = kysely
@@ -20,7 +19,6 @@ const updateSampleSpecificDataAttribute = async (
     .set({
       sachaCommemoratifSigle:
         sampleSpecificDataAttribute.sachaCommemoratifSigle,
-      sachaInDai: sampleSpecificDataAttribute.inDai,
       sachaOptional: sampleSpecificDataAttribute.optional
     })
     .where('key', '=', sampleSpecificDataAttribute.attribute)
@@ -46,33 +44,7 @@ const updateSampleSpecificDataAttributeValue = async (
     .execute();
 };
 
-const deleteSampleSpecificDataAttributeValues = async (
-  attribute: string,
-  trx: KyselyMaestro = kysely
-) => {
-  await trx
-    .updateTable('specificDataFieldOptions')
-    .set({ sachaCommemoratifValueSigle: null })
-    .where('fieldKey', '=', attribute)
-    .execute();
-};
-
-const deleteSampleSpecificDataAttributeValue = async (
-  attribute: string,
-  attributeValue: string,
-  trx: KyselyMaestro = kysely
-) => {
-  await trx
-    .updateTable('specificDataFieldOptions')
-    .set({ sachaCommemoratifValueSigle: null })
-    .where('fieldKey', '=', attribute)
-    .where('value', '=', attributeValue)
-    .execute();
-};
-
 export const sampleSpecificDataRepository = {
   updateSampleSpecificDataAttribute,
-  updateSampleSpecificDataAttributeValue,
-  deleteSampleSpecificDataAttributeValues,
-  deleteSampleSpecificDataAttributeValue
+  updateSampleSpecificDataAttributeValue
 };

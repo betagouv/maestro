@@ -6,12 +6,15 @@ const sachaCommemoratifsApi = api.injectEndpoints({
     getSachaCommemoratifs: buildTypedQuery(builder, '/sacha/commemoratifs', {
       providesTags: ['SachaCommemoratif']
     }),
-    updateSachaCommemoratifs: buildTypedMutation(
+    findSachaContexts: buildTypedQuery(builder, '/sacha/contexts', {
+      providesTags: ['SachaContext']
+    }),
+    updateSachaReferential: buildTypedMutation(
       builder,
-      '/sacha/commemoratifs',
+      '/sacha/referentials',
       'post',
       {
-        invalidatesTags: ['SachaCommemoratif']
+        invalidatesTags: ['SachaCommemoratif', 'SachaContext']
       }
     )
   })
@@ -19,5 +22,6 @@ const sachaCommemoratifsApi = api.injectEndpoints({
 
 export const {
   useGetSachaCommemoratifsQuery,
-  useUpdateSachaCommemoratifsMutation
+  useFindSachaContextsQuery,
+  useUpdateSachaReferentialMutation
 } = sachaCommemoratifsApi;

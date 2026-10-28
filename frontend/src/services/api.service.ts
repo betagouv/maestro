@@ -28,6 +28,7 @@ export const tagTypes = [
   'Regions',
   'RootNotice',
   'SachaCommemoratif',
+  'SachaContext',
   'Sample',
   'SampleCount',
   'SampleItemAnalysis',

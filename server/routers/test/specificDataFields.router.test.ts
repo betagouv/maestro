@@ -78,7 +78,6 @@ describe('SpecificDataFields router', () => {
 
       for (const field of res.body) {
         expect(field).toMatchObject({
-          inDai: expect.any(Boolean),
           optional: expect.any(Boolean),
           sachaCommemoratifSigle: expect.toSatisfy(
             (v: unknown) => v === null || typeof v === 'string'

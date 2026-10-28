@@ -1,14 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, within } from 'storybook/test';
 import { FieldsTable } from './FieldsTable';
-import { storyFields, storySachaFields } from './storyFixtures';
+import { storyFields } from './storyFixtures';
 
 const meta = {
   title: 'Views/SpecificDataFields/FieldsTable',
   component: FieldsTable,
   args: {
     fields: storyFields,
-    sachaFields: storySachaFields,
     readOnly: false,
     onDelete: fn(),
     onAdd: fn(),
@@ -23,14 +22,7 @@ export const Default: Story = {};
 
 export const Empty: Story = {
   args: {
-    fields: [],
-    sachaFields: []
-  }
-};
-
-export const NoSachaConfig: Story = {
-  args: {
-    sachaFields: []
+    fields: []
   }
 };
 

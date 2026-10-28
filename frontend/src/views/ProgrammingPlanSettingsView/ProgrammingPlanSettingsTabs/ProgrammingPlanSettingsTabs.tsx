@@ -23,6 +23,10 @@ import {
   SubPlanNumberIssueMessages,
   subPlanNumberIssue
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  sachaContextFieldsIssue,
+  unusableSachaContextMessage
+} from 'maestro-shared/schema/SachaContext/SachaContext';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { checkSchema } from 'maestro-shared/utils/zod';
 import {
@@ -141,6 +145,15 @@ export const ProgrammingPlanSettingsTabs = ({
       { skip: !subPlan }
     );
 
+  const { data: sachaContexts } = apiClient.useFindSachaContextsQuery(
+    undefined,
+    { skip: !subPlan }
+  );
+  const { data: fieldConfigs } = apiClient.useFindAllFieldConfigsQuery(
+    undefined,
+    { skip: !subPlan }
+  );
+
   const [updateProgrammingPlanSettings, updatePlanSettingsCall] =
     apiClient.useUpdateProgrammingPlanSettingsMutation();
   const [updateProgrammingSubPlanSettings, updateSubPlanSettingsCall] =
@@ -235,6 +248,36 @@ export const ProgrammingPlanSettingsTabs = ({
                 path: ['subPlanNumber']
               });
             }
+            const { sachaContextSigle } = ctx.value;
+            if (!ctx.value.settingsCompleted || !sachaContextSigle) {
+              return;
+            }
+            const sachaContext = sachaContexts?.find(
+              ({ sigle }) => sigle === sachaContextSigle
+            );
+            if (sachaContexts && !sachaContext) {
+              ctx.issues.push({
+                input: ctx.value,
+                code: 'custom',
+                message: unusableSachaContextMessage(sachaContextSigle),
+                path: ['sachaContextSigle']
+              });
+            }
+            const fieldsIssue =
+              sachaContext &&
+              sachaContextFieldsIssue(
+                sachaContext,
+                ctx.value.fields,
+                fieldConfigs ?? []
+              );
+            if (fieldsIssue) {
+              ctx.issues.push({
+                input: ctx.value,
+                code: 'custom',
+                message: fieldsIssue,
+                path: ['fields']
+              });
+            }
           })
         : checkSchema(ProgrammingLevelSettingsForm, (ctx) => {
             for (const conflict of planSaveConflicts(
@@ -250,7 +293,7 @@ export const ProgrammingPlanSettingsTabs = ({
               });
             }
           }),
-    [subPlan, programmingPlan, programmingPlans]
+    [subPlan, programmingPlan, programmingPlans, sachaContexts, fieldConfigs]
   );
 
   const [validation, setValidation] = useState<{
@@ -387,6 +430,7 @@ export const ProgrammingPlanSettingsTabs = ({
         return (
           <ProgrammingPlanSamplerFormSettings
             fields={draft.fields}
+            errorMessage={form.message('fields')}
             editionPhase={editionPhase}
             onChange={(fields) => setDraft({ ...draft, fields })}
           />

@@ -13,7 +13,6 @@ export const storyFields: AdminFieldConfig[] = [
     label: 'Détail de la matrice',
     hintText: 'Champ facultatif pour précisions supplémentaires',
     sachaCommemoratifSigle: null,
-    sachaInDai: false,
     sachaOptional: false,
     options: []
   },
@@ -24,7 +23,6 @@ export const storyFields: AdminFieldConfig[] = [
     label: 'Type de culture',
     hintText: null,
     sachaCommemoratifSigle: null,
-    sachaInDai: true,
     sachaOptional: false,
     options: [
       {
@@ -50,7 +48,6 @@ export const storyFields: AdminFieldConfig[] = [
     label: 'Contrôle libératoire',
     hintText: null,
     sachaCommemoratifSigle: null,
-    sachaInDai: false,
     sachaOptional: false,
     options: []
   }
@@ -63,7 +60,6 @@ export const storySachaFields: SachaFieldConfig[] = [
     label: 'Type de culture',
     hintText: null,
     sachaCommemoratifSigle: null,
-    inDai: true,
     optional: false,
     options: [
       {

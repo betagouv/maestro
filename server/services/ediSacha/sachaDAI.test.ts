@@ -9,6 +9,10 @@ import type {
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import type {
+  SachaCommemoratifLevel,
+  SachaContext
+} from 'maestro-shared/schema/SachaContext/SachaContext';
 import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import type { SampleMatrix } from 'maestro-shared/schema/Sample/SampleMatrix';
 import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
@@ -56,7 +60,6 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     label: 'sampling',
     hintText: null,
     sachaCommemoratifSigle: null,
-    inDai: false,
     optional: false,
     options: []
   },
@@ -66,7 +69,6 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     label: 'animalBatchIdentifier',
     hintText: null,
     sachaCommemoratifSigle: null,
-    inDai: false,
     optional: false,
     options: []
   },
@@ -76,7 +78,6 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     label: 'ageInDays',
     hintText: null,
     sachaCommemoratifSigle: null,
-    inDai: false,
     optional: false,
     options: []
   },
@@ -86,7 +87,6 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     label: 'species',
     hintText: null,
     sachaCommemoratifSigle: sachaCommemoratifSigleEspece,
-    inDai: false,
     optional: false,
     options: [
       {
@@ -103,7 +103,6 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     label: 'breedingMethod',
     hintText: null,
     sachaCommemoratifSigle: null,
-    inDai: false,
     optional: false,
     options: []
   },
@@ -113,11 +112,18 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     label: 'outdoorAccess',
     hintText: null,
     sachaCommemoratifSigle: null,
-    inDai: false,
     optional: false,
     options: []
   }
 ];
+
+const commemoratifValues = (...sigles: string[]) =>
+  Object.fromEntries(
+    sigles.map((sigle) => [
+      sigle,
+      { sigle: sigle as CommemoratifValueSigle, libelle: sigle }
+    ])
+  );
 
 const sachaCommemoratifRecord: SachaCommemoratifRecord = {
   [sachaCommemoratifSigleEspece]: {
@@ -125,9 +131,27 @@ const sachaCommemoratifRecord: SachaCommemoratifRecord = {
     libelle: 'espèce animal',
     typeDonnee: 'list',
     unite: null,
-    values: {}
+    values: commemoratifValues('POULE', 'CANARD')
   }
 };
+
+const sachaContext = (
+  commemoratifs: [string, SachaCommemoratifLevel][]
+): SachaContext => ({
+  sigle: 'PR17_2026_RPDA_PVOL' as SachaContextSigle,
+  libelle: 'Plan de surveillance résidus de pesticides volaille',
+  commemoratifs: commemoratifs.map(([sigle, level]) => ({
+    sigle: sigle as CommemoratifSigle,
+    level
+  }))
+});
+
+const commemoratifsContext = sachaContext([
+  ['ESPECE', 'Sample'],
+  ['MODE_ELEVAGE', 'Analysis'],
+  ['IDA', 'Sample'],
+  ['AGED', 'Sample']
+]);
 
 const daiSample = {
   reference: 'ARA-25-00073',
@@ -180,7 +204,6 @@ const daiFieldConfigs: SachaFieldConfig[] = [
     inputType: 'select' as const,
     label: 'species',
     hintText: null,
-    inDai: true,
     optional: false,
     sachaCommemoratifSigle: 'SIGLE_SACHA' as CommemoratifSigle,
     options: [
@@ -198,7 +221,6 @@ const daiFieldConfigs: SachaFieldConfig[] = [
     inputType: 'text' as const,
     label: 'ageInDays',
     hintText: null,
-    inDai: true,
     optional: false,
     sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
     options: []
@@ -212,7 +234,7 @@ const daiCommemoratifRecord: SachaCommemoratifRecord = {
     libelle: 'nouveau sigle',
     typeDonnee: 'list',
     unite: null,
-    values: {}
+    values: commemoratifValues('SIGLE_VALUE_SACHA')
   },
   ['AGED' as CommemoratifSigle]: {
     sigle: 'AGED' as CommemoratifSigle,
@@ -222,6 +244,11 @@ const daiCommemoratifRecord: SachaCommemoratifRecord = {
     values: {}
   }
 };
+
+const daiContext = sachaContext([
+  ['SIGLE_SACHA', 'Sample'],
+  ['AGED', 'Analysis']
+]);
 
 test(`génère un XML de DAI`, async () => {
   expect(
@@ -233,6 +260,7 @@ test(`génère un XML de DAI`, async () => {
       1765876056798,
       daiFieldConfigs,
       daiCommemoratifRecord,
+      daiContext,
       sachaConf,
       laboratory
     )
@@ -268,6 +296,10 @@ test(`génère un XML de DAI`, async () => {
           <DateIntervention>2025-12-16</DateIntervention>
           <DateModification>2025-12-16T10:07:36</DateModification>
         </DialogueDemandeIntervention>
+        <DialogueCommemoratif>
+          <Sigle>SIGLE_SACHA</Sigle>
+          <SigleValeur>SIGLE_VALUE_SACHA</SigleValeur>
+        </DialogueCommemoratif>
         <ReferenceEtablissementType>
           <ReferenceEtablissement>
             <SigleIdentifiant>SIRET</SigleIdentifiant>
@@ -293,10 +325,6 @@ test(`génère un XML de DAI`, async () => {
           <DialogueCommemoratif>
             <Sigle>AGED</Sigle>
             <TexteValeur>12</TexteValeur>
-          </DialogueCommemoratif>
-          <DialogueCommemoratif>
-            <Sigle>SIGLE_SACHA</Sigle>
-            <SigleValeur>SIGLE_VALUE_SACHA</SigleValeur>
           </DialogueCommemoratif>
         </DialogueEchantillonCommemoratifType>
         <ReferencePlanAnalyseType>
@@ -332,6 +360,7 @@ test(`fige le NumeroEtiquette sur sentAt (date d'envoi), tout en datant le fichi
     dateNow,
     daiFieldConfigs,
     daiCommemoratifRecord,
+    daiContext,
     sachaConf,
     laboratory
   );
@@ -352,6 +381,7 @@ test('génère un plan d’analyse par sigle distinct des analytes de l’exempl
     1765876056798,
     daiFieldConfigs,
     daiCommemoratifRecord,
+    daiContext,
     sachaConf,
     laboratory
   );
@@ -373,10 +403,48 @@ test('refuse un sous-plan sans contexte d’intervention SIGAL', () => {
       1765876056798,
       daiFieldConfigs,
       daiCommemoratifRecord,
+      daiContext,
       sachaConf,
       laboratory
     )
   ).toThrow("Pas de contexte d'intervention SIGAL pour le sous-plan M01.");
+});
+
+test('refuse un contexte d’intervention SIGAL gelé ou absent du référentiel', () => {
+  expect(() =>
+    generateXMLDAI(
+      MatrixReferentialFixture,
+      daiSample,
+      daiSubPlan,
+      daiSampleItem,
+      1765876056798,
+      daiFieldConfigs,
+      daiCommemoratifRecord,
+      undefined,
+      sachaConf,
+      laboratory
+    )
+  ).toThrow(
+    'Le contexte d’intervention SIGAL PR17_2026_RPDA_PVOL est gelé ou absent du référentiel.'
+  );
+});
+
+test('génère une DAI sans commémoratif quand le contexte n’en déclare aucun', async () => {
+  const xmlFile = await generateXMLDAI(
+    MatrixReferentialFixture,
+    daiSample,
+    daiSubPlan,
+    daiSampleItem,
+    1765876056798,
+    daiFieldConfigs,
+    daiCommemoratifRecord,
+    sachaContext([]),
+    sachaConf,
+    laboratory
+  );
+
+  expect(xmlFile.content).toContain('<DialogueEchantillonCommemoratifType>');
+  expect(xmlFile.content).not.toContain('<DialogueCommemoratif>');
 });
 
 test('refuse un exemplaire dont un analyte n’a pas de plan d’analyse', () => {
@@ -389,6 +457,7 @@ test('refuse un exemplaire dont un analyte n’a pas de plan d’analyse', () =>
       1765876056798,
       daiFieldConfigs,
       daiCommemoratifRecord,
+      daiContext,
       sachaConf,
       laboratory
     )
@@ -410,6 +479,7 @@ test('génère un échantillon par matrice, avec la même étiquette et le même
     1765876056798,
     daiFieldConfigs,
     daiCommemoratifRecord,
+    daiContext,
     sachaConf,
     laboratory
   );
@@ -435,6 +505,7 @@ test('numérote les échantillons à partir de 1, quel que soit le numéro de l�
     1765876056798,
     daiFieldConfigs,
     daiCommemoratifRecord,
+    daiContext,
     sachaConf,
     laboratory
   );
@@ -461,6 +532,7 @@ test('refuse deux matrices de même sigle SACHA', () => {
       1765876056798,
       daiFieldConfigs,
       daiCommemoratifRecord,
+      daiContext,
       sachaConf,
       laboratory
     )
@@ -479,13 +551,18 @@ describe('getCommemoratifs', () => {
     outdoorAccess: 'PAT1'
   };
 
-  test("retourne un tableau vide quand aucun attribut n'est inlus dans la DAI", () => {
+  test('retourne un tableau vide quand le contexte ne déclare aucun des commémoratifs', () => {
     expect(
-      getCommemoratifs(specificData, sachaFieldConfigs, sachaCommemoratifRecord)
+      getCommemoratifs(
+        specificData,
+        sachaFieldConfigs,
+        sachaCommemoratifRecord,
+        sachaContext([['AUTRE', 'Sample']])
+      )
     ).toEqual([]);
   });
 
-  test('retourne les commémoratifs pour les attributs inclus dans la DAI', () => {
+  test('retourne les commémoratifs déclarés par le contexte, avec leur niveau', () => {
     expect(
       getCommemoratifs(
         specificData,
@@ -497,7 +574,6 @@ describe('getCommemoratifs', () => {
             label: 'species',
             hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-            inDai: true,
             optional: false,
             options: [
               {
@@ -515,9 +591,10 @@ describe('getCommemoratifs', () => {
             ]
           }
         ],
-        sachaCommemoratifRecord
+        sachaCommemoratifRecord,
+        commemoratifsContext
       )
-    ).toEqual([{ sigle: 'ESPECE', sigleValue: 'POULE' }]);
+    ).toEqual([{ sigle: 'ESPECE', level: 'Sample', sigleValue: 'POULE' }]);
   });
 
   test('retourne un commémoratif par valeur d’un choix multiple', () => {
@@ -531,7 +608,6 @@ describe('getCommemoratifs', () => {
             label: 'species',
             hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-            inDai: true,
             optional: false,
             options: [
               {
@@ -549,11 +625,12 @@ describe('getCommemoratifs', () => {
             ]
           }
         ],
-        sachaCommemoratifRecord
+        sachaCommemoratifRecord,
+        commemoratifsContext
       )
     ).toEqual([
-      { sigle: 'ESPECE', sigleValue: 'POULE' },
-      { sigle: 'ESPECE', sigleValue: 'CANARD' }
+      { sigle: 'ESPECE', level: 'Sample', sigleValue: 'POULE' },
+      { sigle: 'ESPECE', level: 'Sample', sigleValue: 'CANARD' }
     ]);
   });
 
@@ -569,7 +646,6 @@ describe('getCommemoratifs', () => {
             label: 'species',
             hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-            inDai: true,
             optional: false,
             options: [
               {
@@ -592,7 +668,6 @@ describe('getCommemoratifs', () => {
             label: 'unknownAttribute',
             hintText: null,
             sachaCommemoratifSigle: 'UNKNOWN' as CommemoratifSigle,
-            inDai: true,
             optional: false,
             options: [
               {
@@ -604,9 +679,10 @@ describe('getCommemoratifs', () => {
             ]
           }
         ],
-        sachaCommemoratifRecord
+        sachaCommemoratifRecord,
+        commemoratifsContext
       )
-    ).toEqual([{ sigle: 'ESPECE', sigleValue: 'POULE' }]);
+    ).toEqual([{ sigle: 'ESPECE', level: 'Sample', sigleValue: 'POULE' }]);
   });
 
   test('retourne plusieurs commémoratifs quand plusieurs attributs inclus dans la DAI', () => {
@@ -622,7 +698,6 @@ describe('getCommemoratifs', () => {
           label: 'species',
           hintText: null,
           sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-          inDai: true,
           optional: false,
           options: [
             {
@@ -645,7 +720,6 @@ describe('getCommemoratifs', () => {
           label: 'breedingMethod',
           hintText: null,
           sachaCommemoratifSigle: 'MODE_ELEVAGE' as CommemoratifSigle,
-          inDai: true,
           optional: false,
           options: [
             {
@@ -670,14 +744,20 @@ describe('getCommemoratifs', () => {
           libelle: 'nouveau sigle',
           typeDonnee: 'list',
           unite: null,
-          values: {}
+          values: commemoratifValues('INTENSIF')
         }
-      }
+      },
+      commemoratifsContext
     );
     expect(result).toHaveLength(2);
-    expect(result).toContainEqual({ sigle: 'ESPECE', sigleValue: 'POULE' });
+    expect(result).toContainEqual({
+      sigle: 'ESPECE',
+      level: 'Sample',
+      sigleValue: 'POULE'
+    });
     expect(result).toContainEqual({
       sigle: 'MODE_ELEVAGE',
+      level: 'Analysis',
       sigleValue: 'INTENSIF'
     });
   });
@@ -687,7 +767,8 @@ describe('getCommemoratifs', () => {
       getCommemoratifs(
         specificData,
         sachaFieldConfigs.filter((fc) => fc.key !== 'species'),
-        sachaCommemoratifRecord
+        sachaCommemoratifRecord,
+        commemoratifsContext
       )
     ).toThrow('Configuration SACHA incomplète: species');
   });
@@ -704,7 +785,6 @@ describe('getCommemoratifs', () => {
             label: 'species',
             hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-            inDai: true,
             optional: false,
             options: [
               {
@@ -716,7 +796,8 @@ describe('getCommemoratifs', () => {
             ]
           }
         ],
-        sachaCommemoratifRecord
+        sachaCommemoratifRecord,
+        commemoratifsContext
       )
     ).toThrow('Configuration SACHA incomplète: species ESP7');
   });
@@ -733,7 +814,6 @@ describe('getCommemoratifs', () => {
             label: 'species',
             hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-            inDai: true,
             optional: true,
             options: [
               {
@@ -745,7 +825,8 @@ describe('getCommemoratifs', () => {
             ]
           }
         ],
-        sachaCommemoratifRecord
+        sachaCommemoratifRecord,
+        commemoratifsContext
       )
     ).toMatchInlineSnapshot(`[]`);
   });
@@ -766,7 +847,6 @@ describe('getCommemoratifs', () => {
           label: 'animalBatchIdentifier',
           hintText: null,
           sachaCommemoratifSigle: 'IDA' as CommemoratifSigle,
-          inDai: true,
           optional: false,
           options: []
         }
@@ -778,12 +858,15 @@ describe('getCommemoratifs', () => {
           libelle: 'Identifiant animal',
           typeDonnee: 'text',
           unite: null,
-          values: {}
+          values: commemoratifValues('INTENSIF')
         }
-      }
+      },
+      sachaContext([['IDA', 'Sample']])
     );
 
-    expect(result).toEqual([{ sigle: 'IDA', textValue: 'super identifiant' }]);
+    expect(result).toEqual([
+      { sigle: 'IDA', level: 'Sample', textValue: 'super identifiant' }
+    ]);
   });
 
   test('gère les commémoratifs de type numérique', () => {
@@ -802,7 +885,6 @@ describe('getCommemoratifs', () => {
           label: 'ageInDays',
           hintText: null,
           sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
-          inDai: true,
           optional: false,
           options: []
         }
@@ -814,16 +896,19 @@ describe('getCommemoratifs', () => {
           libelle: 'age en jours',
           typeDonnee: 'number',
           unite: 'jours',
-          values: {}
+          values: commemoratifValues('INTENSIF')
         }
-      }
+      },
+      sachaContext([['AGED', 'Sample']])
     );
 
-    expect(result).toEqual([{ sigle: 'AGED', textValue: '140' }]);
+    expect(result).toEqual([
+      { sigle: 'AGED', level: 'Sample', textValue: '140' }
+    ]);
   });
 
-  test("émet une erreur quand le sachaCommemoratifSigle n'existe pas dans sachaCommemoratifRecord", () => {
-    expect(() =>
+  test('ignore un commémoratif gelé ou absent du référentiel', () => {
+    expect(
       getCommemoratifs(
         specificData,
         [
@@ -833,8 +918,7 @@ describe('getCommemoratifs', () => {
             inputType: 'select' as const,
             label: 'species',
             hintText: null,
-            sachaCommemoratifSigle: 'SIGLE_INEXISTANT' as CommemoratifSigle,
-            inDai: true,
+            sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
             optional: false,
             options: [
               {
@@ -846,9 +930,39 @@ describe('getCommemoratifs', () => {
             ]
           }
         ],
-        sachaCommemoratifRecord
+        {},
+        commemoratifsContext
       )
-    ).toThrow();
+    ).toEqual([]);
+  });
+
+  test('émet une erreur quand la valeur reliée est gelée', () => {
+    expect(() =>
+      getCommemoratifs(
+        { species: 'ESP7' },
+        [
+          {
+            key: 'species',
+            inputType: 'select' as const,
+            label: 'species',
+            hintText: null,
+            sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
+            optional: false,
+            options: [
+              {
+                value: 'ESP7',
+                label: 'ESP7',
+                order: 0,
+                sachaCommemoratifValueSigle:
+                  'POULE_GELEE' as CommemoratifValueSigle
+              }
+            ]
+          }
+        ],
+        sachaCommemoratifRecord,
+        commemoratifsContext
+      )
+    ).toThrow('Configuration SACHA incomplète: species ESP7');
   });
 });
 
@@ -877,6 +991,7 @@ test("alimente l'établissement et l'atelier depuis le référentiel atelier", a
     1765876056798,
     daiFieldConfigs,
     daiCommemoratifRecord,
+    daiContext,
     sachaConf,
     laboratory
   );

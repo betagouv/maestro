@@ -68,7 +68,6 @@ export const FieldConfig = z.object({
 
 export const SachaFieldConfig = FieldConfig.extend({
   sachaCommemoratifSigle: CommemoratifSigle.nullable(),
-  inDai: z.boolean(),
   optional: z.boolean(),
   options: z.array(SachaFieldOption)
 });

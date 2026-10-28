@@ -53,7 +53,6 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
     hintText: field.hintText ?? ''
   });
 
-  const [inDai, setInDai] = useState<boolean>(field.sachaInDai);
   const [optional, setOptional] = useState<boolean>(field.sachaOptional);
   const [selectedSigle, setSelectedSigle] = useState<CommemoratifSigle | null>(
     field.sachaCommemoratifSigle
@@ -65,7 +64,6 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
       label: field.label,
       hintText: field.hintText ?? ''
     });
-    setInDai(field.sachaInDai);
     setOptional(field.sachaOptional);
     setSelectedSigle(field.sachaCommemoratifSigle);
   }, [field.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -88,7 +86,6 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
         await updateSampleSpecificDataAttribute({
           attribute: field.key,
           sachaCommemoratifSigle: selectedSigle,
-          inDai,
           optional
         });
       } catch (_err) {
@@ -166,32 +163,22 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
           </legend>
           <div className={cx('fr-fieldset__element')} style={{ width: '100%' }}>
             <div className={clsx('d-flex-row', 'd-flex-align-center')}>
-              <ToggleSwitch
-                label="Inclure dans la DAI ?"
-                checked={inDai}
-                labelPosition="left"
-                onChange={() => setInDai((v) => !v)}
+              <AppSearchInput
+                label="Sigle Sacha"
+                options={sigleOptions}
+                value={selectedSigle ?? ''}
+                onSelect={(value) =>
+                  setSelectedSigle((value as CommemoratifSigle) || null)
+                }
+                placeholder="Rechercher un sigle"
+                className={clsx(cx('fr-mb-0'))}
               />
-              {inDai && (
+              {selectedSigle && (
                 <ToggleSwitch
                   label="Optionnel ?"
                   checked={optional}
                   labelPosition="left"
                   onChange={() => setOptional((v) => !v)}
-                />
-              )}
-              {inDai && (
-                <AppSearchInput
-                  label="Sigle Sacha"
-                  options={sigleOptions}
-                  value={selectedSigle ?? ''}
-                  onSelect={(value) =>
-                    setSelectedSigle((value as CommemoratifSigle) || null)
-                  }
-                  placeholder="Rechercher un sigle"
-                  className={clsx(cx('fr-ml-4w', 'fr-mb-0'))}
-                  required={true}
-                  state={selectedSigle ? 'default' : 'error'}
                 />
               )}
             </div>
