@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import { TargetingCriteriaFieldConfig } from '../../test/specificDataFixtures';
+import {
+  BatchWeightFieldConfig,
+  TargetingCriteriaFieldConfig
+} from '../../test/specificDataFixtures';
 import { getFieldValueLabel } from './getFieldValueLabel';
 
 describe('getFieldValueLabel', () => {
@@ -11,5 +14,9 @@ describe('getFieldValueLabel', () => {
 
   test('returns null for a multiselect without value', () => {
     expect(getFieldValueLabel(TargetingCriteriaFieldConfig, [])).toBeNull();
+  });
+
+  test('writes a decimal value with a comma', () => {
+    expect(getFieldValueLabel(BatchWeightFieldConfig, 2.5)).toBe('2,5');
   });
 });

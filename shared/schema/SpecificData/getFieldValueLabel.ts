@@ -38,6 +38,8 @@ export const getFieldValueLabel = (
         )
         .join(', ');
     }
+    case 'decimal':
+      return String(rawValue).replace('.', ',');
     case 'date':
       return formatMaestroDate(rawValue as MaestroDate);
     case 'text':

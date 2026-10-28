@@ -100,7 +100,10 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
   const sigleOptions = sachaCommemoratifs
     ? Object.values(sachaCommemoratifs)
         .filter((c) => {
-          if (formData.inputType === 'number')
+          if (
+            formData.inputType === 'number' ||
+            formData.inputType === 'decimal'
+          )
             return c.typeDonnee === 'numeric';
           if (
             formData.inputType === 'textarea' ||

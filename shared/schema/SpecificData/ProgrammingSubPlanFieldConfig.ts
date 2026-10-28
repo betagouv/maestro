@@ -41,6 +41,7 @@ const SachaFieldOption = FieldOption.extend({
 export const FieldInputType = z.enum([
   'text',
   'number',
+  'decimal',
   'textarea',
   'date',
   'select',

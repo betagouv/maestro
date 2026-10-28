@@ -33,6 +33,12 @@ export const buildSpecificDataSchema = (
           : z.coerce.number().int().nonnegative().nullish();
         break;
 
+      case 'decimal':
+        fieldSchema = required
+          ? z.coerce.number({ error: errMsg }).nonnegative()
+          : z.coerce.number().nonnegative().nullish();
+        break;
+
       case 'date': {
         const dateSchema = z
           .string({
