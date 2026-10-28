@@ -1,4 +1,4 @@
-import { isEqual, isNil, sortBy } from 'lodash-es';
+import { isEqual, sortBy } from 'lodash-es';
 import { z } from 'zod';
 import type { ProgrammingPlanFieldSetting } from '../SpecificData/FieldConfigInput';
 import type { FieldInheritance } from '../SpecificData/FieldInheritance';
@@ -8,6 +8,7 @@ import {
   type ProgrammingPlanSettingKey,
   type ProgrammingPlanSettings
 } from './ProgrammingPlanSettings';
+import { isCampaignLaunched } from './ProgrammingPlans';
 
 export const ProgrammingPlanEditionPhase = z.enum([
   'Draft',
@@ -22,7 +23,7 @@ export const programmingPlanEditionPhase = (plan: {
   launchedAt?: Date | null;
   nationalStatus: Pick<ProgrammingPlanNationalStatus, 'status'>;
 }): ProgrammingPlanEditionPhase =>
-  !isNil(plan.launchedAt)
+  isCampaignLaunched(plan)
     ? 'Launched'
     : ['InProgress', 'SubmittedToAdmin'].includes(plan.nationalStatus.status)
       ? 'Draft'
@@ -64,9 +65,9 @@ export const lockedSettingReason = (
     case 'Draft':
       return undefined;
     case 'Submitted':
-      return 'Non modifiable après la soumission du plan aux régions.';
+      return 'Le plan a été soumis aux régions. Certains paramètres ne sont plus modifiables.';
     case 'Launched':
-      return 'Non modifiable après le lancement de la campagne.';
+      return 'La campagne est lancée pour ce plan. Seuls certains paramètres sont modifiables.';
   }
 };
 

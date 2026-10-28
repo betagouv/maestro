@@ -4,4 +4,7 @@
     grid-template-columns: repeat(2, 1fr);
     column-gap: 1rem;
   }
+  .fr-checkbox-group:first-child {
+    margin-top: 0;
+  }
 }

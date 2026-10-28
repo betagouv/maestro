@@ -2585,10 +2585,7 @@ describe('ProgrammingPlan router', () => {
     const subPlansRoute = (programmingPlanId: string) =>
       `/api/programming-plans/${programmingPlanId}/sub-plans`;
 
-    const genPlan = (
-      status: ProgrammingPlanStatus,
-      subPlanNumber = 'PPV01'
-    ) => {
+    const genPlan = (launchedAt: Date | null, subPlanNumber = 'PPV01') => {
       const planId = crypto.randomUUID();
       return genDeletableProgrammingPlan({
         id: planId,
@@ -2601,7 +2598,8 @@ describe('ProgrammingPlan router', () => {
             settingsCompleted: false
           })
         ],
-        regionalStatus: RegionList.map((region) => ({ region, status }))
+        launchedAt,
+        launchedBy: launchedAt && NationalCoordinator.id
       });
     };
 
@@ -2628,9 +2626,9 @@ describe('ProgrammingPlan router', () => {
     let launchedPlan: ProgrammingPlanChecked;
 
     beforeEach(async () => {
-      inProgressPlan = genPlan('InProgress');
-      inProgressDAOAPlan = genPlan('InProgress', 'ALAN01');
-      launchedPlan = genPlan('Validated');
+      inProgressPlan = genPlan(null);
+      inProgressDAOAPlan = genPlan(null, 'ALAN01');
+      launchedPlan = genPlan(new Date('2026-03-01'));
       await programmingPlanRepository.insert(inProgressPlan);
       await programmingPlanRepository.insert(inProgressDAOAPlan);
       await programmingPlanRepository.insert(launchedPlan);
