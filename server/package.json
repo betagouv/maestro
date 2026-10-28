@@ -67,7 +67,6 @@
     "@types/cors": "^2.8.12",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/mailparser": "^3.9.0",
     "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.23.1",
     "@types/sanitize-html": "^2.16.2",

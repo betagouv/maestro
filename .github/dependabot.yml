@@ -68,7 +68,6 @@ updates:
           - "imapflow"
           - "mailparser"
           - "nodemailer"
-          - "@types/mailparser"
           - "@types/nodemailer"
         update-types:
           - "minor"
