@@ -10,7 +10,7 @@ export const up = async (knex: Knex) => {
   await knex.schema.createTable('sacha_context_commemoratifs', (table) => {
     table.string('context_sigle').notNullable();
     table.string('commemoratif_sigle').notNullable();
-    table.enu('level', ['Sample', 'Analysis']).notNullable();
+    table.enu('level', ['Sample', 'SampleMatrix']).notNullable();
     table.boolean('deprecated').notNullable().defaultTo(false);
 
     table.primary(['context_sigle', 'commemoratif_sigle']);

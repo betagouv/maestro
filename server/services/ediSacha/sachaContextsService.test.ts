@@ -52,7 +52,7 @@ describe('parseReferentielPrescripteur', () => {
           commemoratifs: [
             { sigle: 'TAXOEF', level: 'Sample' },
             { sigle: 'SEX1', level: 'Sample' },
-            { sigle: 'TEMPREC', level: 'Analysis' }
+            { sigle: 'TEMPREC', level: 'SampleMatrix' }
           ]
         },
         {

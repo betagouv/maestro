@@ -54,7 +54,7 @@ export const parseReferentielPrescripteur = (
           ...(item.ReferenceCommemoratifsEchantillonContexte ?? []).map(
             ({ SigleCommemoratif }) => ({
               sigle: SigleCommemoratif,
-              level: 'Analysis' as const
+              level: 'SampleMatrix' as const
             })
           )
         ],

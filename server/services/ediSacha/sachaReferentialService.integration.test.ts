@@ -474,7 +474,7 @@ describe('importSachaReferential (RP01)', () => {
       commemoratifs: [
         { sigle: sex.sigle, level: 'Sample' },
         { sigle: animalKind.sigle, level: 'Sample' },
-        { sigle: temperature.sigle, level: 'Analysis' }
+        { sigle: temperature.sigle, level: 'SampleMatrix' }
       ]
     });
     expect((await sachaConfRepository.get()).versionReferencePrescripteur).toBe(
@@ -524,7 +524,7 @@ describe('importSachaReferential (RP01)', () => {
       [
         {
           commemoratifSigle: animalKind.sigle,
-          level: 'Analysis',
+          level: 'SampleMatrix',
           deprecated: false
         },
         {
@@ -543,7 +543,7 @@ describe('importSachaReferential (RP01)', () => {
       [
         {
           commemoratifSigle: animalKind.sigle,
-          level: 'Analysis',
+          level: 'SampleMatrix',
           deprecated: true
         },
         {
