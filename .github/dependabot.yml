@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    directory: "/"  # Location of package.json
+    directory: "/" # Location of package.json
     schedule:
       interval: daily
     cooldown:

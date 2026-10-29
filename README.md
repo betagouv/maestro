@@ -60,7 +60,6 @@ npm ci
 L'application utilise les variables d'environnement spécifiées dans le fichier `/server/utils/config.ts` pour le backend et dans le fichier `/frontend/src/utils/config.ts` pour le frontend.
 
 En local, elles peuvent être définies dans des fichiers `.env` :
-
 - un fichier dans le dossier `frontend` pour les variables d'environnement `VITE...` nécessaires au frontend (voir `frontend/.env.example` pour un exemple)
 - un fichier à la racine du projet pour les autres variables d'environnement (voir `.env.example` pour un exemple)
 

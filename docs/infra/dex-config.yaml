@@ -9,7 +9,6 @@ web:
 oauth2:
   skipApprovalScreen: true
 
-
 enablePasswordDB: true
 
 staticPasswords:
@@ -18,7 +17,6 @@ staticPasswords:
     hash: "TODO"
     username: Admin Maestro
     userID: maestro-dev-user
-
 
 staticClients:
   - id: maestro-staging

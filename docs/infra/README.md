@@ -3,7 +3,6 @@
 ## `docker-compose.yml`
 
 Lance trois services :
-
 - **Caddy** : reverse proxy HTTPS (terminaison TLS automatique) qui expose `login-maestro.vcmb.dev` vers Dex.
 - **Dex** : fournisseur OIDC configuré via `dex-config.yaml` (utilisateurs et clients statiques en mémoire).
 - **Browserless** : Chromium headless pour la génération de PDF.
