@@ -153,6 +153,10 @@ export const ProgrammingPlanSettingsTabs = ({
     undefined,
     { skip: !subPlan }
   );
+  const { data: sachaCommemoratifs } = apiClient.useGetSachaCommemoratifsQuery(
+    undefined,
+    { skip: !subPlan }
+  );
 
   const [updateProgrammingPlanSettings, updatePlanSettingsCall] =
     apiClient.useUpdateProgrammingPlanSettingsMutation();
@@ -268,7 +272,8 @@ export const ProgrammingPlanSettingsTabs = ({
               sachaContextFieldsIssue(
                 sachaContext,
                 ctx.value.fields,
-                fieldConfigs ?? []
+                fieldConfigs ?? [],
+                sachaCommemoratifs ?? {}
               );
             if (fieldsIssue) {
               ctx.issues.push({
@@ -293,7 +298,14 @@ export const ProgrammingPlanSettingsTabs = ({
               });
             }
           }),
-    [subPlan, programmingPlan, programmingPlans, sachaContexts, fieldConfigs]
+    [
+      subPlan,
+      programmingPlan,
+      programmingPlans,
+      sachaContexts,
+      fieldConfigs,
+      sachaCommemoratifs
+    ]
   );
 
   const [validation, setValidation] = useState<{

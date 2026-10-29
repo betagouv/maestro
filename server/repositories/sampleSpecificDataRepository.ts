@@ -10,16 +10,13 @@ const updateSampleSpecificDataAttribute = async (
   sampleSpecificDataAttribute: {
     attribute: string;
     sachaCommemoratifSigle: CommemoratifSigle | null;
-    optional: boolean;
   },
   trx: KyselyMaestro = kysely
 ) => {
   await trx
     .updateTable('specificDataFields')
     .set({
-      sachaCommemoratifSigle:
-        sampleSpecificDataAttribute.sachaCommemoratifSigle,
-      sachaOptional: sampleSpecificDataAttribute.optional
+      sachaCommemoratifSigle: sampleSpecificDataAttribute.sachaCommemoratifSigle
     })
     .where('key', '=', sampleSpecificDataAttribute.attribute)
     .execute();

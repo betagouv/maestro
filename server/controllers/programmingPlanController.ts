@@ -76,6 +76,7 @@ import { matrixRepository } from '../repositories/matrixRepository';
 import { programmingPlanDomainRepository } from '../repositories/programmingPlanDomainRepository.ts';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
+import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
 import { sachaContextRepository } from '../repositories/sachaContextRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
@@ -360,7 +361,8 @@ const hasSachaContextIssue = async (
     sachaContextFieldsIssue(
       sachaContext,
       fields,
-      await specificDataFieldConfigRepository.findAllFields()
+      await specificDataFieldConfigRepository.findAllFields(),
+      await sachaCommemoratifRepository.findAll()
     ) !== undefined
   );
 };

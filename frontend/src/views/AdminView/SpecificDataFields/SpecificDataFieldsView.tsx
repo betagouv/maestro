@@ -1,11 +1,10 @@
-import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { fieldInputTypeHasOptions } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { AuthenticatedAppRoutes } from 'src/AppRoutes';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -31,7 +30,6 @@ export const SpecificDataFieldsView = () => {
   const readOnly = !hasAccountPermission('manageSpecificDataFields');
 
   const { data: fields = [] } = apiClient.useFindAllFieldConfigsQuery();
-  const { data: sachaFields = [] } = apiClient.useFindSachaFieldConfigsQuery();
 
   const [fieldToDelete, setFieldToDelete] = useState<AdminFieldConfig | null>(
     null
@@ -39,20 +37,6 @@ export const SpecificDataFieldsView = () => {
 
   const goToList = () =>
     navigate(AuthenticatedAppRoutes.AdminRoute.link(section as string));
-
-  const isComplete = useMemo(() => {
-    for (const fc of sachaFields) {
-      if (
-        fc.sachaCommemoratifSigle &&
-        !fc.optional &&
-        fieldInputTypeHasOptions(fc.inputType) &&
-        fc.options.some((o) => !o.sachaCommemoratifValueSigle)
-      ) {
-        return false;
-      }
-    }
-    return true;
-  }, [sachaFields]);
 
   const onDelete = (field: AdminFieldConfig) => {
     setFieldToDelete(field);
@@ -121,15 +105,6 @@ export const SpecificDataFieldsView = () => {
         <h3 className={cx('fr-mb-0')}>Dictionnaire des descripteurs</h3>
         {!readOnly && <SachaReferentialUpload />}
       </div>
-
-      {!isComplete && (
-        <Alert
-          severity="warning"
-          title="Configuration incomplète"
-          description="Certaines DAI ne sont pas envoyables via les EDI Sacha."
-          className={clsx(cx('fr-mb-2w'))}
-        />
-      )}
 
       <FieldsTable
         fields={fields}

@@ -60,7 +60,6 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     label: 'sampling',
     hintText: null,
     sachaCommemoratifSigle: null,
-    optional: false,
     options: []
   },
   {
@@ -69,7 +68,6 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     label: 'animalBatchIdentifier',
     hintText: null,
     sachaCommemoratifSigle: null,
-    optional: false,
     options: []
   },
   {
@@ -78,7 +76,6 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     label: 'ageInDays',
     hintText: null,
     sachaCommemoratifSigle: null,
-    optional: false,
     options: []
   },
   {
@@ -87,7 +84,6 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     label: 'species',
     hintText: null,
     sachaCommemoratifSigle: sachaCommemoratifSigleEspece,
-    optional: false,
     options: [
       {
         value: 'ESP7',
@@ -103,7 +99,6 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     label: 'breedingMethod',
     hintText: null,
     sachaCommemoratifSigle: null,
-    optional: false,
     options: []
   },
   {
@@ -112,7 +107,6 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     label: 'outdoorAccess',
     hintText: null,
     sachaCommemoratifSigle: null,
-    optional: false,
     options: []
   }
 ];
@@ -204,7 +198,6 @@ const daiFieldConfigs: SachaFieldConfig[] = [
     inputType: 'select' as const,
     label: 'species',
     hintText: null,
-    optional: false,
     sachaCommemoratifSigle: 'SIGLE_SACHA' as CommemoratifSigle,
     options: [
       {
@@ -221,7 +214,6 @@ const daiFieldConfigs: SachaFieldConfig[] = [
     inputType: 'text' as const,
     label: 'ageInDays',
     hintText: null,
-    optional: false,
     sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
     options: []
   }
@@ -574,7 +566,6 @@ describe('getCommemoratifs', () => {
             label: 'species',
             hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-            optional: false,
             options: [
               {
                 value: 'ESP7',
@@ -608,7 +599,6 @@ describe('getCommemoratifs', () => {
             label: 'species',
             hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-            optional: false,
             options: [
               {
                 value: 'ESP7',
@@ -646,7 +636,6 @@ describe('getCommemoratifs', () => {
             label: 'species',
             hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-            optional: false,
             options: [
               {
                 value: 'ESP7',
@@ -668,7 +657,6 @@ describe('getCommemoratifs', () => {
             label: 'unknownAttribute',
             hintText: null,
             sachaCommemoratifSigle: 'UNKNOWN' as CommemoratifSigle,
-            optional: false,
             options: [
               {
                 value: 'val1',
@@ -698,7 +686,6 @@ describe('getCommemoratifs', () => {
           label: 'species',
           hintText: null,
           sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-          optional: false,
           options: [
             {
               value: 'ESP7',
@@ -720,7 +707,6 @@ describe('getCommemoratifs', () => {
           label: 'breedingMethod',
           hintText: null,
           sachaCommemoratifSigle: 'MODE_ELEVAGE' as CommemoratifSigle,
-          optional: false,
           options: [
             {
               value: 'PROD_1',
@@ -785,7 +771,6 @@ describe('getCommemoratifs', () => {
             label: 'species',
             hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-            optional: false,
             options: [
               {
                 value: 'ESP8',
@@ -800,35 +785,6 @@ describe('getCommemoratifs', () => {
         commemoratifsContext
       )
     ).toThrow('Configuration SACHA incomplète: species ESP7');
-  });
-
-  test("n'émet pas d'erreur quand la valeur n'est pas mappée et que le commemoratif est optionnel", () => {
-    expect(
-      getCommemoratifs(
-        specificData,
-        [
-          ...sachaFieldConfigs.filter((fc) => fc.key !== 'species'),
-          {
-            key: 'species',
-            inputType: 'select' as const,
-            label: 'species',
-            hintText: null,
-            sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-            optional: true,
-            options: [
-              {
-                value: 'ESP8',
-                label: 'ESP8',
-                order: 0,
-                sachaCommemoratifValueSigle: 'CANARD' as CommemoratifValueSigle
-              } // ESP7 n'est pas mappé
-            ]
-          }
-        ],
-        sachaCommemoratifRecord,
-        commemoratifsContext
-      )
-    ).toMatchInlineSnapshot(`[]`);
   });
 
   test('gère les commémoratifs de type texte', () => {
@@ -847,7 +803,6 @@ describe('getCommemoratifs', () => {
           label: 'animalBatchIdentifier',
           hintText: null,
           sachaCommemoratifSigle: 'IDA' as CommemoratifSigle,
-          optional: false,
           options: []
         }
       ],
@@ -885,7 +840,6 @@ describe('getCommemoratifs', () => {
           label: 'ageInDays',
           hintText: null,
           sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
-          optional: false,
           options: []
         }
       ],
@@ -919,7 +873,6 @@ describe('getCommemoratifs', () => {
             label: 'species',
             hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-            optional: false,
             options: [
               {
                 value: 'ESP7',
@@ -947,7 +900,6 @@ describe('getCommemoratifs', () => {
             label: 'species',
             hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-            optional: false,
             options: [
               {
                 value: 'ESP7',

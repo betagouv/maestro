@@ -33,8 +33,7 @@ describe('sampleSpecificDataRepository', () => {
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute: FIELD_KEY,
-      sachaCommemoratifSigle: commemoratif.sigle,
-      optional: false
+      sachaCommemoratifSigle: commemoratif.sigle
     });
 
     const field = await kysely
@@ -56,14 +55,12 @@ describe('sampleSpecificDataRepository', () => {
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute: FIELD_KEY,
-      sachaCommemoratifSigle: commemoratif1.sigle,
-      optional: false
+      sachaCommemoratifSigle: commemoratif1.sigle
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute: FIELD_KEY,
-      sachaCommemoratifSigle: commemoratif2.sigle,
-      optional: false
+      sachaCommemoratifSigle: commemoratif2.sigle
     });
 
     const field = await kysely
@@ -85,8 +82,7 @@ describe('sampleSpecificDataRepository', () => {
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute: FIELD_WITH_OPTIONS_KEY,
-      sachaCommemoratifSigle: commemoratif.sigle,
-      optional: false
+      sachaCommemoratifSigle: commemoratif.sigle
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({
@@ -112,8 +108,7 @@ describe('sampleSpecificDataRepository', () => {
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute: FIELD_WITH_OPTIONS_KEY,
-      sachaCommemoratifSigle: commemoratif.sigle,
-      optional: false
+      sachaCommemoratifSigle: commemoratif.sigle
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({

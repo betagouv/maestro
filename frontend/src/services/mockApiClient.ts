@@ -165,7 +165,6 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateFieldOptionMutation: [fn(), {}],
   useDeleteFieldOptionMutation: [fn(), {}],
   useFindProgrammingSubPlanFieldConfigsQuery: { data: [] },
-  useFindSachaFieldConfigsQuery: { data: [] },
   useFindLaboratoriesQuery: { data: [] },
   useFindLaboratoryAgreementsQuery: { data: [] },
   useFindLaboratoryAgreementChecksQuery: { data: [] },

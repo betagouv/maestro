@@ -49,13 +49,6 @@ const specificDataFieldsApi = api.injectEndpoints({
         invalidatesTags: ['SpecificDataField']
       }
     ),
-    findSachaFieldConfigs: buildTypedQuery(
-      builder,
-      '/specific-data-fields/sacha',
-      {
-        providesTags: ['SampleSpecificData']
-      }
-    ),
     updateSampleSpecificDataAttribute: buildTypedMutation(
       builder,
       '/specific-data-fields/attribute',
@@ -83,7 +76,6 @@ export const {
   useCreateFieldOptionMutation,
   useUpdateFieldOptionMutation,
   useDeleteFieldOptionMutation,
-  useFindSachaFieldConfigsQuery,
   useUpdateSampleSpecificDataAttributeMutation,
   useUpdateSampleSpecificDataAttributeValueMutation
 } = specificDataFieldsApi;

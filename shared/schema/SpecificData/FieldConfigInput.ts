@@ -26,7 +26,6 @@ export const AdminFieldConfig = z.object({
   label: z.string(),
   hintText: z.string().nullable(),
   sachaCommemoratifSigle: CommemoratifSigle.nullable(),
-  sachaOptional: z.boolean(),
   options: z.array(AdminFieldOption)
 });
 export type AdminFieldConfig = z.infer<typeof AdminFieldConfig>;

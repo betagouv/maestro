@@ -36,12 +36,14 @@ export const up = async (knex: Knex) => {
 
   await knex.schema.alterTable('specific_data_fields', (table) => {
     table.dropColumn('sacha_in_dai');
+    table.dropColumn('sacha_optional');
   });
 };
 
 export const down = async (knex: Knex) => {
   await knex.schema.alterTable('specific_data_fields', (table) => {
     table.boolean('sacha_in_dai').notNullable().defaultTo(false);
+    table.boolean('sacha_optional').notNullable().defaultTo(false);
   });
 
   for (const tableName of [

@@ -253,11 +253,9 @@ export const getCommemoratifs = (
           conf.options.find((o) => o.value === specificDataValue)
             ?.sachaCommemoratifValueSigle ?? null;
         if (!sigleValue || !commemoratif.values[sigleValue]) {
-          if (!conf.optional) {
-            throw new Error(
-              `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
-            );
-          }
+          throw new Error(
+            `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
+          );
         } else {
           commemoratifs.push({ sigle, level, sigleValue });
         }
