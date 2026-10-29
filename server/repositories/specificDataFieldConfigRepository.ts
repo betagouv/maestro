@@ -239,8 +239,7 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
       'sdf.inputType',
       'sdf.label',
       'sdf.hintText',
-      'sdf.sachaCommemoratifSigle',
-      'sdf.sachaOptional'
+      'sdf.sachaCommemoratifSigle'
     ])
     .where('psp.withSacha', '=', true)
     .distinctOn('sdf.id')
@@ -293,7 +292,6 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
     label: f.label,
     hintText: f.hintText,
     sachaCommemoratifSigle: f.sachaCommemoratifSigle,
-    optional: f.sachaOptional,
     options: optionsByFieldKey[f.key] ?? []
   }));
 };
@@ -309,8 +307,7 @@ const findAllFields = async (): Promise<AdminFieldConfig[]> => {
       'inputType',
       'label',
       'hintText',
-      'sachaCommemoratifSigle',
-      'sachaOptional'
+      'sachaCommemoratifSigle'
     ])
     .orderBy('key')
     .execute();
@@ -355,7 +352,6 @@ const findAllFields = async (): Promise<AdminFieldConfig[]> => {
     label: f.label,
     hintText: f.hintText,
     sachaCommemoratifSigle: f.sachaCommemoratifSigle,
-    sachaOptional: f.sachaOptional,
     options: optionsByFieldKey[f.key] ?? []
   }));
 };
@@ -378,7 +374,6 @@ const createField = async (
     ...field,
     inputType: FieldInputType.parse(field.inputType),
     sachaCommemoratifSigle: null,
-    sachaOptional: false,
     options: []
   };
 };
@@ -401,8 +396,7 @@ const updateField = async (
       'inputType',
       'label',
       'hintText',
-      'sachaCommemoratifSigle',
-      'sachaOptional'
+      'sachaCommemoratifSigle'
     ])
     .executeTakeFirst();
 

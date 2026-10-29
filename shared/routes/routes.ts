@@ -103,7 +103,6 @@ export const MaestroRoutes = [
   '/specific-data-fields/:fieldId',
   '/specific-data-fields/:fieldId/options',
   '/specific-data-fields/:fieldId/options/:optionId',
-  '/specific-data-fields/sacha',
   '/specific-data-fields/attribute',
   '/specific-data-fields/attribute/value',
   '/users',

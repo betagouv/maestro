@@ -196,8 +196,8 @@ export const FieldOptionFormModal = ({
               setSachaValueSigle((v as CommemoratifValueSigle) || null)
             }
             placeholder="Rechercher une valeur"
-            required={!field.sachaOptional}
-            state={sachaValueSigle || field.sachaOptional ? 'default' : 'error'}
+            required
+            state={sachaValueSigle ? 'default' : 'error'}
           />
         )}
         <AppServiceErrorAlert call={createFieldOptionResult} />

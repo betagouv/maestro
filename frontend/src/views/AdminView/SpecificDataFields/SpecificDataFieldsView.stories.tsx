@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { expect, within } from 'storybook/test';
 import { getMockApi } from '../../../services/mockApiClient';
 import { SpecificDataFieldsView } from './SpecificDataFieldsView';
-import { storyFields, storySachaFields } from './storyFixtures';
+import { storyFields } from './storyFixtures';
 
 const meta = {
   title: 'Views/SpecificDataFields/SpecificDataFieldsView',
@@ -14,8 +13,7 @@ const meta = {
       auth: { authUser: genAuthUser({ userRole: 'AdministratorMaestro' }) }
     },
     apiClient: getMockApi({
-      useFindAllFieldConfigsQuery: { data: storyFields },
-      useFindSachaFieldConfigsQuery: { data: storySachaFields }
+      useFindAllFieldConfigsQuery: { data: storyFields }
     })
   }
 } satisfies Meta<typeof SpecificDataFieldsView>;
@@ -28,24 +26,7 @@ export const Default: Story = {};
 export const Empty: Story = {
   parameters: {
     apiClient: getMockApi({
-      useFindAllFieldConfigsQuery: { data: [] },
-      useFindSachaFieldConfigsQuery: { data: [] }
-    })
-  }
-};
-
-export const ConfigurationIncomplete: Story = {
-  parameters: {
-    apiClient: getMockApi({
-      useFindAllFieldConfigsQuery: { data: storyFields },
-      useFindSachaFieldConfigsQuery: {
-        data: [
-          {
-            ...storySachaFields[0],
-            sachaCommemoratifSigle: 'TYPCULT' as CommemoratifSigle
-          }
-        ]
-      }
+      useFindAllFieldConfigsQuery: { data: [] }
     })
   }
 };

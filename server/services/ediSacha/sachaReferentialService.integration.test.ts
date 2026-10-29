@@ -322,8 +322,7 @@ describe('importSachaReferential (DS01)', () => {
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute: FIELD_KEY,
-      sachaCommemoratifSigle: commemoratif.sigle,
-      optional: false
+      sachaCommemoratifSigle: commemoratif.sigle
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({

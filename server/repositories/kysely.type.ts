@@ -566,7 +566,6 @@ export interface SpecificDataFields {
   label: string;
   hintText: string | null;
   sachaCommemoratifSigle: CommemoratifSigle | null;
-  sachaOptional: Generated<boolean>;
 }
 
 export interface SpecificDataFieldOptions {

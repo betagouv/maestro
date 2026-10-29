@@ -94,7 +94,6 @@ const genAdminField = (key: string, id: string): AdminFieldConfig => ({
   label: `Champ ${key}`,
   hintText: null,
   sachaCommemoratifSigle: null,
-  sachaOptional: false,
   options: []
 });
 

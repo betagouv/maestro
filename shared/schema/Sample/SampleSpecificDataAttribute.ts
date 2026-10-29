@@ -6,8 +6,7 @@ import {
 
 export const SampleSpecificDataAttribute = z.object({
   attribute: z.string(),
-  sachaCommemoratifSigle: CommemoratifSigle.nullable(),
-  optional: z.boolean()
+  sachaCommemoratifSigle: CommemoratifSigle.nullable()
 });
 
 export type SampleSpecificDataAttribute = z.infer<
