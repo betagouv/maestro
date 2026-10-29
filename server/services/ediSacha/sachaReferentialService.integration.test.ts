@@ -209,75 +209,70 @@ describe('importSachaReferential (DS01)', () => {
     expect(insertedCommemoratif.values[value2.sigle]).toBeDefined();
   });
 
-  test('keeps a frozen (gelé) commemoratif as deprecated', async () => {
-    const commemoratif = genCommemoratif();
+  test('ignores a frozen (gelé) commemoratif, and deprecates it when it was known', async () => {
+    const valid = genCommemoratif();
+    const unknown = genCommemoratif();
+    const known = genCommemoratif();
+    await sachaCommemoratifRepository.upsertAll([known]);
 
-    const xml = buildXML([
-      {
-        sigle: commemoratif.sigle,
-        libelle: commemoratif.libelle,
-        statut: 'G',
-        typeDonnee: 'A'
-      }
-    ]);
+    await importSachaReferential(
+      buildXML(
+        [valid, unknown, known].map(({ sigle, libelle }) => ({
+          sigle,
+          libelle,
+          statut: sigle === valid.sigle ? 'V' : 'G',
+          typeDonnee: 'A'
+        }))
+      )
+    );
 
-    await importSachaReferential(xml);
-
-    const result = await sachaCommemoratifRepository.findAll();
-    expect(result[commemoratif.sigle]).toBeUndefined();
     await expect(
       kysely
         .selectFrom('sachaCommemoratifs')
-        .select('deprecated')
-        .where('sigle', '=', commemoratif.sigle)
-        .executeTakeFirst()
-    ).resolves.toEqual({ deprecated: true });
+        .select(['sigle', 'deprecated'])
+        .where('sigle', 'in', [unknown.sigle, known.sigle])
+        .execute()
+    ).resolves.toEqual([{ sigle: known.sigle, deprecated: true }]);
   });
 
-  test('keeps a frozen (gelé) commemoratif value as deprecated', async () => {
+  test('ignores a frozen (gelé) commemoratif value, and deprecates it when it was known', async () => {
     const validValue = genCommemoratifValue();
-    const frozenValue = genCommemoratifValue();
-    const commemoratif = genCommemoratif({
-      values: [validValue, frozenValue]
-    });
+    const unknownValue = genCommemoratifValue();
+    const knownValue = genCommemoratifValue();
+    const commemoratif = genCommemoratif({ values: [validValue, knownValue] });
+    await sachaCommemoratifRepository.upsertAll([commemoratif]);
 
-    const xml = buildXML([
-      {
-        sigle: commemoratif.sigle,
-        libelle: commemoratif.libelle,
-        typeDonnee: 'A',
-        statut: 'V',
-        values: [
-          {
-            sigle: validValue.sigle,
-            libelle: validValue.libelle,
-            statut: 'V'
-          },
-          {
-            sigle: frozenValue.sigle,
-            libelle: frozenValue.libelle,
-            statut: 'G'
-          }
-        ]
-      }
-    ]);
+    await importSachaReferential(
+      buildXML([
+        {
+          sigle: commemoratif.sigle,
+          libelle: commemoratif.libelle,
+          typeDonnee: 'A',
+          statut: 'V',
+          values: [validValue, unknownValue, knownValue].map(
+            ({ sigle, libelle }) => ({
+              sigle,
+              libelle,
+              statut: sigle === validValue.sigle ? 'V' : 'G'
+            })
+          )
+        }
+      ])
+    );
 
-    await importSachaReferential(xml);
-
-    const result = await sachaCommemoratifRepository.findAll();
-    const insertedCommemoratif = result[commemoratif.sigle];
-
-    expect(insertedCommemoratif).toBeDefined();
-    expect(Object.keys(insertedCommemoratif.values)).toHaveLength(1);
-    expect(insertedCommemoratif.values[validValue.sigle]).toBeDefined();
-    expect(insertedCommemoratif.values[frozenValue.sigle]).toBeUndefined();
     await expect(
       kysely
         .selectFrom('sachaCommemoratifValues')
-        .select('deprecated')
-        .where('sigle', '=', frozenValue.sigle)
-        .executeTakeFirst()
-    ).resolves.toEqual({ deprecated: true });
+        .select(['sigle', 'deprecated'])
+        .where('commemoratifSigle', '=', commemoratif.sigle)
+        .orderBy('sigle')
+        .execute()
+    ).resolves.toEqual(
+      [
+        { sigle: validValue.sigle, deprecated: false },
+        { sigle: knownValue.sigle, deprecated: true }
+      ].sort((a, b) => a.sigle.localeCompare(b.sigle))
+    );
   });
 
   test('deprecates what a new file no longer contains, and restores it when it comes back', async () => {
@@ -337,7 +332,14 @@ describe('importSachaReferential (DS01)', () => {
       sachaCommemoratifValueSigle: value.sigle
     });
 
+    const valid = genCommemoratif();
     const xml = buildXML([
+      {
+        sigle: valid.sigle,
+        libelle: valid.libelle,
+        typeDonnee: 'A',
+        statut: 'V'
+      },
       {
         sigle: commemoratif.sigle,
         libelle: commemoratif.libelle,

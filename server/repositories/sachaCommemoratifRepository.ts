@@ -7,8 +7,7 @@ import { executeTransaction, kysely } from './kysely';
 import type { KyselyMaestro } from './kysely.type';
 
 type ImportedCommemoratif = Omit<SachaCommemoratif, 'values'> & {
-  deprecated?: boolean;
-  values: (SachaCommemoratif['values'][number] & { deprecated?: boolean })[];
+  values: SachaCommemoratif['values'][number][];
 };
 
 const findAll = async (): Promise<SachaCommemoratifRecord> => {
@@ -52,34 +51,34 @@ const upsertAll = async (
 ): Promise<void> => {
   const execute = async (db: KyselyMaestro) => {
     for (const commemoratif of commemoratifs) {
-      const { values, deprecated = false, ...commemoratifData } = commemoratif;
+      const { values, ...commemoratifData } = commemoratif;
 
       await db
         .insertInto('sachaCommemoratifs')
-        .values({ ...commemoratifData, deprecated })
+        .values({ ...commemoratifData, deprecated: false })
         .onConflict((oc) =>
           oc.column('sigle').doUpdateSet({
             libelle: commemoratifData.libelle,
             typeDonnee: commemoratifData.typeDonnee,
             unite: commemoratifData.unite,
-            deprecated
+            deprecated: false
           })
         )
         .execute();
 
-      for (const { deprecated: valueDeprecated = false, ...value } of values) {
+      for (const value of values) {
         await db
           .insertInto('sachaCommemoratifValues')
           .values({
             ...value,
             commemoratifSigle: commemoratif.sigle,
-            deprecated: valueDeprecated
+            deprecated: false
           })
           .onConflict((oc) =>
             oc.column('sigle').doUpdateSet({
               libelle: value.libelle,
               commemoratifSigle: commemoratif.sigle,
-              deprecated: valueDeprecated
+              deprecated: false
             })
           )
           .execute();
