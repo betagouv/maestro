@@ -264,7 +264,7 @@
     position: relative;
 
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
       left: -16px;
@@ -277,7 +277,8 @@
   .prelevements-cell {
     position: sticky;
     left: calc(
-      var(--checkbox-w) + #{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width}
+      var(--checkbox-w) + #{$col-n-width} + #{$col-matrice-width} +
+        #{$col-analyte-width}
     );
     z-index: 1;
     min-width: $col-prelevements-width;

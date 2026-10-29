@@ -29,7 +29,6 @@ sensibles sont masquées par l'extension PostgreSQL Anonymizer.
 Les règles sont portées par le catalogue et ne survivent ni à une réactivation de
 l'extension, ni à une recréation des tables. Rejouer `masking_rules.sql` puis
 exécuter les contrôles ci-dessous :
-
 - après chaque montée de version PostgreSQL ;
 - après toute restauration de la base.
 
@@ -111,7 +110,6 @@ Y ajouter une entrée est une décision de sécurité : elle déclare que la col
 contient rien de personnel ni de saisi librement, et doit être relue comme telle.
 
 Quelques choix qui ne vont pas de soi :
-
 - **Laboratoires** — nom et adresses restent lisibles, ce sont des organismes
   publics. Seuls leurs contacts et paramètres techniques sont masqués.
 - **`analysis_residues.precise_method`** — désigne une méthode d'analyse
@@ -156,7 +154,6 @@ SELECT count(*) FROM samples s JOIN companies c ON s.company_siret = c.siret;
 
 Le test de couverture échoue sur toute colonne de type texte, tableau, json ou
 géométrie qui n'est ni masquée ni exceptée, et indique lesquelles. Choisir :
-
 - donnée personnelle, identifiante ou saisie librement → règle dans
   `masking_rules.sql` ;
 - sinon → entrée dans `maskingExceptions.ts`.

@@ -29,7 +29,7 @@ services:
   browserless:
     image: ghcr.io/browserless/chromium
     container_name: maestro_browserless
-    network_mode: 'host'
+    network_mode: "host"
     environment:
       - TOKEN=1234512345
       - CONCURRENT=1

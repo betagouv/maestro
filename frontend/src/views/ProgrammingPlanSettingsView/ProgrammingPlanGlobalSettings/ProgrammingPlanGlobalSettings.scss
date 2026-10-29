@@ -2,8 +2,8 @@
   display: grid;
   gap: 12px;
 
-  :last-child[class*='fr-mb-'],
-  .fr-select[class*='fr-mb-'] {
+  :last-child[class*="fr-mb-"],
+  .fr-select[class*="fr-mb-"] {
     margin-bottom: 0 !important;
   }
 }
