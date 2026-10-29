@@ -1,6 +1,5 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import type { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
@@ -53,8 +52,6 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
     hintText: field.hintText ?? ''
   });
 
-  const [inDai, setInDai] = useState<boolean>(field.sachaInDai);
-  const [optional, setOptional] = useState<boolean>(field.sachaOptional);
   const [selectedSigle, setSelectedSigle] = useState<CommemoratifSigle | null>(
     field.sachaCommemoratifSigle
   );
@@ -65,8 +62,6 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
       label: field.label,
       hintText: field.hintText ?? ''
     });
-    setInDai(field.sachaInDai);
-    setOptional(field.sachaOptional);
     setSelectedSigle(field.sachaCommemoratifSigle);
   }, [field.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -87,9 +82,7 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
         }).unwrap();
         await updateSampleSpecificDataAttribute({
           attribute: field.key,
-          sachaCommemoratifSigle: selectedSigle,
-          inDai,
-          optional
+          sachaCommemoratifSigle: selectedSigle
         });
       } catch (_err) {
         /* empty */
@@ -165,36 +158,16 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
             Configuration Sacha (DAI)
           </legend>
           <div className={cx('fr-fieldset__element')} style={{ width: '100%' }}>
-            <div className={clsx('d-flex-row', 'd-flex-align-center')}>
-              <ToggleSwitch
-                label="Inclure dans la DAI ?"
-                checked={inDai}
-                labelPosition="left"
-                onChange={() => setInDai((v) => !v)}
-              />
-              {inDai && (
-                <ToggleSwitch
-                  label="Optionnel ?"
-                  checked={optional}
-                  labelPosition="left"
-                  onChange={() => setOptional((v) => !v)}
-                />
-              )}
-              {inDai && (
-                <AppSearchInput
-                  label="Sigle Sacha"
-                  options={sigleOptions}
-                  value={selectedSigle ?? ''}
-                  onSelect={(value) =>
-                    setSelectedSigle((value as CommemoratifSigle) || null)
-                  }
-                  placeholder="Rechercher un sigle"
-                  className={clsx(cx('fr-ml-4w', 'fr-mb-0'))}
-                  required={true}
-                  state={selectedSigle ? 'default' : 'error'}
-                />
-              )}
-            </div>
+            <AppSearchInput
+              label="Sigle Sacha"
+              options={sigleOptions}
+              value={selectedSigle ?? ''}
+              onSelect={(value) =>
+                setSelectedSigle((value as CommemoratifSigle) || null)
+              }
+              placeholder="Rechercher un sigle"
+              className={clsx(cx('fr-mb-0'))}
+            />
           </div>
         </fieldset>
       )}

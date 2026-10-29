@@ -1,9 +1,10 @@
 import { HttpStatus } from '../constants/httpStatus';
 import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
+import { sachaContextRepository } from '../repositories/sachaContextRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
-import { updateSachaCommemoratifs } from '../services/ediSacha/sachaCommemoratifsService';
+import { importSachaReferential } from '../services/ediSacha/sachaReferentialService';
 
-export const sachaCommemoratifsProtectedRouter = {
+export const sachaProtectedRouter = {
   '/sacha/commemoratifs': {
     get: async () => {
       const commemoratifs = await sachaCommemoratifRepository.findAll();
@@ -11,10 +12,22 @@ export const sachaCommemoratifsProtectedRouter = {
         response: commemoratifs,
         status: HttpStatus.OK
       };
-    },
-    post: async ({ body: { xmlContent } }) => {
-      await updateSachaCommemoratifs(xmlContent);
+    }
+  },
+  '/sacha/contexts': {
+    get: async () => {
+      const contexts = await sachaContextRepository.findUsable();
       return {
+        response: contexts,
+        status: HttpStatus.OK
+      };
+    }
+  },
+  '/sacha/referentials': {
+    post: async ({ body: { xmlContent } }) => {
+      const referentialImport = await importSachaReferential(xmlContent);
+      return {
+        response: referentialImport,
         status: HttpStatus.OK
       };
     }

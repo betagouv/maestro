@@ -49,6 +49,7 @@ import type {
   CommemoratifValueSigle,
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import type { SachaCommemoratifLevel } from 'maestro-shared/schema/SachaContext/SachaContext';
 import type { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import type { PartialSampleMatrix } from 'maestro-shared/schema/Sample/SampleMatrix';
 import type { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -248,12 +249,27 @@ export interface SachaCommemoratifs {
   libelle: string;
   typeDonnee: SachaCommemoratifTypeDonnee;
   unite: string | null;
+  deprecated: Generated<boolean>;
 }
 
 export interface SachaCommemoratifValues {
   sigle: CommemoratifValueSigle;
   commemoratifSigle: CommemoratifSigle;
   libelle: string;
+  deprecated: Generated<boolean>;
+}
+
+export interface SachaContexts {
+  sigle: SachaContextSigle;
+  libelle: string;
+  deprecated: Generated<boolean>;
+}
+
+export interface SachaContextCommemoratifs {
+  contextSigle: SachaContextSigle;
+  commemoratifSigle: CommemoratifSigle;
+  level: SachaCommemoratifLevel;
+  deprecated: Generated<boolean>;
 }
 
 export interface Laboratories {
@@ -550,8 +566,6 @@ export interface SpecificDataFields {
   label: string;
   hintText: string | null;
   sachaCommemoratifSigle: CommemoratifSigle | null;
-  sachaInDai: Generated<boolean>;
-  sachaOptional: Generated<boolean>;
 }
 
 export interface SpecificDataFieldOptions {
@@ -661,6 +675,8 @@ export interface DB {
   sachaConf: SachaConf;
   sachaCommemoratifs: SachaCommemoratifs;
   sachaCommemoratifValues: SachaCommemoratifValues;
+  sachaContexts: SachaContexts;
+  sachaContextCommemoratifs: SachaContextCommemoratifs;
   sachaSender: SachaSender;
   sampleDocuments: SampleDocuments;
   sampleItems: SampleItems;

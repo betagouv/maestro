@@ -1,11 +1,10 @@
-import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { fieldInputTypeHasOptions } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { AuthenticatedAppRoutes } from 'src/AppRoutes';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -15,7 +14,7 @@ import { FieldDeleteConfirm } from './FieldDeleteConfirm';
 import { FieldForm } from './FieldForm';
 import { FieldOptionsSection } from './FieldOptionsSection';
 import { FieldsTable } from './FieldsTable';
-import { SachaCommemoratifsUpload } from './SachaCommemoratifsUpload';
+import { SachaReferentialUpload } from './SachaReferentialUpload';
 
 const fieldDeleteModal = createModal({
   id: 'specific-data-field-delete-modal',
@@ -31,7 +30,6 @@ export const SpecificDataFieldsView = () => {
   const readOnly = !hasAccountPermission('manageSpecificDataFields');
 
   const { data: fields = [] } = apiClient.useFindAllFieldConfigsQuery();
-  const { data: sachaFields = [] } = apiClient.useFindSachaFieldConfigsQuery();
 
   const [fieldToDelete, setFieldToDelete] = useState<AdminFieldConfig | null>(
     null
@@ -39,23 +37,6 @@ export const SpecificDataFieldsView = () => {
 
   const goToList = () =>
     navigate(AuthenticatedAppRoutes.AdminRoute.link(section as string));
-
-  const isComplete = useMemo(() => {
-    for (const fc of sachaFields) {
-      if (fc.inDai && !fc.optional) {
-        if (!fc.sachaCommemoratifSigle) {
-          return false;
-        }
-        if (
-          fieldInputTypeHasOptions(fc.inputType) &&
-          fc.options.some((o) => !o.sachaCommemoratifValueSigle)
-        ) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }, [sachaFields]);
 
   const onDelete = (field: AdminFieldConfig) => {
     setFieldToDelete(field);
@@ -122,21 +103,11 @@ export const SpecificDataFieldsView = () => {
         className={clsx('d-flex-row', 'd-flex-align-center', cx('fr-mb-2w'))}
       >
         <h3 className={cx('fr-mb-0')}>Dictionnaire des descripteurs</h3>
-        {!readOnly && <SachaCommemoratifsUpload />}
+        {!readOnly && <SachaReferentialUpload />}
       </div>
-
-      {!isComplete && (
-        <Alert
-          severity="warning"
-          title="Configuration incomplète"
-          description="Certaines DAI ne sont pas envoyables via les EDI Sacha."
-          className={clsx(cx('fr-mb-2w'))}
-        />
-      )}
 
       <FieldsTable
         fields={fields}
-        sachaFields={sachaFields}
         readOnly={readOnly}
         onAdd={() =>
           navigate(

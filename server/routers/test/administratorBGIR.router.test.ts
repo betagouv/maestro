@@ -38,7 +38,7 @@ describe('AdministratorBGIR permissions', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
 
       await request(app)
-        .post('/api/sacha/commemoratifs')
+        .post('/api/sacha/referentials')
         .send({ xmlContent: '<Commemoratifs />' })
         .use(tokenProvider(AdminBGIRFixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);

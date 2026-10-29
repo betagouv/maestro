@@ -134,18 +134,6 @@ export const specificDataFieldConfigRouter = {
         };
       }
     },
-  '/specific-data-fields/sacha': {
-    get: async () => {
-      console.info('Get specific data field configs for Sacha');
-
-      const fields = await specificDataFieldConfigRepository.findSachaFields();
-
-      return {
-        status: HttpStatus.OK,
-        response: fields
-      };
-    }
-  },
   '/specific-data-fields/attribute': {
     post: async ({ body }) => {
       await sampleSpecificDataRepository.updateSampleSpecificDataAttribute(
