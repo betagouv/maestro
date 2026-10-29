@@ -4,8 +4,6 @@ import type { SachaContext } from 'maestro-shared/schema/SachaContext/SachaConte
 import { kysely } from './kysely';
 import type { KyselyMaestro } from './kysely.type';
 
-export type ImportedSachaContext = SachaContext & { deprecated: boolean };
-
 const insertChunkSize = 1000;
 
 const findUsable = async (
@@ -52,7 +50,7 @@ const findUsableBySigle = async (
 ): Promise<SachaContext | undefined> => (await findUsable(sigle))[0];
 
 const synchronize = async (
-  contexts: ImportedSachaContext[],
+  contexts: SachaContext[],
   trx: KyselyMaestro
 ): Promise<void> => {
   const sigles = contexts.map(({ sigle }) => sigle);
@@ -61,16 +59,16 @@ const synchronize = async (
     await trx
       .insertInto('sachaContexts')
       .values(
-        contextsChunk.map(({ sigle, libelle, deprecated }) => ({
+        contextsChunk.map(({ sigle, libelle }) => ({
           sigle,
           libelle,
-          deprecated
+          deprecated: false
         }))
       )
       .onConflict((oc) =>
         oc.column('sigle').doUpdateSet((eb) => ({
           libelle: eb.ref('excluded.libelle'),
-          deprecated: eb.ref('excluded.deprecated')
+          deprecated: false
         }))
       )
       .execute();

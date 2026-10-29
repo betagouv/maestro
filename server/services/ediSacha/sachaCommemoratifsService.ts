@@ -73,27 +73,26 @@ export const updateSachaCommemoratifs = async (
 ): Promise<string> => {
   const nomFichier = donneesStandardisees.MessageParametres.NomFichier;
 
-  const referenceCommemoratifTypes =
-    donneesStandardisees.ReferenceCommemoratifType ?? [];
+  const commemoratifs = (donneesStandardisees.ReferenceCommemoratifType ?? [])
+    .filter((item) => item.ReferenceCommemoratif.Statut !== 'G')
+    .map((item) => ({
+      sigle: item.ReferenceCommemoratif.Sigle,
+      libelle: item.ReferenceCommemoratif.Libelle,
+      typeDonnee: item.ReferenceCommemoratif.TypeDonnee,
+      unite: item.ReferenceCommemoratif.Unite || null,
+      values: (item.ReferenceCommemoratifsValeurs ?? [])
+        .filter((valeur) => valeur.Statut !== 'G')
+        .map((valeur) => ({
+          sigle: valeur.Sigle,
+          libelle: valeur.Libelle
+        }))
+    }));
 
-  if (!referenceCommemoratifTypes.length) {
+  if (commemoratifs.length === 0) {
     throw new SachaReferentialError(
-      'Ce fichier ne contient aucune définition de commémoratif.'
+      'Ce fichier ne contient aucun commémoratif valide.'
     );
   }
-
-  const commemoratifs = referenceCommemoratifTypes.map((item) => ({
-    sigle: item.ReferenceCommemoratif.Sigle,
-    libelle: item.ReferenceCommemoratif.Libelle,
-    typeDonnee: item.ReferenceCommemoratif.TypeDonnee,
-    unite: item.ReferenceCommemoratif.Unite || null,
-    deprecated: item.ReferenceCommemoratif.Statut === 'G',
-    values: (item.ReferenceCommemoratifsValeurs ?? []).map((valeur) => ({
-      sigle: valeur.Sigle,
-      libelle: valeur.Libelle,
-      deprecated: valeur.Statut === 'G'
-    }))
-  }));
 
   await executeTransaction(async (trx) => {
     await sachaConfRepository.update(

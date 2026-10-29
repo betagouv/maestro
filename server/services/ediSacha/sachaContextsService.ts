@@ -2,14 +2,12 @@ import { uniq, uniqBy } from 'lodash-es';
 import SachaReferentialError from 'maestro-shared/errors/sachaReferentialError';
 import { SachaContextSigle } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import type { SachaContext } from 'maestro-shared/schema/SachaContext/SachaContext';
 import z from 'zod';
 import { executeTransaction } from '../../repositories/kysely';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
-import {
-  type ImportedSachaContext,
-  sachaContextRepository
-} from '../../repositories/sachaContextRepository';
+import { sachaContextRepository } from '../../repositories/sachaContextRepository';
 import { statusValidator } from './sachaValidator';
 
 const ReferenceCommemoratifsATransmettreXml = z
@@ -37,12 +35,15 @@ export const ReferentielPrescripteurXml = z.object({
 
 export const parseReferentielPrescripteur = (
   referentielPrescripteur: z.output<typeof ReferentielPrescripteurXml>
-): { fileName: string; contexts: ImportedSachaContext[] } => {
+): { fileName: string; contexts: SachaContext[] } => {
   const contexts = uniqBy(
-    (referentielPrescripteur.ReferenceContextesType ?? []).map((item) => ({
+    referentielPrescripteur.ReferenceContextesType ?? [],
+    'ReferenceContextesIntervention.Sigle'
+  )
+    .filter((item) => item.ReferenceContextesIntervention.Statut !== 'G')
+    .map((item) => ({
       sigle: item.ReferenceContextesIntervention.Sigle,
       libelle: item.ReferenceContextesIntervention.Libelle,
-      deprecated: item.ReferenceContextesIntervention.Statut === 'G',
       commemoratifs: uniqBy(
         [
           ...(item.ReferenceCommemoratifsInterventionContexte ?? []).map(
@@ -60,13 +61,11 @@ export const parseReferentielPrescripteur = (
         ],
         'sigle'
       )
-    })),
-    'sigle'
-  );
+    }));
 
   if (contexts.length === 0) {
     throw new SachaReferentialError(
-      'Ce fichier ne contient aucun contexte d’intervention.'
+      'Ce fichier ne contient aucun contexte d’intervention valide.'
     );
   }
 
