@@ -56,7 +56,7 @@
     "openid-client": "^6.8.8",
     "pdf-lib": "^1.17.1",
     "pg": "^8.23.1",
-    "puppeteer-core": "^25.15.0",
+    "puppeteer-core": "^25.16.0",
     "sanitize-html": "^2.18.1",
     "ssh2-sftp-client": "^12.1.1",
     "unpdf": "^1.9.1"
