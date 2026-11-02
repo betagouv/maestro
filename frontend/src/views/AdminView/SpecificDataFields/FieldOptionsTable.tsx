@@ -1,3 +1,4 @@
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
@@ -90,17 +91,26 @@ export const FieldOptionsTable = ({
       ? (sachaCommemoratifs[selectedSigle] ?? null)
       : null;
 
-  const sachaValueLabel = (option: AdminFieldOption): string => {
+  const sachaValueLabel = (
+    option: AdminFieldOption
+  ): string | React.ReactElement => {
     const sigle = option.sachaCommemoratifValueSigle;
-    if (!sigle) return '';
-    const value = selectedCommemoratif?.values[sigle];
-    return value ? `${value.libelle} (${value.sigle})` : sigle;
+    const value = sigle ? selectedCommemoratif?.values[sigle] : undefined;
+    if (value) {
+      return `${value.libelle} (${value.sigle})`;
+    }
+    if (selectedCommemoratif?.typeDonnee !== 'list') {
+      return sigle ?? '';
+    }
+    return (
+      <Badge key={option.id} severity="warning" small>
+        {sigle ? `${sigle} gelée, à associer` : 'À associer'}
+      </Badge>
+    );
   };
 
   const showSachaColumn =
-    field.sachaInDai &&
-    selectedSigle !== null &&
-    sachaCommemoratifs !== undefined;
+    selectedSigle !== null && sachaCommemoratifs !== undefined;
 
   const actionsHeader = (
     <div

@@ -18,7 +18,10 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type {
+  ProgrammingSubPlanId,
+  SachaContextSigle
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
@@ -2308,6 +2311,19 @@ describe('ProgrammingPlan router', () => {
       fields: []
     };
 
+    beforeAll(async () => {
+      await kysely
+        .insertInto('sachaContexts')
+        .values(
+          ['PR17_2026_RPDA_PVOL', 'PR17_2027_RPDA_PVOL'].map((sigle) => ({
+            sigle: sigle as SachaContextSigle,
+            libelle: 'Plan de surveillance résidus de pesticides volaille'
+          }))
+        )
+        .onConflict((oc) => oc.column('sigle').doNothing())
+        .execute();
+    });
+
     afterEach(resetDaoaInProgressSettings);
 
     test('should fail if the user is not authenticated', async () => {
@@ -2377,6 +2393,19 @@ describe('ProgrammingPlan router', () => {
         .send({ ...validBody, sachaContextSigle: 'PR17_2026_RPDA_PBOV' })
         .use(tokenProvider(NationalCoordinatorDaoaFixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should refuse a SIGAL context unknown or frozen in the referential', async () => {
+      const before = await request(app)
+        .get(daoaVolailleRoute)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send({ ...before.body, sachaContextSigle: 'PR17_2027_INCONNU' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     test('should change the SIGAL context', async () => {

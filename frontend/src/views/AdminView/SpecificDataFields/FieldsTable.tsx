@@ -3,13 +3,11 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { assert, type Equals } from 'tsafe';
 import { FieldInputTypeLabels } from './fieldInputTypeLabels';
 
 type Props = {
   fields: AdminFieldConfig[];
-  sachaFields: SachaFieldConfig[];
   readOnly: boolean;
   onAdd: () => void;
   onEdit: (field: AdminFieldConfig) => void;
@@ -18,7 +16,6 @@ type Props = {
 
 export const FieldsTable = ({
   fields,
-  sachaFields,
   readOnly,
   onAdd,
   onEdit,
@@ -27,8 +24,6 @@ export const FieldsTable = ({
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const sachaByKey = Object.fromEntries(sachaFields.map((f) => [f.key, f]));
-
   return (
     <Table
       headers={[
@@ -36,7 +31,7 @@ export const FieldsTable = ({
         'Type de saisie',
         'Libellé',
         'Nb options',
-        'DAI Sacha',
+        'Sigle Sacha',
         <div
           key="actions-header"
           className={clsx('d-flex-align-center')}
@@ -54,13 +49,12 @@ export const FieldsTable = ({
         </div>
       ]}
       data={fields.map((field) => {
-        const sacha = sachaByKey[field.key];
         return [
           field.key,
           FieldInputTypeLabels[field.inputType],
           field.label,
           field.options.length > 0 ? String(field.options.length) : '–',
-          sacha?.inDai ? 'Oui' : 'Non',
+          field.sachaCommemoratifSigle ?? '–',
           <div
             key={field.id}
             className={cx('fr-btns-group', 'fr-btns-group--inline')}

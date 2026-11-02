@@ -7,6 +7,11 @@ import type {
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import {
+  type SachaCommemoratifLevel,
+  type SachaContext,
+  unusableSachaContextMessage
+} from 'maestro-shared/schema/SachaContext/SachaContext';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
@@ -16,6 +21,7 @@ import type { SachaConf } from '../../repositories/kysely.type';
 import { matrixRepository } from '../../repositories/matrixRepository';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
+import { sachaContextRepository } from '../../repositories/sachaContextRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import type { DaiSentResult } from '../daiSendingService';
 import { documentService } from '../documentService';
@@ -92,6 +98,7 @@ export const generateXMLDAI = (
   dateNow: number,
   sachaFieldConfigs: SachaFieldConfig[],
   sachaCommemoratifRecord: SachaCommemoratifRecord,
+  sachaContext: SachaContext | undefined,
   sachaConf: SachaConf,
   laboratory: LaboratoryWithSacha,
   withSacha = true
@@ -105,6 +112,9 @@ export const generateXMLDAI = (
     throw new Error(
       `Pas de contexte d'intervention SIGAL pour le sous-plan ${subPlan.subPlanNumber}.`
     );
+  }
+  if (!sachaContext || sachaContext.sigle !== sachaContextSigle) {
+    throw new Error(unusableSachaContextMessage(sachaContextSigle));
   }
 
   const siglesMatrice = sample.matrices.map(({ matrix }) => {
@@ -134,22 +144,20 @@ export const generateXMLDAI = (
     throw new Error("Pas de plan d'analyse de configuré.");
   }
 
-  const dialogueCommemoratifs = getCommemoratifs(
+  const commemoratifs = getCommemoratifs(
     sample.specificData,
     sachaFieldConfigs,
-    sachaCommemoratifRecord
-  ).map((c) => {
-    if ('sigleValue' in c) {
-      return {
-        Sigle: c.sigle,
-        SigleValeur: c.sigleValue
-      };
-    }
-    return {
-      Sigle: c.sigle,
-      TexteValeur: c.textValue
-    };
-  });
+    sachaCommemoratifRecord,
+    sachaContext
+  );
+  const dialogueCommemoratifs = (level: SachaCommemoratifLevel) =>
+    commemoratifs
+      .filter((c) => c.level === level)
+      .map((c) =>
+        'sigleValue' in c
+          ? { Sigle: c.sigle, SigleValeur: c.sigleValue }
+          : { Sigle: c.sigle, TexteValeur: c.textValue }
+      );
 
   const { numeroDAP, numeroEtiquette } = referencesFromSample(
     SampleReference.parse(sample.reference),
@@ -167,6 +175,7 @@ export const generateXMLDAI = (
           DateIntervention: sample.sampledDate,
           DateModification: toSachaDateTime(sample.lastUpdatedAt)
         },
+        DialogueCommemoratif: dialogueCommemoratifs('Sample'),
         ReferenceEtablissementType: referenceEtablissementType(sample),
         DialogueActeurType: {
           DialogueActeur: {
@@ -183,7 +192,7 @@ export const generateXMLDAI = (
               NumeroEtiquette: numeroEtiquette,
               Commentaire: sampleItem.sealId ?? ''
             },
-            DialogueCommemoratif: dialogueCommemoratifs
+            DialogueCommemoratif: dialogueCommemoratifs('SampleMatrix')
           })
         ),
         ReferencePlanAnalyseType: siglesPlanAnalyse.map((siglePlanAnalyse) => ({
@@ -211,62 +220,51 @@ export const generateXMLDAI = (
 export const getCommemoratifs = (
   specificData: SpecificData,
   sachaFieldConfigs: SachaFieldConfig[],
-  sachaCommemoratifRecord: SachaCommemoratifRecord
-): ({ sigle: CommemoratifSigle } & (
+  sachaCommemoratifRecord: SachaCommemoratifRecord,
+  sachaContext: SachaContext
+): ({ sigle: CommemoratifSigle; level: SachaCommemoratifLevel } & (
   | { textValue: string }
   | { sigleValue: CommemoratifValueSigle }
 ))[] => {
   const commemoratifs: ReturnType<typeof getCommemoratifs> = [];
   for (const specificDataKey of Object.keys(specificData)) {
-    if (specificDataKey in specificData) {
-      const conf = sachaFieldConfigs.find((fc) => fc.key === specificDataKey);
-      if (conf?.inDai) {
-        const rawValue = specificData[specificDataKey];
-        const specificDataValues = (
-          Array.isArray(rawValue) ? rawValue : [rawValue]
-        ) as string[];
+    const conf = sachaFieldConfigs.find((fc) => fc.key === specificDataKey);
+    if (conf === undefined) {
+      throw new Error(`Configuration SACHA incomplète: ${specificDataKey}`);
+    }
 
-        if (!conf.sachaCommemoratifSigle) {
+    const sigle = conf.sachaCommemoratifSigle;
+    const level = sachaContext.commemoratifs.find(
+      (commemoratif) => commemoratif.sigle === sigle
+    )?.level;
+    const commemoratif = sigle ? sachaCommemoratifRecord[sigle] : undefined;
+    if (!sigle || !level || !commemoratif) {
+      continue;
+    }
+
+    const rawValue = specificData[specificDataKey];
+    const specificDataValues = (
+      Array.isArray(rawValue) ? rawValue : [rawValue]
+    ) as string[];
+
+    for (const specificDataValue of specificDataValues) {
+      if (commemoratif.typeDonnee === 'list') {
+        const sigleValue =
+          conf.options.find((o) => o.value === specificDataValue)
+            ?.sachaCommemoratifValueSigle ?? null;
+        if (!sigleValue || !commemoratif.values[sigleValue]) {
           throw new Error(
-            `Configuration SACHA incomplète: ${specificDataKey} `
+            `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
           );
+        } else {
+          commemoratifs.push({ sigle, level, sigleValue });
         }
-
-        const typeDonnee =
-          sachaCommemoratifRecord[conf.sachaCommemoratifSigle].typeDonnee;
-
-        for (const specificDataValue of specificDataValues) {
-          if (typeDonnee === 'list') {
-            const sigleValue =
-              conf.options.find((o) => o.value === specificDataValue)
-                ?.sachaCommemoratifValueSigle ?? null;
-            if (!sigleValue) {
-              if (!conf.optional) {
-                throw new Error(
-                  `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
-                );
-              }
-            } else {
-              commemoratifs.push({
-                sigle: conf.sachaCommemoratifSigle,
-                sigleValue: sigleValue
-              });
-            }
-          } else {
-            let textValue: string;
-            if (typeDonnee === 'date') {
-              textValue = toSachaDateTime(new Date(specificDataValue));
-            } else {
-              textValue = `${specificDataValue}`;
-            }
-            commemoratifs.push({
-              sigle: conf.sachaCommemoratifSigle,
-              textValue
-            });
-          }
-        }
-      } else if (conf === undefined) {
-        throw new Error(`Configuration SACHA incomplète: ${specificDataKey}`);
+      } else {
+        const textValue =
+          commemoratif.typeDonnee === 'date'
+            ? toSachaDateTime(new Date(specificDataValue))
+            : `${specificDataValue}`;
+        commemoratifs.push({ sigle, level, textValue });
       }
     }
   }
@@ -283,11 +281,15 @@ export const sendDAIWithEDI = async (
     matrixReferential,
     sachaCommemoratifRecord,
     specificDataRecord,
+    sachaContext,
     sachaConf
   ] = await Promise.all([
     matrixRepository.findReferential(),
     sachaCommemoratifRepository.findAll(),
     specificDataFieldConfigRepository.findSachaFields(),
+    subPlan.sachaContextSigle
+      ? sachaContextRepository.findUsableBySigle(subPlan.sachaContextSigle)
+      : undefined,
     sachaConfRepository.get()
   ]);
 
@@ -300,6 +302,7 @@ export const sendDAIWithEDI = async (
     dateNow,
     specificDataRecord,
     sachaCommemoratifRecord,
+    sachaContext,
     sachaConf,
     laboratory
   );

@@ -72,9 +72,7 @@ export const FieldOptionFormModal = ({
         .sort((a, b) => a.label.localeCompare(b.label))
     : [];
   const showSachaField =
-    field.sachaInDai &&
-    selectedSigle !== null &&
-    sachaCommemoratifs !== undefined;
+    selectedSigle !== null && sachaCommemoratifs !== undefined;
 
   const form = useForm(CreateFieldOptionInput, {
     value: formData.value,
@@ -198,8 +196,8 @@ export const FieldOptionFormModal = ({
               setSachaValueSigle((v as CommemoratifValueSigle) || null)
             }
             placeholder="Rechercher une valeur"
-            required={!field.sachaOptional}
-            state={sachaValueSigle || field.sachaOptional ? 'default' : 'error'}
+            required
+            state={sachaValueSigle ? 'default' : 'error'}
           />
         )}
         <AppServiceErrorAlert call={createFieldOptionResult} />

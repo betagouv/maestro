@@ -46,9 +46,12 @@ import {
   isProgrammingPlanDeletable
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
+  type SachaContextSigle,
   stagesFromSubPlans,
   subPlanNumberIssue
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { sachaContextFieldsIssue } from 'maestro-shared/schema/SachaContext/SachaContext';
+import type { ProgrammingSubPlanFieldSetting } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 
 import {
   hasAccountPermission,
@@ -73,6 +76,8 @@ import { matrixRepository } from '../repositories/matrixRepository';
 import { programmingPlanDomainRepository } from '../repositories/programmingPlanDomainRepository.ts';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
+import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
+import { sachaContextRepository } from '../repositories/sachaContextRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import { userRepository } from '../repositories/userRepository';
@@ -341,6 +346,26 @@ const resumesDraft = (
   stored: { settingsCompleted: boolean },
   body: { settingsCompleted: boolean }
 ): boolean => stored.settingsCompleted && !body.settingsCompleted;
+
+const hasSachaContextIssue = async (
+  sachaContextSigle: SachaContextSigle | null,
+  fields: ProgrammingSubPlanFieldSetting[]
+): Promise<boolean> => {
+  if (!sachaContextSigle) {
+    return false;
+  }
+  const sachaContext =
+    await sachaContextRepository.findUsableBySigle(sachaContextSigle);
+  return (
+    !sachaContext ||
+    sachaContextFieldsIssue(
+      sachaContext,
+      fields,
+      await specificDataFieldConfigRepository.findAllFields(),
+      await sachaCommemoratifRepository.findAll()
+    ) !== undefined
+  );
+};
 
 export const programmingPlanRouter = {
   '/programming-plans': {
@@ -1287,10 +1312,20 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           hasUnknownSubPlanMatrixCodes(
             await matrixRepository.findReferential(),
             body.matrices
-          )
+          ) ||
+          (changesSachaContextSigle &&
+            body.sachaContextSigle &&
+            !(await sachaContextRepository.findUsableBySigle(
+              body.sachaContextSigle
+            )))
         ) {
           return { status: HttpStatus.BAD_REQUEST };
         }
+
+        const sachaContextSigle =
+          body.sachaContextSigle === undefined
+            ? programmingSubPlan.sachaContextSigle
+            : body.sachaContextSigle;
 
         if (
           (changesSubPlanNumber &&
@@ -1306,6 +1341,8 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
             completedSubPlanSettingIssues(
               effectiveSubPlanSettings(body, programmingPlan)
             ).length > 0) ||
+          (body.settingsCompleted &&
+            (await hasSachaContextIssue(sachaContextSigle, body.fields))) ||
           managesAboveSubstanceKinds.subPlan(body) ||
           orphanSubstancesSettingKeys(
             effectiveSubPlanSettings(body, programmingPlan)

@@ -14,6 +14,8 @@ import {
   type SachaContextSigle,
   subPlanLabel
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import type { SachaContext } from 'maestro-shared/schema/SachaContext/SachaContext';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { SpecificDataFieldId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
@@ -92,8 +94,6 @@ const genAdminField = (key: string, id: string): AdminFieldConfig => ({
   label: `Champ ${key}`,
   hintText: null,
   sachaCommemoratifSigle: null,
-  sachaInDai: false,
-  sachaOptional: false,
   options: []
 });
 
@@ -301,7 +301,16 @@ const ppvPlan = genProgrammingPlan({
   nationalStatus: { status: 'InProgress' }
 });
 
+const bovinSachaContext: SachaContext = {
+  sigle: 'PR17_2026_PCRC_PBOV' as SachaContextSigle,
+  libelle: 'Plan de contrôle résidus chimiques bovin',
+  commemoratifs: []
+};
+
+const sachaContextPlaceholder = 'Rechercher un contexte d’intervention';
+
 const mockApiConf: Partial<MockApi> = {
+  useFindSachaContextsQuery: { data: [bovinSachaContext] },
   useUpdateProgrammingPlanSettingsMutation: [updateProgrammingPlanSettings, {}],
   useCreateDocumentUploadMutation: [createDocumentUpload, {}],
   useFindResourcesQuery: {
@@ -761,9 +770,7 @@ export const SubPlanNumberDisabledForCoordinator: Story = {
       canvas.getByRole('textbox', { name: /N° du sous-plan/ })
     ).toBeDisabled();
     await expect(
-      canvas.queryByRole('textbox', {
-        name: /Contexte d'intervention SIGAL/
-      })
+      canvas.queryByPlaceholderText(sachaContextPlaceholder)
     ).not.toBeInTheDocument();
   }
 };
@@ -783,8 +790,13 @@ export const SachaContextSigleSave: Story = {
     updateProgrammingSubPlanSettings.mockClear();
 
     await userEvent.type(
-      canvas.getByRole('textbox', { name: /Contexte d'intervention SIGAL/ }),
-      'PR17_2026_PCRC_PBOV'
+      canvas.getByPlaceholderText(sachaContextPlaceholder),
+      'PCRC'
+    );
+    await userEvent.click(
+      await within(canvasElement.ownerDocument.body).findByRole('option', {
+        name: /PR17_2026_PCRC_PBOV/
+      })
     );
 
     await userEvent.click(
@@ -823,11 +835,94 @@ export const SachaContextSigleDisabledForCoordinator: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    const sachaContextSigle = await canvas.findByRole('textbox', {
-      name: /Contexte d'intervention SIGAL/
-    });
-    await expect(sachaContextSigle).toHaveValue('PR17_2026_PCRC_PBOV');
+    const sachaContextSigle = await canvas.findByPlaceholderText(
+      sachaContextPlaceholder
+    );
+    await expect(sachaContextSigle).toHaveValue(
+      'PR17_2026_PCRC_PBOV — Plan de contrôle résidus chimiques bovin'
+    );
     await expect(sachaContextSigle).toBeDisabled();
+  }
+};
+
+export const SachaContextFrozen: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useFindSachaContextsQuery: { data: [] }
+    }),
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        AnimauxSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      await canvas.findByPlaceholderText(sachaContextPlaceholder)
+    ).toHaveValue('PR17_2026_PCRC_PBOV (gelé)');
+  }
+};
+
+export const SachaContextRequiresField: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useFindSachaContextsQuery: {
+        data: [
+          {
+            ...bovinSachaContext,
+            commemoratifs: [
+              { sigle: 'ESPPVO' as CommemoratifSigle, level: 'Sample' }
+            ]
+          }
+        ]
+      },
+      useFindAllFieldConfigsQuery: {
+        data: [
+          matriceField,
+          quantiteField,
+          {
+            ...especeField,
+            sachaCommemoratifSigle: 'ESPPVO' as CommemoratifSigle
+          }
+        ]
+      }
+    }),
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await userEvent.type(
+      canvas.getByPlaceholderText(sachaContextPlaceholder),
+      'PCRC'
+    );
+    await userEvent.click(
+      await within(canvasElement.ownerDocument.body).findByRole('option', {
+        name: /PR17_2026_PCRC_PBOV/
+      })
+    );
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    );
+
+    await expect(
+      await canvas.findByText(
+        'Le contexte d’intervention SIGAL PR17_2026_PCRC_PBOV demande le descripteur « Champ espece ».'
+      )
+    ).toBeVisible();
+    await expect(updateProgrammingSubPlanSettings).not.toHaveBeenCalled();
   }
 };
 

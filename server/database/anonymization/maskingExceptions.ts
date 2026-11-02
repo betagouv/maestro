@@ -127,6 +127,8 @@ export const maskingExceptions: Record<string, string[]> = {
   residue_analytes: ['analysis_id', 'reference', 'result_kind'],
   sacha_commemoratif_values: ['commemoratif_sigle', 'libelle', 'sigle'],
   sacha_commemoratifs: ['libelle', 'sigle', 'type_donnee', 'unite'],
+  sacha_context_commemoratifs: ['commemoratif_sigle', 'context_sigle', 'level'],
+  sacha_contexts: ['libelle', 'sigle'],
   sacha_conf: [
     'version_reference_prescripteur',
     'version_reference_standardisees'

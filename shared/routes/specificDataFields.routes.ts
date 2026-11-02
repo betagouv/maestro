@@ -12,7 +12,6 @@ import {
   UpdateFieldOptionInput
 } from '../schema/SpecificData/FieldConfigInput';
 import {
-  SachaFieldConfig,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
 } from '../schema/SpecificData/ProgrammingSubPlanFieldConfig';
@@ -70,12 +69,6 @@ export const specificDataFieldsRoutes = {
     delete: {
       accountPermissions: ['manageSpecificDataFields'],
       response: z.undefined()
-    }
-  },
-  '/specific-data-fields/sacha': {
-    get: {
-      response: z.array(SachaFieldConfig),
-      accountPermissions: ['readSpecificDataFields']
     }
   },
   '/specific-data-fields/attribute': {

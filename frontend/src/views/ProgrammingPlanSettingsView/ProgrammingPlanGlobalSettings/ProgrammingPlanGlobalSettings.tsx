@@ -18,13 +18,16 @@ import {
   SubstanceKind,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { useContext } from 'react';
 import { AppMultiSelect } from 'src/components/_app/AppMultiSelect/AppMultiSelect';
+import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import type { UseForm } from 'src/hooks/useForm';
+import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 import { ProgrammingPlanDocuments } from '../ProgrammingPlanDocuments/ProgrammingPlanDocuments';
 import { ProgrammingPlanMatrixSettings } from '../ProgrammingPlanMatrixSettings/ProgrammingPlanMatrixSettings';
@@ -71,6 +74,31 @@ export const ProgrammingPlanGlobalSettings = <
   const { hasAccountPermission } = useAuthentication();
   const isMaestroAdministrator = hasAccountPermission('administrationMaestro');
 
+  const apiClient = useContext(ApiClientContext);
+  const { data: sachaContexts, isSuccess: sachaContextsLoaded } =
+    apiClient.useFindSachaContextsQuery(undefined, {
+      skip: settings.subPlanNumber === null
+    });
+
+  const currentSachaContextSigle = settings.sachaContextSigle;
+  const sachaContextOptions = [
+    ...(sachaContexts ?? []).map(({ sigle, libelle }) => ({
+      label: `${sigle} — ${libelle}`,
+      value: sigle
+    })),
+    ...(currentSachaContextSigle &&
+    !sachaContexts?.some(({ sigle }) => sigle === currentSachaContextSigle)
+      ? [
+          {
+            label: sachaContextsLoaded
+              ? `${currentSachaContextSigle} (gelé)`
+              : currentSachaContextSigle,
+            value: currentSachaContextSigle
+          }
+        ]
+      : [])
+  ];
+
   return (
     <div className={clsx('programming-plan-global-settings')}>
       {settings.subPlanNumber !== null && (
@@ -87,20 +115,22 @@ export const ProgrammingPlanGlobalSettings = <
             inputKey="subPlanNumber"
           />
           {(isMaestroAdministrator || settings.sachaContextSigle !== null) && (
-            <AppTextInput
+            <AppSearchInput
               label="Contexte d'intervention SIGAL"
               hintText="Sigle SIGAL, ex. PR17_2026_PCRC_PBOV"
+              placeholder="Rechercher un contexte d’intervention"
               disabled={!isMaestroAdministrator}
+              options={sachaContextOptions}
               value={settings.sachaContextSigle ?? ''}
-              onChange={(event) =>
+              onSelect={(value) =>
                 onChange({
                   ...settings,
-                  sachaContextSigle: (event.target.value ||
-                    null) as SachaContextSigle | null
+                  sachaContextSigle: (value || null) as SachaContextSigle | null
                 })
               }
-              inputForm={inputForm}
-              inputKey="sachaContextSigle"
+              state={inputForm.messageType('sachaContextSigle')}
+              stateRelatedMessage={inputForm.message('sachaContextSigle')}
+              disableAutoSelectSingleOption
             />
           )}
         </div>

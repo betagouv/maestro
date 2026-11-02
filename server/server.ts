@@ -86,6 +86,7 @@ export function createServer(): Server {
     );
   }
 
+  app.use('/api/sacha/referentials', express.json({ limit: '10mb' }));
   app.use(express.json({ limit: '3mb' }));
   app.use(express.urlencoded({ extended: true }));
 

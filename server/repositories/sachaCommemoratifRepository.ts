@@ -1,19 +1,26 @@
 import type {
+  CommemoratifSigle,
   SachaCommemoratif,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { executeTransaction, kysely } from './kysely';
 import type { KyselyMaestro } from './kysely.type';
 
+type ImportedCommemoratif = Omit<SachaCommemoratif, 'values'> & {
+  values: SachaCommemoratif['values'][number][];
+};
+
 const findAll = async (): Promise<SachaCommemoratifRecord> => {
   const commemoratifs = await kysely
     .selectFrom('sachaCommemoratifs')
-    .selectAll()
+    .select(['sigle', 'libelle', 'typeDonnee', 'unite'])
+    .where('deprecated', '=', false)
     .execute();
 
   const values = await kysely
     .selectFrom('sachaCommemoratifValues')
-    .selectAll()
+    .select(['sigle', 'commemoratifSigle', 'libelle'])
+    .where('deprecated', '=', false)
     .execute();
 
   return Object.fromEntries(
@@ -24,15 +31,22 @@ const findAll = async (): Promise<SachaCommemoratifRecord> => {
         values: Object.fromEntries(
           values
             .filter((v) => v.commemoratifSigle === c.sigle)
-            .map((v) => [v.sigle, v])
+            .map(({ sigle, libelle }) => [sigle, { sigle, libelle }])
         )
       }
     ])
   );
 };
 
+const findAllSigles = async (
+  trx: KyselyMaestro = kysely
+): Promise<CommemoratifSigle[]> =>
+  (await trx.selectFrom('sachaCommemoratifs').select('sigle').execute()).map(
+    ({ sigle }) => sigle
+  );
+
 const upsertAll = async (
-  commemoratifs: SachaCommemoratif[],
+  commemoratifs: ImportedCommemoratif[],
   trx: KyselyMaestro = kysely
 ): Promise<void> => {
   const execute = async (db: KyselyMaestro) => {
@@ -41,12 +55,13 @@ const upsertAll = async (
 
       await db
         .insertInto('sachaCommemoratifs')
-        .values(commemoratifData)
+        .values({ ...commemoratifData, deprecated: false })
         .onConflict((oc) =>
           oc.column('sigle').doUpdateSet({
             libelle: commemoratifData.libelle,
             typeDonnee: commemoratifData.typeDonnee,
-            unite: commemoratifData.unite
+            unite: commemoratifData.unite,
+            deprecated: false
           })
         )
         .execute();
@@ -56,12 +71,14 @@ const upsertAll = async (
           .insertInto('sachaCommemoratifValues')
           .values({
             ...value,
-            commemoratifSigle: commemoratif.sigle
+            commemoratifSigle: commemoratif.sigle,
+            deprecated: false
           })
           .onConflict((oc) =>
             oc.column('sigle').doUpdateSet({
               libelle: value.libelle,
-              commemoratifSigle: commemoratif.sigle
+              commemoratifSigle: commemoratif.sigle,
+              deprecated: false
             })
           )
           .execute();
@@ -76,7 +93,37 @@ const upsertAll = async (
   }
 };
 
+const deprecateMissing = async (
+  commemoratifs: ImportedCommemoratif[],
+  trx: KyselyMaestro = kysely
+): Promise<void> => {
+  const sigles = commemoratifs.map(({ sigle }) => sigle);
+
+  await trx
+    .updateTable('sachaCommemoratifs')
+    .set({ deprecated: true })
+    .where('sigle', 'not in', sigles)
+    .execute();
+
+  for (const { sigle, values } of commemoratifs) {
+    await trx
+      .updateTable('sachaCommemoratifValues')
+      .set({ deprecated: true })
+      .where('commemoratifSigle', '=', sigle)
+      .$if(values.length > 0, (qb) =>
+        qb.where(
+          'sigle',
+          'not in',
+          values.map((value) => value.sigle)
+        )
+      )
+      .execute();
+  }
+};
+
 export const sachaCommemoratifRepository = {
   findAll,
-  upsertAll
+  findAllSigles,
+  upsertAll,
+  deprecateMissing
 };
