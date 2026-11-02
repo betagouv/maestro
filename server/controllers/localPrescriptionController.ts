@@ -8,11 +8,8 @@ import {
 import { previousSampleCountFor } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
 import type { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { toLocalPrescriptionKeyString } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { hasEverSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import {
@@ -40,6 +37,7 @@ import programmingPlanRepository from '../repositories/programmingPlanRepository
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
+import { hasSampleWithSeveralLaboratories } from '../services/prescriptionSaveService';
 
 export const withEffectiveLocalPrescriptionChanges = async (
   localPrescriptions: LocalPrescription[],
@@ -108,26 +106,6 @@ export const withEffectiveLocalPrescriptionChanges = async (
     };
   });
 };
-
-const hasSampleWithSeveralLaboratories = (
-  programmingPlan: ProgrammingPlanChecked,
-  prescription: Prescription,
-  substanceKindsLaboratories: SubstanceKindLaboratory[]
-): boolean =>
-  (
-    programmingPlan.subPlans.find(
-      (subPlan) => subPlan.id === prescription.programmingSubPlanId
-    )?.samples ?? []
-  ).some(
-    (sample) =>
-      uniq(
-        substanceKindsLaboratories
-          .filter(({ substanceKind }) =>
-            sample.substanceKinds.includes(substanceKind)
-          )
-          .map(({ laboratoryId }) => laboratoryId ?? null)
-      ).length > 1
-  );
 
 export const localPrescriptionsRouter = {
   '/prescriptions/regions': {

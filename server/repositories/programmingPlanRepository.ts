@@ -1,5 +1,5 @@
 import type { Knex } from 'knex';
-import { isArray, isNil, omit, omitBy } from 'lodash-es';
+import { isArray, isNil, omit, omitBy, uniqBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
@@ -566,6 +566,38 @@ const touchLocalStatus = async (
   }
 };
 
+const touchLocalStatuses = async (
+  scopes: {
+    programmingPlanId: string;
+    region?: Region | null;
+    department?: Department | null;
+  }[],
+  transaction: Knex = db
+): Promise<void> => {
+  if (scopes.length === 0) {
+    return;
+  }
+  console.info('Touch programming plan local statuses', scopes.length);
+  const rows = scopes.flatMap((scope) => [
+    [
+      scope.programmingPlanId,
+      scope.region ?? 'None',
+      scope.department ?? 'None'
+    ],
+    ...(isNil(scope.department)
+      ? []
+      : [[scope.programmingPlanId, scope.region ?? 'None', 'None']]),
+    [scope.programmingPlanId, 'None', 'None']
+  ]);
+
+  await ProgrammingPlanLocalStatus(transaction)
+    .whereIn(
+      ['programmingPlanId', 'region', 'department'],
+      uniqBy(rows, (row) => row.join('|'))
+    )
+    .update({ lastModifiedAt: new Date() });
+};
+
 export const formatProgrammingPlan = (
   programmingPlan: ProgrammingPlanChecked
 ): ProgrammingPlanSettingsRow<ProgrammingPlanDbo> =>
@@ -592,6 +624,7 @@ export default {
   deleteOne,
   updateNationalStatus,
   touchLocalStatus,
+  touchLocalStatuses,
   touchNationalLastModifiedAt,
   touchNationalSentAt,
   touchRegionalSentAt,

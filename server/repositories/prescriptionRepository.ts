@@ -438,6 +438,20 @@ const findUnique = async (id: string): Promise<Prescription | undefined> => {
     .then((_) => _ && Prescription.parse(omitBy(_, isNil)));
 };
 
+const findManyByIds = async (ids: string[]): Promise<Prescription[]> => {
+  console.info('Find prescriptions by ids', ids.length);
+  if (ids.length === 0) {
+    return [];
+  }
+  return Prescriptions()
+    .whereIn('id', ids)
+    .then((prescriptions: Prescription[]) =>
+      prescriptions.map((_: Prescription) =>
+        Prescription.parse(omitBy(_, isNil))
+      )
+    );
+};
+
 interface ResolvedFilters {
   matrixKinds: MatrixKind[] | undefined;
   subPlanIds: ProgrammingSubPlanId[] | undefined;
@@ -709,6 +723,7 @@ const update = async (prescription: Prescription): Promise<void> => {
 export default {
   findUnique,
   findMany,
+  findManyByIds,
   findCounts,
   insertEmpty,
   update

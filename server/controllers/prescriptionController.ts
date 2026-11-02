@@ -28,6 +28,7 @@ import {
   type ImportedScope,
   parsePrescriptionImportFile
 } from '../services/prescriptionImportService';
+import { savePrescriptions } from '../services/prescriptionSaveService';
 import { withEffectiveLocalPrescriptionChanges } from './localPrescriptionController';
 
 const withPendingPrescriptionChanges = async (
@@ -257,6 +258,42 @@ export const prescriptionsRouter = {
           localChanges,
           totals: resolvedTotals,
           unrecognized: uniq(unrecognized)
+        }
+      };
+    }
+  },
+  '/prescriptions/save': {
+    put: async ({
+      user,
+      userRole,
+      body: { prescriptionUpdates, localPrescriptionUpdates }
+    }) => {
+      console.info(
+        'Save prescriptions',
+        user.id,
+        prescriptionUpdates.length,
+        localPrescriptionUpdates.length
+      );
+
+      const result = await savePrescriptions({
+        user,
+        userRole,
+        prescriptionUpdates,
+        localPrescriptionUpdates
+      });
+
+      if (result.outcome === 'forbidden') {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+      if (result.outcome === 'badRequest') {
+        return { status: HttpStatus.BAD_REQUEST };
+      }
+
+      return {
+        status: HttpStatus.OK,
+        response: {
+          prescriptionCount: result.prescriptionCount,
+          localPrescriptionCount: result.localPrescriptionCount
         }
       };
     }

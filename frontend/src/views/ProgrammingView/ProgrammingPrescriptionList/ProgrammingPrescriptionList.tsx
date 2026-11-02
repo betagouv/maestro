@@ -16,8 +16,7 @@ import type { Region } from 'maestro-shared/referential/Region';
 import type { Company } from 'maestro-shared/schema/Company/Company';
 import {
   filteredLocalPrescriptions,
-  type LocalPrescription,
-  type LocalPrescriptionUpdate
+  type LocalPrescription
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { hasUnviewedChange } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
 import {
@@ -30,7 +29,6 @@ import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescri
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
   type Prescription,
-  type PrescriptionUpdate,
   sortPrescriptions
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { PrescriptionImportResult } from 'maestro-shared/schema/Prescription/PrescriptionImport';
@@ -153,11 +151,7 @@ const ProgrammingPrescriptionList = ({
     pendingLaboratoryChanges.size > 0 ||
     pendingPrescriptionSampleCounts.size > 0;
 
-  const [updatePrescription] = apiClient.useUpdatePrescriptionMutation();
-  const [updateLocalPrescription] =
-    apiClient.useUpdateLocalPrescriptionMutation();
-  const [updateDepartmentalLocalPrescription] =
-    apiClient.useUpdateDepartmentalLocalPrescriptionMutation();
+  const [savePrescriptions] = apiClient.useSavePrescriptionsMutation();
 
   const { reduceFilters } = usePrescriptionFilters(yearProgrammingPlans);
 
@@ -602,47 +596,14 @@ const ProgrammingPrescriptionList = ({
     [dispatch, getPrescriptionPlan, allLocalPrescriptions]
   );
 
-  const changePrescription = useCallback(
-    async (
-      prescriptionId: string,
-      programmingPlanId: string,
-      prescriptionUpdate: Omit<PrescriptionUpdate, 'programmingPlanId'>
-    ) => {
+  const canUpdatePrescription = useCallback(
+    (programmingPlanId: string) => {
       const plan = yearProgrammingPlans.find(
         (programmingPlan) => programmingPlan.id === programmingPlanId
       );
-      if (plan && hasUserPrescriptionPermission(plan)?.update) {
-        await updatePrescription({
-          prescriptionId,
-          programmingPlanId: plan.id,
-          ...prescriptionUpdate
-        }).unwrap();
-      }
+      return !!plan && hasUserPrescriptionPermission(plan)?.update === true;
     },
-    [yearProgrammingPlans, hasUserPrescriptionPermission, updatePrescription]
-  );
-
-  const changeLocalPrescription = useCallback(
-    async (
-      key: LocalPrescriptionKey,
-      prescriptionUpdate: LocalPrescriptionUpdate
-    ) => {
-      if (key.department) {
-        await updateDepartmentalLocalPrescription({
-          prescriptionId: key.prescriptionId,
-          region: key.region,
-          department: key.department,
-          ...prescriptionUpdate
-        }).unwrap();
-      } else {
-        await updateLocalPrescription({
-          prescriptionId: key.prescriptionId,
-          region: key.region,
-          ...prescriptionUpdate
-        }).unwrap();
-      }
-    },
-    [updateLocalPrescription, updateDepartmentalLocalPrescription]
+    [yearProgrammingPlans, hasUserPrescriptionPermission]
   );
 
   const changeLocalPrescriptionCount = useCallback(
@@ -717,7 +678,9 @@ const ProgrammingPrescriptionList = ({
 
       const localPrescriptionUpdates = [
         ...plainLocalChanges.map(({ key, sampleCount }) => ({
-          key,
+          prescriptionId: key.prescriptionId,
+          region: key.region,
+          department: key.department,
           update: {
             key: 'sampleCount' as const,
             sampleCount,
@@ -746,7 +709,9 @@ const ProgrammingPrescriptionList = ({
             })
           );
           return {
-            key: { prescriptionId, region, department },
+            prescriptionId,
+            region,
+            department,
             update: {
               key: 'slaughterhouseSampleCounts' as const,
               slaughterhouseSampleCounts,
@@ -756,7 +721,9 @@ const ProgrammingPrescriptionList = ({
         }),
         ...Array.from(pendingLaboratoryChanges.values()).map(
           ({ key, substanceKindsLaboratories }) => ({
-            key,
+            prescriptionId: key.prescriptionId,
+            region: key.region,
+            department: key.department,
             update: {
               key: 'laboratories' as const,
               substanceKindsLaboratories,
@@ -768,23 +735,20 @@ const ProgrammingPrescriptionList = ({
 
       const prescriptionUpdates = Array.from(
         pendingPrescriptionSampleCounts.entries()
-      ).map(([prescriptionId, sampleCount]) => ({
-        prescriptionId,
-        programmingPlanId: planIdForPrescriptionId(prescriptionId),
-        sampleCount
-      }));
+      )
+        .map(([prescriptionId, sampleCount]) => ({
+          prescriptionId,
+          programmingPlanId: planIdForPrescriptionId(prescriptionId),
+          sampleCount
+        }))
+        .filter(({ programmingPlanId }) =>
+          canUpdatePrescription(programmingPlanId)
+        );
 
-      await Promise.all([
-        ...localPrescriptionUpdates.map(({ key, update }) =>
-          changeLocalPrescription(key, update)
-        ),
-        ...prescriptionUpdates.map(
-          ({ prescriptionId, programmingPlanId, sampleCount }) =>
-            changePrescription(prescriptionId, programmingPlanId, {
-              sampleCount
-            })
-        )
-      ]);
+      await savePrescriptions({
+        prescriptionUpdates,
+        localPrescriptionUpdates
+      }).unwrap();
       await Promise.all([
         isPrescriptionsUninitialized ? undefined : refetchPrescriptions(),
         isLocalPrescriptionsUninitialized
@@ -810,8 +774,8 @@ const ProgrammingPrescriptionList = ({
     pendingLocalChanges,
     pendingLaboratoryChanges,
     pendingPrescriptionSampleCounts,
-    changeLocalPrescription,
-    changePrescription,
+    savePrescriptions,
+    canUpdatePrescription,
     getPlanForPrescriptionId,
     importedPlanIdByPrescriptionId,
     effectiveCompanies,

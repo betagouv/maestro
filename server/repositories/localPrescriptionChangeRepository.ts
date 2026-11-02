@@ -27,7 +27,7 @@ type LocalPrescriptionChangeDbo = z.infer<typeof LocalPrescriptionChangeDbo>;
 export const LocalPrescriptionChanges = (transaction = db) =>
   transaction<LocalPrescriptionChangeDbo>(localPrescriptionChangesTable);
 
-type LocalPrescriptionChangeInsert = Pick<
+export type LocalPrescriptionChangeInsert = Pick<
   LocalPrescriptionChange,
   | 'prescriptionId'
   | 'region'
@@ -87,10 +87,15 @@ const insert = async (change: LocalPrescriptionChangeInsert) => {
   await LocalPrescriptionChanges().insert(formatChange(change));
 };
 
-const insertMany = async (changes: LocalPrescriptionChangeInsert[]) => {
+const insertMany = async (
+  changes: LocalPrescriptionChangeInsert[],
+  transaction: Knex = db
+) => {
   console.info('Insert multiple local prescription changes');
   if (changes.length > 0) {
-    await LocalPrescriptionChanges().insert(changes.map(formatChange));
+    await LocalPrescriptionChanges(transaction).insert(
+      changes.map(formatChange)
+    );
   }
 };
 
@@ -135,6 +140,43 @@ const markViewed = async ({
   await LocalPrescriptionChanges()
     .where({ prescriptionId, region, kind })
     .andWhere('department', department ?? 'None')
+    .whereNotNull('diffusedAt')
+    .whereNull(columns.at)
+    .update({ [columns.at]: new Date(), [columns.by]: viewedBy });
+};
+
+const markManyViewedByKeys = async (
+  {
+    keys,
+    kind,
+    viewedBy,
+    audience
+  }: {
+    keys: {
+      prescriptionId: string;
+      region: Region;
+      department?: Department | null;
+    }[];
+    kind: LocalPrescriptionChangeKind;
+    viewedBy: string;
+    audience?: ChangeViewAudience;
+  },
+  transaction: Knex = db
+) => {
+  if (keys.length === 0) {
+    return;
+  }
+  const columns = viewedColumns(audience ?? 'Coordination');
+  await LocalPrescriptionChanges(transaction)
+    .where({ kind })
+    .whereIn(
+      ['prescriptionId', 'region', 'department'],
+      keys.map((key) => [
+        key.prescriptionId,
+        key.region,
+        key.department ?? 'None'
+      ])
+    )
     .whereNotNull('diffusedAt')
     .whereNull(columns.at)
     .update({ [columns.at]: new Date(), [columns.by]: viewedBy });
@@ -348,6 +390,7 @@ export default {
   insertMany,
   markViewed,
   markManyViewed,
+  markManyViewedByKeys,
   findLatestPending,
   findLastDiffused,
   findDiffusedUnapplied,
