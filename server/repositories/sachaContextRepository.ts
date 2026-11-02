@@ -1,10 +1,8 @@
-import { chunk, groupBy } from 'lodash-es';
+import { groupBy } from 'lodash-es';
 import type { SachaContextSigle } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SachaContext } from 'maestro-shared/schema/SachaContext/SachaContext';
 import { kysely } from './kysely';
 import type { KyselyMaestro } from './kysely.type';
-
-const insertChunkSize = 1000;
 
 const findUsable = async (
   sigle?: SachaContextSigle
@@ -55,24 +53,22 @@ const synchronize = async (
 ): Promise<void> => {
   const sigles = contexts.map(({ sigle }) => sigle);
 
-  for (const contextsChunk of chunk(contexts, insertChunkSize)) {
-    await trx
-      .insertInto('sachaContexts')
-      .values(
-        contextsChunk.map(({ sigle, libelle }) => ({
-          sigle,
-          libelle,
-          deprecated: false
-        }))
-      )
-      .onConflict((oc) =>
-        oc.column('sigle').doUpdateSet((eb) => ({
-          libelle: eb.ref('excluded.libelle'),
-          deprecated: false
-        }))
-      )
-      .execute();
-  }
+  await trx
+    .insertInto('sachaContexts')
+    .values(
+      contexts.map(({ sigle, libelle }) => ({
+        sigle,
+        libelle,
+        deprecated: false
+      }))
+    )
+    .onConflict((oc) =>
+      oc.column('sigle').doUpdateSet((eb) => ({
+        libelle: eb.ref('excluded.libelle'),
+        deprecated: false
+      }))
+    )
+    .execute();
 
   await trx
     .updateTable('sachaContexts')
@@ -89,10 +85,10 @@ const synchronize = async (
     }))
   );
 
-  for (const linesChunk of chunk(lines, insertChunkSize)) {
+  if (lines.length > 0) {
     await trx
       .insertInto('sachaContextCommemoratifs')
-      .values(linesChunk)
+      .values(lines)
       .onConflict((oc) =>
         oc.columns(['contextSigle', 'commemoratifSigle']).doUpdateSet((eb) => ({
           level: eb.ref('excluded.level'),
