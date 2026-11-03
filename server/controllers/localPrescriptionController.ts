@@ -3,17 +3,19 @@ import type { Department } from 'maestro-shared/referential/Department';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import {
   hasLocalPrescriptionPermission,
-  type LocalPrescription
+  type LocalPrescription,
+  type LocalPrescriptionUpdate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { previousSampleCountFor } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
 import type { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
-import { toLocalPrescriptionKeyString } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import { hasEverSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
-import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
+import {
+  type LocalPrescriptionKey,
+  toLocalPrescriptionKeyString
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import {
   companiesIsRequired,
+  type UserBase,
   userRegionsForRole
 } from 'maestro-shared/schema/User/User';
 import {
@@ -33,11 +35,10 @@ import localPrescriptionChangeRepository from '../repositories/localPrescription
 import localPrescriptionCommentRepository from '../repositories/localPrescriptionCommentRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import { matrixRepository } from '../repositories/matrixRepository';
-import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
-import { hasSampleWithSeveralLaboratories } from '../services/prescriptionSaveService';
+import { savePrescriptions } from '../services/prescriptionSaveService';
 
 export const withEffectiveLocalPrescriptionChanges = async (
   localPrescriptions: LocalPrescription[],
@@ -105,6 +106,46 @@ export const withEffectiveLocalPrescriptionChanges = async (
         localPrescription.substanceKindsLaboratories
     };
   });
+};
+
+const saveSingleLocalPrescription = async (
+  user: UserBase,
+  userRole: UserRole,
+  key: Omit<LocalPrescriptionKey, 'companySiret'>,
+  update: LocalPrescriptionUpdate
+): Promise<
+  | { status: typeof HttpStatus.OK; response: LocalPrescription }
+  | { status: typeof HttpStatus.FORBIDDEN | typeof HttpStatus.BAD_REQUEST }
+> => {
+  const result = await savePrescriptions({
+    user,
+    userRole,
+    prescriptionUpdates: [],
+    localPrescriptionUpdates: [{ ...key, update }]
+  });
+
+  if (result.status === HttpStatus.FORBIDDEN) {
+    return { status: HttpStatus.FORBIDDEN };
+  }
+  if (result.status === HttpStatus.BAD_REQUEST) {
+    return { status: HttpStatus.BAD_REQUEST };
+  }
+
+  const updatedLocalPrescription =
+    await localPrescriptionRepository.findUnique(key);
+
+  if (!updatedLocalPrescription) {
+    throw new Error('Local prescription not found after update');
+  }
+  if (update.key === 'sampleCount') {
+    updatedLocalPrescription.sampleCount = update.sampleCount;
+  }
+  if (update.key === 'laboratories') {
+    updatedLocalPrescription.substanceKindsLaboratories =
+      update.substanceKindsLaboratories;
+  }
+
+  return { status: HttpStatus.OK, response: updatedLocalPrescription };
 };
 
 export const localPrescriptionsRouter = {
@@ -275,127 +316,12 @@ export const localPrescriptionsRouter = {
         params.region
       );
 
-      const programmingPlan = await getAndCheckProgrammingPlan(
-        localPrescriptionUpdate.programmingPlanId
+      return saveSingleLocalPrescription(
+        user,
+        userRole,
+        { prescriptionId: params.prescriptionId, region: params.region },
+        localPrescriptionUpdate
       );
-      const { prescription } = await getAndCheckPrescription(
-        params.prescriptionId,
-        programmingPlan
-      );
-      const localPrescription = await getAndCheckLocalPrescription(params);
-
-      const canUpdateSampleCount =
-        hasLocalPrescriptionPermission(
-          user,
-          userRole,
-          programmingPlan,
-          localPrescription
-        ).updateSampleCount && localPrescriptionUpdate.key === 'sampleCount';
-
-      const canUpdateLaboratories =
-        hasLocalPrescriptionPermission(
-          user,
-          userRole,
-          programmingPlan,
-          localPrescription
-        ).updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
-
-      if (!canUpdateSampleCount && !canUpdateLaboratories) {
-        return { status: HttpStatus.FORBIDDEN };
-      }
-
-      if (
-        localPrescriptionUpdate.key === 'laboratories' &&
-        canUpdateLaboratories &&
-        hasSampleWithSeveralLaboratories(
-          programmingPlan,
-          prescription,
-          localPrescriptionUpdate.substanceKindsLaboratories
-        )
-      ) {
-        return { status: HttpStatus.BAD_REQUEST };
-      }
-
-      if (canUpdateSampleCount) {
-        const lastDiffused =
-          await localPrescriptionChangeRepository.findLastDiffused({
-            prescriptionIds: [localPrescription.prescriptionId],
-            region: localPrescription.region,
-            department: 'None',
-            companySiret: 'None'
-          });
-        await localPrescriptionChangeRepository.insert({
-          prescriptionId: localPrescription.prescriptionId,
-          region: localPrescription.region,
-          echelon: 'National',
-          kind: 'sampleCount',
-          sampleCount: localPrescriptionUpdate.sampleCount,
-          previousSampleCount: previousSampleCountFor(
-            localPrescription,
-            lastDiffused,
-            hasEverSentOnward(
-              'National',
-              programmingPlan.distributionKind,
-              programmingPlan.nationalStatus
-            )
-              ? localPrescription.sampleCount
-              : null
-          ),
-          changedAt: new Date()
-        });
-      }
-
-      if (canUpdateLaboratories) {
-        await localPrescriptionChangeRepository.insert({
-          prescriptionId: localPrescription.prescriptionId,
-          region: localPrescription.region,
-          echelon: editingEchelonForRole(userRole) as ProgrammingPlanEchelon,
-          kind: 'laboratories',
-          substanceKindsLaboratories:
-            localPrescriptionUpdate.substanceKindsLaboratories,
-          previousSampleCount: null,
-          changedAt: new Date()
-        });
-        await localPrescriptionChangeRepository.markViewed({
-          prescriptionId: localPrescription.prescriptionId,
-          region: localPrescription.region,
-          kind: 'laboratories',
-          viewedBy: user.id,
-          audience: changeViewAudienceForRole(userRole)
-        });
-        await localPrescriptionChangeRepository.markViewed({
-          prescriptionId: localPrescription.prescriptionId,
-          region: localPrescription.region,
-          kind: 'sampleCount',
-          viewedBy: user.id,
-          audience: changeViewAudienceForRole(userRole)
-        });
-      }
-
-      if (canUpdateSampleCount || canUpdateLaboratories) {
-        await programmingPlanRepository.touchLocalStatus(programmingPlan.id, {
-          region: params.region
-        });
-      }
-
-      const updatedLocalPrescription =
-        await localPrescriptionRepository.findUnique(params);
-
-      if (!updatedLocalPrescription) {
-        throw new Error('Local prescription not found after update');
-      }
-      if (canUpdateSampleCount) {
-        updatedLocalPrescription.sampleCount =
-          localPrescriptionUpdate.sampleCount;
-      }
-      if (canUpdateLaboratories) {
-        updatedLocalPrescription.substanceKindsLaboratories =
-          localPrescriptionUpdate.substanceKindsLaboratories;
-      }
-      return {
-        status: HttpStatus.OK,
-        response: updatedLocalPrescription
-      };
     }
   },
   '/prescriptions/:prescriptionId/regions/:region/departments/:department': {
@@ -408,219 +334,16 @@ export const localPrescriptionsRouter = {
         localPrescriptionUpdate
       );
 
-      const programmingPlan = await getAndCheckProgrammingPlan(
-        localPrescriptionUpdate.programmingPlanId
-      );
-      const { prescription } = await getAndCheckPrescription(
-        params.prescriptionId,
-        programmingPlan
-      );
-      const localPrescription = await getAndCheckLocalPrescription(params);
-
-      // TODO: check department belongs to user region?
-
-      const canDistributeToDepartments =
-        hasLocalPrescriptionPermission(
-          user,
-          userRole,
-          programmingPlan,
-          localPrescription
-        ).distributeToDepartments &&
-        localPrescriptionUpdate.key === 'sampleCount';
-
-      const canUpdateLaboratories =
-        hasLocalPrescriptionPermission(
-          user,
-          userRole,
-          programmingPlan,
-          localPrescription
-        ).updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
-
-      const canDistributePrescriptionToSlaughterhouses =
-        hasLocalPrescriptionPermission(
-          user,
-          userRole,
-          programmingPlan,
-          localPrescription
-        ).distributeToSlaughterhouses &&
-        localPrescriptionUpdate.key === 'slaughterhouseSampleCounts';
-
-      if (
-        !canDistributeToDepartments &&
-        !canUpdateLaboratories &&
-        !canDistributePrescriptionToSlaughterhouses
-      ) {
-        return { status: HttpStatus.FORBIDDEN };
-      }
-
-      if (
-        localPrescriptionUpdate.key === 'laboratories' &&
-        canUpdateLaboratories &&
-        hasSampleWithSeveralLaboratories(
-          programmingPlan,
-          prescription,
-          localPrescriptionUpdate.substanceKindsLaboratories
-        )
-      ) {
-        return { status: HttpStatus.BAD_REQUEST };
-      }
-
-      if (canDistributeToDepartments) {
-        const lastDiffused =
-          await localPrescriptionChangeRepository.findLastDiffused({
-            prescriptionIds: [localPrescription.prescriptionId],
-            region: localPrescription.region,
-            department: params.department,
-            companySiret: 'None'
-          });
-        await localPrescriptionChangeRepository.insert({
-          prescriptionId: localPrescription.prescriptionId,
-          region: localPrescription.region,
-          department: params.department,
-          echelon: 'Regional',
-          kind: 'sampleCount',
-          sampleCount: localPrescriptionUpdate.sampleCount,
-          previousSampleCount: previousSampleCountFor(
-            localPrescription,
-            lastDiffused,
-            hasEverSentOnward(
-              'Regional',
-              programmingPlan.distributionKind,
-              programmingPlan.regionalStatus.find(
-                (_) => _.region === params.region
-              )
-            )
-              ? localPrescription.sampleCount
-              : null
-          ),
-          changedAt: new Date()
-        });
-      }
-
-      if (canUpdateLaboratories) {
-        await localPrescriptionChangeRepository.insert({
-          prescriptionId: localPrescription.prescriptionId,
-          region: localPrescription.region,
-          department: params.department,
-          echelon: editingEchelonForRole(userRole) as ProgrammingPlanEchelon,
-          kind: 'laboratories',
-          substanceKindsLaboratories:
-            localPrescriptionUpdate.substanceKindsLaboratories,
-          previousSampleCount: null,
-          changedAt: new Date()
-        });
-      }
-
-      if (canDistributePrescriptionToSlaughterhouses) {
-        const lastDiffused =
-          await localPrescriptionChangeRepository.findLastDiffused({
-            prescriptionIds: [localPrescription.prescriptionId],
-            region: localPrescription.region,
-            department: params.department
-          });
-
-        const companyLocalPrescriptions =
-          await localPrescriptionRepository.findMany({
-            prescriptionId: localPrescription.prescriptionId,
-            region: localPrescription.region,
-            department: params.department,
-            companySirets: localPrescriptionUpdate.slaughterhouseSampleCounts
-              .map((_) => _.companySiret)
-              .filter((siret) => !isNil(siret))
-          });
-
-        await localPrescriptionChangeRepository.insertMany(
-          localPrescriptionUpdate.slaughterhouseSampleCounts.map(
-            (slaughterhouse) => ({
-              prescriptionId: localPrescription.prescriptionId,
-              region: localPrescription.region,
-              department: params.department,
-              companySiret: slaughterhouse.companySiret,
-              echelon: 'Departmental',
-              kind: 'sampleCount',
-              sampleCount: slaughterhouse.sampleCount,
-              previousSampleCount: previousSampleCountFor(
-                {
-                  prescriptionId: localPrescription.prescriptionId,
-                  region: localPrescription.region,
-                  department: params.department,
-                  companySiret: slaughterhouse.companySiret
-                },
-                lastDiffused,
-                companyLocalPrescriptions.find(
-                  (_) => _.companySiret === slaughterhouse.companySiret
-                )?.sampleCount ?? 0
-              ),
-              changedAt: new Date()
-            })
-          )
-        );
-      }
-
-      if (
-        canDistributeToDepartments ||
-        canUpdateLaboratories ||
-        canDistributePrescriptionToSlaughterhouses
-      ) {
-        await programmingPlanRepository.touchLocalStatus(programmingPlan.id, {
+      return saveSingleLocalPrescription(
+        user,
+        userRole,
+        {
+          prescriptionId: params.prescriptionId,
           region: params.region,
           department: params.department
-        });
-      }
-
-      if (
-        canDistributeToDepartments ||
-        canDistributePrescriptionToSlaughterhouses
-      ) {
-        await localPrescriptionChangeRepository.markViewed({
-          prescriptionId: params.prescriptionId,
-          region: params.region,
-          department: params.department,
-          kind: 'sampleCount',
-          viewedBy: user.id,
-          audience: changeViewAudienceForRole(userRole)
-        });
-      }
-
-      if (canDistributeToDepartments) {
-        await localPrescriptionChangeRepository.markViewed({
-          prescriptionId: params.prescriptionId,
-          region: params.region,
-          kind: 'sampleCount',
-          viewedBy: user.id,
-          audience: changeViewAudienceForRole(userRole)
-        });
-      }
-
-      if (canUpdateLaboratories) {
-        await localPrescriptionChangeRepository.markViewed({
-          prescriptionId: params.prescriptionId,
-          region: params.region,
-          department: params.department,
-          kind: 'laboratories',
-          viewedBy: user.id,
-          audience: changeViewAudienceForRole(userRole)
-        });
-      }
-
-      const updatedLocalPrescription =
-        await localPrescriptionRepository.findUnique(params);
-
-      if (!updatedLocalPrescription) {
-        throw new Error('Local prescription not found after update');
-      }
-      if (canDistributeToDepartments) {
-        updatedLocalPrescription.sampleCount =
-          localPrescriptionUpdate.sampleCount;
-      }
-      if (canUpdateLaboratories) {
-        updatedLocalPrescription.substanceKindsLaboratories =
-          localPrescriptionUpdate.substanceKindsLaboratories;
-      }
-      return {
-        status: HttpStatus.OK,
-        response: updatedLocalPrescription
-      };
+        },
+        localPrescriptionUpdate
+      );
     }
   },
   '/prescriptions/:prescriptionId/regions/:region/departments/:department/companies/:companySiret':

@@ -535,37 +535,6 @@ const touchNationalLastModifiedAt = async (
     .update({ lastModifiedAt });
 };
 
-const touchLocalStatus = async (
-  programmingPlanId: string,
-  scope: { region?: Region; department?: Department } = {}
-): Promise<void> => {
-  console.info('Touch programming plan local status', programmingPlanId, scope);
-  const lastModifiedAt = new Date();
-  await ProgrammingPlanLocalStatus()
-    .where({ programmingPlanId })
-    .modify((builder) => {
-      if (scope.region) {
-        builder.andWhere('region', scope.region);
-      }
-      if (scope.department) {
-        builder.andWhere('department', scope.department);
-      }
-    })
-    .update({ lastModifiedAt });
-
-  if (scope.region && scope.department) {
-    await ProgrammingPlanLocalStatus()
-      .where({ programmingPlanId, region: scope.region, department: 'None' })
-      .update({ lastModifiedAt });
-  }
-
-  if (scope.region) {
-    await ProgrammingPlanLocalStatus()
-      .where({ programmingPlanId, region: 'None', department: 'None' })
-      .update({ lastModifiedAt });
-  }
-};
-
 const touchLocalStatuses = async (
   scopes: {
     programmingPlanId: string;
@@ -623,7 +592,6 @@ export default {
   updateLocalStatus,
   deleteOne,
   updateNationalStatus,
-  touchLocalStatus,
   touchLocalStatuses,
   touchNationalLastModifiedAt,
   touchNationalSentAt,

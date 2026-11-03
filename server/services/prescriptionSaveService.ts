@@ -54,7 +54,7 @@ type PrescriptionSaveStatus =
   | { status: typeof HttpStatus.OK; response: PrescriptionSaveResult }
   | { status: typeof HttpStatus.FORBIDDEN | typeof HttpStatus.BAD_REQUEST };
 
-export const hasSampleWithSeveralLaboratories = (
+const hasSampleWithSeveralLaboratories = (
   programmingPlan: ProgrammingPlanChecked,
   prescription: Pick<Prescription, 'programmingSubPlanId'>,
   substanceKindsLaboratories: SubstanceKindLaboratory[]

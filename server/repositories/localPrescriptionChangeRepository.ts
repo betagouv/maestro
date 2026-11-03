@@ -83,11 +83,6 @@ const parseChange = (
     : null
 });
 
-const insert = async (change: LocalPrescriptionChangeInsert) => {
-  console.info('Insert local prescription change', change);
-  await LocalPrescriptionChanges().insert(formatChange(change));
-};
-
 const insertMany = async (
   changes: LocalPrescriptionChangeInsert[],
   transaction: Knex = db
@@ -120,30 +115,6 @@ export const viewedColumns = (audience: ChangeViewAudience) => {
     default:
       return { at: 'changesViewedAt', by: 'changesViewedBy' } as const;
   }
-};
-
-const markViewed = async ({
-  prescriptionId,
-  region,
-  department,
-  kind,
-  viewedBy,
-  audience
-}: {
-  prescriptionId: string;
-  region: Region;
-  department?: Department | null;
-  kind: LocalPrescriptionChangeKind;
-  viewedBy: string;
-  audience?: ChangeViewAudience;
-}) => {
-  const columns = viewedColumns(audience ?? 'Coordination');
-  await LocalPrescriptionChanges()
-    .where({ prescriptionId, region, kind })
-    .andWhere('department', department ?? 'None')
-    .whereNotNull('diffusedAt')
-    .whereNull(columns.at)
-    .update({ [columns.at]: new Date(), [columns.by]: viewedBy });
 };
 
 const markManyViewedByKeys = async (
@@ -383,9 +354,7 @@ const existsPendingForScope = async (
 };
 
 export default {
-  insert,
   insertMany,
-  markViewed,
   markManyViewed,
   markManyViewedByKeys,
   findLatestPending,
