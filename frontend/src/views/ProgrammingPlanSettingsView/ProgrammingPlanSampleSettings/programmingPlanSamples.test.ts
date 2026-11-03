@@ -3,11 +3,16 @@ import {
   ProgrammingPlanSampleMaxCount,
   type ProgrammingPlanSampleSetting
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
+import {
+  emptyProgrammingPlanSettings,
+  type ProgrammingPlanSettings
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import { describe, expect, test } from 'vitest';
 import {
   addProgrammingPlanSample,
   toggleSampleSubstanceKind,
-  unassignedSubstanceKinds
+  unassignedSubstanceKinds,
+  withSingleSubstanceKindSample
 } from './programmingPlanSamples';
 
 describe('addProgrammingPlanSample', () => {
@@ -112,5 +117,61 @@ describe('toggleSampleSubstanceKind', () => {
         'Mono'
       )
     ).toStrictEqual([sample('Copper'), sample('Multi', 'Mono'), sample()]);
+  });
+});
+
+describe('withSingleSubstanceKindSample', () => {
+  const sample = (
+    ...substanceKinds: ProgrammingPlanSampleSetting['substanceKinds']
+  ): ProgrammingPlanSampleSetting => ({
+    ...defaultProgrammingPlanSample,
+    substanceKinds
+  });
+
+  const settings = (
+    substanceKinds: ProgrammingPlanSettings['substanceKinds'],
+    samples: ProgrammingPlanSettings['samples'],
+    samplesManaged = true
+  ): ProgrammingPlanSettings => ({
+    ...emptyProgrammingPlanSettings(true),
+    substanceKinds,
+    samples,
+    samplesManaged
+  });
+
+  test('should assign the single analyte to a default sample when there is no sample', () => {
+    expect(
+      withSingleSubstanceKindSample(settings(['Copper'], null))
+    ).toStrictEqual(settings(['Copper'], [sample('Copper')]));
+  });
+
+  test('should add the single analyte to the first sample when no sample has it', () => {
+    expect(
+      withSingleSubstanceKindSample(
+        settings(['Mono'], [sample('Multi'), sample()])
+      )
+    ).toStrictEqual(settings(['Mono'], [sample('Multi', 'Mono'), sample()]));
+  });
+
+  test('should not change the samples when a sample already has the single analyte', () => {
+    const current = settings(['Mono'], [sample(), sample('Mono')]);
+
+    expect(withSingleSubstanceKindSample(current)).toBe(current);
+  });
+
+  test('should not change the samples when they are not managed at this level', () => {
+    const current = settings(['Mono'], null, false);
+
+    expect(withSingleSubstanceKindSample(current)).toBe(current);
+  });
+
+  test('should not change the samples without exactly one analyte', () => {
+    const withoutAnalyte = settings([], [sample()]);
+    const withTwoAnalytes = settings(['Mono', 'Multi'], [sample('Mono')]);
+
+    expect(withSingleSubstanceKindSample(withoutAnalyte)).toBe(withoutAnalyte);
+    expect(withSingleSubstanceKindSample(withTwoAnalytes)).toBe(
+      withTwoAnalytes
+    );
   });
 });
