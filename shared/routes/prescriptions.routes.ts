@@ -23,6 +23,10 @@ import {
   PrescriptionImportFile,
   PrescriptionImportResult
 } from '../schema/Prescription/PrescriptionImport';
+import {
+  PrescriptionSaveRequest,
+  PrescriptionSaveResult
+} from '../schema/Prescription/PrescriptionSave';
 import type { SubRoutes } from './routes';
 
 export const prescriptionsRoutes = {
@@ -60,6 +64,19 @@ export const prescriptionsRoutes = {
         'distributePrescriptionToSlaughterhouses'
       ],
       response: PrescriptionImportResult
+    }
+  },
+  '/prescriptions/save': {
+    params: undefined,
+    put: {
+      body: PrescriptionSaveRequest,
+      permissions: [
+        'updatePrescription',
+        'distributePrescriptionToDepartments',
+        'distributePrescriptionToSlaughterhouses',
+        'updatePrescriptionLaboratories'
+      ],
+      response: PrescriptionSaveResult
     }
   },
   '/prescriptions/regions': {

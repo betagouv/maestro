@@ -38,6 +38,18 @@ const prescriptionApi = api.injectEndpoints({
           { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
+    ),
+    savePrescriptions: buildTypedMutation(
+      builder,
+      '/prescriptions/save',
+      'put',
+      {
+        invalidatesTags: [
+          { type: 'Prescription', id: 'LIST' },
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'ProgrammingPlan', id: 'LIST' }
+        ]
+      }
     )
   })
 });
@@ -47,5 +59,6 @@ export const {
   useLazyFindPrescriptionsQuery,
   useFindPrescriptionCountsQuery,
   useImportPrescriptionsMutation,
-  useUpdatePrescriptionMutation
+  useUpdatePrescriptionMutation,
+  useSavePrescriptionsMutation
 } = prescriptionApi;

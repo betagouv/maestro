@@ -423,6 +423,34 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
   };
 };
 
+const findManyByKeys = async (
+  keys: LocalPrescriptionKey[]
+): Promise<LocalPrescription[]> => {
+  console.info('Find local prescriptions by keys', keys.length);
+  if (keys.length === 0) {
+    return [];
+  }
+  return LocalPrescriptions()
+    .select(`${localPrescriptionsTable}.*`)
+    .whereIn(
+      [
+        `${localPrescriptionsTable}.prescription_id`,
+        `${localPrescriptionsTable}.region`,
+        `${localPrescriptionsTable}.department`,
+        `${localPrescriptionsTable}.company_siret`
+      ],
+      keys.map((key) => [
+        key.prescriptionId,
+        key.region,
+        key.department ?? 'None',
+        key.companySiret ?? 'None'
+      ])
+    )
+    .then((localPrescriptions) =>
+      localPrescriptions.map(parseLocalPrescription)
+    );
+};
+
 const insertMany = async (localPrescriptions: LocalPrescription[]) => {
   console.info('Insert multiple local prescriptions');
   if (localPrescriptions.length > 0) {
@@ -518,6 +546,7 @@ const parseLocalPrescription = (
 export default {
   findUnique,
   findMany,
+  findManyByKeys,
   insertMany,
   update,
   updateMany

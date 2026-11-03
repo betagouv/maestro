@@ -10,6 +10,7 @@ import { ProgrammingPlanDomainId } from '../ProgrammingPlan/ProgrammingPlanDomai
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 
 export const FindPrescriptionOptions = z.object({
+  ids: z.array(z.guid()).nullish(),
   programmingPlanId: z.guid().nullish(),
   programmingPlanIds: z.array(z.guid()).min(1).nullish(),
   year: z.number().int().nullish(),

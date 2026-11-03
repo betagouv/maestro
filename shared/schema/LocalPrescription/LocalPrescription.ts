@@ -63,18 +63,15 @@ export const LocalPrescriptionUpdate = z.discriminatedUnion('key', [
     key: z.literal('sampleCount'),
     ...LocalPrescription.pick({
       sampleCount: true
-    }).shape,
-    programmingPlanId: z.guid()
+    }).shape
   }),
   z.object({
     key: z.literal('laboratories'),
-    substanceKindsLaboratories: z.array(SubstanceKindLaboratory),
-    programmingPlanId: z.guid()
+    substanceKindsLaboratories: z.array(SubstanceKindLaboratory)
   }),
   z.object({
     key: z.literal('slaughterhouseSampleCounts'),
-    slaughterhouseSampleCounts: SlaughterhouseSampleCounts,
-    programmingPlanId: z.guid()
+    slaughterhouseSampleCounts: SlaughterhouseSampleCounts
   })
 ]);
 

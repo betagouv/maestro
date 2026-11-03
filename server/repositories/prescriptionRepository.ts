@@ -462,6 +462,9 @@ const buildFindQuery = (
       `${prescriptionsTable}.programming_sub_plan_id`
     )
     .modify((builder) => {
+      if (findOptions.ids) {
+        builder.whereIn(`${prescriptionsTable}.id`, findOptions.ids);
+      }
       if (findOptions.programmingPlanId) {
         builder.where(programmingPlanIdColumn, findOptions.programmingPlanId);
       }
