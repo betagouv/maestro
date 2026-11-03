@@ -20,7 +20,6 @@ const appRoutePaths = {
   LogoutCallbackRoute: '/logout-callback',
   AdminRoute: '/admin/:section/:itemId?',
   UsersRoute: '/utilisateurs',
-  LaboratoryAnalyticalCompetencesRoute: '/competences-analytiques',
   LaboratoryAgreementsRoute: '/laboratoires/agrements',
   ProgrammingPlanSettingsRoute: '/parametrage-des-plans',
   ProgrammingPlanSettingsDomainRoute:

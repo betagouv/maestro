@@ -43,8 +43,6 @@ export const UserPermission = z.enum([
   'performAnalysis',
   'readAnalysis',
   'viewDashboard',
-  'readLaboratoryCompetences',
-  'manageLaboratoryCompetences',
   'manageLaboratoryAgreements'
 ]);
 

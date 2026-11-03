@@ -1,4 +1,3 @@
-import type { ResidueKind } from '../../schema/Analysis/Residue/ResidueKind';
 import type { SSD2Id } from './SSD2Id';
 
 export const SSD2Hierarchy: { [reference in SSD2Id]?: SSD2Id[] } =
@@ -327,6 +326,3 @@ export const getAnalytes = (ssd2Id: SSD2Id): Set<SSD2Id> => {
 };
 
 export const isComplex = (ssd2Id: SSD2Id): boolean => ssd2Id in SSD2Hierarchy;
-
-export const getResidueKind = (ssd2Id: SSD2Id): ResidueKind =>
-  isComplex(ssd2Id) ? 'Complex' : 'Simple';

@@ -81,11 +81,6 @@ export const AuthenticatedAppRoutes = {
     ...AppRouteLinks.UsersRoute,
     key: 'users_route'
   },
-  LaboratoryAnalyticalCompetencesRoute: {
-    ...AppRouteLinks.LaboratoryAnalyticalCompetencesRoute,
-    label: 'Compétences analytiques',
-    key: 'laboratory_analytical_competences_route'
-  },
   LaboratoryAgreementsRoute: {
     ...AppRouteLinks.LaboratoryAgreementsRoute,
     label: 'Agréments laboratoires',

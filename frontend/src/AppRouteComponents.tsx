@@ -6,7 +6,6 @@ import DocumentListView from './views/DocumentListView/DocumentListView';
 import DocumentView from './views/DocumentView/DocumentView';
 import HomeView from './views/HomeView/HomeView';
 import { LaboratoryAgreementsView } from './views/LaboratoryAgreementsView/LaboratoryAgreementsView';
-import LaboratoryAnalyticalCompetencesView from './views/LaboratoryAnalyticalCompetencesView/LaboratoryAnalyticalCompetencesView';
 import { LoginCallbackView } from './views/LoginCallbackView/LoginCallbackView';
 import { LogoutCallbackView } from './views/LogoutCallbackView/LogoutCallbackView';
 import NotificationsView from './views/NotificationsView/NotificationsView';
@@ -35,7 +34,6 @@ export const AppRouteComponents = {
   LoginCallbackRoute: LoginCallbackView,
   AdminRoute: AdminView,
   UsersRoute: UserListView,
-  LaboratoryAnalyticalCompetencesRoute: LaboratoryAnalyticalCompetencesView,
   LaboratoryAgreementsRoute: LaboratoryAgreementsView,
   ProgrammingPlanSettingsRoute: ProgrammingPlanSettingsView,
   ProgrammingPlanSettingsDomainRoute: ProgrammingPlanDomainView,

@@ -138,7 +138,6 @@ const defaultMockApiClientConf: MockApi = {
   useCreateResourceDocumentMutation: [fn(), {}],
   useCreateDocumentUploadMutation: [fn(), {}],
   useCreateSampleDocumentMutation: [fn(), {}],
-  useCreateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useCreateOrUpdateSampleMutation: [fn(), { isLoading: false }],
   useCreateProgrammingPlanMutation: [fn(), {}],
   useCreateProgrammingPlanDomainMutation: [fn(), {}],
@@ -229,7 +228,6 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateLaboratoryConfigMutation: [fn(), {}],
   useGetLocalPrescriptionByCompanyQuery: { data: genLocalPrescription() },
   useGetLocalPrescriptionQuery: { data: genLocalPrescription() },
-  useGetLaboratoryAnalyticalCompetencesQuery: { data: [] },
   useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
   useGetRegionsGeoJsonQuery: {
     data: JSON.parse(JSON.stringify(regionsJson))
@@ -298,7 +296,6 @@ const defaultMockApiClientConf: MockApi = {
       fields: []
     }
   },
-  useUpdateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useFindLaboratoryResidueMappingsQuery: { data: [] },
   useUpdateLaboratoryResidueMappingMutation: [fn(), {}],
   useUpdateDepartmentalLocalPrescriptionMutation: [fn(), {}],

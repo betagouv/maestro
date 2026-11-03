@@ -10,10 +10,7 @@ import {
   type PrescriptionPermission
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  isPPVSubPlan,
-  type ProgrammingSubPlan
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   hasSamplePermission,
   type SampleChecked,
@@ -145,11 +142,6 @@ export const useAuthentication = () => {
           hasAccountPermission('administrationMaestro') ||
           hasAccountPermission('readSpecificDataFields')
             ? 'AdminRoute'
-            : undefined,
-          (hasUserPermission('readLaboratoryCompetences') ||
-            hasUserPermission('manageLaboratoryCompetences')) &&
-          authUser?.user.programmingSubPlans?.some((_) => isPPVSubPlan(_))
-            ? 'LaboratoryAnalyticalCompetencesRoute'
             : undefined,
           hasUserPermission('manageLaboratoryAgreements')
             ? 'LaboratoryAgreementsRoute'
