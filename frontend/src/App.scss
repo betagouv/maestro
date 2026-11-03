@@ -457,3 +457,75 @@ h6,
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+// Indeterminate state copied from DSFR 1.15 (react-dsfr still ships DSFR 1.14.2): remove once react-dsfr ships DSFR >= 1.15.
+.checkbox-indeterminate input[type="checkbox"]:indeterminate + label::before {
+  background-color: var(--background-active-blue-france);
+  background-image:
+    radial-gradient(
+      at 5px 4px,
+      transparent 4px,
+      var(--border-active-blue-france) 4px,
+      var(--border-active-blue-france) 5px,
+      transparent 6px
+    ),
+    linear-gradient(
+      var(--border-active-blue-france),
+      var(--border-active-blue-france)
+    ),
+    radial-gradient(
+      at calc(100% - 5px) 4px,
+      transparent 4px,
+      var(--border-active-blue-france) 4px,
+      var(--border-active-blue-france) 5px,
+      transparent 6px
+    ),
+    linear-gradient(
+      var(--border-active-blue-france),
+      var(--border-active-blue-france)
+    ),
+    radial-gradient(
+      at calc(100% - 5px) calc(100% - 4px),
+      transparent 4px,
+      var(--border-active-blue-france) 4px,
+      var(--border-active-blue-france) 5px,
+      transparent 6px
+    ),
+    linear-gradient(
+      var(--border-active-blue-france),
+      var(--border-active-blue-france)
+    ),
+    radial-gradient(
+      at 5px calc(100% - 4px),
+      transparent 4px,
+      var(--border-active-blue-france) 4px,
+      var(--border-active-blue-france) 5px,
+      transparent 6px
+    ),
+    linear-gradient(
+      var(--border-active-blue-france),
+      var(--border-active-blue-france)
+    ),
+    var(--data-uri-svg);
+  --data-uri-svg: url(
+    "data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23f5f5fe' d='M5 11h14v2H5v-2Z'/></svg>"
+  );
+}
+
+.checkbox-list-compact.fr-fieldset .fr-fieldset__content .fr-checkbox-group {
+  &:first-child {
+    margin-top: -0.25rem;
+  }
+
+  input[type="checkbox"] {
+    margin-top: 0.25rem;
+  }
+
+  label {
+    padding: 0.25rem 0;
+
+    &::before {
+      top: 0.25rem;
+    }
+  }
+}
