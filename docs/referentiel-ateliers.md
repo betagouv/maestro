@@ -46,16 +46,16 @@ liste proposée au préleveur — d'où un libellé verbeux, assumé.
 
 `sachaDAI.ts` alimente `ReferenceEtablissementType` depuis ces colonnes :
 
-| Balise | Colonne |
-|---|---|
-| `ReferenceEtablissement/SigleIdentifiant` | `type_ident_eta` |
-| `ReferenceEtablissement/Identifiant` | `eta_id` |
-| `ReferenceEtablissement/Nom` | `eta_lb` |
-| `Adresse1` | `adr_ligne1` |
-| `CodePostal` | `cp_etab` + `commune_etab` |
-| `ReferenceAtelier/SigleIdentifiant` | `ide_lb` |
-| `ReferenceAtelier/Identifiant` | `ate_identifiant` |
-| `ReferenceAtelier/Nom` | `ate_lb` |
+| Balise                                    | Colonne                    |
+| ----------------------------------------- | -------------------------- |
+| `ReferenceEtablissement/SigleIdentifiant` | `type_ident_eta`           |
+| `ReferenceEtablissement/Identifiant`      | `eta_id`                   |
+| `ReferenceEtablissement/Nom`              | `eta_lb`                   |
+| `Adresse1`                                | `adr_ligne1`               |
+| `CodePostal`                              | `cp_etab` + `commune_etab` |
+| `ReferenceAtelier/SigleIdentifiant`       | `ide_lb`                   |
+| `ReferenceAtelier/Identifiant`            | `ate_identifiant`          |
+| `ReferenceAtelier/Nom`                    | `ate_lb`                   |
 
 `Adresse2`, `Telephone` et `Pays` restent vides : l'import n'en fournit pas la
 source.
