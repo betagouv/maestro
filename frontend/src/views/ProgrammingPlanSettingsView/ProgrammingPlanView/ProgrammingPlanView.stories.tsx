@@ -2115,6 +2115,44 @@ export const SubPlanManagedField: Story = {
   }
 };
 
+export const SubPlanManagedFieldRelockRestoresPlanValues: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        AnimauxSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(
+      canvas.getByRole('tab', { name: 'Formulaire préleveur' })
+    );
+
+    const fieldItem = () =>
+      within(
+        canvas
+          .getByTitle('Retirer')
+          .closest('.programming-sub-plan-field-item') as HTMLElement
+      );
+    const resetButton = () =>
+      canvas.queryByRole('button', { name: 'Réinitialiser les modifications' });
+
+    await userEvent.click(fieldItem().getByTitle('Hérité du plan'));
+    await userEvent.click(fieldItem().getByLabelText('Obligatoire'));
+    await expect(fieldItem().getByLabelText('Obligatoire')).not.toBeChecked();
+    await expect(resetButton()).toBeEnabled();
+
+    await userEvent.click(fieldItem().getByTitle('Piloté par le sous-plan'));
+
+    await expect(fieldItem().getByTitle('Hérité du plan')).toBeInTheDocument();
+    await expect(fieldItem().getByLabelText('Obligatoire')).toBeChecked();
+    await expect(resetButton()).not.toBeInTheDocument();
+  }
+};
+
 export const PlanNationalCoordinators: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

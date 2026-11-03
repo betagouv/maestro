@@ -1,6 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type {
   AdminFieldConfig,
+  ProgrammingPlanFieldSetting,
   ProgrammingSubPlanFieldSetting
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { assert, type Equals } from 'tsafe';
@@ -11,6 +12,7 @@ interface Props {
   locked: boolean;
   onChange: (fields: ProgrammingSubPlanFieldSetting[]) => void;
   allFields: AdminFieldConfig[];
+  planFields: ProgrammingPlanFieldSetting[];
 }
 
 export const ProgrammingSubPlanFieldList = ({
@@ -18,6 +20,7 @@ export const ProgrammingSubPlanFieldList = ({
   locked,
   onChange,
   allFields,
+  planFields,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -65,6 +68,9 @@ export const ProgrammingSubPlanFieldList = ({
             key={field.fieldId}
             field={field}
             globalField={globalField}
+            planField={planFields.find(
+              ({ fieldId }) => fieldId === field.fieldId
+            )}
             locked={locked}
             canMoveUp={i > 0 && !visibleFields[i - 1].field.managedAtPlanLevel}
             canMoveDown={i < visibleFields.length - 1}
