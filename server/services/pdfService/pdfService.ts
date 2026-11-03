@@ -338,7 +338,7 @@ const generateSamplePDF = async (
     programmingPlan.domainId
   );
 
-  const planLabel = `${subPlanNumber} / ${domain?.label ?? ''} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan ? subPlanLabel(matrixReferential, subPlan) : ''}`;
+  const planLabel = `${domain?.label ?? ''} / ${subPlanNumber}${subPlan ? ` - ${subPlanLabel(matrixReferential, subPlan)}` : ''}`;
 
   const companyWorkshops = sample.company?.siret
     ? await companyWorkshopRepository.findMany(sample.company.siret)
