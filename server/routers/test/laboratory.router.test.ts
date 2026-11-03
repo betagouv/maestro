@@ -10,11 +10,7 @@ import {
   DAOALaboratoryAgreementFixture,
   LaboratoryAgreementCheckFixture
 } from 'maestro-shared/test/laboratoryAgreementFixtures';
-import {
-  genLaboratoryAnalyticalCompetence,
-  Laboratory1AnalyticalCompetenceFixture1,
-  LaboratoryFixture
-} from 'maestro-shared/test/laboratoryFixtures';
+import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
   PPVValidatedProgrammingPlanFixture,
   PPVValidatedSubPlanId
@@ -358,77 +354,6 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
     });
   });
 
-  describe('GET /laboratories/:laboratoryId/analytical-competences', () => {
-    const testRoute = (laboratoryId: string) =>
-      `/api/laboratories/${laboratoryId}/analytical-competences`;
-
-    test('should fail if the user is not authenticated', async () => {
-      await request(app)
-        .get(testRoute(LaboratoryFixture.id))
-        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    test('should fail if the user does not have the permission to read laboratory competences', async () => {
-      const forbiddenRequestTest = async (user: UserRefined) =>
-        request(app)
-          .get(testRoute(LaboratoryFixture.id))
-          .use(tokenProvider(user))
-          .expect(constants.HTTP_STATUS_FORBIDDEN);
-
-      await forbiddenRequestTest(Sampler1Fixture);
-      await forbiddenRequestTest(DepartmentalCoordinator);
-      await forbiddenRequestTest(RegionalCoordinator);
-      await forbiddenRequestTest(RegionalObserver);
-      await forbiddenRequestTest(NationalObserver);
-      await forbiddenRequestTest(LaboratoryUserFixture);
-      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
-    });
-
-    test('should get a valid laboratory id', async () => {
-      await request(app)
-        .get(testRoute(fakerFR.string.alphanumeric(32)))
-        .use(tokenProvider(LaboratoryUserFixture))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
-    });
-
-    // test('should find the laboratory analytical competences', async () => {
-    //   const res = await request(app)
-    //     .get(testRoute(LaboratoryFixture.id))
-    //     .use(tokenProvider(LaboratoryUserFixture))
-    //     .expect(constants.HTTP_STATUS_OK);
-    //
-    //   expect(res.body).toHaveLength(2);
-    //   expectArrayToContainElements(res.body, [
-    //     expect.objectContaining({
-    //       id: Laboratory1AnalyticalCompetenceFixture1.id,
-    //       laboratoryId: LaboratoryFixture.id,
-    //       residueReference:
-    //         Laboratory1AnalyticalCompetenceFixture1.residueReference
-    //     }),
-    //     expect.objectContaining({
-    //       id: Laboratory1AnalyticalCompetenceFixture2.id,
-    //       laboratoryId: LaboratoryFixture.id,
-    //       residueReference:
-    //         Laboratory1AnalyticalCompetenceFixture2.residueReference
-    //     })
-    //   ]);
-    // });
-    //
-    // test('should return empty array for laboratory without competences', async () => {
-    //   const otherLaboratory = genLaboratory();
-    //   await Laboratories().insert(otherLaboratory);
-    //
-    //   const res = await request(app)
-    //     .get(testRoute(otherLaboratory.id))
-    //     .use(tokenProvider(LaboratoryUserFixture))
-    //     .expect(constants.HTTP_STATUS_OK);
-    //
-    //   expect(res.body).toEqual([]);
-    //
-    //   await Laboratories().delete().where('id', otherLaboratory.id);
-    // });
-  });
-
   describe('GET /laboratories/agreements', () => {
     const testRoute = '/api/laboratories/agreements';
 
@@ -738,103 +663,5 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
         })
       ]);
     });
-  });
-
-  describe('PUT /laboratories/:laboratoryId/analytical-competences/:analyticalCompetenceId', () => {
-    const testRoute = (laboratoryId: string, competenceId: string) =>
-      `/api/laboratories/${laboratoryId}/analytical-competences/${competenceId}`;
-
-    const validBody = genLaboratoryAnalyticalCompetence({
-      id: Laboratory1AnalyticalCompetenceFixture1.id,
-      laboratoryId: LaboratoryFixture.id
-    });
-
-    test('should fail if the user is not authenticated', async () => {
-      await request(app)
-        .put(
-          testRoute(
-            LaboratoryFixture.id,
-            Laboratory1AnalyticalCompetenceFixture1.id
-          )
-        )
-        .send(validBody)
-        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    test('should fail if the user does not have the permission to update laboratory competences', async () => {
-      const forbiddenRequestTest = async (user: UserRefined) =>
-        request(app)
-          .put(
-            testRoute(
-              LaboratoryFixture.id,
-              Laboratory1AnalyticalCompetenceFixture1.id
-            )
-          )
-          .use(tokenProvider(user))
-          .send(validBody)
-          .expect(constants.HTTP_STATUS_FORBIDDEN);
-
-      await forbiddenRequestTest(Sampler1Fixture);
-      await forbiddenRequestTest(DepartmentalCoordinator);
-      await forbiddenRequestTest(RegionalCoordinator);
-      await forbiddenRequestTest(RegionalObserver);
-      await forbiddenRequestTest(NationalObserver);
-    });
-
-    // test('should get a valid laboratory id', async () => {
-    //   await request(app)
-    //     .put(
-    //       testRoute(
-    //         fakerFR.string.alphanumeric(32),
-    //         Laboratory1AnalyticalCompetenceFixture1.id
-    //       )
-    //     )
-    //     .use(tokenProvider(LaboratoryUserFixture))
-    //     .send(validBody)
-    //     .expect(constants.HTTP_STATUS_BAD_REQUEST);
-    // });
-    //
-    // test('should get a valide analytical competence id', async () => {
-    //   await request(app)
-    //     .put(testRoute(LaboratoryFixture.id, fakerFR.string.alphanumeric(32)))
-    //     .use(tokenProvider(LaboratoryUserFixture))
-    //     .send(validBody)
-    //     .expect(constants.HTTP_STATUS_BAD_REQUEST);
-    // });
-    //
-    // test('should update a laboratory analytical competence', async () => {
-    //   const res = await request(app)
-    //     .put(
-    //       testRoute(
-    //         LaboratoryFixture.id,
-    //         Laboratory1AnalyticalCompetenceFixture1.id
-    //       )
-    //     )
-    //     .use(tokenProvider(LaboratoryUserFixture))
-    //     .send(validBody)
-    //     .expect(constants.HTTP_STATUS_OK);
-    //
-    //   expectArrayToContainElements(res.body, [
-    //     {
-    //       ...validBody,
-    //       id: Laboratory1AnalyticalCompetenceFixture1.id,
-    //       laboratoryId: LaboratoryFixture.id,
-    //       lastUpdatedAt: expect.any(String)
-    //     }
-    //   ]);
-    //
-    //   await expect(
-    //     LaboratoryAnalyticalCompetences()
-    //       .where({ id: Laboratory1AnalyticalCompetenceFixture1.id })
-    //       .first()
-    //   ).resolves.toMatchObject({
-    //     ...validBody,
-    //     detectionLimit: validBody.detectionLimit?.toFixed(4),
-    //     quantificationLimit: validBody.quantificationLimit?.toFixed(4),
-    //     id: Laboratory1AnalyticalCompetenceFixture1.id,
-    //     laboratoryId: LaboratoryFixture.id,
-    //     lastUpdatedAt: expect.any(Date)
-    //   });
-    // });
   });
 });

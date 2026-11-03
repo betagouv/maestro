@@ -69,45 +69,9 @@ const laboratoryApi = api.injectEndpoints({
       {
         invalidatesTags: [{ type: 'LaboratoryAgreement', id: 'LIST' }]
       }
-    ),
-    getLaboratoryAnalyticalCompetences: buildTypedQuery(
-      builder,
-      '/laboratories/:laboratoryId/analytical-competences',
-      {
-        providesTags: (_result, _error, { laboratoryId }) => [
-          { type: 'LaboratoryAnalyticalCompetence', id: laboratoryId }
-        ]
-      }
-    ),
-    createLaboratoryAnalyticalCompetence: buildTypedMutation(
-      builder,
-      '/laboratories/:laboratoryId/analytical-competences',
-      'post',
-      {
-        invalidatesTags: (_result, _error, { laboratoryId }) => [
-          { type: 'LaboratoryAnalyticalCompetence', id: laboratoryId }
-        ]
-      }
-    ),
-    updateLaboratoryAnalyticalCompetence: buildTypedMutation(
-      builder,
-      '/laboratories/:laboratoryId/analytical-competences/:analyticalCompetenceId',
-      'put',
-      {
-        invalidatesTags: (_result, _error, { laboratoryId }) => [
-          { type: 'LaboratoryAnalyticalCompetence', id: laboratoryId }
-        ]
-      }
     )
   })
 });
-
-export const getLaboratoryAnalyticCompetencesExportURL = (
-  laboratoryId: string
-) =>
-  getApiUrl('/laboratories/:laboratoryId/analytical-competences/export', {
-    laboratoryId
-  });
 
 export const getLaboratoryAgreementsExportURL = (
   opts?: FindLaboratoryAgreementsOptions
@@ -121,8 +85,5 @@ export const {
   useFindLaboratoryAgreementsQuery,
   useFindLaboratoryAgreementChecksQuery,
   useUpdateLaboratoryAgreementCheckMutation,
-  useUpdateLaboratoryAgreementsMutation,
-  useGetLaboratoryAnalyticalCompetencesQuery,
-  useCreateLaboratoryAnalyticalCompetenceMutation,
-  useUpdateLaboratoryAnalyticalCompetenceMutation
+  useUpdateLaboratoryAgreementsMutation
 } = laboratoryApi;

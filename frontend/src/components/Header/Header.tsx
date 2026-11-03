@@ -325,19 +325,6 @@ const Header = () => {
                           AuthenticatedAppRoutes.AdminRoute.link(s.slug)
                       }))
                   }
-                : undefined,
-              availableRoutes.includes('LaboratoryAnalyticalCompetencesRoute')
-                ? {
-                    linkProps: {
-                      to: AuthenticatedAppRoutes.LaboratoryAnalyticalCompetencesRoute.link(),
-                      target: '_self'
-                    },
-                    text: 'Compétences analytiques',
-                    isActive: !!routeMatch(
-                      AuthenticatedAppRoutes
-                        .LaboratoryAnalyticalCompetencesRoute.path
-                    )
-                  }
                 : undefined
             ]
           : []

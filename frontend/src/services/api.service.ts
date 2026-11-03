@@ -14,7 +14,6 @@ export const tagTypes = [
   'Laboratory',
   'LaboratoryAgreement',
   'LaboratoryAgreementCheck',
-  'LaboratoryAnalyticalCompetence',
   'LaboratoryResidueMapping',
   'LocalPrescription',
   'Notification',

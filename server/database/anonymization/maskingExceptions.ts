@@ -44,15 +44,6 @@ export const maskingExceptions: Record<string, string[]> = {
   ],
   laboratory_agreement_checks: ['checked_by', 'substance_kind'],
   laboratory_agreements: ['laboratory_id', 'substance_kind'],
-  laboratory_analytical_competences: [
-    'analysis_method',
-    'analyte_reference',
-    'analytical_competence',
-    'analytical_method',
-    'is_complete_definition_analysis',
-    'residue_reference',
-    'validation_method'
-  ],
   laboratory_residue_mappings: ['label', 'laboratory_id', 'ssd2_id'],
   local_prescription_changes: [
     'department',
