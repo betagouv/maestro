@@ -92,9 +92,9 @@ WHERE n.nspname = 'anon' AND p.proname LIKE 'pseudo_%' ORDER BY 1;
 ### Cohérence du SIRET
 
 `companies.siret` est une clé primaire. Toutes les colonnes qui la portent — dans
-`samples`, `user_companies`, `local_prescriptions`, `local_prescription_changes` et
-`local_prescription_comments` — reçoivent la même fonction. En ajouter une nouvelle
-sans l'inscrire ici casse les jointures.
+`samples`, `user_companies`, `local_prescriptions`, `local_prescription_changes`,
+`local_prescription_comments` et `company_workshops` — reçoivent la même fonction.
+En ajouter une nouvelle sans l'inscrire ici casse les jointures.
 
 ### Emplacement du propriétaire
 
