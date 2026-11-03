@@ -275,27 +275,12 @@ export const prescriptionsRouter = {
         localPrescriptionUpdates.length
       );
 
-      const result = await savePrescriptions({
+      return savePrescriptions({
         user,
         userRole,
         prescriptionUpdates,
         localPrescriptionUpdates
       });
-
-      if (result.outcome === 'forbidden') {
-        return { status: HttpStatus.FORBIDDEN };
-      }
-      if (result.outcome === 'badRequest') {
-        return { status: HttpStatus.BAD_REQUEST };
-      }
-
-      return {
-        status: HttpStatus.OK,
-        response: {
-          prescriptionCount: result.prescriptionCount,
-          localPrescriptionCount: result.localPrescriptionCount
-        }
-      };
     }
   },
   '/prescriptions/counts': {

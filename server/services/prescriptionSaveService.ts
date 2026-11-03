@@ -17,6 +17,7 @@ import {
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type {
   PrescriptionSampleCountUpdate,
+  PrescriptionSaveResult,
   ScopedLocalPrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/PrescriptionSave';
 import { hasEverSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
@@ -29,6 +30,7 @@ import {
   editingEchelonForRole,
   type UserRole
 } from 'maestro-shared/schema/User/UserRole';
+import { HttpStatus } from '../constants/httpStatus';
 import { knexInstance as db } from '../repositories/db';
 import localPrescriptionChangeRepository, {
   type LocalPrescriptionChangeInsert
@@ -52,14 +54,9 @@ type TouchScope = {
   department?: Department | null;
 };
 
-export type PrescriptionSaveOutcome =
-  | {
-      outcome: 'saved';
-      prescriptionCount: number;
-      localPrescriptionCount: number;
-    }
-  | { outcome: 'forbidden' }
-  | { outcome: 'badRequest' };
+type PrescriptionSaveStatus =
+  | { status: typeof HttpStatus.OK; response: PrescriptionSaveResult }
+  | { status: typeof HttpStatus.FORBIDDEN | typeof HttpStatus.BAD_REQUEST };
 
 export const hasSampleWithSeveralLaboratories = (
   programmingPlan: ProgrammingPlanChecked,
@@ -91,15 +88,14 @@ export const savePrescriptions = async ({
   userRole: UserRole;
   prescriptionUpdates: PrescriptionSampleCountUpdate[];
   localPrescriptionUpdates: ScopedLocalPrescriptionUpdate[];
-}): Promise<PrescriptionSaveOutcome> => {
+}): Promise<PrescriptionSaveStatus> => {
   if (
     prescriptionUpdates.length === 0 &&
     localPrescriptionUpdates.length === 0
   ) {
     return {
-      outcome: 'saved',
-      prescriptionCount: 0,
-      localPrescriptionCount: 0
+      status: HttpStatus.OK,
+      response: { prescriptionCount: 0, localPrescriptionCount: 0 }
     };
   }
 
@@ -194,7 +190,7 @@ export const savePrescriptions = async ({
       !findPrescriptionSubPlan([programmingPlan], prescription) ||
       !hasPrescriptionPermission(userRole, programmingPlan).update
     ) {
-      return { outcome: 'forbidden' };
+      return { status: HttpStatus.FORBIDDEN };
     }
 
     prescriptionChanges.push({
@@ -218,7 +214,7 @@ export const savePrescriptions = async ({
     const prescription = prescriptionById.get(prescriptionId) as Prescription;
 
     if (!findPrescriptionSubPlan([programmingPlan], prescription)) {
-      return { outcome: 'forbidden' };
+      return { status: HttpStatus.FORBIDDEN };
     }
 
     const localPrescription = localPrescriptionByKey.get(
@@ -243,7 +239,7 @@ export const savePrescriptions = async ({
 
     if (update.key === 'laboratories') {
       if (!permissions.updateLaboratories) {
-        return { outcome: 'forbidden' };
+        return { status: HttpStatus.FORBIDDEN };
       }
       if (
         hasSampleWithSeveralLaboratories(
@@ -252,7 +248,7 @@ export const savePrescriptions = async ({
           update.substanceKindsLaboratories
         )
       ) {
-        return { outcome: 'badRequest' };
+        return { status: HttpStatus.BAD_REQUEST };
       }
 
       localChanges.push({
@@ -274,7 +270,7 @@ export const savePrescriptions = async ({
 
     if (update.key === 'slaughterhouseSampleCounts') {
       if (isNil(department) || !permissions.distributeToSlaughterhouses) {
-        return { outcome: 'forbidden' };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       localChanges.push(
@@ -312,7 +308,7 @@ export const savePrescriptions = async ({
 
     if (isNil(department)) {
       if (!permissions.updateSampleCount) {
-        return { outcome: 'forbidden' };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       localChanges.push({
@@ -338,7 +334,7 @@ export const savePrescriptions = async ({
     }
 
     if (!permissions.distributeToDepartments) {
-      return { outcome: 'forbidden' };
+      return { status: HttpStatus.FORBIDDEN };
     }
 
     localChanges.push({
@@ -403,8 +399,10 @@ export const savePrescriptions = async ({
   });
 
   return {
-    outcome: 'saved',
-    prescriptionCount: prescriptionUpdates.length,
-    localPrescriptionCount: localPrescriptionUpdates.length
+    status: HttpStatus.OK,
+    response: {
+      prescriptionCount: prescriptionUpdates.length,
+      localPrescriptionCount: localPrescriptionUpdates.length
+    }
   };
 };
