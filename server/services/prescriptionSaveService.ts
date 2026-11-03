@@ -106,7 +106,7 @@ export const savePrescriptions = async ({
 
   const [programmingPlans, prescriptions] = await Promise.all([
     programmingPlanRepository.findMany({ ids: programmingPlanIds }),
-    prescriptionRepository.findManyByIds(prescriptionIds)
+    prescriptionRepository.findMany({ ids: prescriptionIds })
   ]);
 
   const programmingPlanById = new Map(
