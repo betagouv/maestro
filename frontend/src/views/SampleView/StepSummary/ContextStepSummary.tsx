@@ -90,7 +90,7 @@ const ContextStepSummary = ({
       )}
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-road-map-line')}></div>
-        <div>
+        <div className="flex-grow-1">
           {sample.department ? (
             <>
               Département : <b>{DepartmentLabels[sample.department]}</b>
@@ -124,6 +124,7 @@ const ContextStepSummary = ({
               <SampleMap
                 markerX={sample.geolocation.x}
                 markerY={sample.geolocation.y}
+                fullWidth
               />
             </div>
           ) : (

@@ -1,4 +1,6 @@
+import { mapValues } from 'lodash-es';
 import type { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
+import type { StyleSpecification } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { type FunctionComponent, useEffect, useRef, useState } from 'react';
 import {
@@ -12,19 +14,25 @@ import {
   NavigationControl
 } from 'react-map-gl/maplibre';
 import { assert, type Equals } from 'tsafe';
-import config from '../../../utils/config';
 import { maplibregl } from '../../../utils/maplibre';
 
 type ViewStyle = 'map' | 'satellite';
 
-const ViewStyles: Record<ViewStyle, string | undefined> = {
-  map: 'https://openmaptiles.geo.data.gouv.fr/styles/osm-bright/style.json',
-  satellite: config.satelliteStyle
+const fetchStyle = async (
+  url: string,
+  attribution: string
+): Promise<StyleSpecification> => {
+  const style: StyleSpecification = await (await fetch(url)).json();
+  return {
+    ...style,
+    sources: mapValues(style.sources, (source) => ({ ...source, attribution }))
+  };
 };
 
 type Props = {
   location?: Geolocation;
   mapZoom?: number;
+  fullWidth?: boolean;
   markerX: number;
   markerY: number;
 } & (
@@ -44,6 +52,7 @@ type Props = {
 export const SampleMap: FunctionComponent<Props> = ({
   location,
   mapZoom: initialZoom,
+  fullWidth,
   markerX,
   markerY,
   markerDraggable,
@@ -65,6 +74,45 @@ export const SampleMap: FunctionComponent<Props> = ({
   const [mapZoom, setMapZoom] = useState<number>(initialZoom ?? 15);
   const [viewStyle, setViewStyle] = useState<ViewStyle>('map');
   const [isSecondaryMapHovered, setIsSecondaryMapHovered] = useState(false);
+  const [viewStyles, setViewStyles] = useState<
+    Partial<Record<ViewStyle, StyleSpecification>>
+  >({});
+
+  useEffect(() => {
+    fetchStyle(
+      'https://openmaptiles.geo.data.gouv.fr/styles/osm-bright/style.json',
+      '© OpenStreetMap'
+    ).then((mapStyle) =>
+      setViewStyles((styles) => ({ ...styles, map: mapStyle }))
+    );
+    fetchStyle(
+      'https://data.geopf.fr/annexes/ressources/vectorTiles/styles/PLAN.IGN/toponymes.json',
+      '© IGN'
+    ).then((labelsStyle) =>
+      setViewStyles((styles) => ({
+        ...styles,
+        satellite: {
+          ...labelsStyle,
+          sources: {
+            ...labelsStyle.sources,
+            orthophotos: {
+              type: 'raster',
+              tiles: [
+                'https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/jpeg&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}'
+              ],
+              tileSize: 256,
+              maxzoom: 19,
+              attribution: '© IGN'
+            }
+          },
+          layers: [
+            { id: 'orthophotos', type: 'raster', source: 'orthophotos' },
+            ...labelsStyle.layers
+          ]
+        }
+      }))
+    );
+  }, []);
 
   useEffect(() => {
     if (location) {
@@ -97,13 +145,13 @@ export const SampleMap: FunctionComponent<Props> = ({
   return (
     <MapLibre
       ref={mapRef}
-      attributionControl={false}
+      attributionControl={{ compact: false }}
       id="sampleLocationMap"
       latitude={mapLatitude}
       longitude={mapLongitude}
       zoom={mapZoom}
       mapLib={maplibregl}
-      mapStyle={ViewStyles[viewStyle]}
+      mapStyle={viewStyles[viewStyle]}
       onZoom={(e) => setMapZoom(e.viewState.zoom)}
       onMove={(e) => {
         setMapLatitude(e.viewState.latitude);
@@ -112,8 +160,7 @@ export const SampleMap: FunctionComponent<Props> = ({
       onClick={onMarkerLocationUpdate}
       style={{
         minHeight: 375,
-        aspectRatio: '1/1',
-        height: 'calc(100% - 80px)'
+        ...(!fullWidth && { aspectRatio: '1/1', height: 'calc(100% - 80px)' })
       }}
     >
       <NavigationControl position="bottom-right" showCompass={false} />
@@ -140,7 +187,7 @@ export const SampleMap: FunctionComponent<Props> = ({
         draggable={markerDraggable}
         onDragEnd={onMarkerLocationUpdate}
       />
-      {ViewStyles['satellite'] && (
+      {viewStyles['satellite'] && (
         <MapLibre
           attributionControl={false}
           id="sampleLocationMapLayer"
@@ -161,7 +208,7 @@ export const SampleMap: FunctionComponent<Props> = ({
             cursor: 'grab'
           }}
           mapLib={maplibregl}
-          mapStyle={ViewStyles[viewStyle === 'map' ? 'satellite' : 'map']}
+          mapStyle={viewStyles[viewStyle === 'map' ? 'satellite' : 'map']}
           onClick={(e) => {
             e.preventDefault();
             setViewStyle(viewStyle === 'map' ? 'satellite' : 'map');

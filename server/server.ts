@@ -60,7 +60,7 @@ export function createServer(): Server {
               'https://openmaptiles.data.gouv.fr',
               'https://openmaptiles.geo.data.gouv.fr',
               'https://openmaptiles.github.io',
-              'https://api.maptiler.com',
+              'https://data.geopf.fr',
               `https://${config.s3.client.endpoint.split('//')[1]}`
             ],
             workerSrc: ["'self'", 'blob:'],
