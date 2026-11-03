@@ -242,6 +242,7 @@ export const PPVSubmittedSubPlanFixture = genProgrammingSubPlan({
 const DAOASampleProcedure = {
   unitCount: null,
   minQuantity: '200 grammes',
+  maxQuantity: null,
   container: 'Contenant en plastique',
   samplingTemperature: null,
   storageTemperature: '-18°',

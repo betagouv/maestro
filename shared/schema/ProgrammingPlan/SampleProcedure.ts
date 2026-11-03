@@ -8,6 +8,7 @@ import {
 export const SampleProcedure = z.object({
   unitCount: z.string().nullable(),
   minQuantity: z.string().nullable(),
+  maxQuantity: z.string().nullable(),
   container: z.string().nullable(),
   samplingTemperature: z.string().nullable(),
   storageTemperature: z.string().nullable(),
@@ -21,6 +22,7 @@ export type SampleProcedureKey = z.infer<typeof SampleProcedureKey>;
 export const SampleProcedureLabels: Record<SampleProcedureKey, string> = {
   unitCount: 'Nombre d’unités/prélèvement',
   minQuantity: 'Quantité minimale',
+  maxQuantity: 'Quantité maximale',
   container: 'Contenant',
   samplingTemperature: 'T° de prélèvement',
   storageTemperature: 'T° de conservation',
