@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { laboratoryShortNameValidator } from '../../referential/Laboratory';
-import { SachaCommunicationMethod } from './SachaCommunicationMethod';
 
 export const Laboratory = z.object({
   id: z.guid(),
@@ -18,23 +17,10 @@ export const Laboratory = z.object({
 
 export type Laboratory = z.infer<typeof Laboratory>;
 
-const SachaCommunication = z.discriminatedUnion('method', [
-  z.object({
-    method: z.literal(SachaCommunicationMethod.enum.EMAIL),
-    recipientEmail: z.email(),
-    gpgEmail: z.email().nullish(),
-    gpgPublicKey: z.string().nullish()
-  }),
-  z.object({
-    method: z.literal(SachaCommunicationMethod.enum.SFTP),
-    sftpLogin: z.string()
-  })
-]);
-
 export const SachaConfig = z.object({
   activated: z.boolean(),
   sigle: z.string().nullable(),
-  communication: SachaCommunication.nullable()
+  recipientEmail: z.email().nullable()
 });
 export type SachaConfig = z.infer<typeof SachaConfig>;
 

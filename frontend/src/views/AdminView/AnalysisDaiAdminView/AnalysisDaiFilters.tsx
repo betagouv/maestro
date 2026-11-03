@@ -4,8 +4,8 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { AnalysisDaiState } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiState';
+import { DaiSentMethod } from 'maestro-shared/schema/AnalysisDai/DaiSentMethod';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import LaboratorySelect from 'src/components/LaboratorySelect/LaboratorySelect';
 import type { Filters } from './AnalysisDaiAdminView';
 
@@ -15,7 +15,7 @@ const daiStateLabels: Record<AnalysisDaiState, string> = {
   PENDING: 'En attente'
 };
 
-const daiSentMethodLabels: Record<SachaCommunicationMethod, string> = {
+const daiSentMethodLabels: Record<DaiSentMethod, string> = {
   EMAIL: 'Email',
   SFTP: 'SFTP'
 };
@@ -99,13 +99,13 @@ export const AnalysisDaiFilters = ({
               onChange: (e) =>
                 onChange({
                   sentMethod: (e.target.value || undefined) as
-                    | SachaCommunicationMethod
+                    | DaiSentMethod
                     | undefined
                 })
             }}
           >
             <option value="">Tous</option>
-            {SachaCommunicationMethod.options.map((method) => (
+            {DaiSentMethod.options.map((method) => (
               <option key={method} value={method}>
                 {daiSentMethodLabels[method]}
               </option>

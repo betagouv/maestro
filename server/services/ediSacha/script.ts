@@ -1,13 +1,11 @@
 import { initKnex } from '../../repositories/db';
 import { initKysely } from '../../repositories/kysely';
 import config from '../../utils/config';
-import { initGpgForSacha } from '../gpgService';
 import { doSftp } from './sftpService';
 
 const launchSftp = async () => {
   initKnex();
   initKysely(config.databaseUrl);
-  await initGpgForSacha();
   await doSftp();
 };
 
