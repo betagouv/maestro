@@ -23,7 +23,6 @@ import type {
 import { hasEverSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserBase } from 'maestro-shared/schema/User/User';
 import {
   changeViewAudienceForRole,
@@ -95,36 +94,17 @@ export const savePrescriptions = async ({
     };
   }
 
-  const programmingPlanIds = uniq([
-    ...prescriptionUpdates.map((_) => _.programmingPlanId),
-    ...localPrescriptionUpdates.map((_) => _.update.programmingPlanId)
-  ]);
   const prescriptionIds = uniq([
     ...prescriptionUpdates.map((_) => _.prescriptionId),
     ...localPrescriptionUpdates.map((_) => _.prescriptionId)
   ]);
 
-  const [programmingPlans, prescriptions] = await Promise.all([
-    programmingPlanRepository.findMany({ ids: programmingPlanIds }),
-    prescriptionRepository.findMany({ ids: prescriptionIds })
-  ]);
-
-  const programmingPlanById = new Map(
-    programmingPlans.map((programmingPlan) => [
-      programmingPlan.id,
-      programmingPlan
-    ])
-  );
+  const prescriptions = await prescriptionRepository.findMany({
+    ids: prescriptionIds
+  });
   const prescriptionById = new Map(
     prescriptions.map((prescription) => [prescription.id, prescription])
   );
-
-  const missingProgrammingPlanId = programmingPlanIds.find(
-    (id) => !programmingPlanById.has(id)
-  );
-  if (missingProgrammingPlanId) {
-    throw new ProgrammingPlanMissingError(missingProgrammingPlanId);
-  }
 
   const missingPrescriptionId = prescriptionIds.find(
     (id) => !prescriptionById.has(id)
@@ -132,6 +112,30 @@ export const savePrescriptions = async ({
   if (missingPrescriptionId) {
     throw new PrescriptionMissingError(missingPrescriptionId);
   }
+
+  const subPlanIds = uniq(
+    prescriptions.map((prescription) => prescription.programmingSubPlanId)
+  );
+  const programmingPlans = await programmingPlanRepository.findMany({
+    subPlanIds
+  });
+  const programmingPlanBySubPlanId = new Map(
+    programmingPlans.flatMap((programmingPlan) =>
+      programmingPlan.subPlans.map(
+        (subPlan) => [subPlan.id, programmingPlan] as const
+      )
+    )
+  );
+
+  const programmingPlanOf = (prescription: Prescription) => {
+    const programmingPlan = programmingPlanBySubPlanId.get(
+      prescription.programmingSubPlanId
+    );
+    if (!programmingPlan) {
+      throw new ProgrammingPlanMissingError(prescription.programmingSubPlanId);
+    }
+    return programmingPlan;
+  };
 
   const scopeKeys: LocalPrescriptionKey[] = localPrescriptionUpdates.map(
     ({ prescriptionId, region, department }) => ({
@@ -172,20 +176,11 @@ export const savePrescriptions = async ({
   const touchScopes: TouchScope[] = [];
   const changedAt = new Date();
 
-  for (const {
-    prescriptionId,
-    programmingPlanId,
-    sampleCount
-  } of prescriptionUpdates) {
-    const programmingPlan = programmingPlanById.get(
-      programmingPlanId
-    ) as ProgrammingPlanChecked;
+  for (const { prescriptionId, sampleCount } of prescriptionUpdates) {
     const prescription = prescriptionById.get(prescriptionId) as Prescription;
+    const programmingPlan = programmingPlanOf(prescription);
 
-    if (
-      !findPrescriptionSubPlan([programmingPlan], prescription) ||
-      !hasPrescriptionPermission(userRole, programmingPlan).update
-    ) {
+    if (!hasPrescriptionPermission(userRole, programmingPlan).update) {
       return { status: HttpStatus.FORBIDDEN };
     }
 
@@ -195,7 +190,7 @@ export const savePrescriptions = async ({
       previousSampleCount: prescription.sampleCount,
       changedAt
     });
-    touchScopes.push({ programmingPlanId });
+    touchScopes.push({ programmingPlanId: programmingPlan.id });
   }
 
   for (const {
@@ -204,14 +199,8 @@ export const savePrescriptions = async ({
     department,
     update
   } of localPrescriptionUpdates) {
-    const programmingPlan = programmingPlanById.get(
-      update.programmingPlanId
-    ) as ProgrammingPlanChecked;
     const prescription = prescriptionById.get(prescriptionId) as Prescription;
-
-    if (!findPrescriptionSubPlan([programmingPlan], prescription)) {
-      return { status: HttpStatus.FORBIDDEN };
-    }
+    const programmingPlan = programmingPlanOf(prescription);
 
     const localPrescription = localPrescriptionByKey.get(
       toLocalPrescriptionKeyString({ prescriptionId, region, department })

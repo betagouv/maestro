@@ -7,10 +7,7 @@ import {
   RegionList,
   Regions
 } from 'maestro-shared/referential/Region';
-import type {
-  LocalPrescription,
-  LocalPrescriptionUpdate
-} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type {
   LocalPrescriptionComment,
   LocalPrescriptionCommentToCreate
@@ -608,9 +605,8 @@ describe('Local prescriptions router', () => {
   });
 
   describe('PUT /{prescriptionId}/regions/{region}', () => {
-    const submittedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
-      programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
-      key: 'sampleCount',
+    const submittedLocalPrescriptionUpdate = {
+      key: 'sampleCount' as const,
       sampleCount: 10
     };
     const submittedLocalPrescription = submittedControlLocalPrescriptions1.find(
@@ -657,13 +653,9 @@ describe('Local prescriptions router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
-      await badRequestTest({ programmingPlanId: undefined });
-      await badRequestTest({
-        programmingPlanId: fakerFR.string.alphanumeric(32)
-      });
-      await badRequestTest({ sampleCount: undefined });
-      await badRequestTest({ sampleCount: '' });
-      await badRequestTest({ sampleCount: 123 });
+      await badRequestTest({ sampleCount: 10 }); // sans key
+      await badRequestTest({ key: 'sampleCount' }); // sans sampleCount
+      await badRequestTest({ key: 'unknownKey', sampleCount: 10 });
     });
 
     test('should fail if the prescription does not exist', async () => {
@@ -672,17 +664,6 @@ describe('Local prescriptions router', () => {
         .send(submittedLocalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
-    test('should fail if the prescription does not belong to the programmingPlan', async () => {
-      await request(app)
-        .put(testRoute())
-        .send({
-          ...submittedLocalPrescriptionUpdate,
-          programmingPlanId: PPVClosedProgrammingPlanFixture.id
-        })
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     test('should fail if the user does not have the permission to update prescriptions', async () => {
@@ -805,7 +786,6 @@ describe('Local prescriptions router', () => {
           )
         )
         .send({
-          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
           key: 'laboratories',
           substanceKindsLaboratories: []
         })
@@ -832,7 +812,6 @@ describe('Local prescriptions router', () => {
           )
         )
         .send({
-          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
           key: 'laboratories',
           substanceKindsLaboratories
         })
@@ -902,7 +881,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories: [
               { substanceKind: 'Mono', laboratoryId: laboratory.id },
@@ -988,7 +966,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1017,7 +994,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1044,7 +1020,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories: []
           })
@@ -1098,7 +1073,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1149,7 +1123,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1202,7 +1175,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1308,9 +1280,8 @@ describe('Local prescriptions router', () => {
     ) =>
       `/api/prescriptions/${prescriptionId}/regions/${region}/departments/${department}`;
 
-    const sampleCountUpdate: LocalPrescriptionUpdate = {
-      programmingPlanId: programmingPlanSlaughterhouse.id,
-      key: 'sampleCount',
+    const sampleCountUpdate = {
+      key: 'sampleCount' as const,
       sampleCount: 10
     };
 
@@ -1451,13 +1422,11 @@ describe('Local prescriptions router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
-      await badRequestTest({ programmingPlanId: undefined });
+      await badRequestTest({ sampleCount: 10 }); // sans key
+      await badRequestTest({ key: 'sampleCount' }); // sans sampleCount
       await badRequestTest({
-        programmingPlanId: fakerFR.string.alphanumeric(32)
-      });
-      await badRequestTest({
-        programmingPlanId: programmingPlanSlaughterhouse.id
-        // missing key
+        key: 'slaughterhouseSampleCounts',
+        slaughterhouseSampleCounts: []
       });
     });
 
@@ -1473,17 +1442,6 @@ describe('Local prescriptions router', () => {
         .send(sampleCountUpdate)
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
-    test('should fail if the prescription does not belong to the programmingPlan', async () => {
-      await request(app)
-        .put(testRoute())
-        .send({
-          ...sampleCountUpdate,
-          programmingPlanId: PPVClosedProgrammingPlanFixture.id
-        })
-        .use(tokenProvider(RegionalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     test('should fail if the user does not have the permission', async () => {
@@ -1665,7 +1623,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: programmingPlanSlaughterhouse.id,
           key: 'laboratories',
           substanceKindsLaboratories: []
         })
@@ -1684,7 +1641,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: programmingPlanSlaughterhouse.id,
           key: 'laboratories',
           substanceKindsLaboratories
         })
@@ -1751,7 +1707,6 @@ describe('Local prescriptions router', () => {
         await request(app)
           .put(testRoute())
           .send({
-            programmingPlanId: programmingPlanSlaughterhouse.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1769,7 +1724,6 @@ describe('Local prescriptions router', () => {
         await request(app)
           .put(testRoute())
           .send({
-            programmingPlanId: programmingPlanSlaughterhouse.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1791,7 +1745,6 @@ describe('Local prescriptions router', () => {
         await request(app)
           .put(testRoute())
           .send({
-            programmingPlanId: programmingPlanSlaughterhouse.id,
             key: 'laboratories',
             substanceKindsLaboratories: []
           })
@@ -1837,7 +1790,6 @@ describe('Local prescriptions router', () => {
         await request(app)
           .put(testRoute())
           .send({
-            programmingPlanId: programmingPlanSlaughterhouse.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1885,7 +1837,6 @@ describe('Local prescriptions router', () => {
         await request(app)
           .put(testRoute())
           .send({
-            programmingPlanId: programmingPlanSlaughterhouse.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1914,7 +1865,6 @@ describe('Local prescriptions router', () => {
       const res = await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: programmingPlanSlaughterhouse.id,
           key: 'slaughterhouseSampleCounts',
           slaughterhouseSampleCounts
         })
@@ -2090,7 +2040,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: programmingPlanSlaughterhouse.id,
           key: 'slaughterhouseSampleCounts',
           slaughterhouseSampleCounts
         })
@@ -2646,7 +2595,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
           key: 'sampleCount',
           sampleCount: 80
         })
@@ -2663,7 +2611,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
           key: 'sampleCount',
           sampleCount: 120
         })
@@ -2689,7 +2636,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
           key: 'laboratories',
           substanceKindsLaboratories: [
             { substanceKind: 'Mono', laboratoryId: laboratoryForRegion.id }
@@ -2722,7 +2668,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
           key: 'sampleCount',
           sampleCount: 200
         })
@@ -2961,7 +2906,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(updateRoute)
         .send({
-          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
           key: 'sampleCount',
           sampleCount
         })

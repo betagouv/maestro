@@ -652,17 +652,11 @@ const ProgrammingPrescriptionList = ({
     setIsSaving(true);
     setSaveError(false);
     try {
-      const planIdForPrescriptionId = (prescriptionId: string): string => {
-        const planId =
-          importedPlanIdByPrescriptionId.get(prescriptionId) ??
-          getPlanForPrescriptionId(prescriptionId)?.id;
-        if (!planId) {
-          throw new Error(
-            `Plan de programmation introuvable pour la prescription ${prescriptionId}`
-          );
-        }
-        return planId;
-      };
+      const planIdForPrescriptionId = (
+        prescriptionId: string
+      ): string | undefined =>
+        importedPlanIdByPrescriptionId.get(prescriptionId) ??
+        getPlanForPrescriptionId(prescriptionId)?.id;
 
       const plainLocalChanges = Array.from(pendingLocalChanges.values()).filter(
         ({ key }) => !key.companySiret
@@ -683,8 +677,7 @@ const ProgrammingPrescriptionList = ({
           department: key.department,
           update: {
             key: 'sampleCount' as const,
-            sampleCount,
-            programmingPlanId: planIdForPrescriptionId(key.prescriptionId)
+            sampleCount
           }
         })),
         ...slaughterhouseChangeGroups.map((entries) => {
@@ -714,8 +707,7 @@ const ProgrammingPrescriptionList = ({
             department,
             update: {
               key: 'slaughterhouseSampleCounts' as const,
-              slaughterhouseSampleCounts,
-              programmingPlanId: planIdForPrescriptionId(prescriptionId)
+              slaughterhouseSampleCounts
             }
           };
         }),
@@ -726,8 +718,7 @@ const ProgrammingPrescriptionList = ({
             department: key.department,
             update: {
               key: 'laboratories' as const,
-              substanceKindsLaboratories,
-              programmingPlanId: planIdForPrescriptionId(key.prescriptionId)
+              substanceKindsLaboratories
             }
           })
         )
@@ -738,12 +729,12 @@ const ProgrammingPrescriptionList = ({
       )
         .map(([prescriptionId, sampleCount]) => ({
           prescriptionId,
-          programmingPlanId: planIdForPrescriptionId(prescriptionId),
           sampleCount
         }))
-        .filter(({ programmingPlanId }) =>
-          canUpdatePrescription(programmingPlanId)
-        );
+        .filter(({ prescriptionId }) => {
+          const planId = planIdForPrescriptionId(prescriptionId);
+          return isNil(planId) || canUpdatePrescription(planId);
+        });
 
       await savePrescriptions({
         prescriptionUpdates,

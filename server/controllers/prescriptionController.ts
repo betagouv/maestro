@@ -457,18 +457,14 @@ export const prescriptionsRouter = {
   },
   '/prescriptions/:prescriptionId': {
     put: async ({ userRole, body: prescriptionUpdate }, { prescriptionId }) => {
-      const programmingPlan = await getAndCheckProgrammingPlan(
-        prescriptionUpdate.programmingPlanId
+      const { prescription, programmingPlan } = await getAndCheckPrescription(
+        prescriptionId,
+        undefined
       );
 
       if (!hasPrescriptionPermission(userRole, programmingPlan).update) {
         return { status: HttpStatus.FORBIDDEN };
       }
-
-      const { prescription } = await getAndCheckPrescription(
-        prescriptionId,
-        programmingPlan
-      );
 
       console.info('Update prescription with id', prescription.id);
 

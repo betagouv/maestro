@@ -6,7 +6,6 @@ import { Prescription } from './Prescription';
 
 export const PrescriptionSampleCountUpdate = z.object({
   prescriptionId: z.guid(),
-  programmingPlanId: z.guid(),
   ...Prescription.pick({ sampleCount: true }).shape
 });
 

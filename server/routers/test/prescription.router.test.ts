@@ -278,7 +278,6 @@ describe('Prescriptions router', () => {
 
   describe('PUT /prescriptions/{prescriptionId}', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
-      programmingPlanId: programmingPlanInProgress.id,
       sampleCount: 42
     };
     const testRoute = (
@@ -292,16 +291,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should receive valid programmingPlanId and prescriptionId', async () => {
-      await request(app)
-        .put(testRoute())
-        .send({
-          ...prescriptionUpdate,
-          programmingPlanId: fakerFR.string.alphanumeric(32)
-        })
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
-
+    test('should receive a valid prescriptionId', async () => {
       await request(app)
         .put(testRoute(fakerFR.string.alphanumeric(32)))
         .send(prescriptionUpdate)
@@ -315,17 +305,6 @@ describe('Prescriptions router', () => {
         .send(prescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
-    test('should fail if the prescription does not belong to the programmingPlan', async () => {
-      await request(app)
-        .put(testRoute())
-        .send({
-          ...prescriptionUpdate,
-          programmingPlanId: programmingPlanSubmitted.id
-        })
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     test('should fail if the user does not have the permission to update prescriptions', async () => {
@@ -348,10 +327,7 @@ describe('Prescriptions router', () => {
     test('should fail if the programming plan is closed', async () => {
       await request(app)
         .put(testRoute(closedControlPrescription.id))
-        .send({
-          ...prescriptionUpdate,
-          programmingPlanId: programmingPlanClosed.id
-        })
+        .send(prescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });

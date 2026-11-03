@@ -15,12 +15,9 @@ export const Prescription = z.object({
   sampleCount: z.coerce.number().int().min(0).default(0)
 });
 
-export const PrescriptionUpdate = z.object({
-  programmingPlanId: z.guid(),
-  ...Prescription.pick({
-    sampleCount: true
-  }).partial().shape
-});
+export const PrescriptionUpdate = Prescription.pick({
+  sampleCount: true
+}).partial();
 
 export type Prescription = z.infer<typeof Prescription>;
 export type PrescriptionUpdate = z.infer<typeof PrescriptionUpdate>;
