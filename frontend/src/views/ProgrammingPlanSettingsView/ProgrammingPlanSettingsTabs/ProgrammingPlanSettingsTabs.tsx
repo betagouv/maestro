@@ -49,6 +49,7 @@ import { ProgrammingPlanAnalysisSettings } from '../ProgrammingPlanAnalysisSetti
 import { ProgrammingPlanGlobalSettings } from '../ProgrammingPlanGlobalSettings/ProgrammingPlanGlobalSettings';
 import { ProgrammingPlanSamplerFormSettings } from '../ProgrammingPlanSamplerFormSettings/ProgrammingPlanSamplerFormSettings';
 import { ProgrammingPlanSampleSettings } from '../ProgrammingPlanSampleSettings/ProgrammingPlanSampleSettings';
+import { withSingleSubstanceKindSample } from '../ProgrammingPlanSampleSettings/programmingPlanSamples';
 import { ProgrammingSubPlanActionBar } from '../ProgrammingSubPlanActionBar/ProgrammingSubPlanActionBar';
 
 type Props = {
@@ -414,15 +415,19 @@ export const ProgrammingPlanSettingsTabs = ({
     return null;
   }
 
-  const changeDraft = (draft: ProgrammingLevelSettingsForm) =>
+  const changeDraft = (changedDraft: ProgrammingLevelSettingsForm) => {
+    const cascadedDraft = withSettingsBelowSubstanceKinds(
+      changedDraft,
+      subPlan ? programmingPlan : undefined
+    );
     setDraft(
       withoutOrphanSubstances(
-        withSettingsBelowSubstanceKinds(
-          draft,
-          subPlan ? programmingPlan : undefined
-        )
+        isEqual(changedDraft.substanceKinds, draft.substanceKinds)
+          ? cascadedDraft
+          : withSingleSubstanceKindSample(cascadedDraft)
       )
     );
+  };
 
   const tabContent = (tabId: SettingsTabId): ReactNode => {
     switch (tabId) {

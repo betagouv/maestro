@@ -4,6 +4,7 @@ import {
   ProgrammingPlanSampleMaxCount,
   type ProgrammingPlanSampleSetting
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
+import type { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 
 export const addProgrammingPlanSample = (
@@ -41,4 +42,35 @@ export const toggleSampleSubstanceKind = (
       ...(selected && index === sampleIndex ? [substanceKind] : [])
     ]
   }));
+};
+
+export const withSingleSubstanceKindSample = <
+  T extends ProgrammingPlanSettings
+>(
+  settings: T
+): T => {
+  const [substanceKind, ...otherSubstanceKinds] = settings.substanceKinds ?? [];
+  const [firstSample, ...otherSamples] = settings.samples?.length
+    ? settings.samples
+    : [defaultProgrammingPlanSample];
+  if (
+    !settings.samplesManaged ||
+    !substanceKind ||
+    otherSubstanceKinds.length > 0 ||
+    [firstSample, ...otherSamples].some((sample) =>
+      sample.substanceKinds.includes(substanceKind)
+    )
+  ) {
+    return settings;
+  }
+  return {
+    ...settings,
+    samples: [
+      {
+        ...firstSample,
+        substanceKinds: [...firstSample.substanceKinds, substanceKind]
+      },
+      ...otherSamples
+    ]
+  };
 };
