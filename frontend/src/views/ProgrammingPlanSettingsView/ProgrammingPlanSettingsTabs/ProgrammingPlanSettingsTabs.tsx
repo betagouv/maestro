@@ -446,6 +446,7 @@ export const ProgrammingPlanSettingsTabs = ({
       case 'sampler-form':
         return (
           <ProgrammingPlanSamplerFormSettings
+            parentPlanId={subPlan ? programmingPlanId : undefined}
             fields={draft.fields}
             errorMessage={form.message('fields')}
             editionPhase={editionPhase}
