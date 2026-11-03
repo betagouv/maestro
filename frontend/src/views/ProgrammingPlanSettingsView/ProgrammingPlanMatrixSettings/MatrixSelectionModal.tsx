@@ -14,7 +14,6 @@ import { useMemo, useState } from 'react';
 import { AppSelectionModal } from 'src/components/_app/AppSelectionModal/AppSelectionModal';
 import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { assert, type Equals } from 'tsafe';
-import './MatrixSelectionModal.scss';
 import { MatrixSelectionRows } from './MatrixSelectionRows';
 import {
   filterMatrixKinds,
@@ -103,7 +102,7 @@ export const MatrixSelectionModal = ({
             <div className="d-flex-row d-flex-align-center d-flex-justify-between">
               <Checkbox
                 small
-                className={clsx(cx('fr-my-1w'), 'matrix-selection-modal__kind')}
+                className={clsx(cx('fr-my-1w'), 'checkbox-indeterminate')}
                 options={[
                   {
                     label: (
@@ -149,7 +148,7 @@ export const MatrixSelectionModal = ({
                 small
                 className={clsx(
                   cx('fr-ml-3w', 'fr-mb-1w'),
-                  'matrix-selection-modal__matrices'
+                  'checkbox-list-compact'
                 )}
                 options={matrices.map((matrix) => ({
                   label: matrixLabel(matrixReferential, matrix),

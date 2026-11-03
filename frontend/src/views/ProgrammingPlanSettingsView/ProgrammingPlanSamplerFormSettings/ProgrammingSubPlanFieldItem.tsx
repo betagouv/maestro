@@ -9,10 +9,10 @@ import type {
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { FieldInheritanceLabels } from 'maestro-shared/schema/SpecificData/FieldInheritance';
 import { fieldInputTypeHasOptions } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import { AppMultiChoice } from 'src/components/_app/AppMultiChoice/AppMultiChoice';
 import { assert, type Equals } from 'tsafe';
 import { SettingInheritanceLockButton } from '../SettingInheritanceLockButton/SettingInheritanceLockButton';
 import './ProgrammingSubPlanFieldItem.scss';
-import { ProgrammingSubPlanFieldActiveOptions } from './ProgrammingSubPlanFieldActiveOptions';
 
 interface Props {
   field: ProgrammingSubPlanFieldSetting;
@@ -144,12 +144,19 @@ export const ProgrammingSubPlanFieldItem = ({
       </div>
 
       {globalField && fieldInputTypeHasOptions(globalField.inputType) && (
-        <ProgrammingSubPlanFieldActiveOptions
-          optionIds={field.optionIds}
-          globalField={globalField}
-          disabled={isReadOnly || locked}
-          onChange={(optionIds) => onChange({ ...field, optionIds })}
-        />
+        <div className={cx('fr-mt-1w')}>
+          <AppMultiChoice
+            label={globalField.label}
+            hideLabel
+            format="auto"
+            options={[...globalField.options]
+              .sort((a, b) => a.order - b.order)
+              .map((option) => ({ value: option.id, label: option.label }))}
+            values={field.optionIds}
+            disabled={isReadOnly || locked}
+            onChange={(optionIds) => onChange({ ...field, optionIds })}
+          />
+        </div>
       )}
     </div>
   );
