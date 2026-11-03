@@ -19,6 +19,7 @@ const addFieldModal = createModal({
 });
 
 type Props = {
+  parentPlanId: string | undefined;
   fields: ProgrammingSubPlanFieldSetting[];
   errorMessage: string | undefined;
   editionPhase: ProgrammingPlanEditionPhase;
@@ -26,6 +27,7 @@ type Props = {
 };
 
 export const ProgrammingPlanSamplerFormSettings = ({
+  parentPlanId,
   fields,
   errorMessage,
   editionPhase,
@@ -39,6 +41,11 @@ export const ProgrammingPlanSamplerFormSettings = ({
   const apiClient = useContext(ApiClientContext);
 
   const { data: allFields = [] } = apiClient.useFindAllFieldConfigsQuery();
+  const { data: parentPlanSettings } =
+    apiClient.useFindProgrammingPlanSettingsQuery(
+      { programmingPlanId: parentPlanId as string },
+      { skip: !parentPlanId }
+    );
 
   const availableFields = allFields.filter(
     (globalField) =>
@@ -73,6 +80,7 @@ export const ProgrammingPlanSamplerFormSettings = ({
         locked={locked}
         onChange={onChange}
         allFields={allFields}
+        planFields={parentPlanSettings?.fields ?? []}
       />
 
       <AddFieldToProgrammingSubPlanModal

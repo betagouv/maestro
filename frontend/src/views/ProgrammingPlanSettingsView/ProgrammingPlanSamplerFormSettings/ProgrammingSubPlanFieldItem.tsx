@@ -4,6 +4,7 @@ import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import type {
   AdminFieldConfig,
+  ProgrammingPlanFieldSetting,
   ProgrammingSubPlanFieldSetting
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { FieldInheritanceLabels } from 'maestro-shared/schema/SpecificData/FieldInheritance';
@@ -16,6 +17,7 @@ import { ProgrammingSubPlanFieldActiveOptions } from './ProgrammingSubPlanFieldA
 interface Props {
   field: ProgrammingSubPlanFieldSetting;
   globalField: AdminFieldConfig | undefined;
+  planField: ProgrammingPlanFieldSetting | undefined;
   locked: boolean;
   canMoveUp: boolean;
   canMoveDown: boolean;
@@ -28,6 +30,7 @@ interface Props {
 export const ProgrammingSubPlanFieldItem = ({
   field,
   globalField,
+  planField,
   locked,
   canMoveUp,
   canMoveDown,
@@ -73,10 +76,16 @@ export const ProgrammingSubPlanFieldItem = ({
               title={FieldInheritanceLabels[inheritance]}
               disabled={locked}
               onClick={() =>
-                onChange({
-                  ...field,
-                  inheritance: isReadOnly ? 'Own' : 'Inherited'
-                })
+                onChange(
+                  isReadOnly
+                    ? { ...field, inheritance: 'Own' }
+                    : {
+                        ...field,
+                        inheritance: 'Inherited',
+                        required: planField?.required ?? field.required,
+                        optionIds: planField?.optionIds ?? field.optionIds
+                      }
+                )
               }
             />
           )}
