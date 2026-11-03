@@ -42,11 +42,7 @@ import prescriptionChangeRepository, {
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 
-type ViewedKey = {
-  prescriptionId: string;
-  region: Region;
-  department?: Department | null;
-};
+type ChangeScopeKey = Omit<LocalPrescriptionKey, 'companySiret'>;
 
 type TouchScope = {
   programmingPlanId: string;
@@ -171,8 +167,8 @@ export const savePrescriptions = async ({
 
   const localChanges: LocalPrescriptionChangeInsert[] = [];
   const prescriptionChanges: PrescriptionChangeInsert[] = [];
-  const sampleCountViewedKeys: ViewedKey[] = [];
-  const laboratoriesViewedKeys: ViewedKey[] = [];
+  const sampleCountViewedKeys: ChangeScopeKey[] = [];
+  const laboratoriesViewedKeys: ChangeScopeKey[] = [];
   const touchScopes: TouchScope[] = [];
   const changedAt = new Date();
 
@@ -362,7 +358,7 @@ export const savePrescriptions = async ({
   }
 
   const audience = changeViewAudienceForRole(userRole);
-  const uniqueKeys = (keys: ViewedKey[]) =>
+  const uniqueKeys = (keys: ChangeScopeKey[]) =>
     uniqBy(keys, (key) => toLocalPrescriptionKeyString(key));
 
   await db.transaction(async (transaction) => {

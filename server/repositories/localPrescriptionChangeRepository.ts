@@ -6,6 +6,7 @@ import {
   LocalPrescriptionChange,
   type LocalPrescriptionChangeKind
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
+import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ChangeViewAudience } from 'maestro-shared/schema/User/UserRole';
 import { z } from 'zod';
@@ -152,11 +153,7 @@ const markManyViewedByKeys = async (
     viewedBy,
     audience
   }: {
-    keys: {
-      prescriptionId: string;
-      region: Region;
-      department?: Department | null;
-    }[];
+    keys: Omit<LocalPrescriptionKey, 'companySiret'>[];
     kind: LocalPrescriptionChangeKind;
     viewedBy: string;
     audience?: ChangeViewAudience;
