@@ -1535,6 +1535,7 @@ export const PlanSampleProcedure: Story = {
         sampleProcedure: {
           unitCount: null,
           minQuantity: null,
+          maxQuantity: null,
           container: 'Sachet plastique',
           samplingTemperature: null,
           storageTemperature: 'Entre 0 et 3°',

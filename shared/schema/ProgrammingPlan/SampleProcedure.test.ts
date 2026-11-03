@@ -6,6 +6,7 @@ describe('sampleProcedureItems', () => {
   const sampleProcedure = {
     unitCount: null,
     minQuantity: '200 grammes',
+    maxQuantity: '500 grammes',
     container: 'Contenant en plastique',
     samplingTemperature: '',
     storageTemperature: '-18°',
@@ -17,6 +18,7 @@ describe('sampleProcedureItems', () => {
       sampleProcedureItems(MatrixReferentialFixture, sampleProcedure, null)
     ).toStrictEqual([
       { label: 'Quantité minimale', value: '200 grammes' },
+      { label: 'Quantité maximale', value: '500 grammes' },
       { label: 'Contenant', value: 'Contenant en plastique' },
       { label: 'T° de conservation', value: '-18°' }
     ]);
