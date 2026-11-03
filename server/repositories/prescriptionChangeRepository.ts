@@ -4,7 +4,7 @@ import { knexInstance as db } from './db';
 
 const prescriptionChangesTable = 'prescription_changes';
 
-type PrescriptionChangeInsert = Pick<
+export type PrescriptionChangeInsert = Pick<
   PrescriptionChange,
   'prescriptionId' | 'sampleCount' | 'previousSampleCount' | 'changedAt'
 >;
@@ -15,6 +15,16 @@ export const PrescriptionChanges = (transaction = db) =>
 const insert = async (change: PrescriptionChangeInsert) => {
   console.info('Insert prescription change', change);
   await PrescriptionChanges().insert(change);
+};
+
+const insertMany = async (
+  changes: PrescriptionChangeInsert[],
+  transaction: Knex = db
+) => {
+  console.info('Insert multiple prescription changes');
+  if (changes.length > 0) {
+    await PrescriptionChanges(transaction).insert(changes);
+  }
 };
 
 const findLatestPending = async (
@@ -65,6 +75,7 @@ const existsPendingForPlan = async (
 
 export default {
   insert,
+  insertMany,
   findLatestPending,
   commitPending,
   existsPendingForPlan

@@ -28,6 +28,7 @@ import {
   type ImportedScope,
   parsePrescriptionImportFile
 } from '../services/prescriptionImportService';
+import { savePrescriptions } from '../services/prescriptionSaveService';
 import { withEffectiveLocalPrescriptionChanges } from './localPrescriptionController';
 
 const withPendingPrescriptionChanges = async (
@@ -261,6 +262,27 @@ export const prescriptionsRouter = {
       };
     }
   },
+  '/prescriptions/save': {
+    put: async ({
+      user,
+      userRole,
+      body: { prescriptionUpdates, localPrescriptionUpdates }
+    }) => {
+      console.info(
+        'Save prescriptions',
+        user.id,
+        prescriptionUpdates.length,
+        localPrescriptionUpdates.length
+      );
+
+      return savePrescriptions({
+        user,
+        userRole,
+        prescriptionUpdates,
+        localPrescriptionUpdates
+      });
+    }
+  },
   '/prescriptions/counts': {
     get: async ({ userRole, query: findOptions }) => {
       console.info('Count prescriptions', findOptions);
@@ -436,18 +458,14 @@ export const prescriptionsRouter = {
   },
   '/prescriptions/:prescriptionId': {
     put: async ({ userRole, body: prescriptionUpdate }, { prescriptionId }) => {
-      const programmingPlan = await getAndCheckProgrammingPlan(
-        prescriptionUpdate.programmingPlanId
+      const { prescription, programmingPlan } = await getAndCheckPrescription(
+        prescriptionId,
+        undefined
       );
 
       if (!hasPrescriptionPermission(userRole, programmingPlan).update) {
         return { status: HttpStatus.FORBIDDEN };
       }
-
-      const { prescription } = await getAndCheckPrescription(
-        prescriptionId,
-        programmingPlan
-      );
 
       console.info('Update prescription with id', prescription.id);
 

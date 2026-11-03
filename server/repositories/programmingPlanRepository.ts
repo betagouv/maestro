@@ -1,5 +1,5 @@
 import type { Knex } from 'knex';
-import { isArray, isNil, omit, omitBy } from 'lodash-es';
+import { isArray, isNil, omit, omitBy, uniqBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
@@ -535,35 +535,36 @@ const touchNationalLastModifiedAt = async (
     .update({ lastModifiedAt });
 };
 
-const touchLocalStatus = async (
-  programmingPlanId: string,
-  scope: { region?: Region; department?: Department } = {}
+const touchLocalStatuses = async (
+  scopes: {
+    programmingPlanId: string;
+    region?: Region | null;
+    department?: Department | null;
+  }[],
+  transaction: Knex = db
 ): Promise<void> => {
-  console.info('Touch programming plan local status', programmingPlanId, scope);
-  const lastModifiedAt = new Date();
-  await ProgrammingPlanLocalStatus()
-    .where({ programmingPlanId })
-    .modify((builder) => {
-      if (scope.region) {
-        builder.andWhere('region', scope.region);
-      }
-      if (scope.department) {
-        builder.andWhere('department', scope.department);
-      }
-    })
-    .update({ lastModifiedAt });
-
-  if (scope.region && scope.department) {
-    await ProgrammingPlanLocalStatus()
-      .where({ programmingPlanId, region: scope.region, department: 'None' })
-      .update({ lastModifiedAt });
+  if (scopes.length === 0) {
+    return;
   }
+  console.info('Touch programming plan local statuses', scopes.length);
+  const rows = scopes.flatMap((scope) => [
+    [
+      scope.programmingPlanId,
+      scope.region ?? 'None',
+      scope.department ?? 'None'
+    ],
+    ...(isNil(scope.department)
+      ? []
+      : [[scope.programmingPlanId, scope.region ?? 'None', 'None']]),
+    [scope.programmingPlanId, 'None', 'None']
+  ]);
 
-  if (scope.region) {
-    await ProgrammingPlanLocalStatus()
-      .where({ programmingPlanId, region: 'None', department: 'None' })
-      .update({ lastModifiedAt });
-  }
+  await ProgrammingPlanLocalStatus(transaction)
+    .whereIn(
+      ['programmingPlanId', 'region', 'department'],
+      uniqBy(rows, (row) => row.join('|'))
+    )
+    .update({ lastModifiedAt: new Date() });
 };
 
 export const formatProgrammingPlan = (
@@ -591,7 +592,7 @@ export default {
   updateLocalStatus,
   deleteOne,
   updateNationalStatus,
-  touchLocalStatus,
+  touchLocalStatuses,
   touchNationalLastModifiedAt,
   touchNationalSentAt,
   touchRegionalSentAt,

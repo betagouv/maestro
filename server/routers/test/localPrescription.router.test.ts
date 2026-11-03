@@ -7,10 +7,7 @@ import {
   RegionList,
   Regions
 } from 'maestro-shared/referential/Region';
-import type {
-  LocalPrescription,
-  LocalPrescriptionUpdate
-} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type {
   LocalPrescriptionComment,
   LocalPrescriptionCommentToCreate
@@ -73,6 +70,7 @@ import {
   LocalPrescriptions
 } from '../../repositories/localPrescriptionRepository';
 import { LocalPrescriptionSubstanceKindsLaboratories } from '../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
+import { PrescriptionChanges } from '../../repositories/prescriptionChangeRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
@@ -607,9 +605,8 @@ describe('Local prescriptions router', () => {
   });
 
   describe('PUT /{prescriptionId}/regions/{region}', () => {
-    const submittedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
-      programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
-      key: 'sampleCount',
+    const submittedLocalPrescriptionUpdate = {
+      key: 'sampleCount' as const,
       sampleCount: 10
     };
     const submittedLocalPrescription = submittedControlLocalPrescriptions1.find(
@@ -656,13 +653,9 @@ describe('Local prescriptions router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
-      await badRequestTest({ programmingPlanId: undefined });
-      await badRequestTest({
-        programmingPlanId: fakerFR.string.alphanumeric(32)
-      });
-      await badRequestTest({ sampleCount: undefined });
-      await badRequestTest({ sampleCount: '' });
-      await badRequestTest({ sampleCount: 123 });
+      await badRequestTest({ sampleCount: 10 }); // sans key
+      await badRequestTest({ key: 'sampleCount' }); // sans sampleCount
+      await badRequestTest({ key: 'unknownKey', sampleCount: 10 });
     });
 
     test('should fail if the prescription does not exist', async () => {
@@ -671,17 +664,6 @@ describe('Local prescriptions router', () => {
         .send(submittedLocalPrescriptionUpdate)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
-    test('should fail if the prescription does not belong to the programmingPlan', async () => {
-      await request(app)
-        .put(testRoute())
-        .send({
-          ...submittedLocalPrescriptionUpdate,
-          programmingPlanId: PPVClosedProgrammingPlanFixture.id
-        })
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     test('should fail if the user does not have the permission to update prescriptions', async () => {
@@ -804,7 +786,6 @@ describe('Local prescriptions router', () => {
           )
         )
         .send({
-          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
           key: 'laboratories',
           substanceKindsLaboratories: []
         })
@@ -831,7 +812,6 @@ describe('Local prescriptions router', () => {
           )
         )
         .send({
-          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
           key: 'laboratories',
           substanceKindsLaboratories
         })
@@ -901,7 +881,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories: [
               { substanceKind: 'Mono', laboratoryId: laboratory.id },
@@ -987,7 +966,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1016,7 +994,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1043,7 +1020,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories: []
           })
@@ -1097,7 +1073,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1148,7 +1123,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1201,7 +1175,6 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1307,9 +1280,8 @@ describe('Local prescriptions router', () => {
     ) =>
       `/api/prescriptions/${prescriptionId}/regions/${region}/departments/${department}`;
 
-    const sampleCountUpdate: LocalPrescriptionUpdate = {
-      programmingPlanId: programmingPlanSlaughterhouse.id,
-      key: 'sampleCount',
+    const sampleCountUpdate = {
+      key: 'sampleCount' as const,
       sampleCount: 10
     };
 
@@ -1450,13 +1422,11 @@ describe('Local prescriptions router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest();
-      await badRequestTest({ programmingPlanId: undefined });
+      await badRequestTest({ sampleCount: 10 }); // sans key
+      await badRequestTest({ key: 'sampleCount' }); // sans sampleCount
       await badRequestTest({
-        programmingPlanId: fakerFR.string.alphanumeric(32)
-      });
-      await badRequestTest({
-        programmingPlanId: programmingPlanSlaughterhouse.id
-        // missing key
+        key: 'slaughterhouseSampleCounts',
+        slaughterhouseSampleCounts: []
       });
     });
 
@@ -1472,17 +1442,6 @@ describe('Local prescriptions router', () => {
         .send(sampleCountUpdate)
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
-    test('should fail if the prescription does not belong to the programmingPlan', async () => {
-      await request(app)
-        .put(testRoute())
-        .send({
-          ...sampleCountUpdate,
-          programmingPlanId: PPVClosedProgrammingPlanFixture.id
-        })
-        .use(tokenProvider(RegionalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
     test('should fail if the user does not have the permission', async () => {
@@ -1664,7 +1623,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: programmingPlanSlaughterhouse.id,
           key: 'laboratories',
           substanceKindsLaboratories: []
         })
@@ -1683,7 +1641,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: programmingPlanSlaughterhouse.id,
           key: 'laboratories',
           substanceKindsLaboratories
         })
@@ -1750,7 +1707,6 @@ describe('Local prescriptions router', () => {
         await request(app)
           .put(testRoute())
           .send({
-            programmingPlanId: programmingPlanSlaughterhouse.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1768,7 +1724,6 @@ describe('Local prescriptions router', () => {
         await request(app)
           .put(testRoute())
           .send({
-            programmingPlanId: programmingPlanSlaughterhouse.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1790,7 +1745,6 @@ describe('Local prescriptions router', () => {
         await request(app)
           .put(testRoute())
           .send({
-            programmingPlanId: programmingPlanSlaughterhouse.id,
             key: 'laboratories',
             substanceKindsLaboratories: []
           })
@@ -1836,7 +1790,6 @@ describe('Local prescriptions router', () => {
         await request(app)
           .put(testRoute())
           .send({
-            programmingPlanId: programmingPlanSlaughterhouse.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1884,7 +1837,6 @@ describe('Local prescriptions router', () => {
         await request(app)
           .put(testRoute())
           .send({
-            programmingPlanId: programmingPlanSlaughterhouse.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1913,7 +1865,6 @@ describe('Local prescriptions router', () => {
       const res = await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: programmingPlanSlaughterhouse.id,
           key: 'slaughterhouseSampleCounts',
           slaughterhouseSampleCounts
         })
@@ -1973,6 +1924,111 @@ describe('Local prescriptions router', () => {
         .delete();
     });
 
+    test('should save departmental and slaughterhouse changes in a single request', async () => {
+      const res = await request(app)
+        .put('/api/prescriptions/save')
+        .send({
+          prescriptionUpdates: [],
+          localPrescriptionUpdates: [
+            {
+              prescriptionId: departmentalLocalPrescription.prescriptionId,
+              region: departmentalLocalPrescription.region,
+              department: departmentalLocalPrescription.department,
+              update: {
+                key: 'slaughterhouseSampleCounts',
+                slaughterhouseSampleCounts: [
+                  {
+                    companySiret: SlaughterhouseCompanyFixture1.siret,
+                    sampleCount: 3
+                  }
+                ],
+                programmingPlanId: programmingPlanSlaughterhouse.id
+              }
+            }
+          ]
+        })
+        .use(tokenProvider(DepartmentalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual({
+        prescriptionCount: 0,
+        localPrescriptionCount: 1
+      });
+
+      await prescriptionDiffusionService.commitPendingDepartmentalChanges(
+        programmingPlanSlaughterhouse.id,
+        departmentalLocalPrescription.region,
+        departmentalLocalPrescription.department as Department
+      );
+
+      await expect(
+        LocalPrescriptions()
+          .where(
+            'prescription_id',
+            departmentalLocalPrescription.prescriptionId
+          )
+          .andWhere('region', departmentalLocalPrescription.region)
+          .andWhere('department', departmentalLocalPrescription.department)
+          .andWhere('company_siret', SlaughterhouseCompanyFixture1.siret)
+          .first()
+      ).resolves.toMatchObject({ sampleCount: 3 });
+
+      await request(app)
+        .put('/api/prescriptions/save')
+        .send({
+          prescriptionUpdates: [],
+          localPrescriptionUpdates: [
+            {
+              prescriptionId: departmentalLocalPrescription.prescriptionId,
+              region: departmentalLocalPrescription.region,
+              department: departmentalLocalPrescription.department,
+              update: {
+                key: 'sampleCount',
+                sampleCount: 8,
+                programmingPlanId: programmingPlanSlaughterhouse.id
+              }
+            }
+          ]
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await expect(
+        LocalPrescriptionChanges()
+          .where(
+            'prescription_id',
+            departmentalLocalPrescription.prescriptionId
+          )
+          .andWhere('region', departmentalLocalPrescription.region)
+          .andWhere('department', departmentalLocalPrescription.department)
+          .andWhere('company_siret', 'None')
+          .andWhere('echelon', 'Regional')
+          .andWhere('kind', 'sampleCount')
+      ).resolves.toMatchObject([{ sampleCount: 8 }]);
+
+      // Cleanup
+      await LocalPrescriptions()
+        .where('prescription_id', departmentalLocalPrescription.prescriptionId)
+        .andWhere('region', departmentalLocalPrescription.region)
+        .andWhere('department', departmentalLocalPrescription.department)
+        .whereNot('company_siret', 'None')
+        .delete();
+      await LocalPrescriptionChanges()
+        .where('prescription_id', departmentalLocalPrescription.prescriptionId)
+        .andWhere('region', departmentalLocalPrescription.region)
+        .andWhere('department', departmentalLocalPrescription.department)
+        .whereNot('company_siret', 'None')
+        .delete();
+      await LocalPrescriptionChanges()
+        .where('prescription_id', departmentalLocalPrescription.prescriptionId)
+        .andWhere('region', departmentalLocalPrescription.region)
+        .andWhere('department', departmentalLocalPrescription.department)
+        .andWhere('company_siret', 'None')
+        .andWhere('echelon', 'Regional')
+        .andWhere('kind', 'sampleCount')
+        .delete();
+    });
+
     test('a Departmental-authored, diffused slaughterhouse split surfaces as a "new change" for a non-authoring viewer (e.g. the Sampler)', async () => {
       const slaughterhouseSampleCounts = [
         {
@@ -1984,7 +2040,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: programmingPlanSlaughterhouse.id,
           key: 'slaughterhouseSampleCounts',
           slaughterhouseSampleCounts
         })
@@ -2540,7 +2595,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
           key: 'sampleCount',
           sampleCount: 80
         })
@@ -2557,7 +2611,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
           key: 'sampleCount',
           sampleCount: 120
         })
@@ -2583,7 +2636,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
           key: 'laboratories',
           substanceKindsLaboratories: [
             { substanceKind: 'Mono', laboratoryId: laboratoryForRegion.id }
@@ -2616,7 +2668,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(testRoute())
         .send({
-          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
           key: 'sampleCount',
           sampleCount: 200
         })
@@ -2855,7 +2906,6 @@ describe('Local prescriptions router', () => {
       await request(app)
         .put(updateRoute)
         .send({
-          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
           key: 'sampleCount',
           sampleCount
         })
@@ -3055,6 +3105,248 @@ describe('Local prescriptions router', () => {
       expect(
         omit(regionalStatusOf(statusAfter.body), 'lastModifiedAt')
       ).toEqual(omit(regionalStatusOf(statusBefore.body), 'lastModifiedAt'));
+    });
+  });
+  describe('PUT /prescriptions/save', () => {
+    const testRoute = '/api/prescriptions/save';
+
+    const localPrescriptionOf = (
+      localPrescriptions: LocalPrescription[],
+      prescriptionId: string,
+      region: Region
+    ) =>
+      localPrescriptions.find((localPrescription) =>
+        isEqual(
+          LocalPrescriptionKey.parse(localPrescription),
+          LocalPrescriptionKey.parse({ prescriptionId, region })
+        )
+      ) as LocalPrescription;
+
+    const regionalUpdate = (
+      prescriptionId: string,
+      region: Region,
+      sampleCount: number,
+      programmingPlanId: string = PPVSubmittedProgrammingPlanFixture.id
+    ) => ({
+      prescriptionId,
+      region,
+      update: {
+        key: 'sampleCount' as const,
+        sampleCount,
+        programmingPlanId
+      }
+    });
+
+    const nationalChangesOf = (prescriptionId: string) =>
+      LocalPrescriptionChanges()
+        .where('prescription_id', prescriptionId)
+        .andWhere('echelon', 'National')
+        .andWhere('kind', 'sampleCount');
+
+    afterEach(async () => {
+      await LocalPrescriptionChanges()
+        .whereIn('prescription_id', [
+          submittedControlPrescription1.id,
+          submittedControlPrescription2.id,
+          closedControlPrescription.id
+        ])
+        .delete();
+      await PrescriptionChanges()
+        .whereIn('prescription_id', [
+          submittedControlPrescription1.id,
+          submittedControlPrescription2.id
+        ])
+        .delete();
+    });
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute)
+        .send({ prescriptionUpdates: [], localPrescriptionUpdates: [] })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should get a valid body', async () => {
+      const badRequestTest = async (payload?: Record<string, unknown>) =>
+        request(app)
+          .put(testRoute)
+          .send(payload)
+          .use(tokenProvider(NationalCoordinator))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await badRequestTest();
+      await badRequestTest({ prescriptionUpdates: [] });
+      await badRequestTest({
+        prescriptionUpdates: [],
+        localPrescriptionUpdates: [{ prescriptionId: 'invalid' }]
+      });
+    });
+
+    test('should fail if the user does not have the permission to update prescriptions', async () => {
+      const forbiddenRequestTest = async (user: UserRefined) =>
+        request(app)
+          .put(testRoute)
+          .send({
+            prescriptionUpdates: [],
+            localPrescriptionUpdates: [
+              regionalUpdate(
+                submittedControlPrescription1.id,
+                RegionalCoordinator.region as Region,
+                12
+              )
+            ]
+          })
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(RegionalCoordinator);
+
+      await expect(
+        nationalChangesOf(submittedControlPrescription1.id)
+      ).resolves.toEqual([]);
+    });
+
+    test('should save every pending change in a single request', async () => {
+      const region = RegionalCoordinator.region as Region;
+      const firstLocalPrescription = localPrescriptionOf(
+        submittedControlLocalPrescriptions1,
+        submittedControlPrescription1.id,
+        region
+      );
+      const secondLocalPrescription = localPrescriptionOf(
+        submittedControlLocalPrescriptions2,
+        submittedControlPrescription2.id,
+        region
+      );
+
+      const nationalStatusRow = () =>
+        ProgrammingPlanLocalStatus()
+          .where({
+            programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+            region: 'None',
+            department: 'None'
+          })
+          .first();
+      await ProgrammingPlanLocalStatus()
+        .where({ programmingPlanId: PPVSubmittedProgrammingPlanFixture.id })
+        .update({ lastModifiedAt: new Date('2020-01-01') });
+
+      const res = await request(app)
+        .put(testRoute)
+        .send({
+          prescriptionUpdates: [
+            {
+              prescriptionId: submittedControlPrescription1.id,
+              programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+              sampleCount: 42
+            }
+          ],
+          localPrescriptionUpdates: [
+            regionalUpdate(firstLocalPrescription.prescriptionId, region, 10),
+            regionalUpdate(secondLocalPrescription.prescriptionId, region, 20)
+          ]
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual({
+        prescriptionCount: 1,
+        localPrescriptionCount: 2
+      });
+
+      await expect(
+        nationalChangesOf(firstLocalPrescription.prescriptionId)
+      ).resolves.toMatchObject([
+        {
+          region,
+          department: 'None',
+          companySiret: 'None',
+          sampleCount: 10,
+          previousSampleCount: firstLocalPrescription.sampleCount
+        }
+      ]);
+      await expect(
+        nationalChangesOf(secondLocalPrescription.prescriptionId)
+      ).resolves.toMatchObject([
+        {
+          region,
+          sampleCount: 20,
+          previousSampleCount: secondLocalPrescription.sampleCount
+        }
+      ]);
+      await expect(
+        PrescriptionChanges().where(
+          'prescription_id',
+          submittedControlPrescription1.id
+        )
+      ).resolves.toMatchObject([
+        {
+          sampleCount: 42,
+          previousSampleCount: submittedControlPrescription1.sampleCount
+        }
+      ]);
+      const touchedNationalStatus = await nationalStatusRow();
+      expect(touchedNationalStatus?.lastModifiedAt?.getFullYear()).toEqual(
+        new Date().getFullYear()
+      );
+      await expect(
+        ProgrammingPlanLocalStatus()
+          .where({
+            programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+            region,
+            department: 'None'
+          })
+          .first()
+      ).resolves.toMatchObject({
+        lastModifiedAt: expect.any(Date)
+      });
+    });
+
+    test('should write nothing when a single change is refused', async () => {
+      const region = RegionalCoordinator.region as Region;
+
+      await request(app)
+        .put(testRoute)
+        .send({
+          prescriptionUpdates: [],
+          localPrescriptionUpdates: [
+            regionalUpdate(submittedControlPrescription1.id, region, 15),
+            regionalUpdate(
+              closedControlPrescription.id,
+              region,
+              15,
+              PPVClosedProgrammingPlanFixture.id
+            )
+          ]
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await expect(
+        nationalChangesOf(submittedControlPrescription1.id)
+      ).resolves.toEqual([]);
+      await expect(
+        nationalChangesOf(closedControlPrescription.id)
+      ).resolves.toEqual([]);
+    });
+
+    test('should fail if a prescription does not exist', async () => {
+      await request(app)
+        .put(testRoute)
+        .send({
+          prescriptionUpdates: [],
+          localPrescriptionUpdates: [
+            regionalUpdate(
+              crypto.randomUUID(),
+              RegionalCoordinator.region as Region,
+              5
+            )
+          ]
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
   });
 });
