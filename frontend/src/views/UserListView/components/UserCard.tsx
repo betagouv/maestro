@@ -40,7 +40,7 @@ export const UserCard: FunctionComponent<Props> = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const { setMascaradeUserId } = useMascarade();
-  const { hasAccountPermission } = useAuthentication();
+  const { hasAccountPermission, account } = useAuthentication();
   const apiClient = useContext(ApiClientContext);
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery(
@@ -51,82 +51,104 @@ export const UserCard: FunctionComponent<Props> = ({
     (laboratory) => laboratory.id === user.laboratoryId
   );
 
+  const isMyself = user.id === account?.id;
+
   const canCertify =
     hasAccountPermission('administrationMaestro') &&
     (certificationIsRequired(user) || !user.certified);
 
   return (
     <Card
-      className={'user-list-item-card'}
+      className={clsx('user-list-item-card', {
+        'user-list-item-card--myself': isMyself
+      })}
+      start={
+        isMyself ? (
+          <span
+            className={clsx(
+              'user-card-myself-badge',
+              cx('fr-text--sm', 'fr-text--bold', 'fr-mb-0')
+            )}
+          >
+            <span
+              className={cx('fr-icon-user-fill', 'fr-icon--sm', 'fr-mr-1v')}
+              aria-hidden="true"
+            />
+            Vous
+          </span>
+        ) : undefined
+      }
       title={
         <div className={clsx('user-card-title')}>
-          <div style={{ flexBasis: 'min-content' }}>
+          <div style={isMyself ? undefined : { flexBasis: 'min-content' }}>
             {user.roles.map((role) => (
               <Tag as={'span'} small key={role}>
                 {UserRoleLabels[role]}
               </Tag>
             ))}
           </div>
-          <div className="d-flex-align-center">
-            <Button
-              size="small"
-              className={clsx('fr-mr-1w')}
-              onClick={onEdit}
-              priority={'tertiary'}
-              iconId={'fr-icon-edit-line'}
-              title={'éditer'}
-              data-testid={`user-edit-button-${user.id}`}
-            />
-            {!user.disabled ? (
-              <>
-                {canCertify && (
-                  <Button
-                    size="small"
-                    className={clsx('fr-mr-1w')}
-                    onClick={onToggleCertification}
-                    priority={'tertiary'}
-                    iconId={
-                      user.certified
-                        ? 'fr-icon-award-fill'
-                        : 'fr-icon-award-line'
-                    }
-                    title={
-                      user.certified
-                        ? 'marquer comme non formé'
-                        : 'marquer comme formé'
-                    }
-                    data-testid={`user-certification-button-${user.id}`}
-                  />
-                )}
-                <Button
-                  size="small"
-                  onClick={onDisable}
-                  priority={'tertiary'}
-                  title={'désactiver'}
-                  iconId={'fr-icon-logout-box-r-line'}
-                  data-testid={`user-disable-button-${user.id}`}
-                />
-                {hasAccountPermission('administrationMaestro') && (
-                  <Button
-                    size="small"
-                    onClick={() => setMascaradeUserId(user.id)}
-                    priority={'tertiary'}
-                    iconId={'fr-icon-group-line'}
-                    className={'fr-ml-1w'}
-                    title={`Usurper l'identité`}
-                  />
-                )}
-              </>
-            ) : (
+          {!isMyself && (
+            <div className="d-flex-align-center">
               <Button
                 size="small"
-                onClick={onEnable}
+                className={clsx('fr-mr-1w')}
+                onClick={onEdit}
                 priority={'tertiary'}
-                title={'activer'}
-                iconId={'fr-icon-user-add-line'}
+                iconId={'fr-icon-edit-line'}
+                title={'éditer'}
+                data-testid={`user-edit-button-${user.id}`}
               />
-            )}
-          </div>
+              {!user.disabled ? (
+                <>
+                  {canCertify && (
+                    <Button
+                      size="small"
+                      className={clsx('fr-mr-1w')}
+                      onClick={onToggleCertification}
+                      priority={'tertiary'}
+                      iconId={
+                        user.certified
+                          ? 'fr-icon-award-fill'
+                          : 'fr-icon-award-line'
+                      }
+                      title={
+                        user.certified
+                          ? 'marquer comme non formé'
+                          : 'marquer comme formé'
+                      }
+                      data-testid={`user-certification-button-${user.id}`}
+                    />
+                  )}
+                  <Button
+                    size="small"
+                    onClick={onDisable}
+                    priority={'tertiary'}
+                    title={'désactiver'}
+                    iconId={'fr-icon-logout-box-r-line'}
+                    data-testid={`user-disable-button-${user.id}`}
+                  />
+                  {hasAccountPermission('administrationMaestro') && (
+                    <Button
+                      size="small"
+                      onClick={() => setMascaradeUserId(user.id)}
+                      priority={'tertiary'}
+                      iconId={'fr-icon-group-line'}
+                      className={'fr-ml-1w'}
+                      title={`Usurper l'identité`}
+                    />
+                  )}
+                </>
+              ) : (
+                <Button
+                  size="small"
+                  onClick={onEnable}
+                  priority={'tertiary'}
+                  title={'activer'}
+                  iconId={'fr-icon-user-add-line'}
+                />
+              )}
+            </div>
+          )}
         </div>
       }
       titleAs={'h6'}
