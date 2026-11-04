@@ -167,6 +167,7 @@ const defaultMockApiClientConf: MockApi = {
   useFindProgrammingSubPlanFieldConfigsQuery: { data: [] },
   useFindLaboratoriesQuery: { data: [] },
   useFindLaboratoryAgreementsQuery: { data: [] },
+  useFindLaboratoryAgreementSubPlansQuery: { data: [] },
   useFindLaboratoryAgreementDiffusionsQuery: { data: [] },
   useFindLaboratoryAgreementChecksQuery: { data: [] },
   useUpdateLaboratoryAgreementCheckMutation: [fn(), {}],

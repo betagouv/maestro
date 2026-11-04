@@ -105,24 +105,17 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
     { year },
     { skip: !canEdit }
   );
-  const { data: allProgrammingPlans = [] } =
-    apiClient.useFindProgrammingPlansQuery({});
-  const programmingPlans = useMemo(
-    () => allProgrammingPlans.filter((p) => p.year === year),
-    [allProgrammingPlans, year]
-  );
+  const { data: subPlans = [] } =
+    apiClient.useFindLaboratoryAgreementSubPlansQuery({ year });
 
   const rows = useMemo(
     () =>
-      programmingPlans.flatMap((plan) =>
-        laboratoryAgreementRows(plan.subPlans, agreements).map((row) => ({
-          programmingSubPlan: row.subPlan,
-          programmingPlanYear: plan.year,
-          substanceKinds: row.substanceKinds,
-          laboratories: row.agreements
-        }))
-      ),
-    [agreements, programmingPlans]
+      laboratoryAgreementRows(subPlans, agreements).map((row) => ({
+        programmingSubPlan: row.subPlan,
+        substanceKinds: row.substanceKinds,
+        laboratories: row.agreements
+      })),
+    [agreements, subPlans]
   );
 
   const rowsWithLab = useMemo(
@@ -184,8 +177,6 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
   );
 
   const matrixCombinedOptions = useMemo(() => {
-    const subPlans = programmingPlans.flatMap((plan) => plan.subPlans);
-
     const kindOptions = [
       ...new Set(
         subPlans.flatMap((subPlan) => getSubPlanMatrixKinds(subPlan.matrices))
@@ -211,7 +202,7 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
       .toSorted((a, b) => a.label.localeCompare(b.label));
 
     return [...kindOptions, ...specificMatrixOptions];
-  }, [programmingPlans, matrixReferential]);
+  }, [subPlans, matrixReferential]);
 
   const filteredRows = useMemo(() => {
     const checksSet = new Set(

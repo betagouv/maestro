@@ -59,6 +59,20 @@ const findMany = async (
           query = query.where('id', 'in', findOptions.ids);
         }
         break;
+      case 'year':
+        if (!isNil(findOptions?.year)) {
+          query = query
+            .where(
+              'programmingPlanId',
+              'in',
+              kysely
+                .selectFrom('programmingPlans')
+                .select('id')
+                .where('year', '=', findOptions.year)
+            )
+            .orderBy('subPlanNumber');
+        }
+        break;
       default:
         assertUnreachable(option);
     }
