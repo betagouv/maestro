@@ -4,17 +4,19 @@ import { expect, userEvent, within } from 'storybook/test';
 import { getMockApi } from '../../services/mockApiClient';
 import { UserListView } from './UserListView';
 
+const authUser = genAuthUser({ roles: ['AdministratorMaestro'] });
+const myself = genUserListItem({ ...authUser.user, name: 'Marie Moi' });
 const userList = Array.from(Array(10).keys()).map(() => genUserListItem({}));
 const meta = {
   title: 'Views/Users',
   component: UserListView,
   parameters: {
     preloadedState: {
-      auth: { authUser: genAuthUser({ roles: ['AdministratorMaestro'] }) }
+      auth: { authUser }
     },
     apiClient: getMockApi({
       useFindUsersQuery: {
-        data: userList
+        data: [...userList, myself]
       }
     })
   }
@@ -38,5 +40,16 @@ export const Default: Story = {
     await expect(dialog.getByTestId('user-form-role-select')).toHaveValue('');
 
     await userEvent.click(dialog.getByText('Annuler'));
+  }
+};
+
+export const MyselfFirst: Story = {
+  play: async ({ canvasElement }) => {
+    const [firstCard] = canvasElement.querySelectorAll('.user-list-item-card');
+    const card = within(firstCard as HTMLElement);
+
+    await expect(card.getByText('Marie Moi')).toBeVisible();
+    await expect(card.getByText('Vous')).toBeVisible();
+    await expect(card.queryAllByRole('button')).toHaveLength(0);
   }
 };

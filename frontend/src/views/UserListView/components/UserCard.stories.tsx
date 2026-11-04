@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { genUserListItem } from 'maestro-shared/test/userFixtures';
-import { fn } from 'storybook/test';
+import { genAuthUser, genUserListItem } from 'maestro-shared/test/userFixtures';
+import { expect, fn, within } from 'storybook/test';
 import { UserCard } from './UserCard';
 
 const meta = {
@@ -25,5 +25,26 @@ export const Default: Story = {
 export const SamplerNotCertified: Story = {
   args: {
     user: genUserListItem({ roles: ['Sampler'], certified: false })
+  }
+};
+
+const myself = genUserListItem({
+  roles: ['AdministratorBGIR', 'NationalCoordinator']
+});
+
+export const Myself: Story = {
+  args: {
+    user: myself
+  },
+  parameters: {
+    preloadedState: {
+      auth: { authUser: genAuthUser({ id: myself.id, roles: myself.roles }) }
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByText('Vous')).toBeVisible();
+    await expect(canvas.queryAllByRole('button')).toHaveLength(0);
   }
 };

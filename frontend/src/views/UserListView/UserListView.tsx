@@ -3,6 +3,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
+import { partition } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import type { UserListItem } from 'maestro-shared/schema/User/User';
 import { toMaestroDate } from 'maestro-shared/utils/date';
@@ -31,20 +32,25 @@ const confirmDisablingUserModal = createModal({
 export const UserListView = () => {
   const apiClient = useContext(ApiClientContext);
   const { canManageUser } = useUserManagement();
-  const { hasRole } = useAuthentication();
+  const { hasRole, account } = useAuthentication();
 
   const { data: allUsers } = apiClient.useFindUsersQuery({});
 
   const users = useMemo(() => {
-    const manageableUsers = (allUsers ?? []).filter((user) =>
-      canManageUser(user)
+    const visibleUsers = (allUsers ?? []).filter(
+      (user) => user.id === account?.id || canManageUser(user)
     );
-    return hasRole('AdministratorMaestro')
-      ? manageableUsers.toSorted(
+    const sortedUsers = hasRole('AdministratorMaestro')
+      ? visibleUsers.toSorted(
           (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
         )
-      : manageableUsers;
-  }, [allUsers, canManageUser, hasRole]);
+      : visibleUsers;
+    const [myself, others] = partition(
+      sortedUsers,
+      (user) => user.id === account?.id
+    );
+    return [...myself, ...others];
+  }, [allUsers, canManageUser, hasRole, account]);
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
 
