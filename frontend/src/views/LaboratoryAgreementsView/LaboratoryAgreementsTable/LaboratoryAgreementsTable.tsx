@@ -57,6 +57,7 @@ interface Props {
   onOpenModal: () => void;
   onOpenModalForRow: (row: AgreementRow) => void;
   onUpdateCheck: (params: LaboratoryAgreementCheckUpdate) => void;
+  canEdit: boolean;
 }
 const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   rows,
@@ -84,7 +85,8 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   onDeselect,
   onOpenModal,
   onOpenModalForRow,
-  onUpdateCheck
+  onUpdateCheck,
+  canEdit
 }: Props) {
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [expandedLabRowKeys, setExpandedLabRowKeys] = useState<string[]>([]);
@@ -241,7 +243,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
         >
           <table>
             <colgroup>
-              <col style={{ width: '3rem' }} />
+              {canEdit && <col style={{ width: '3rem' }} />}
               <col style={{ width: '6rem' }} />
               <col style={{ width: '12rem' }} />
               <col style={{ width: '16rem' }} />
@@ -252,25 +254,30 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
 
             <thead>
               <tr>
-                <th scope="col">
-                  <div
-                    className={clsx(cx('fr-checkbox-group'), 'selectable-cell')}
-                  >
-                    <Checkbox
-                      options={[
-                        {
-                          label: '',
-                          nativeInputProps: {
-                            checked: allSelected,
-                            onChange: onToggleAll
+                {canEdit && (
+                  <th scope="col">
+                    <div
+                      className={clsx(
+                        cx('fr-checkbox-group'),
+                        'selectable-cell'
+                      )}
+                    >
+                      <Checkbox
+                        options={[
+                          {
+                            label: '',
+                            nativeInputProps: {
+                              checked: allSelected,
+                              onChange: onToggleAll
+                            }
                           }
-                        }
-                      ]}
-                      small
-                      className={cx('fr-pb-3w')}
-                    />
-                  </div>
-                </th>
+                        ]}
+                        small
+                        className={cx('fr-pb-3w')}
+                      />
+                    </div>
+                  </th>
+                )}
                 <th scope="col">
                   <div className="border-left">
                     <ColumnFilterHeader
@@ -382,6 +389,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     onPendingEnd={handlePendingEnd}
                     onAnimatingStart={handleAnimatingStart}
                     onAnimatingEnd={handleAnimatingEnd}
+                    canEdit={canEdit}
                   />
                 );
               })}

@@ -13,13 +13,15 @@ interface Props {
   laboratory: Laboratory;
   programmingSubPlan?: ProgrammingSubPlan;
   afterClose?: () => void;
+  disabled?: boolean;
 }
 
 const LaboratoryAgreementTag = ({
   laboratoryAgreement,
   laboratory,
   programmingSubPlan,
-  afterClose
+  afterClose,
+  disabled
 }: Props) => {
   const openLaboratoryAgreementDetail = useContext(
     LaboratoryAgreementDetailContext
@@ -44,9 +46,9 @@ const LaboratoryAgreementTag = ({
         'laboratory-agreement-tag',
         'border',
         'bg-white',
-        'laboratory-agreement-tag--clickable'
+        !disabled && 'laboratory-agreement-tag--clickable'
       )}
-      onClick={handleOpen}
+      onClick={disabled ? undefined : handleOpen}
     >
       <span className={clsx(cx('fr-text--xs', 'fr-text--bold', 'fr-mb-0'))}>
         {laboratory.shortName}

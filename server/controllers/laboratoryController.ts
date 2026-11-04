@@ -1,8 +1,13 @@
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import type { LaboratoryAgreementRowKey } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
+import {
+  type LaboratoryAgreementRowKey,
+  subPlanNumbersMissingAgreements
+} from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { hasPermission } from 'maestro-shared/schema/User/User';
 import { HttpStatus } from '../constants/httpStatus';
 import { laboratoryAgreementCheckRepository } from '../repositories/laboratoryAgreementCheckRepository';
+import laboratoryAgreementDiffusionRepository from '../repositories/laboratoryAgreementDiffusionRepository';
 import { laboratoryAgreementRepository } from '../repositories/laboratoryAgreementRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import localPrescriptionSubstanceKindLaboratoryRepository from '../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
@@ -12,6 +17,11 @@ import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 import { importPublicKey } from '../services/gpgService';
 import { notificationService } from '../services/notificationService';
+
+const diffusedYears = async (): Promise<number[]> =>
+  (await laboratoryAgreementDiffusionRepository.findMany()).map(
+    (diffusion) => diffusion.year
+  );
 
 const notifyLaboratoryAgreementLost = async (
   laboratoryId: string,
@@ -77,8 +87,15 @@ Pour les sous-plans concernés vous devez attribuer un nouveau laboratoire pour 
 
 export const laboratoriesRouter = {
   '/laboratories/agreements': {
-    get: async ({ query }) => {
+    get: async ({ query, userRole }) => {
       console.info('Find all laboratory agreements');
+
+      if (!hasPermission(userRole, 'readUndiffusedLaboratoryAgreements')) {
+        const years = await diffusedYears();
+        if (!query.year || !years.includes(query.year)) {
+          return { status: HttpStatus.FORBIDDEN };
+        }
+      }
 
       const agreements = await laboratoryAgreementRepository.findMany(query);
 
@@ -107,8 +124,15 @@ export const laboratoriesRouter = {
     }
   },
   '/laboratories/agreements/export': {
-    get: async ({ query }, _params, response) => {
+    get: async ({ query, userRole }, _params, response) => {
       console.info('Export laboratory agreements');
+
+      if (!hasPermission(userRole, 'readUndiffusedLaboratoryAgreements')) {
+        const years = await diffusedYears();
+        if (!query.year || !years.includes(query.year)) {
+          return { status: HttpStatus.FORBIDDEN };
+        }
+      }
 
       const [agreements, laboratories] = await Promise.all([
         laboratoryAgreementRepository.findMany(query),
@@ -133,6 +157,46 @@ export const laboratoriesRouter = {
       response.setHeader('Content-Length', `${buffer.length}`);
 
       return { status: HttpStatus.OK, response: buffer };
+    }
+  },
+  '/laboratories/agreements/diffusions': {
+    get: async () => {
+      console.info('Find laboratory agreement diffusions');
+
+      const diffusions =
+        await laboratoryAgreementDiffusionRepository.findMany();
+
+      return { status: HttpStatus.OK, response: diffusions };
+    },
+    post: async ({ body: { year }, user }) => {
+      console.info('Diffuse laboratory agreements', year);
+
+      const existing =
+        await laboratoryAgreementDiffusionRepository.findUnique(year);
+      if (existing) {
+        return { status: HttpStatus.OK, response: existing };
+      }
+
+      const [programmingPlans, agreements] = await Promise.all([
+        programmingPlanRepository.findMany({ year }),
+        laboratoryAgreementRepository.findMany({ year })
+      ]);
+
+      const missingSubPlanNumbers = subPlanNumbersMissingAgreements(
+        programmingPlans.flatMap((programmingPlan) => programmingPlan.subPlans),
+        agreements
+      );
+
+      if (missingSubPlanNumbers.length > 0) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+
+      const diffusion = await laboratoryAgreementDiffusionRepository.insert(
+        year,
+        user.id
+      );
+
+      return { status: HttpStatus.OK, response: diffusion };
     }
   },
   '/laboratories/:laboratoryId/agreements': {
