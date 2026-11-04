@@ -84,9 +84,7 @@ export const laboratoryAgreementRows = <T extends AgreementSubPlan>(
     }))
   );
 
-export const hasAnalysisLaboratory = (
-  agreements: LaboratoryAgreement[]
-): boolean =>
+const hasAnalysisLaboratory = (agreements: LaboratoryAgreement[]): boolean =>
   agreements.some(
     (agreement) => agreement.detectionAnalysis || agreement.confirmationAnalysis
   );
