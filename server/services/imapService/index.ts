@@ -138,6 +138,7 @@ type EmailRaiResult = {
   region: Region;
   department: Department | null;
   programmingPlanId: string;
+  programmingSubPlanNumber: string;
 };
 
 const processEmailRaiAttachments = async (
@@ -246,7 +247,8 @@ const processEmailRaiAttachments = async (
       documentId: pdfDocumentId,
       region,
       department,
-      programmingPlanId
+      programmingPlanId,
+      programmingSubPlanNumber
     } = await analysisHandler(
       {
         ...analysis,
@@ -268,7 +270,8 @@ const processEmailRaiAttachments = async (
       copyNumber: analysis.copyNumber,
       region,
       department,
-      programmingPlanId
+      programmingPlanId,
+      programmingSubPlanNumber
     });
   }
 
@@ -594,13 +597,15 @@ export const checkEmails = async () => {
                       link: AppRouteLinks.SampleRoute.link(result.sampleId)
                     },
                     [{ id: result.samplerId, email: result.samplerEmail }],
-                    undefined,
+                    { planTitle: programmingPlan?.title ?? '' },
                     {
                       additionalEmails: programmingPlan
                         ? getAlertEmails({
                             distributionKind: programmingPlan.distributionKind,
                             region: result.region,
-                            department: result.department
+                            department: result.department,
+                            programmingSubPlanNumber:
+                              result.programmingSubPlanNumber
                           })
                         : []
                     }

@@ -54,6 +54,7 @@ export const analysisHandler = async (
   region: Region;
   department: Department | null;
   programmingPlanId: string;
+  programmingSubPlanNumber: string;
 }> => {
   const {
     sampleId,
@@ -316,7 +317,8 @@ export const analysisHandler = async (
         compliance,
         region: region as Region,
         department: department as Department | null,
-        programmingPlanId
+        programmingPlanId,
+        programmingSubPlanNumber
       };
     }
   );
