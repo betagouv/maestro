@@ -47,6 +47,13 @@ const laboratoryApi = api.injectEndpoints({
         providesTags: [{ type: 'LaboratoryAgreement', id: 'LIST' }]
       }
     ),
+    findLaboratoryAgreementSubPlans: buildTypedQuery(
+      builder,
+      '/laboratories/agreements/sub-plans',
+      {
+        providesTags: [{ type: 'ProgrammingPlan', id: 'LIST' }]
+      }
+    ),
     findLaboratoryAgreementChecks: buildTypedQuery(
       builder,
       '/laboratories/agreements/checks',
@@ -98,6 +105,7 @@ export const {
   useGetLaboratoryConfigQuery,
   useUpdateLaboratoryConfigMutation,
   useFindLaboratoryAgreementsQuery,
+  useFindLaboratoryAgreementSubPlansQuery,
   useFindLaboratoryAgreementChecksQuery,
   useUpdateLaboratoryAgreementCheckMutation,
   useUpdateLaboratoryAgreementsMutation,

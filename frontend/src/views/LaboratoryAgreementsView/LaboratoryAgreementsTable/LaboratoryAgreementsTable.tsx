@@ -96,6 +96,8 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   const [animatingRowKeys, setAnimatingRowKeys] = useState<string[]>([]);
   const [pendingCheckRowKeys, setPendingCheckRowKeys] = useState<string[]>([]);
 
+  const columnCount = canEdit ? 7 : 4;
+
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const tableTopRef = useRef(0);
 
@@ -248,14 +250,14 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
               <col style={{ width: '12rem' }} />
               <col style={{ width: '16rem' }} />
               <col />
-              <col style={{ width: '4rem' }} />
-              <col style={{ width: '4rem' }} />
+              {canEdit && <col style={{ width: '4rem' }} />}
+              {canEdit && <col style={{ width: '4rem' }} />}
             </colgroup>
 
             <thead>
               <tr>
                 {canEdit && (
-                  <th scope="col">
+                  <th scope="col" className="col-select">
                     <div
                       className={clsx(
                         cx('fr-checkbox-group'),
@@ -278,7 +280,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     </div>
                   </th>
                 )}
-                <th scope="col">
+                <th scope="col" className="col-number">
                   <div className="border-left">
                     <ColumnFilterHeader
                       label="N°"
@@ -288,7 +290,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     />
                   </div>
                 </th>
-                <th scope="col">
+                <th scope="col" className="col-substances">
                   <div className="border-left">
                     <ColumnFilterHeader
                       label="Analytes"
@@ -298,7 +300,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     />
                   </div>
                 </th>
-                <th scope="col">
+                <th scope="col" className="col-matrix">
                   <div className="border-left">
                     <ColumnFilterHeader
                       label="Matrice"
@@ -308,7 +310,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     />
                   </div>
                 </th>
-                <th scope="col" colSpan={3}>
+                <th scope="col" className="col-labs" colSpan={canEdit ? 3 : 1}>
                   <div className="border-left">
                     <ColumnFilterHeader
                       label="Laboratoires agréés"
@@ -358,7 +360,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
               {paddingTop > 0 && (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={columnCount}
                     style={{ height: paddingTop, padding: 0, border: 'none' }}
                   />
                 </tr>
@@ -397,7 +399,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
               {paddingBottom > 0 && (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={columnCount}
                     style={{
                       height: paddingBottom,
                       padding: 0,

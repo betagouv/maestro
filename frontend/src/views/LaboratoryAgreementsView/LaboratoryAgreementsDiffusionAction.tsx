@@ -1,10 +1,10 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import { subPlanNumbersMissingAgreements } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type { LaboratoryAgreementDiffusion } from 'maestro-shared/schema/Laboratory/LaboratoryAgreementDiffusion';
+import { formatDate } from 'maestro-shared/utils/date';
 import { useContext, useMemo, useState } from 'react';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
@@ -38,7 +38,7 @@ export const LaboratoryAgreementsDiffusionAction = ({
   const { hasUserPermission } = useAuthentication();
   const [diffuseLaboratoryAgreements] =
     apiClient.useDiffuseLaboratoryAgreementsMutation();
-  const [diffusionSuccess, setDiffusionSuccess] = useState(false);
+  const [diffusedYear, setDiffusedYear] = useState<number>();
 
   const canDiffuse =
     isNil(diffusion) && hasUserPermission('diffuseLaboratoryAgreements');
@@ -61,74 +61,67 @@ export const LaboratoryAgreementsDiffusionAction = ({
     [programmingPlans, agreements, year]
   );
 
-  if (!isNil(diffusion)) {
-    if (!hasUserPermission('readUndiffusedLaboratoryAgreements')) {
-      return null;
-    }
-    return (
-      <div className={clsx('d-flex-align-center', cx('fr-text--sm'))}>
-        <span
-          className={cx(
-            'fr-icon-checkbox-circle-fill',
-            'fr-label--success',
-            'fr-mr-1w'
-          )}
-          aria-hidden="true"
-        />
-        <span>
-          <b>LabCam diffusé</b>
-          <br />
-          Le {new Date(diffusion.diffusedAt).toLocaleDateString('fr-FR')}
-        </span>
-      </div>
-    );
-  }
-
-  if (!canDiffuse) {
-    return null;
-  }
-
   return (
     <>
-      <Button
-        iconId="fr-icon-send-plane-fill"
-        onClick={() =>
-          missingSubPlanNumbers.length > 0
-            ? refusalModal.open()
-            : diffusionModal.open()
-        }
-      >
-        Diffuser le LabCam
-      </Button>
-      <ConfirmationModal
-        modal={diffusionModal}
-        title={`Êtes-vous sûr(e) de vouloir diffuser le LabCam ${year} ?`}
-        confirmLabel="Diffuser le LabCam"
-        closeOnConfirm
-        onConfirm={async () => {
-          await diffuseLaboratoryAgreements({ year }).unwrap();
-          setDiffusionSuccess(true);
-        }}
-      >
-        Cela aura pour effet de rendre visible le LabCam {year} à tous les
-        utilisateurs et utilisatrices de Maestro.
-      </ConfirmationModal>
-      <refusalModal.Component
-        title={`Vous ne pouvez pas diffuser le LabCam ${year} aux utilisateurs et utilisatrices de Maestro car le ou les sous-plans suivants n'ont pas de laboratoires attribués :`}
-        concealingBackdrop={false}
-        topAnchor
-        buttons={[{ children: 'Fermer', priority: 'secondary' }]}
-      >
-        <ul>
-          {missingSubPlanNumbers.map((subPlanNumber) => (
-            <li key={subPlanNumber}>{subPlanNumber}</li>
-          ))}
-        </ul>
-      </refusalModal.Component>
+      {!isNil(diffusion) &&
+        hasUserPermission('readUndiffusedLaboratoryAgreements') && (
+          <Alert
+            severity="success"
+            small
+            description={
+              <>
+                <b>LabCam diffusé</b>
+                <br />
+                Le {formatDate(new Date(diffusion.diffusedAt))}
+              </>
+            }
+          />
+        )}
+
+      {canDiffuse && (
+        <>
+          <Button
+            iconId="fr-icon-send-plane-fill"
+            onClick={() =>
+              missingSubPlanNumbers.length > 0
+                ? refusalModal.open()
+                : diffusionModal.open()
+            }
+          >
+            Diffuser le LabCam
+          </Button>
+          <ConfirmationModal
+            modal={diffusionModal}
+            title={`Êtes-vous sûr(e) de vouloir diffuser le LabCam ${year} ?`}
+            confirmLabel="Diffuser le LabCam"
+            closeOnConfirm
+            onConfirm={async () => {
+              await diffuseLaboratoryAgreements({ year }).unwrap();
+              setDiffusedYear(year);
+            }}
+          >
+            Cela aura pour effet de rendre visible le LabCam {year} à tous les
+            utilisateurs et utilisatrices de Maestro.
+          </ConfirmationModal>
+          <refusalModal.Component
+            title={`Vous ne pouvez pas diffuser le LabCam ${year} aux utilisateurs et utilisatrices de Maestro car le ou les sous-plans suivants n'ont pas de laboratoires attribués :`}
+            concealingBackdrop={false}
+            topAnchor
+            buttons={[{ children: 'Fermer', priority: 'secondary' }]}
+          >
+            <ul>
+              {missingSubPlanNumbers.map((subPlanNumber) => (
+                <li key={subPlanNumber}>{subPlanNumber}</li>
+              ))}
+            </ul>
+          </refusalModal.Component>
+        </>
+      )}
+
       <AppToast
-        open={diffusionSuccess}
-        description={`Le LabCam ${year} a été diffusé avec succès.`}
-        onClose={() => setDiffusionSuccess(false)}
+        open={!isNil(diffusedYear)}
+        description={`Le LabCam ${diffusedYear} a été diffusé avec succès.`}
+        onClose={() => setDiffusedYear(undefined)}
       />
     </>
   );

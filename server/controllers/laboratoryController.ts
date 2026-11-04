@@ -12,6 +12,7 @@ import { laboratoryAgreementRepository } from '../repositories/laboratoryAgreeme
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import localPrescriptionSubstanceKindLaboratoryRepository from '../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
+import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
@@ -157,6 +158,22 @@ export const laboratoriesRouter = {
       response.setHeader('Content-Length', `${buffer.length}`);
 
       return { status: HttpStatus.OK, response: buffer };
+    }
+  },
+  '/laboratories/agreements/sub-plans': {
+    get: async ({ query: { year }, userRole }) => {
+      console.info('Find laboratory agreement sub-plans', year);
+
+      if (!hasPermission(userRole, 'readUndiffusedLaboratoryAgreements')) {
+        const years = await diffusedYears();
+        if (!years.includes(year)) {
+          return { status: HttpStatus.FORBIDDEN };
+        }
+      }
+
+      const subPlans = await programmingSubPlanRepository.findMany({ year });
+
+      return { status: HttpStatus.OK, response: subPlans };
     }
   },
   '/laboratories/agreements/diffusions': {

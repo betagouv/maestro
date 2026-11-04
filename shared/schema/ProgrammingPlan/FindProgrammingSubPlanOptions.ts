@@ -3,7 +3,8 @@ import { ProgrammingSubPlanId } from './ProgrammingSubPlan';
 
 export const FindProgrammingSubPlanOptions = z.object({
   ids: z.array(ProgrammingSubPlanId).nullish(),
-  programmingPlanId: z.string().guid().nullish()
+  programmingPlanId: z.string().guid().nullish(),
+  year: z.coerce.number().int().nullish()
 });
 
 export type FindProgrammingSubPlanOptions = z.infer<

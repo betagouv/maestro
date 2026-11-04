@@ -17,6 +17,7 @@ import {
   LaboratoryResidueMapping,
   LaboratoryResidueMappingToUpdate
 } from '../schema/Laboratory/LaboratoryResidueMapping';
+import { ProgrammingSubPlan } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubRoutes } from './routes';
 
 export const laboratoriesRoutes = {
@@ -59,6 +60,14 @@ export const laboratoriesRoutes = {
       body: z.object({ year: z.number().int() }),
       permissions: ['diffuseLaboratoryAgreements'],
       response: LaboratoryAgreementDiffusion
+    }
+  },
+  '/laboratories/agreements/sub-plans': {
+    params: undefined,
+    get: {
+      query: z.object({ year: z.coerce.number().int() }),
+      permissions: ['readLaboratoryAgreements', 'manageLaboratoryAgreements'],
+      response: z.array(ProgrammingSubPlan)
     }
   },
   '/laboratories': {

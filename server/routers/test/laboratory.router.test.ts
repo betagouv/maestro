@@ -25,7 +25,8 @@ import {
   NationalObserver,
   RegionalCoordinator,
   RegionalObserver,
-  Sampler1Fixture
+  Sampler1Fixture,
+  SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import request from 'supertest';
@@ -410,6 +411,38 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
         .get(testRoute)
         .query({ year: PPVValidatedProgrammingPlanFixture.year + 1 })
         .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await kysely.deleteFrom('laboratoryAgreementDiffusions').execute();
+    });
+
+    test('should return the sub-plans of a diffused year to a sampler, whatever his stages and the plan status', async () => {
+      await kysely
+        .insertInto('laboratoryAgreementDiffusions')
+        .values({
+          year: PPVValidatedProgrammingPlanFixture.year,
+          diffusedAt: new Date(),
+          diffusedBy: AdminBGIRFixture.id
+        })
+        .execute();
+
+      const res = await request(app)
+        .get('/api/laboratories/agreements/sub-plans')
+        .query({ year: PPVValidatedProgrammingPlanFixture.year })
+        .use(tokenProvider(SamplerDaoaFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body.length).toBeGreaterThan(0);
+      expect(res.body).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: PPVValidatedSubPlanId })
+        ])
+      );
+
+      await request(app)
+        .get('/api/laboratories/agreements/sub-plans')
+        .query({ year: PPVValidatedProgrammingPlanFixture.year + 1 })
+        .use(tokenProvider(SamplerDaoaFixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
 
       await kysely.deleteFrom('laboratoryAgreementDiffusions').execute();
