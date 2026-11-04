@@ -5,9 +5,9 @@ import type {
   MatrixKind
 } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { MatrixReferentialFixture } from 'maestro-shared/test/matrixFixtures';
+import { AppHierarchicalSelectionModal } from 'src/components/_app/AppHierarchicalSelection/AppHierarchicalSelectionModal';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { MatrixSelectionModal } from './MatrixSelectionModal';
-import { subMatrices } from './matrixSelection';
+import { matrixHierarchy, subMatrices } from './matrixSelection';
 
 const storyModal = createModal({
   id: 'matrix-selection-modal-story',
@@ -16,19 +16,23 @@ const storyModal = createModal({
 
 const meta = {
   title: 'Views/ProgrammingPlanSettingsView/MatrixSelectionModal',
-  component: MatrixSelectionModal,
+  component: AppHierarchicalSelectionModal<MatrixKind, Matrix>,
   args: {
     modal: storyModal,
+    title: 'Matrices',
+    searchLabel: 'Rechercher une matrice',
+    allChildrenLabel: 'Toutes les matrices',
+    hierarchy: matrixHierarchy(MatrixReferentialFixture),
     selection: [
-      { matrixKind: 'A00QT' as MatrixKind, matrices: ['A00QV'] as Matrix[] },
+      { parent: 'A00QT' as MatrixKind, children: ['A00QV'] as Matrix[] },
       {
-        matrixKind: 'A01GP' as MatrixKind,
-        matrices: ['A01GS', 'A0DVG'] as Matrix[]
+        parent: 'A01GP' as MatrixKind,
+        children: ['A01GS', 'A0DVG'] as Matrix[]
       }
     ],
     onSave: fn()
   }
-} satisfies Meta<typeof MatrixSelectionModal>;
+} satisfies Meta<typeof AppHierarchicalSelectionModal<MatrixKind, Matrix>>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -89,8 +93,8 @@ export const CheckMatrixKind: Story = {
 
     await expect(args.onSave).toHaveBeenCalledWith([
       {
-        matrixKind: 'A01GP' as MatrixKind,
-        matrices: subMatrices(
+        parent: 'A01GP' as MatrixKind,
+        children: subMatrices(
           MatrixReferentialFixture,
           'A01GP' as MatrixKind
         ).filter((matrix) => matrix !== 'A01GS')
@@ -101,7 +105,7 @@ export const CheckMatrixKind: Story = {
 
 export const SearchAndSelectMatrix: Story = {
   args: {
-    selection: [{ matrixKind: 'A00QT' as MatrixKind, matrices: [] }]
+    selection: [{ parent: 'A00QT' as MatrixKind, children: [] }]
   },
   play: async ({ canvasElement, args }) => {
     const modal = await openModal(canvasElement);
@@ -128,8 +132,8 @@ export const SearchAndSelectMatrix: Story = {
     await userEvent.click(modal.getByRole('button', { name: 'Enregistrer' }));
 
     await expect(args.onSave).toHaveBeenCalledWith([
-      { matrixKind: 'A00QT' as MatrixKind, matrices: [] },
-      { matrixKind: 'A01GP' as MatrixKind, matrices: ['A01GS'] as Matrix[] }
+      { parent: 'A00QT' as MatrixKind, children: [] },
+      { parent: 'A01GP' as MatrixKind, children: ['A01GS'] as Matrix[] }
     ]);
   }
 };

@@ -4,70 +4,72 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import clsx from 'clsx';
-import {
-  type MatrixKind,
-  matrixKindLabel,
-  matrixLabel
-} from 'maestro-shared/schema/Matrix/MatrixReferential';
-import { isMatrixSelected } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import { useMemo, useState } from 'react';
 import { AppSelectionModal } from 'src/components/_app/AppSelectionModal/AppSelectionModal';
-import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { assert, type Equals } from 'tsafe';
-import { MatrixSelectionRows } from './MatrixSelectionRows';
+import { AppHierarchicalSelectionRows } from './AppHierarchicalSelectionRows';
 import {
-  filterMatrixKinds,
-  type MatrixSelection,
-  subMatrices,
-  toggleMatrix,
-  toggleMatrixKind
-} from './matrixSelection';
+  filterParents,
+  type HierarchicalSelection,
+  type Hierarchy,
+  isChildSelected,
+  toggleChild,
+  toggleParent
+} from './hierarchicalSelection';
 
-type Props = {
+type Props<P extends string, C extends string> = {
   modal: ReturnType<typeof createModal>;
-  selection: MatrixSelection;
-  onSave: (selection: MatrixSelection) => void;
+  title: string;
+  searchLabel: string;
+  allChildrenLabel: string;
+  hierarchy: Hierarchy<P, C>;
+  selection: HierarchicalSelection<P, C>;
+  onSave: (selection: HierarchicalSelection<P, C>) => void;
 };
 
-export const MatrixSelectionModal = ({
+export const AppHierarchicalSelectionModal = <
+  P extends string,
+  C extends string
+>({
   modal,
+  title,
+  searchLabel,
+  allChildrenLabel,
+  hierarchy,
   selection,
   onSave,
   ..._rest
-}: Props) => {
+}: Props<P, C>) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const matrixReferential = useMatrixReferential();
-  const [draft, setDraft] = useState<MatrixSelection>(selection);
+  const [draft, setDraft] = useState<HierarchicalSelection<P, C>>(selection);
   const [search, setSearch] = useState('');
-  const [expandedMatrixKinds, setExpandedMatrixKinds] = useState<MatrixKind[]>(
-    []
-  );
+  const [expandedParents, setExpandedParents] = useState<P[]>([]);
 
-  useIsModalOpen(modal, {
+  const isOpen = useIsModalOpen(modal, {
     onDisclose: () => setDraft(selection),
     onConceal: () => {
       setSearch('');
-      setExpandedMatrixKinds([]);
+      setExpandedParents([]);
     }
   });
 
   const options = useMemo(
-    () => filterMatrixKinds(matrixReferential, search),
-    [matrixReferential, search]
+    () => filterParents(hierarchy, search),
+    [hierarchy, search]
   );
 
-  const toggleExpanded = (matrixKind: MatrixKind) =>
-    setExpandedMatrixKinds((expanded) =>
-      expanded.includes(matrixKind)
-        ? expanded.filter((kind) => kind !== matrixKind)
-        : [...expanded, matrixKind]
+  const toggleExpanded = (parent: P) =>
+    setExpandedParents((expanded) =>
+      expanded.includes(parent)
+        ? expanded.filter((p) => p !== parent)
+        : [...expanded, parent]
     );
 
   return (
     <AppSelectionModal
       modal={modal}
-      title="Matrices"
+      title={title}
       buttons={[
         {
           children: 'Tout désélectionner',
@@ -87,18 +89,27 @@ export const MatrixSelectionModal = ({
           }
         }
       ]}
-      searchLabel="Rechercher une matrice"
+      searchLabel={searchLabel}
       search={search}
       onSearchChange={setSearch}
-      selection={<MatrixSelectionRows selection={draft} onChange={setDraft} />}
+      selection={
+        isOpen && (
+          <AppHierarchicalSelectionRows
+            hierarchy={hierarchy}
+            allChildrenLabel={allChildrenLabel}
+            selection={draft}
+            onChange={setDraft}
+          />
+        )
+      }
     >
-      {options.map(({ matrixKind, matrices, matchedByMatrix }) => {
-        const selected = draft.find((item) => item.matrixKind === matrixKind);
-        const matrixCount = subMatrices(matrixReferential, matrixKind).length;
-        const expanded =
-          matchedByMatrix || expandedMatrixKinds.includes(matrixKind);
+      {options.map(({ parent, children, matchedByChild }) => {
+        const selected = draft.find((item) => item.parent === parent);
+        const childCount = hierarchy.childrenOf(parent).length;
+        const expanded = matchedByChild || expandedParents.includes(parent);
+        const parentLabel = hierarchy.parentLabel(parent);
         return (
-          <div key={matrixKind} className="border-bottom">
+          <div key={parent} className="border-bottom">
             <div className="d-flex-row d-flex-align-center d-flex-justify-between">
               <Checkbox
                 small
@@ -107,25 +118,24 @@ export const MatrixSelectionModal = ({
                   {
                     label: (
                       <span>
-                        <b>{matrixKindLabel(matrixReferential, matrixKind)}</b>
-                        {matrixCount > 0 && ` (${matrixCount})`}
+                        <b>{parentLabel}</b>
+                        {childCount > 0 && ` (${childCount})`}
                       </span>
                     ),
                     nativeInputProps: {
-                      checked: selected?.matrices.length === 0,
+                      checked: selected?.children.length === 0,
                       ref: (input: HTMLInputElement | null) => {
                         if (input) {
                           input.indeterminate =
-                            (selected?.matrices.length ?? 0) > 0;
+                            (selected?.children.length ?? 0) > 0;
                         }
                       },
-                      onChange: () =>
-                        setDraft(toggleMatrixKind(draft, matrixKind))
+                      onChange: () => setDraft(toggleParent(draft, parent))
                     }
                   }
                 ]}
               />
-              {matrixCount > 0 && (
+              {childCount > 0 && (
                 <Button
                   iconId={
                     expanded
@@ -136,10 +146,10 @@ export const MatrixSelectionModal = ({
                   size="small"
                   title={
                     expanded
-                      ? `Replier ${matrixKindLabel(matrixReferential, matrixKind)}`
-                      : `Déplier ${matrixKindLabel(matrixReferential, matrixKind)}`
+                      ? `Replier ${parentLabel}`
+                      : `Déplier ${parentLabel}`
                   }
-                  onClick={() => toggleExpanded(matrixKind)}
+                  onClick={() => toggleExpanded(parent)}
                 />
               )}
             </div>
@@ -150,19 +160,12 @@ export const MatrixSelectionModal = ({
                   cx('fr-ml-3w', 'fr-mb-1w'),
                   'checkbox-list-compact'
                 )}
-                options={matrices.map((matrix) => ({
-                  label: matrixLabel(matrixReferential, matrix),
+                options={children.map((child) => ({
+                  label: hierarchy.childLabel(child),
                   nativeInputProps: {
-                    checked: isMatrixSelected(selected, matrix),
+                    checked: isChildSelected(selected, child),
                     onChange: () =>
-                      setDraft(
-                        toggleMatrix(
-                          matrixReferential,
-                          draft,
-                          matrixKind,
-                          matrix
-                        )
-                      )
+                      setDraft(toggleChild(hierarchy, draft, parent, child))
                   }
                 }))}
               />

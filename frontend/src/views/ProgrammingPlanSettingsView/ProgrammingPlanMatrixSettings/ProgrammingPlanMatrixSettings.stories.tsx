@@ -189,7 +189,7 @@ export const Disabled: Story = {
       canvas.queryByRole('button', { name: 'Mirabelles' })
     ).not.toBeInTheDocument();
     await expect(
-      canvas.queryByRole('button', { name: 'Modifier' })
+      canvas.queryByRole('button', { name: 'Modifier les matrices' })
     ).not.toBeInTheDocument();
     await expect(
       canvas.getByRole('radio', { name: 'Toutes (et)' })
@@ -277,7 +277,7 @@ export const SelectMatrixInModal: Story = {
       canvas.getByRole('button', { name: 'Mirabelles' })
     ).toBeInTheDocument();
     await expect(
-      canvas.getByRole('button', { name: 'Modifier' })
+      canvas.getByRole('button', { name: 'Modifier les matrices' })
     ).toBeInTheDocument();
   }
 };

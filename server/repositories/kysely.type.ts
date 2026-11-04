@@ -8,7 +8,7 @@ import type { Department } from 'maestro-shared/referential/Department';
 import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import type { Region } from 'maestro-shared/referential/Region';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import type { Stage } from 'maestro-shared/referential/Stage';
+import type { Stage, SubPlanStages } from 'maestro-shared/referential/Stage';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import type { AnalysisKind } from 'maestro-shared/schema/Analysis/Residue/AnalysisKind';
@@ -66,7 +66,10 @@ import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKin
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import type { MaestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
-import type { ProgrammingPlanSamplesJson } from './programmingPlanSettingsRow';
+import type {
+  ProgrammingPlanSamplesJson,
+  ProgrammingPlanStagesJson
+} from './programmingPlanSettingsRow';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -330,7 +333,11 @@ export interface Prescriptions {
 }
 
 interface ProgrammingPlanSettings {
-  stages: Stage[] | null;
+  stages: ColumnType<
+    SubPlanStages | null,
+    ProgrammingPlanStagesJson | null | undefined,
+    ProgrammingPlanStagesJson | null
+  >;
   stagesManaged: Generated<boolean>;
   substanceKinds: SubstanceKind[] | null;
   substanceKindsManaged: Generated<boolean>;

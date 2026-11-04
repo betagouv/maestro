@@ -1,3 +1,4 @@
+import { stagesOfSelection } from 'maestro-shared/referential/Stage';
 import { isPPVSubPlanNumber } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import {
@@ -9,8 +10,10 @@ import { genUser } from 'maestro-shared/test/userFixtures';
 import { describe, expect, test } from 'vitest';
 import { userRepository } from './userRepository';
 
-const PPVStages = PPVValidatedSubPlanFixture.stages ?? [];
-const AbattoirStages = DAOAVolailleValidatedSubPlanFixture.stages ?? [];
+const PPVStages = stagesOfSelection(PPVValidatedSubPlanFixture.stages);
+const AbattoirStages = stagesOfSelection(
+  DAOAVolailleValidatedSubPlanFixture.stages
+);
 
 test("impossible d'avoir 2 utilisateurs avec le même email", async () => {
   const email = 'email@email.fr';

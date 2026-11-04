@@ -1202,7 +1202,7 @@ describe('Local prescriptions router', () => {
       subPlans: plan.subPlans.map((subPlan) => ({
         ...subPlan,
         subPlanNumber: 'M01',
-        stages: ['ABATTAGE' as const]
+        stages: [{ stage: 'ABATTAGE' as const, subStages: [] }]
       }))
     });
 

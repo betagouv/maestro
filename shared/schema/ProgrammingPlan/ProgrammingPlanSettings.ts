@@ -1,7 +1,7 @@
 import { intersection, isNil, pick, uniq } from 'lodash-es';
 import { z } from 'zod';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
-import { Stage } from '../../referential/Stage';
+import { SubPlanStages } from '../../referential/Stage';
 import { refineSchema } from '../../utils/zod';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import { ProgrammingPlanContext } from './Context';
@@ -47,7 +47,7 @@ const Substances = refineSchema(
 );
 
 export const ProgrammingPlanSettings = z.object({
-  stages: z.array(Stage).nullable(),
+  stages: SubPlanStages.nullable(),
   stagesManaged: z.boolean(),
   substanceKinds: z.array(SubstanceKind).nullable(),
   substanceKindsManaged: z.boolean(),

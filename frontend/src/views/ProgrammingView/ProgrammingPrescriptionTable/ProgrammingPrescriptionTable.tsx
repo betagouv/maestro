@@ -11,7 +11,7 @@ import {
   RegionList,
   Regions
 } from 'maestro-shared/referential/Region';
-import { StageLabels } from 'maestro-shared/referential/Stage';
+import { stageSelectionLabels } from 'maestro-shared/referential/Stage';
 import type { Company } from 'maestro-shared/schema/Company/Company';
 import {
   type LocalPrescription,
@@ -509,7 +509,7 @@ const ProgrammingPrescriptionTable = ({
         groups.set(key, {
           key,
           context,
-          stages: [...stages].sort(),
+          stages: stages.toSorted((a, b) => a.stage.localeCompare(b.stage)),
           prescriptions: [prescription]
         });
       }
@@ -826,9 +826,7 @@ const ProgrammingPrescriptionTable = ({
                         {[
                           domainLabels[plan.domainId],
                           plan.title,
-                          group.stages
-                            .map((stage) => StageLabels[stage])
-                            .join(', '),
+                          stageSelectionLabels(group.stages).join(', '),
                           context ? ContextLabels[context] : ''
                         ]
                           .filter(Boolean)

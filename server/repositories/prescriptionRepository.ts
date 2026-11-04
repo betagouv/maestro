@@ -1,4 +1,5 @@
 import type { Knex } from 'knex';
+import { sql } from 'kysely';
 import { intersection, isNil, omit, omitBy, uniq } from 'lodash-es';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { SlaughterhouseStage } from 'maestro-shared/referential/Stage';
@@ -19,7 +20,7 @@ import {
 import type { PendingChangeVisibility } from 'maestro-shared/schema/User/UserRole';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
-import type { KyselyMaestro } from './kysely.type';
+import { type KyselyMaestro, toSqlArray } from './kysely.type';
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { programmingPlansTable } from './programmingPlanRepository';
 import { programmingSubPlansTable } from './programmingSubPlanRepository';
@@ -63,19 +64,22 @@ const subPlanIdsFilter = async (
         )
       : [];
 
-    const subPlanIds = await db(programmingSubPlansTable)
+    const subPlanStage = findOptions.subPlanStage;
+    const subPlanIds = await kysely
+      .selectFrom('programmingSubPlans')
       .select('id')
-      .modify((builder) => {
-        if (findOptions.subPlanStage) {
-          builder.where('stages', '@>', [findOptions.subPlanStage]);
-        }
-        if (findOptions.coordinatorIds?.length) {
-          builder.where('stages', '&&', stages);
-        }
-      })
-      .then((rows: { id: string }[]) =>
-        rows.map((row) => row.id as ProgrammingSubPlanId)
-      );
+      .$if(!isNil(subPlanStage), (qb) =>
+        qb.where(
+          sql<boolean>`stages @> ${JSON.stringify([{ stage: subPlanStage }])}::jsonb`
+        )
+      )
+      .$if(!!coordinatorIds?.length, (qb) =>
+        qb.where(
+          sql<boolean>`jsonb_path_query_array(stages, '$[*].stage') ?| ${toSqlArray(stages)}`
+        )
+      )
+      .execute()
+      .then((rows) => rows.map((row) => row.id));
 
     filters.push(subPlanIds);
   }
@@ -373,7 +377,7 @@ const missingDistributionExpression = (
 
   if (findOptions.department) {
     return [
-      `case when '${SlaughterhouseStage}' = any(${programmingSubPlansTable}.stages)
+      `case when ${programmingSubPlansTable}.stages @> '[{"stage": "${SlaughterhouseStage}"}]'
        then ${distributedToSlaughterhouses(findOptions, visibility)}
        else false
        end`,

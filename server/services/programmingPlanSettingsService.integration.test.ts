@@ -1,4 +1,4 @@
-import type { Stage } from 'maestro-shared/referential/Stage';
+import type { SubPlanStages } from 'maestro-shared/referential/Stage';
 import {
   defaultProgrammingPlanSample,
   type ProgrammingPlanSampleSetting
@@ -74,18 +74,18 @@ describe('ProgrammingPlan settings inheritance', () => {
     }
   });
 
-  const managePlanStages = (stages: Stage[] | null) =>
+  const managePlanStages = (stages: SubPlanStages | null) =>
     savePlanSettings({ stages, stagesManaged: true });
 
   describe('when the plan starts managing a setting', () => {
     test('should hand its value down to every sub-plan without touching their own value', async () => {
-      await managePlanStages(['TRANSFORMATION']);
+      await managePlanStages([{ stage: 'TRANSFORMATION', subStages: [] }]);
 
       for (const subPlan of subPlanFixtures) {
         await expect(
           programmingSubPlanRepository.findUnique(subPlan.id)
         ).resolves.toMatchObject({
-          stages: ['TRANSFORMATION'],
+          stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
           stagesManaged: false
         });
         await expect(findOwnSettings(subPlan.id)).resolves.toStrictEqual({
@@ -108,40 +108,46 @@ describe('ProgrammingPlan settings inheritance', () => {
 
   describe('when the plan keeps managing a setting', () => {
     test('should update the inherited sub-plans and leave the detached ones alone', async () => {
-      await managePlanStages(['TRANSFORMATION']);
+      await managePlanStages([{ stage: 'TRANSFORMATION', subStages: [] }]);
       await programmingSubPlanRepository.updateSettings(
         DAOAVolailleInProgressSubPlanFixture.id,
-        { stages: ['ELEVAGE'], stagesManaged: true }
+        { stages: [{ stage: 'ELEVAGE', subStages: [] }], stagesManaged: true }
       );
 
-      await managePlanStages(['ABATTAGE']);
+      await managePlanStages([{ stage: 'ABATTAGE', subStages: [] }]);
 
       await expect(
         programmingSubPlanRepository.findUnique(
           DAOAVolailleInProgressSubPlanFixture.id
         )
-      ).resolves.toMatchObject({ stages: ['ELEVAGE'], stagesManaged: true });
+      ).resolves.toMatchObject({
+        stages: [{ stage: 'ELEVAGE', subStages: [] }],
+        stagesManaged: true
+      });
       await expect(
         programmingSubPlanRepository.findUnique(
           DAOABovinInProgressSubPlanFixture.id
         )
-      ).resolves.toMatchObject({ stages: ['ABATTAGE'], stagesManaged: false });
+      ).resolves.toMatchObject({
+        stages: [{ stage: 'ABATTAGE', subStages: [] }],
+        stagesManaged: false
+      });
     });
   });
 
   describe('when the plan stops managing a setting', () => {
     test('should freeze the inherited value on every sub-plan', async () => {
-      await managePlanStages(['TRANSFORMATION']);
+      await managePlanStages([{ stage: 'TRANSFORMATION', subStages: [] }]);
 
       await savePlanSettings({
-        stages: ['TRANSFORMATION'],
+        stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
         stagesManaged: false
       });
 
       for (const subPlan of subPlanFixtures) {
         await expect(findOwnSettings(subPlan.id)).resolves.toStrictEqual({
           ...pickProgrammingPlanSettings(subPlan),
-          stages: ['TRANSFORMATION'],
+          stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
           stagesManaged: true
         });
       }
@@ -292,38 +298,41 @@ describe('ProgrammingPlan settings inheritance', () => {
 
   describe('when a sub-plan detaches or reattaches', () => {
     test('should resolve on its own value, leaving its siblings inherited', async () => {
-      await managePlanStages(['TRANSFORMATION']);
+      await managePlanStages([{ stage: 'TRANSFORMATION', subStages: [] }]);
 
       await programmingSubPlanRepository.updateSettings(
         DAOAVolailleInProgressSubPlanFixture.id,
-        { stages: ['ELEVAGE'], stagesManaged: true }
+        { stages: [{ stage: 'ELEVAGE', subStages: [] }], stagesManaged: true }
       );
 
       await expect(
         programmingSubPlanRepository.findUnique(
           DAOAVolailleInProgressSubPlanFixture.id
         )
-      ).resolves.toMatchObject({ stages: ['ELEVAGE'], stagesManaged: true });
+      ).resolves.toMatchObject({
+        stages: [{ stage: 'ELEVAGE', subStages: [] }],
+        stagesManaged: true
+      });
       await expect(
         programmingSubPlanRepository.findUnique(
           DAOABovinInProgressSubPlanFixture.id
         )
       ).resolves.toMatchObject({
-        stages: ['TRANSFORMATION'],
+        stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
         stagesManaged: false
       });
     });
 
     test('should resolve on the plan value again once reattached', async () => {
-      await managePlanStages(['TRANSFORMATION']);
+      await managePlanStages([{ stage: 'TRANSFORMATION', subStages: [] }]);
       await programmingSubPlanRepository.updateSettings(
         DAOAVolailleInProgressSubPlanFixture.id,
-        { stages: ['ELEVAGE'], stagesManaged: true }
+        { stages: [{ stage: 'ELEVAGE', subStages: [] }], stagesManaged: true }
       );
 
       await programmingSubPlanRepository.updateSettings(
         DAOAVolailleInProgressSubPlanFixture.id,
-        { stages: ['ELEVAGE'], stagesManaged: false }
+        { stages: [{ stage: 'ELEVAGE', subStages: [] }], stagesManaged: false }
       );
 
       await expect(
@@ -331,7 +340,7 @@ describe('ProgrammingPlan settings inheritance', () => {
           DAOAVolailleInProgressSubPlanFixture.id
         )
       ).resolves.toMatchObject({
-        stages: ['TRANSFORMATION'],
+        stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
         stagesManaged: false
       });
     });
@@ -356,7 +365,7 @@ describe('ProgrammingPlan settings inheritance', () => {
       expect.not.arrayContaining(subPlanIds)
     );
 
-    await managePlanStages(['ABATTAGE']);
+    await managePlanStages([{ stage: 'ABATTAGE', subStages: [] }]);
 
     await expect(targetedSubPlanIds()).resolves.toEqual(
       expect.arrayContaining(subPlanIds)

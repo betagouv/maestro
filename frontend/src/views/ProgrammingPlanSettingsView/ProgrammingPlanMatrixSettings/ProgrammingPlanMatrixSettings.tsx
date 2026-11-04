@@ -1,18 +1,19 @@
-import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
-import clsx from 'clsx';
 import type {
   MatrixOperator,
   SubPlanMatrices
 } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
-import type { ReactNode } from 'react';
-import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
+import { type ReactNode, useMemo } from 'react';
+import { AppHierarchicalSelection } from 'src/components/_app/AppHierarchicalSelection/AppHierarchicalSelection';
+import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { assert, type Equals } from 'tsafe';
-import { MatrixSelectionModal } from './MatrixSelectionModal';
-import { MatrixSelectionRows } from './MatrixSelectionRows';
-import type { MatrixSelection } from './matrixSelection';
+import {
+  fromMatrixHierarchicalSelection,
+  matrixHierarchy,
+  toMatrixHierarchicalSelection
+} from './matrixSelection';
 
 const matrixSelectionModal = createModal({
   id: 'programming-sub-plan-matrix-selection-modal',
@@ -44,17 +45,11 @@ export const ProgrammingPlanMatrixSettings = ({
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const selection = matrices?.items ?? [];
-
-  const changeSelection = (items: MatrixSelection) =>
-    onChange(
-      items.length === 0
-        ? null
-        : {
-            operator: items.length > 1 ? (matrices?.operator ?? 'Or') : 'Or',
-            items
-          }
-    );
+  const matrixReferential = useMatrixReferential();
+  const hierarchy = useMemo(
+    () => matrixHierarchy(matrixReferential),
+    [matrixReferential]
+  );
 
   const operatorSegment = (operator: MatrixOperator) => ({
     label: operatorLabels[operator],
@@ -66,57 +61,44 @@ export const ProgrammingPlanMatrixSettings = ({
   });
 
   return (
-    <div>
-      <span className={cx('fr-label', 'fr-mb-1w')}>
-        {label}
-        {required && <AppRequiredInput />}
-      </span>
-      {matrices === null ? (
-        !disabled && (
-          <Button
-            iconId="fr-icon-add-line"
-            priority="secondary"
-            size="small"
-            onClick={() => matrixSelectionModal.open()}
-          >
-            Ajouter catégorie(s) de matrice
-          </Button>
-        )
-      ) : (
-        <>
-          {matrices.items.length > 1 && (
-            <SegmentedControl
-              small
-              hideLegend
-              legend="Matrices à prélever"
-              className={cx('fr-mb-1w')}
-              segments={[operatorSegment('Or'), operatorSegment('And')]}
-            />
-          )}
-          <MatrixSelectionRows
-            selection={selection}
-            disabled={disabled}
-            onChange={changeSelection}
+    <AppHierarchicalSelection
+      modal={matrixSelectionModal}
+      label={label}
+      required={required}
+      disabled={disabled}
+      errorMessage={errorMessage}
+      texts={{
+        add: 'Ajouter catégorie(s) de matrice',
+        edit: 'Modifier les matrices',
+        modalTitle: 'Matrices',
+        search: 'Rechercher une matrice',
+        allChildren: 'Toutes les matrices'
+      }}
+      hierarchy={hierarchy}
+      selection={toMatrixHierarchicalSelection(matrices?.items ?? [])}
+      header={
+        (matrices?.items.length ?? 0) > 1 && (
+          <SegmentedControl
+            small
+            hideLegend
+            legend="Matrices à prélever"
+            className={cx('fr-mb-1w')}
+            segments={[operatorSegment('Or'), operatorSegment('And')]}
           />
-          {!disabled && (
-            <div className={clsx('border-top', cx('fr-pt-2w'))}>
-              <Button
-                iconId="fr-icon-edit-line"
-                priority="secondary"
-                size="small"
-                title="Modifier"
-                onClick={() => matrixSelectionModal.open()}
-              />
-            </div>
-          )}
-        </>
-      )}
-      {errorMessage && <p className={cx('fr-error-text')}>{errorMessage}</p>}
-      <MatrixSelectionModal
-        modal={matrixSelectionModal}
-        selection={selection}
-        onSave={changeSelection}
-      />
-    </div>
+        )
+      }
+      onChange={(selection) => {
+        const items = fromMatrixHierarchicalSelection(selection);
+        onChange(
+          items.length === 0
+            ? null
+            : {
+                operator:
+                  items.length > 1 ? (matrices?.operator ?? 'Or') : 'Or',
+                items
+              }
+        );
+      }}
+    />
   );
 };

@@ -3,6 +3,7 @@ import { fakerFR } from '@faker-js/faker';
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
 import type { Region } from 'maestro-shared/referential/Region';
 import { Regions } from 'maestro-shared/referential/Region';
+import { stagesOfSelection } from 'maestro-shared/referential/Stage';
 import {
   DAOAVolailleValidatedSubPlanFixture,
   PPVValidatedSubPlanFixture
@@ -41,8 +42,10 @@ import {
   tokenProvider
 } from '../../test/testUtils';
 
-const PPVStages = PPVValidatedSubPlanFixture.stages ?? [];
-const AbattoirStages = DAOAVolailleValidatedSubPlanFixture.stages ?? [];
+const PPVStages = stagesOfSelection(PPVValidatedSubPlanFixture.stages);
+const AbattoirStages = stagesOfSelection(
+  DAOAVolailleValidatedSubPlanFixture.stages
+);
 
 describe('User router', () => {
   const { app } = createServer();

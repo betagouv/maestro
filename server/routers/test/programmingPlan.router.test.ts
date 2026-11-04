@@ -5,7 +5,7 @@ import {
   RegionList,
   Regions
 } from 'maestro-shared/referential/Region';
-import type { Stage } from 'maestro-shared/referential/Stage';
+import type { SubPlanStages } from 'maestro-shared/referential/Stage';
 import type {
   Matrix,
   MatrixKind
@@ -1168,7 +1168,7 @@ describe('ProgrammingPlan router', () => {
           genProgrammingSubPlan({
             programmingPlanId: departmentalPlanId,
             subPlanNumber: 'DEP01',
-            stages: ['TRANSFORMATION']
+            stages: [{ stage: 'TRANSFORMATION', subStages: [] }]
           })
         ],
         nationalStatus: { status: 'SubmittedToRegion' },
@@ -2074,7 +2074,9 @@ describe('ProgrammingPlan router', () => {
 
     const validBody = {
       ...emptyProgrammingPlanSettings(false),
-      stages: ['TRANSFORMATION'] satisfies Stage[],
+      stages: [
+        { stage: 'TRANSFORMATION', subStages: [] }
+      ] satisfies SubPlanStages,
       stagesManaged: true,
       settingsCompleted: false,
       nationalCoordinators: [
@@ -2135,7 +2137,10 @@ describe('ProgrammingPlan router', () => {
     test('should get the whole level state, switches included', async () => {
       await request(app)
         .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
-        .send({ stages: ['TRANSFORMATION'], fields: [] })
+        .send({
+          stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
+          fields: []
+        })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
@@ -2295,7 +2300,9 @@ describe('ProgrammingPlan router', () => {
 
     const validBody = {
       ...emptyProgrammingPlanSettings(true),
-      stages: ['TRANSFORMATION'] satisfies Stage[],
+      stages: [
+        { stage: 'TRANSFORMATION', subStages: [] }
+      ] satisfies SubPlanStages,
       settingsCompleted: false,
       matrices: {
         operator: 'And',

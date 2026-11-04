@@ -4,18 +4,27 @@ export type ProgrammingPlanSamplesJson = string & {
   __brand: 'ProgrammingPlanSamplesJson';
 };
 
-export const toProgrammingPlanSettingsRow = <
-  T extends Partial<Pick<ProgrammingPlanSettings, 'samples'>>
->({
+export type ProgrammingPlanStagesJson = string & {
+  __brand: 'ProgrammingPlanStagesJson';
+};
+
+type JsonArraySettings = Partial<
+  Pick<ProgrammingPlanSettings, 'samples' | 'stages'>
+>;
+
+export const toProgrammingPlanSettingsRow = <T extends JsonArraySettings>({
   samples,
+  stages,
   ...row
 }: T) => ({
   ...row,
   ...(samples !== undefined && {
     samples: samples && (JSON.stringify(samples) as ProgrammingPlanSamplesJson)
+  }),
+  ...(stages !== undefined && {
+    stages: stages && (JSON.stringify(stages) as ProgrammingPlanStagesJson)
   })
 });
 
-export type ProgrammingPlanSettingsRow<
-  T extends Partial<Pick<ProgrammingPlanSettings, 'samples'>>
-> = ReturnType<typeof toProgrammingPlanSettingsRow<T>>;
+export type ProgrammingPlanSettingsRow<T extends JsonArraySettings> =
+  ReturnType<typeof toProgrammingPlanSettingsRow<T>>;

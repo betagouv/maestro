@@ -32,7 +32,7 @@ const storedSettings: ProgrammingPlanSettings & {
   fields: ProgrammingPlanFieldSetting[];
 } = {
   ...emptyProgrammingPlanSettings(true),
-  stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+  stages: [{ stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] }],
   substanceKinds: ['Mono'],
   context: 'Control',
   notes: 'Note',
@@ -112,7 +112,7 @@ describe('ProgrammingPlanEditionPhase', () => {
     expect(
       lockedSettingsChanged('Launched', unmanaged, {
         ...unmanaged,
-        stages: ['ABATTAGE']
+        stages: [{ stage: 'ABATTAGE', subStages: [] }]
       })
     ).toBe(false);
   });

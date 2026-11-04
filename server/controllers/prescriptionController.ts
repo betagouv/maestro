@@ -1,6 +1,10 @@
 import { isNil, sumBy, uniq } from 'lodash-es';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
-import { type Stage, StageList } from 'maestro-shared/referential/Stage';
+import {
+  type Stage,
+  StageList,
+  stagesOfSelection
+} from 'maestro-shared/referential/Stage';
 import {
   hasPrescriptionPermission,
   type Prescription
@@ -296,7 +300,10 @@ export const prescriptionsRouter = {
         ids: uniq(rows.map((row) => row.subPlanId))
       });
       const stagesBySubPlanId = new Map<ProgrammingSubPlanId, Stage[]>(
-        subPlans.map((subPlan) => [subPlan.id, subPlan.stages ?? []])
+        subPlans.map((subPlan) => [
+          subPlan.id,
+          stagesOfSelection(subPlan.stages)
+        ])
       );
 
       const plans = await programmingPlanRepository.findMany({

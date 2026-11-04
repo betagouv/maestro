@@ -1,148 +1,13 @@
 import {
-  type Matrix,
   type MatrixKind,
   matricesOfKind
 } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { MatrixReferentialFixture } from 'maestro-shared/test/matrixFixtures';
+import { filterParents } from 'src/components/_app/AppHierarchicalSelection/hierarchicalSelection';
 import { describe, expect, test } from 'vitest';
-import {
-  filterMatrixKinds,
-  removeMatrixKind,
-  subMatrices,
-  toggleMatrix,
-  toggleMatrixKind
-} from './matrixSelection';
+import { matrixHierarchy, subMatrices } from './matrixSelection';
 
-describe('removeMatrixKind', () => {
-  test('should remove the matrix kind with its detailed matrices', () => {
-    expect(
-      removeMatrixKind(
-        [
-          { matrixKind: 'A00QT' as MatrixKind, matrices: [] },
-          { matrixKind: 'A01GP' as MatrixKind, matrices: ['A01GS' as Matrix] }
-        ],
-        'A01GP' as MatrixKind
-      )
-    ).toStrictEqual([{ matrixKind: 'A00QT', matrices: [] }]);
-  });
-});
-
-describe('toggleMatrixKind', () => {
-  test('should select all the matrices of an unselected matrix kind', () => {
-    expect(toggleMatrixKind([], 'A01GP' as MatrixKind)).toStrictEqual([
-      { matrixKind: 'A01GP', matrices: [] }
-    ]);
-  });
-
-  test('should select all the matrices of a partially selected matrix kind', () => {
-    expect(
-      toggleMatrixKind(
-        [
-          {
-            matrixKind: 'A01GP' as MatrixKind,
-            matrices: ['A01GS', 'A0DVG'] as Matrix[]
-          },
-          { matrixKind: 'A00QT' as MatrixKind, matrices: [] }
-        ],
-        'A01GP' as MatrixKind
-      )
-    ).toStrictEqual([
-      { matrixKind: 'A01GP', matrices: [] },
-      { matrixKind: 'A00QT', matrices: [] }
-    ]);
-  });
-
-  test('should remove a fully selected matrix kind', () => {
-    expect(
-      toggleMatrixKind(
-        [
-          { matrixKind: 'A00QT' as MatrixKind, matrices: [] },
-          { matrixKind: 'A01GP' as MatrixKind, matrices: [] }
-        ],
-        'A01GP' as MatrixKind
-      )
-    ).toStrictEqual([{ matrixKind: 'A00QT', matrices: [] }]);
-  });
-});
-
-describe('toggleMatrix', () => {
-  test('should add the matrix kind when checking one of its matrices', () => {
-    expect(
-      toggleMatrix(
-        MatrixReferentialFixture,
-        [{ matrixKind: 'A00QT' as MatrixKind, matrices: [] }],
-        'A01GP' as MatrixKind,
-        'A01GS' as Matrix
-      )
-    ).toStrictEqual([
-      { matrixKind: 'A00QT', matrices: [] },
-      { matrixKind: 'A01GP', matrices: ['A01GS'] }
-    ]);
-  });
-
-  test('should keep the matrices sorted by label', () => {
-    expect(
-      toggleMatrix(
-        MatrixReferentialFixture,
-        [{ matrixKind: 'A01GP' as MatrixKind, matrices: ['A01GS' as Matrix] }],
-        'A01GP' as MatrixKind,
-        'A01GQ' as Matrix
-      )
-    ).toStrictEqual([{ matrixKind: 'A01GP', matrices: ['A01GS', 'A01GQ'] }]);
-  });
-
-  test('should detail the other matrices when unchecking a matrix of a fully selected matrix kind', () => {
-    expect(
-      toggleMatrix(
-        MatrixReferentialFixture,
-        [{ matrixKind: 'A01GP' as MatrixKind, matrices: [] }],
-        'A01GP' as MatrixKind,
-        'A01GS' as Matrix
-      )
-    ).toStrictEqual([
-      {
-        matrixKind: 'A01GP',
-        matrices: subMatrices(
-          MatrixReferentialFixture,
-          'A01GP' as MatrixKind
-        ).filter((matrix) => matrix !== 'A01GS')
-      }
-    ]);
-  });
-
-  test('should select the whole matrix kind when checking its last unchecked matrix', () => {
-    expect(
-      toggleMatrix(
-        MatrixReferentialFixture,
-        [
-          {
-            matrixKind: 'A01GP' as MatrixKind,
-            matrices: subMatrices(
-              MatrixReferentialFixture,
-              'A01GP' as MatrixKind
-            ).filter((matrix) => matrix !== 'A01GS')
-          }
-        ],
-        'A01GP' as MatrixKind,
-        'A01GS' as Matrix
-      )
-    ).toStrictEqual([{ matrixKind: 'A01GP', matrices: [] }]);
-  });
-
-  test('should remove the matrix kind when unchecking its last checked matrix', () => {
-    expect(
-      toggleMatrix(
-        MatrixReferentialFixture,
-        [
-          { matrixKind: 'A00QT' as MatrixKind, matrices: [] },
-          { matrixKind: 'A01GP' as MatrixKind, matrices: ['A01GS' as Matrix] }
-        ],
-        'A01GP' as MatrixKind,
-        'A01GS' as Matrix
-      )
-    ).toStrictEqual([{ matrixKind: 'A00QT', matrices: [] }]);
-  });
-});
+const hierarchy = matrixHierarchy(MatrixReferentialFixture);
 
 describe('subMatrices', () => {
   test('should list the matrices of the matrix kind sorted by label', () => {
@@ -166,64 +31,60 @@ describe('subMatrices', () => {
   });
 });
 
-describe('filterMatrixKinds', () => {
+describe('matrixHierarchy', () => {
   test('should list every matrix kind sorted by label without search', () => {
-    const options = filterMatrixKinds(MatrixReferentialFixture, '');
-    const prunesIndex = options.findIndex(
-      ({ matrixKind }) => matrixKind === 'A01GP'
-    );
-    const radisIndex = options.findIndex(
-      ({ matrixKind }) => matrixKind === 'A00QT'
-    );
+    const options = filterParents(hierarchy, '');
+    const prunesIndex = options.findIndex(({ parent }) => parent === 'A01GP');
+    const radisIndex = options.findIndex(({ parent }) => parent === 'A00QT');
 
     expect(prunesIndex).toBeGreaterThanOrEqual(0);
     expect(prunesIndex).toBeLessThan(radisIndex);
     expect(options[prunesIndex]).toStrictEqual({
-      matrixKind: 'A01GP',
-      matrices: subMatrices(MatrixReferentialFixture, 'A01GP' as MatrixKind),
-      matchedByMatrix: false
+      parent: 'A01GP',
+      children: subMatrices(MatrixReferentialFixture, 'A01GP' as MatrixKind),
+      matchedByChild: false
     });
   });
 
   test('should keep all matrices of a matrix kind matching by label', () => {
     expect(
-      filterMatrixKinds(MatrixReferentialFixture, '  PRUNES et ').find(
-        ({ matrixKind }) => matrixKind === 'A01GP'
+      filterParents(hierarchy, '  PRUNES et ').find(
+        ({ parent }) => parent === 'A01GP'
       )
     ).toStrictEqual({
-      matrixKind: 'A01GP',
-      matrices: subMatrices(MatrixReferentialFixture, 'A01GP' as MatrixKind),
-      matchedByMatrix: false
+      parent: 'A01GP',
+      children: subMatrices(MatrixReferentialFixture, 'A01GP' as MatrixKind),
+      matchedByChild: false
     });
   });
 
   test('should ignore accents and case', () => {
     expect(
-      filterMatrixKinds(MatrixReferentialFixture, 'AULX ET ECHALOTES').find(
-        ({ matrixKind }) => matrixKind === 'A00GY'
+      filterParents(hierarchy, 'AULX ET ECHALOTES').find(
+        ({ parent }) => parent === 'A00GY'
       )
     ).toStrictEqual({
-      matrixKind: 'A00GY',
-      matrices: subMatrices(MatrixReferentialFixture, 'A00GY' as MatrixKind),
-      matchedByMatrix: false
+      parent: 'A00GY',
+      children: subMatrices(MatrixReferentialFixture, 'A00GY' as MatrixKind),
+      matchedByChild: false
     });
   });
 
   test('should keep only the matching matrices of a matrix kind matching by matrix', () => {
     expect(
-      filterMatrixKinds(MatrixReferentialFixture, 'mirabelle').find(
-        ({ matrixKind }) => matrixKind === 'A01GP'
+      filterParents(hierarchy, 'mirabelle').find(
+        ({ parent }) => parent === 'A01GP'
       )
     ).toStrictEqual({
-      matrixKind: 'A01GP',
-      matrices: ['A01GS'],
-      matchedByMatrix: true
+      parent: 'A01GP',
+      children: ['A01GS'],
+      matchedByChild: true
     });
   });
 
   test('should exclude the matrix kinds matching neither by label nor by matrix', () => {
-    expect(
-      filterMatrixKinds(MatrixReferentialFixture, 'mirabelle')
-    ).not.toContainEqual(expect.objectContaining({ matrixKind: 'A00QT' }));
+    expect(filterParents(hierarchy, 'mirabelle')).not.toContainEqual(
+      expect.objectContaining({ parent: 'A00QT' })
+    );
   });
 });

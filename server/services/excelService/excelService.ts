@@ -11,7 +11,7 @@ import {
 } from 'maestro-shared/referential/Region';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { StageLabels } from 'maestro-shared/referential/Stage';
+import { stageSelectionLabels } from 'maestro-shared/referential/Stage';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import { ContaminationSourceLabels } from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
@@ -692,9 +692,9 @@ const generatePrescriptionsExportExcel = async (
         matrixReferential,
         prescriptionSubPlan?.matrices ?? null
       ).join(', '),
-      stages: (prescriptionSubPlan?.stages ?? [])
-        .map((stage) => StageLabels[stage])
-        .join(', '),
+      stages: stageSelectionLabels(prescriptionSubPlan?.stages ?? null).join(
+        ', '
+      ),
       instructions: prescriptionSubPlan?.programmingInstruction,
       notes: prescriptionSubPlan?.notes,
       columns: columns.map((v) => ({ value: v }))
@@ -844,9 +844,7 @@ const generateLaboratoryAgreementsExportExcel = async (
         subPlan?.matrices ?? null
       ).join(', ');
 
-      const stages = (subPlan?.stages ?? [])
-        .map((s) => StageLabels[s])
-        .join(', ');
+      const stages = stageSelectionLabels(subPlan?.stages ?? null).join(', ');
 
       const labCount = rowAgreements.filter(
         (a) =>
