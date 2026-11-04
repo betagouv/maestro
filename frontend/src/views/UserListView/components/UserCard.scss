@@ -36,6 +36,20 @@
   .fr-card__end {
     display: none;
   }
+
+  .user-card-establishments .fr-tag {
+    vertical-align: top;
+  }
+
+  .user-card-establishment {
+    max-width: 100%;
+  }
+
+  .user-card-establishment-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .user-list-item-card--myself {
