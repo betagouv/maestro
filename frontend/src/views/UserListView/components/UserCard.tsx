@@ -4,6 +4,7 @@ import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
+import { isEqual } from 'lodash-es';
 import { Regions } from 'maestro-shared/referential/Region';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
@@ -52,6 +53,14 @@ export const UserCard: FunctionComponent<Props> = ({
   );
 
   const isMyself = user.id === account?.id;
+  const establishments = laboratory
+    ? [{ id: laboratory.id, name: laboratory.name }]
+    : isEqual(user.roles, ['Sampler'])
+      ? user.companies.map((company) => ({
+          id: company.siret,
+          name: company.name
+        }))
+      : [];
 
   const canCertify =
     hasAccountPermission('administrationMaestro') &&
@@ -176,13 +185,6 @@ export const UserCard: FunctionComponent<Props> = ({
               ? `${Regions[user.region].name}${user.department ? ` - ${DepartmentLabels[user.department]}` : ''}`
               : 'France'}
           </span>
-          {!!laboratory && (
-            <span>
-              <Tag as={'span'} small={true} className={clsx('fr-mb-1w')}>
-                {laboratory.name}
-              </Tag>
-            </span>
-          )}
           {isNotEmpty(user.stages) && (
             <span>
               {user.stages.map((stage) => (
@@ -195,6 +197,43 @@ export const UserCard: FunctionComponent<Props> = ({
                   {StageLabels[stage]}
                 </Tag>
               ))}
+            </span>
+          )}
+          {isNotEmpty(establishments) && (
+            <span
+              className={clsx(
+                'user-card-establishments',
+                'border-top',
+                cx('fr-pt-2w')
+              )}
+            >
+              {establishments.slice(0, 3).map((establishment) => (
+                <Tag
+                  key={establishment.id}
+                  as={'span'}
+                  small={true}
+                  iconId={'fr-icon-building-line'}
+                  title={establishment.name}
+                  className={clsx('user-card-establishment', cx('fr-mb-1w'))}
+                >
+                  <span className={clsx('user-card-establishment-name')}>
+                    {establishment.name}
+                  </span>
+                </Tag>
+              ))}
+              {establishments.length > 3 && (
+                <Tag
+                  as={'span'}
+                  small={true}
+                  title={establishments
+                    .slice(3)
+                    .map((establishment) => establishment.name)
+                    .join('\n')}
+                  className={cx('fr-mb-1w')}
+                >
+                  +{establishments.length - 3}
+                </Tag>
+              )}
             </span>
           )}
         </span>
