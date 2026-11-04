@@ -7,8 +7,9 @@ describe('UserRole', () => {
     const bgirPermissions = UserRolePermissions.AdministratorBGIR;
     const maestroPermissions = UserRolePermissions.AdministratorMaestro;
 
-    test('should not be able to use mascarade, notices, descriptors and laboratory config', () => {
+    test('should not be able to use mascarade, notices, descriptors, laboratory config, nor edit the laboratory agreements', () => {
       expect(difference(maestroPermissions, bgirPermissions)).toEqual([
+        'manageLaboratoryAgreements',
         'manageMascarade',
         'manageNotices',
         'manageSpecificDataFields',
@@ -16,10 +17,11 @@ describe('UserRole', () => {
       ]);
     });
 
-    test('should have every other permission of the Maestro administrator, plus the plan submission', () => {
+    test('should have every other permission of the Maestro administrator, plus the plan submission and the agreements diffusion', () => {
       expect(difference(bgirPermissions, maestroPermissions)).toEqual([
         'sendProgrammingPlansToRegions',
-        'launchProgrammingPlanCampaign'
+        'launchProgrammingPlanCampaign',
+        'diffuseLaboratoryAgreements'
       ]);
     });
   });

@@ -1,5 +1,6 @@
 import { constants } from 'node:http2';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
+import { PPVValidatedSubPlanId } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminBGIRFixture,
   AdminFixture,
@@ -40,6 +41,22 @@ describe('AdministratorBGIR permissions', () => {
       await request(app)
         .post('/api/sacha/referentials')
         .send({ xmlContent: '<Commemoratifs />' })
+        .use(tokenProvider(AdminBGIRFixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should not be able to update the laboratory agreements', async () => {
+      await request(app)
+        .put(`/api/laboratories/${LaboratoryFixture.id}/agreements`)
+        .send({
+          laboratoryAgreementRowKey: {
+            programmingSubPlanId: PPVValidatedSubPlanId,
+            substanceKind: 'Mono'
+          },
+          referenceLaboratory: true,
+          detectionAnalysis: true,
+          confirmationAnalysis: false
+        })
         .use(tokenProvider(AdminBGIRFixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -108,6 +125,25 @@ describe('AdministratorBGIR permissions', () => {
     test('should still read the laboratory residue mappings', async () => {
       await request(app)
         .get(`/api/laboratories/${LaboratoryFixture.id}/residue-mappings`)
+        .use(tokenProvider(AdminBGIRFixture))
+        .expect(constants.HTTP_STATUS_OK);
+    });
+
+    test('should still read the laboratory agreements and be the only one to diffuse them', async () => {
+      await request(app)
+        .get('/api/laboratories/agreements')
+        .use(tokenProvider(AdminBGIRFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await request(app)
+        .post('/api/laboratories/agreements/diffusions')
+        .send({ year: 1998 })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await request(app)
+        .post('/api/laboratories/agreements/diffusions')
+        .send({ year: 1998 })
         .use(tokenProvider(AdminBGIRFixture))
         .expect(constants.HTTP_STATUS_OK);
     });

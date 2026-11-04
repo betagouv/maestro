@@ -62,6 +62,21 @@ const laboratoryApi = api.injectEndpoints({
         invalidatesTags: [{ type: 'LaboratoryAgreementCheck', id: 'LIST' }]
       }
     ),
+    findLaboratoryAgreementDiffusions: buildTypedQuery(
+      builder,
+      '/laboratories/agreements/diffusions',
+      {
+        providesTags: [{ type: 'LaboratoryAgreementDiffusion', id: 'LIST' }]
+      }
+    ),
+    diffuseLaboratoryAgreements: buildTypedMutation(
+      builder,
+      '/laboratories/agreements/diffusions',
+      'post',
+      {
+        invalidatesTags: [{ type: 'LaboratoryAgreementDiffusion', id: 'LIST' }]
+      }
+    ),
     updateLaboratoryAgreements: buildTypedMutation(
       builder,
       '/laboratories/:laboratoryId/agreements',
@@ -85,5 +100,7 @@ export const {
   useFindLaboratoryAgreementsQuery,
   useFindLaboratoryAgreementChecksQuery,
   useUpdateLaboratoryAgreementCheckMutation,
-  useUpdateLaboratoryAgreementsMutation
+  useUpdateLaboratoryAgreementsMutation,
+  useFindLaboratoryAgreementDiffusionsQuery,
+  useDiffuseLaboratoryAgreementsMutation
 } = laboratoryApi;

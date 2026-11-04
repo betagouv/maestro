@@ -56,6 +56,7 @@ interface Props {
   isAnimating: boolean;
   isLabsExpanded: boolean;
   isMatrixExpanded: boolean;
+  canEdit: boolean;
   laboratoriesById: Map<string, Laboratory>;
   onToggleSelect: (key: string) => void;
   onToggleExpand: (key: string) => void;
@@ -79,6 +80,7 @@ const AgreementTableRow = memo(function AgreementTableRow({
   isAnimating,
   isLabsExpanded,
   isMatrixExpanded,
+  canEdit,
   laboratoriesById,
   onToggleSelect,
   onToggleExpand,
@@ -161,21 +163,23 @@ const AgreementTableRow = memo(function AgreementTableRow({
   return (
     <>
       <tr className={clsx({ 'row-animating-out': isAnimating })}>
-        <td rowSpan={isExpanded ? 2 : 1} className="selectable-cell">
-          <Checkbox
-            options={[
-              {
-                label: '',
-                nativeInputProps: {
-                  checked: isSelected,
-                  onChange: () => onToggleSelect(rowKey)
+        {canEdit && (
+          <td rowSpan={isExpanded ? 2 : 1} className="selectable-cell">
+            <Checkbox
+              options={[
+                {
+                  label: '',
+                  nativeInputProps: {
+                    checked: isSelected,
+                    onChange: () => onToggleSelect(rowKey)
+                  }
                 }
-              }
-            ]}
-            small
-            className={cx('fr-pb-3w')}
-          />
-        </td>
+              ]}
+              small
+              className={cx('fr-pb-3w')}
+            />
+          </td>
+        )}
 
         <td>
           <div className={clsx('border-left', 'row-reference')}>
@@ -248,6 +252,7 @@ const AgreementTableRow = memo(function AgreementTableRow({
                   laboratoryAgreement={lab}
                   programmingSubPlan={row.programmingSubPlan}
                   laboratory={laboratory}
+                  disabled={!canEdit}
                 />
               );
             })}
@@ -277,27 +282,29 @@ const AgreementTableRow = memo(function AgreementTableRow({
           </div>
         </td>
 
-        <td colSpan={isChecked ? 2 : 1}>
+        <td colSpan={isChecked || !canEdit ? 2 : 1}>
           <div className="float-right">
-            <Button
-              iconId={
-                row.laboratories.length === 0
-                  ? 'fr-icon-add-line'
-                  : 'fr-icon-edit-line'
-              }
-              priority="tertiary"
-              size="medium"
-              title={
-                row.laboratories.length === 0
-                  ? 'Affecter des laboratoires'
-                  : 'Modifier les laboratoires'
-              }
-              onClick={() => onOpenModalForRow(row)}
-            />
+            {canEdit && (
+              <Button
+                iconId={
+                  row.laboratories.length === 0
+                    ? 'fr-icon-add-line'
+                    : 'fr-icon-edit-line'
+                }
+                priority="tertiary"
+                size="medium"
+                title={
+                  row.laboratories.length === 0
+                    ? 'Affecter des laboratoires'
+                    : 'Modifier les laboratoires'
+                }
+                onClick={() => onOpenModalForRow(row)}
+              />
+            )}
           </div>
         </td>
 
-        {!isChecked && (
+        {canEdit && !isChecked && (
           <td>
             <div className="check-cell row-unchecked">
               <RadioButtons

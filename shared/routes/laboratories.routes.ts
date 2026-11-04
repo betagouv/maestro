@@ -12,6 +12,7 @@ import {
   LaboratoryAgreementRowKey,
   LaboratoryAgreementUpdate
 } from '../schema/Laboratory/LaboratoryAgreement';
+import { LaboratoryAgreementDiffusion } from '../schema/Laboratory/LaboratoryAgreementDiffusion';
 import {
   LaboratoryResidueMapping,
   LaboratoryResidueMappingToUpdate
@@ -24,7 +25,7 @@ export const laboratoriesRoutes = {
     get: {
       query: FindLaboratoryAgreementsOptions,
       response: z.array(LaboratoryAgreement),
-      permissions: ['manageLaboratoryAgreements']
+      permissions: ['readLaboratoryAgreements', 'manageLaboratoryAgreements']
     }
   },
   '/laboratories/agreements/checks': {
@@ -44,8 +45,20 @@ export const laboratoriesRoutes = {
     params: undefined,
     get: {
       query: FindLaboratoryAgreementsOptions,
-      permissions: ['manageLaboratoryAgreements'],
+      permissions: ['readLaboratoryAgreements', 'manageLaboratoryAgreements'],
       response: z.custom<Buffer>()
+    }
+  },
+  '/laboratories/agreements/diffusions': {
+    params: undefined,
+    get: {
+      permissions: ['readLaboratoryAgreements', 'manageLaboratoryAgreements'],
+      response: z.array(LaboratoryAgreementDiffusion)
+    },
+    post: {
+      body: z.object({ year: z.number().int() }),
+      permissions: ['diffuseLaboratoryAgreements'],
+      response: LaboratoryAgreementDiffusion
     }
   },
   '/laboratories': {
