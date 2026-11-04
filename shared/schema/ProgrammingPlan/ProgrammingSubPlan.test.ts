@@ -17,7 +17,7 @@ describe('subPlanLabel', () => {
       subPlanLabel(
         MatrixReferentialFixture,
         genProgrammingSubPlan({
-          stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+          stages: [{ stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] }],
           substanceKinds: ['Multi'],
           matrices: genSubPlanMatrices('A01GP' as MatrixKind, [
             'A01GS' as Matrix
@@ -35,7 +35,10 @@ describe('subPlanLabel', () => {
       subPlanLabel(
         MatrixReferentialFixture,
         genProgrammingSubPlan({
-          stages: ['ELEVAGE', 'ABATTAGE'],
+          stages: [
+            { stage: 'ELEVAGE', subStages: [] },
+            { stage: 'ABATTAGE', subStages: [] }
+          ],
           substanceKinds: ['Mono', 'Multi'],
           matrices: genSubPlanMatrices('A01GP' as MatrixKind),
           context: 'Control'
@@ -81,7 +84,7 @@ describe('analysisPermissionRoles', () => {
       analysisPermissionRoles(
         genProgrammingSubPlan({
           subPlanNumber: 'PPV01',
-          stages: ['PRODUCTION_PRIMAIRE_VEGETALE']
+          stages: [{ stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] }]
         })
       )
     ).toEqual(['Sampler', 'RegionalCoordinator']);
@@ -92,7 +95,10 @@ describe('analysisPermissionRoles', () => {
       analysisPermissionRoles(
         genProgrammingSubPlan({
           subPlanNumber: 'M01',
-          stages: ['ELEVAGE', 'ABATTAGE']
+          stages: [
+            { stage: 'ELEVAGE', subStages: [] },
+            { stage: 'ABATTAGE', subStages: [] }
+          ]
         })
       )
     ).toEqual(['DepartmentalCoordinator']);
@@ -101,7 +107,10 @@ describe('analysisPermissionRoles', () => {
   test('should allow the sampler and the departmental coordinator on any other sub-plan', () => {
     expect(
       analysisPermissionRoles(
-        genProgrammingSubPlan({ subPlanNumber: 'M03', stages: ['ELEVAGE'] })
+        genProgrammingSubPlan({
+          subPlanNumber: 'M03',
+          stages: [{ stage: 'ELEVAGE', subStages: [] }]
+        })
       )
     ).toEqual(['Sampler', 'DepartmentalCoordinator']);
     expect(

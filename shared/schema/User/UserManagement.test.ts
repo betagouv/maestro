@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { Regions } from '../../referential/Region';
+import { stagesOfSelection } from '../../referential/Stage';
 import {
   DAOAVolailleValidatedSubPlanFixture,
   PPVValidatedSubPlanFixture
@@ -19,8 +20,10 @@ import {
   mergeManagedStages
 } from './UserManagement';
 
-const PPVStages = PPVValidatedSubPlanFixture.stages ?? [];
-const AbattoirStages = DAOAVolailleValidatedSubPlanFixture.stages ?? [];
+const PPVStages = stagesOfSelection(PPVValidatedSubPlanFixture.stages);
+const AbattoirStages = stagesOfSelection(
+  DAOAVolailleValidatedSubPlanFixture.stages
+);
 
 const Department1 = Regions[Region1Fixture].departments[0];
 const Department2 = Regions[Region1Fixture].departments[1];

@@ -1,6 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { StageLabels, StageList } from 'maestro-shared/referential/Stage';
 import {
   ContextLabels,
   type ProgrammingPlanContext,
@@ -33,6 +32,7 @@ import { ProgrammingPlanDocuments } from '../ProgrammingPlanDocuments/Programmin
 import { ProgrammingPlanMatrixSettings } from '../ProgrammingPlanMatrixSettings/ProgrammingPlanMatrixSettings';
 import { ProgrammingPlanNationalCoordinators } from '../ProgrammingPlanNationalCoordinators/ProgrammingPlanNationalCoordinators';
 import { ProgrammingPlanSettingInheritance } from '../ProgrammingPlanSettingInheritance/ProgrammingPlanSettingInheritance';
+import { ProgrammingPlanStageSettings } from '../ProgrammingPlanStageSettings/ProgrammingPlanStageSettings';
 import './ProgrammingPlanGlobalSettings.scss';
 
 type Props<
@@ -155,14 +155,10 @@ export const ProgrammingPlanGlobalSettings = <
         onChange={onChange}
       >
         {(props) => (
-          <AppMultiSelect
-            inputForm={inputForm}
-            inputKey={'stages'}
-            items={StageList}
-            values={settings.stages ?? []}
+          <ProgrammingPlanStageSettings
+            stages={settings.stages}
+            errorMessage={inputForm.message('stages')}
             onChange={(stages) => onChange({ ...settings, stages })}
-            keysWithLabels={StageLabels}
-            defaultLabel={'stade sélectionné'}
             {...props}
           />
         )}

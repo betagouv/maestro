@@ -113,7 +113,7 @@ const especeField = genAdminField(
 const cerealesSubPlan = genProgrammingSubPlan({
   id: CerealesSubPlanId,
   subPlanNumber: '101',
-  stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+  stages: [{ stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] }],
   matrices: genSubPlanMatrices('A00GY' as MatrixKind),
   context: 'Control',
   settingsCompleted: false
@@ -122,7 +122,10 @@ const cerealesSubPlan = genProgrammingSubPlan({
 const fruitsSubPlan = genProgrammingSubPlan({
   id: FruitsSubPlanId,
   subPlanNumber: '102',
-  stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'TRANSFORMATION'],
+  stages: [
+    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
+    { stage: 'TRANSFORMATION', subStages: [] }
+  ],
   matrices: genSubPlanMatrices('A0DVX' as MatrixKind),
   context: 'Control',
   settingsCompleted: false
@@ -131,7 +134,7 @@ const fruitsSubPlan = genProgrammingSubPlan({
 const animauxSubPlan = genProgrammingSubPlan({
   id: AnimauxSubPlanId,
   subPlanNumber: '103',
-  stages: ['ELEVAGE'],
+  stages: [{ stage: 'ELEVAGE', subStages: [] }],
   matrices: genSubPlanMatrices('A01SN' as MatrixKind),
   context: 'Control',
   settingsCompleted: true,
@@ -144,7 +147,7 @@ const animauxName = subPlanLabel(MatrixReferentialFixture, animauxSubPlan);
 
 const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
   [CerealesSubPlanId]: {
-    stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+    stages: [{ stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] }],
     stagesManaged: true,
     substanceKinds: ['Mono'],
     substanceKindsManaged: true,
@@ -174,7 +177,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     }))
   },
   [FruitsSubPlanId]: {
-    stages: ['TRANSFORMATION'],
+    stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
     stagesManaged: false,
     substanceKinds: ['Mono'],
     substanceKindsManaged: true,
@@ -198,7 +201,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     fields: []
   },
   [AnimauxSubPlanId]: {
-    stages: ['ELEVAGE'],
+    stages: [{ stage: 'ELEVAGE', subStages: [] }],
     stagesManaged: false,
     substanceKinds: ['Mono'],
     substanceKindsManaged: true,
@@ -250,7 +253,7 @@ const neverLoggedNationalCoordinator = {
 };
 
 const planSettings: ProgrammingPlanSettingsForm = {
-  stages: ['TRANSFORMATION'],
+  stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
   stagesManaged: true,
   substanceKinds: null,
   substanceKindsManaged: false,
@@ -292,7 +295,7 @@ const ppvPlan = genProgrammingPlan({
   year: 2026,
   domainId: pesticide2026.id,
   title: 'Production primaire végétale',
-  stages: ['TRANSFORMATION'],
+  stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
   stagesManaged: true,
   settingsCompleted: false,
   subPlans: [fruitsSubPlan, cerealesSubPlan, animauxSubPlan],
@@ -436,10 +439,7 @@ export const PlanSave: Story = {
 
     updateProgrammingPlanSettings.mockClear();
 
-    await userEvent.selectOptions(
-      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ }),
-      'ELEVAGE'
-    );
+    await checkStages(canvasElement, 'Élevage');
 
     await userEvent.click(
       canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
@@ -449,7 +449,10 @@ export const PlanSave: Story = {
       expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
         programmingPlanId: PPVPlanId,
         ...planSettings,
-        stages: ['TRANSFORMATION', 'ELEVAGE']
+        stages: [
+          { stage: 'TRANSFORMATION', subStages: [] },
+          { stage: 'ELEVAGE', subStages: [] }
+        ]
       })
     );
   }
@@ -466,7 +469,7 @@ export const PlanSaveBlockedByCompletedSubPlan: Story = {
             year: 2026,
             domainId: pesticide2026.id,
             title: 'Production primaire végétale',
-            stages: ['TRANSFORMATION'],
+            stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
             stagesManaged: true,
             settingsCompleted: false,
             launchedAt: null,
@@ -475,7 +478,7 @@ export const PlanSaveBlockedByCompletedSubPlan: Story = {
             subPlans: [
               genProgrammingSubPlan({
                 ...animauxSubPlan,
-                stages: ['TRANSFORMATION'],
+                stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
                 stagesManaged: false
               })
             ]
@@ -598,10 +601,7 @@ export const SubPlan: Story = {
       canvas.getByRole('button', { name: 'Réinitialiser les modifications' })
     ).toBeDisabled();
 
-    await userEvent.selectOptions(
-      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ }),
-      'ELEVAGE'
-    );
+    await checkStages(canvasElement, 'Élevage');
     await expect(
       canvas.getByText('Élevage', { selector: '.fr-tag' })
     ).toBeInTheDocument();
@@ -637,10 +637,7 @@ export const SubPlanSave: Story = {
 
     updateProgrammingSubPlanSettings.mockClear();
 
-    await userEvent.selectOptions(
-      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ }),
-      'ELEVAGE'
-    );
+    await checkStages(canvasElement, 'Élevage');
 
     for (const [buttonLabel, settingsCompleted] of [
       ['Enregistrer en brouillon', false],
@@ -659,7 +656,10 @@ export const SubPlanSave: Story = {
           programmingPlanId: PPVPlanId,
           programmingSubPlanId: CerealesSubPlanId,
           ...subPlanSettings[CerealesSubPlanId],
-          stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'ELEVAGE'],
+          stages: [
+            { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
+            { stage: 'ELEVAGE', subStages: [] }
+          ],
           settingsCompleted
         })
       );
@@ -957,6 +957,35 @@ export const SubPlanCompletionCancelled: Story = {
   }
 };
 
+const checkStages = async (
+  canvasElement: HTMLElement,
+  ...stageNames: string[]
+) => {
+  const canvas = within(canvasElement);
+  const modal = within(
+    canvasElement.ownerDocument.getElementById(
+      'programming-sub-plan-stage-selection-modal'
+    ) as HTMLElement
+  );
+
+  await userEvent.click(
+    canvas.queryByRole('button', { name: 'Ajouter stade(s) de prélèvement' }) ??
+      canvas.getByRole('button', { name: 'Modifier les stades de prélèvement' })
+  );
+  await waitFor(() =>
+    expect(modal.getByLabelText('Rechercher un stade')).toBeVisible()
+  );
+  for (const name of stageNames) {
+    await userEvent.click(modal.getByRole('checkbox', { name }));
+  }
+  await userEvent.click(modal.getByRole('button', { name: 'Enregistrer' }));
+  await waitFor(() =>
+    expect(
+      modal.queryByRole('button', { name: 'Enregistrer' })
+    ).not.toBeInTheDocument()
+  );
+};
+
 const touchWithStagesError = async (canvasElement: HTMLElement) => {
   const canvas = within(canvasElement);
 
@@ -972,15 +1001,17 @@ const touchWithStagesError = async (canvasElement: HTMLElement) => {
     ).toBeInTheDocument()
   );
 
-  await userEvent.selectOptions(
-    canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ }),
-    'ELEVAGE'
-  );
+  await checkStages(canvasElement, 'Élevage');
   await waitFor(() =>
     expect(
-      canvasElement.querySelector('.fr-select-group--valid')
-    ).toBeInTheDocument()
+      canvas.queryByText(
+        'Veuillez renseigner au moins un stade de prélèvement.'
+      )
+    ).not.toBeInTheDocument()
   );
+  await expect(
+    canvasElement.querySelector('.fr-select-group--valid')
+  ).toBeInTheDocument();
 };
 
 export const SubPlanSaveResetsFormState: Story = {
@@ -1144,7 +1175,7 @@ export const SubPlanIncompleteCannotComplete: Story = {
       expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith(
         expect.objectContaining({
           programmingSubPlanId: CerealesSubPlanId,
-          stages: [],
+          stages: null,
           settingsCompleted: false
         })
       )
@@ -1304,7 +1335,7 @@ export const SubPlanSamplerForm: Story = {
       expect.objectContaining({
         programmingPlanId: PPVPlanId,
         programmingSubPlanId: CerealesSubPlanId,
-        stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+        stages: [{ stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] }],
         stagesManaged: true,
         settingsCompleted: false,
         fields: [quantiteField, matriceField].map(({ id }) => ({
@@ -1329,12 +1360,12 @@ export const PlanStagesSwitch: Story = {
       'Paramétrer « Stade(s) de prélèvement » au niveau du plan'
     );
     const stages = () =>
-      canvas.queryByRole('combobox', {
-        name: /Stade\(s\) de prélèvement/
+      canvas.queryByRole('button', {
+        name: 'Modifier les stades de prélèvement'
       });
 
     await expect(managedSwitch).toBeChecked();
-    await expect(stages()).toBeEnabled();
+    await expect(stages()).toBeInTheDocument();
 
     await userEvent.click(managedSwitch);
     await waitFor(() => expect(stages()).not.toBeInTheDocument());
@@ -1971,8 +2002,10 @@ export const SubPlanInheritedStages: Story = {
 
     await expect(canvas.getByTitle('Géré par le plan')).toBeInTheDocument();
     await expect(
-      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
-    ).toBeDisabled();
+      canvas.queryByRole('button', {
+        name: 'Modifier les stades de prélèvement'
+      })
+    ).not.toBeInTheDocument();
     await expect(
       canvas.getByText('Transformation', { selector: '.fr-tag' })
     ).toBeInTheDocument();
@@ -1983,8 +2016,8 @@ export const SubPlanInheritedStages: Story = {
     await userEvent.click(canvas.getByTitle('Géré par le plan'));
     await expect(canvas.getByTitle('Détaché du plan')).toBeInTheDocument();
     await expect(
-      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
-    ).toBeEnabled();
+      canvas.getByRole('button', { name: 'Modifier les stades de prélèvement' })
+    ).toBeInTheDocument();
 
     await userEvent.click(
       canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
@@ -2016,8 +2049,8 @@ export const SubPlanDetachedStages: Story = {
 
     await expect(canvas.getByTitle('Détaché du plan')).toBeInTheDocument();
     await expect(
-      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
-    ).toBeEnabled();
+      canvas.getByRole('button', { name: 'Modifier les stades de prélèvement' })
+    ).toBeInTheDocument();
     await expect(
       canvas.getByText('Production primaire végétale', { selector: '.fr-tag' })
     ).toBeInTheDocument();
@@ -2041,7 +2074,7 @@ export const SubPlanDetachedStages: Story = {
         programmingPlanId: PPVPlanId,
         programmingSubPlanId: CerealesSubPlanId,
         ...subPlanSettings[CerealesSubPlanId],
-        stages: ['TRANSFORMATION'],
+        stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
         stagesManaged: false
       })
     );
@@ -2235,8 +2268,8 @@ export const PlanNationalCoordinatorsLockedForCoordinator: Story = {
       })
     ).toBeDisabled();
     await expect(
-      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
-    ).toBeEnabled();
+      canvas.getByRole('button', { name: 'Modifier les stades de prélèvement' })
+    ).toBeInTheDocument();
     await expect(
       canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
     ).toBeInTheDocument();
@@ -2257,8 +2290,8 @@ export const PlanReadOnlyForNonCoordinator: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    const stages = canvas.getByRole('combobox', {
-      name: /Stade\(s\) de prélèvement/
+    const stages = canvas.getByRole('button', {
+      name: 'Modifier les stades de prélèvement'
     });
     stages.focus();
     await expect(stages).not.toHaveFocus();
@@ -2306,7 +2339,7 @@ export const SubPlanHasNoNationalCoordinators: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
+      canvas.getByRole('button', { name: 'Modifier les stades de prélèvement' })
     ).toBeInTheDocument();
     await expect(
       canvas.queryByRole('combobox', {
@@ -2705,8 +2738,13 @@ export const PlanSubmittedToRegionLocksSettings: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      await canvas.findByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
-    ).toBeDisabled();
+      await canvas.findByText('Transformation', { selector: '.fr-tag' })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', {
+        name: 'Modifier les stades de prélèvement'
+      })
+    ).not.toBeInTheDocument();
     await expect(
       canvas.getByTitle(
         'Paramétrer « Stade(s) de prélèvement » au niveau du plan'

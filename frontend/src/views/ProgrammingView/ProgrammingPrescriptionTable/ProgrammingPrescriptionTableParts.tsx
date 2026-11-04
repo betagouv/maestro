@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Stage } from 'maestro-shared/referential/Stage';
+import { SubPlanStages } from 'maestro-shared/referential/Stage';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 export const PlanGroupKey = z.object({
   context: ProgrammingPlanContext.nullish(),
-  stages: z.array(Stage)
+  stages: SubPlanStages
 });
 export type PlanGroupKey = z.infer<typeof PlanGroupKey>;
 
@@ -17,7 +17,15 @@ export type PlanGroupKeyString = z.infer<typeof PlanGroupKeyString>;
 
 export const toPlanGroupKeyString = (key: PlanGroupKey): PlanGroupKeyString =>
   PlanGroupKeyString.parse(
-    [key.context ?? '', [...key.stages].sort().join(',')].join('|')
+    [
+      key.context ?? '',
+      key.stages
+        .map(({ stage, subStages }) =>
+          [stage, ...subStages.toSorted()].join(':')
+        )
+        .toSorted()
+        .join(',')
+    ].join('|')
   );
 
 export const PlanHeaderRowKey = z.string().brand('PlanHeaderRowKey');

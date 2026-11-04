@@ -1,4 +1,7 @@
-import { SlaughterhouseStage } from 'maestro-shared/referential/Stage';
+import {
+  SlaughterhouseStage,
+  stagesOfSelection
+} from 'maestro-shared/referential/Stage';
 import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import {
   isPPVSubPlan,
@@ -12,7 +15,9 @@ export const subPlansDistributionKind = (
     return 'REGIONAL';
   }
   if (
-    subPlans.some((subPlan) => subPlan.stages?.includes(SlaughterhouseStage))
+    subPlans.some((subPlan) =>
+      stagesOfSelection(subPlan.stages).includes(SlaughterhouseStage)
+    )
   ) {
     return 'SLAUGHTERHOUSE';
   }

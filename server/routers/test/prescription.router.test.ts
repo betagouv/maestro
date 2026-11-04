@@ -78,7 +78,7 @@ describe('Prescriptions router', () => {
   const departmentalSubPlan = genProgrammingSubPlan({
     programmingPlanId: programmingPlanDepartmentalId,
     subPlanNumber: 'TEST4',
-    stages: ['TRANSFORMATION']
+    stages: [{ stage: 'TRANSFORMATION', subStages: [] }]
   });
   const programmingPlanDepartmental = genProgrammingPlan({
     id: programmingPlanDepartmentalId,

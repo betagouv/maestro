@@ -90,7 +90,7 @@ const programmingSubPlansList = (db: ExpressionBuilder<DB, 'users'>) => {
       .where((eb) =>
         eb.or([
           eb(
-            sql<boolean>`programming_sub_plans.stages && "users"."stages"`,
+            sql<boolean>`jsonb_path_query_array(programming_sub_plans.stages, '$[*].stage') ?| "users"."stages"`,
             '=',
             true
           ),

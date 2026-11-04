@@ -13,7 +13,7 @@ describe('newSubPlanSettings', () => {
   test('should leave every setting empty', () => {
     const settings = newSubPlanSettings({
       ...emptyProgrammingPlanSettings(true),
-      stages: ['PRODUCTION_PRIMAIRE_VEGETALE']
+      stages: [{ stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] }]
     });
 
     for (const settingKey of ProgrammingPlanSettingKey.options) {

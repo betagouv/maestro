@@ -3,7 +3,8 @@ import { z } from 'zod';
 import {
   SlaughterhouseStage,
   type Stage,
-  StageLabels
+  stageSelectionLabels,
+  stagesOfSelection
 } from '../../referential/Stage';
 import type { MatrixReferential } from '../Matrix/MatrixReferential';
 import { SubstanceKindLabels } from '../Substance/SubstanceKind';
@@ -43,7 +44,7 @@ export const subPlanLabel = (
   >
 ): string =>
   [
-    (subPlan.stages ?? []).map((stage) => StageLabels[stage]).join(', '),
+    stageSelectionLabels(subPlan.stages).join(', '),
     subPlanMatrixNameParts(referential, subPlan.matrices).join(', '),
     (subPlan.substanceKinds ?? [])
       .map((substanceKind) => SubstanceKindLabels[substanceKind])
@@ -105,7 +106,7 @@ export const analysisPermissionRoles = (
 ): UserRole[] =>
   isPPVSubPlan(subPlan)
     ? ['Sampler', 'RegionalCoordinator']
-    : subPlan.stages?.includes(SlaughterhouseStage)
+    : stagesOfSelection(subPlan.stages).includes(SlaughterhouseStage)
       ? ['DepartmentalCoordinator']
       : ['Sampler', 'DepartmentalCoordinator'];
 
@@ -114,9 +115,11 @@ export const subPlansForStages = <T extends Pick<ProgrammingSubPlan, 'stages'>>(
   stages: Stage[]
 ): T[] =>
   subPlans.filter(
-    (subPlan) => intersection(subPlan.stages ?? [], stages).length > 0
+    (subPlan) =>
+      intersection(stagesOfSelection(subPlan.stages), stages).length > 0
   );
 
 export const stagesFromSubPlans = (
   subPlans: Pick<ProgrammingSubPlan, 'stages'>[]
-): Stage[] => uniq(subPlans.flatMap((subPlan) => subPlan.stages ?? []));
+): Stage[] =>
+  uniq(subPlans.flatMap((subPlan) => stagesOfSelection(subPlan.stages)));

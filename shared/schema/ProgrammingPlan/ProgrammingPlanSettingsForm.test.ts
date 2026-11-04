@@ -32,7 +32,7 @@ const completedSettings: {
   };
 } = {
   stages: {
-    value: ['TRANSFORMATION'],
+    value: [{ stage: 'TRANSFORMATION', subStages: [] }],
     message: 'Veuillez renseigner au moins un stade de prélèvement.'
   },
   substanceKinds: {

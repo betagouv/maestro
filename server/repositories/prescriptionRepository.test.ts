@@ -10,12 +10,16 @@ import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAInProgressVolailleSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
+import { genUser } from 'maestro-shared/test/userFixtures';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import localPrescriptionChangeRepository from './localPrescriptionChangeRepository';
-import localPrescriptionRepository from './localPrescriptionRepository';
+import localPrescriptionRepository, {
+  LocalPrescriptions
+} from './localPrescriptionRepository';
 import prescriptionRepository, {
   Prescriptions
 } from './prescriptionRepository';
+import { userRepository } from './userRepository';
 
 const daoaPrescriptions = [
   FoieDeBovinPrescriptionFixture,
@@ -68,6 +72,74 @@ describe('findMany missingDistribution', () => {
   test('should find in a region the slaughterhouse prescriptions not distributed to the departments, and never the others', async () => {
     const prescriptions = await prescriptionRepository.findMany({
       region: '44',
+      missingDistribution: true
+    });
+
+    expect(prescriptions.map(({ id }) => id)).toStrictEqual([
+      FoieDeBovinPrescriptionFixture.id
+    ]);
+  });
+});
+
+describe('findMany subPlanStage', () => {
+  test('should find the prescriptions whose sub-plan selects the stage, and exclude the others', async () => {
+    const prescriptions = await prescriptionRepository.findMany({
+      subPlanStage: 'ABATTAGE'
+    });
+
+    expect(prescriptions.map(({ id }) => id).toSorted()).toStrictEqual(
+      daoaPrescriptions.map(({ id }) => id).toSorted()
+    );
+  });
+});
+
+describe('findMany coordinatorIds', () => {
+  test('should find the prescriptions whose sub-plan shares a stage with the coordinators, and exclude the others', async () => {
+    const coordinator = genUser({
+      roles: ['NationalCoordinator'],
+      stages: ['ABATTAGE']
+    });
+    await userRepository.insert(coordinator);
+
+    const prescriptions = await prescriptionRepository.findMany({
+      coordinatorIds: [coordinator.id]
+    });
+
+    expect(prescriptions.map(({ id }) => id).toSorted()).toStrictEqual(
+      daoaPrescriptions.map(({ id }) => id).toSorted()
+    );
+  });
+});
+
+describe('findMany missingDistribution in a department', () => {
+  const departmentalPrescriptions = [
+    FoieDeBovinPrescriptionFixture,
+    PrescriptionFixture
+  ].map(({ id }) => ({
+    prescriptionId: id,
+    region: '44' as const,
+    department: '44' as const,
+    sampleCount: 2
+  }));
+
+  beforeAll(async () => {
+    await localPrescriptionRepository.insertMany(departmentalPrescriptions);
+  });
+
+  afterAll(async () => {
+    await LocalPrescriptions()
+      .where({ region: '44', department: '44', companySiret: 'None' })
+      .whereIn(
+        'prescriptionId',
+        departmentalPrescriptions.map(({ prescriptionId }) => prescriptionId)
+      )
+      .delete();
+  });
+
+  test('should find the slaughterhouse prescriptions not distributed to the slaughterhouses, and never the others', async () => {
+    const prescriptions = await prescriptionRepository.findMany({
+      region: '44',
+      department: '44',
       missingDistribution: true
     });
 

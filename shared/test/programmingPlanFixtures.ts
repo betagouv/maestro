@@ -201,9 +201,9 @@ export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
   programmingPlanId: PPVValidatedProgrammingPlanId,
   subPlanNumber: 'PPV01',
   stages: [
-    'PRODUCTION_PRIMAIRE_VEGETALE',
-    'ALIMENTATION_ANIMALE',
-    'TRANSFORMATION'
+    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
+    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
+    { stage: 'TRANSFORMATION', subStages: [] }
   ],
   contactListId: 7,
   withSacha: false,
@@ -253,7 +253,7 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   id: DAOAVolailleValidatedSubPlanId,
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   subPlanNumber: 'M01',
-  stages: ['ABATTAGE'],
+  stages: [{ stage: 'ABATTAGE', subStages: [] }],
   contactListId: 9,
   withSacha: true,
   sachaContextSigle: 'PR17_2026_RPDA_PVOL' as SachaContextSigle,
@@ -274,7 +274,7 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   id: DAOABovinValidatedSubPlanId,
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   subPlanNumber: 'M02',
-  stages: ['ABATTAGE'],
+  stages: [{ stage: 'ABATTAGE', subStages: [] }],
   contactListId: 9,
   withSacha: true,
   sachaContextSigle: 'PR17_2026_RPDA_PBOV' as SachaContextSigle,
@@ -299,7 +299,7 @@ export const ALANRuminantsSubPlanFixture = genProgrammingSubPlan({
   id: ALANRuminantsSubPlanId,
   programmingPlanId: ALANProgrammingPlanId,
   subPlanNumber: 'ALAN01',
-  stages: ['ALIMENTATION_ANIMALE'],
+  stages: [{ stage: 'ALIMENTATION_ANIMALE', subStages: [] }],
   substanceKinds: ['Mono', 'Multi'],
   matrices: genSubPlanMatrices('TODO_16' as MatrixKind),
   context: 'Surveillance'
@@ -309,7 +309,7 @@ export const ALANVolaillesSubPlanFixture = genProgrammingSubPlan({
   id: ALANVolaillesSubPlanId,
   programmingPlanId: ALANProgrammingPlanId,
   subPlanNumber: 'ALAN02',
-  stages: ['ALIMENTATION_ANIMALE'],
+  stages: [{ stage: 'ALIMENTATION_ANIMALE', subStages: [] }],
   substanceKinds: ['Mono', 'Multi'],
   matrices: genSubPlanMatrices('TODO_18' as MatrixKind),
   context: 'Surveillance'
@@ -413,9 +413,9 @@ export const genDeletableProgrammingPlan = (
 
 export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   stages: [
-    'PRODUCTION_PRIMAIRE_VEGETALE',
-    'ALIMENTATION_ANIMALE',
-    'TRANSFORMATION'
+    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
+    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
+    { stage: 'TRANSFORMATION', subStages: [] }
   ],
   stagesManaged: true,
   id: PPVClosedProgrammingPlanId,
@@ -437,9 +437,9 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
 
 export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   stages: [
-    'PRODUCTION_PRIMAIRE_VEGETALE',
-    'ALIMENTATION_ANIMALE',
-    'TRANSFORMATION'
+    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
+    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
+    { stage: 'TRANSFORMATION', subStages: [] }
   ],
   stagesManaged: true,
   id: PPVValidatedProgrammingPlanId,
@@ -459,9 +459,9 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
 
 export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
   stages: [
-    'PRODUCTION_PRIMAIRE_VEGETALE',
-    'ALIMENTATION_ANIMALE',
-    'TRANSFORMATION'
+    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
+    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
+    { stage: 'TRANSFORMATION', subStages: [] }
   ],
   stagesManaged: true,
   id: PPVValidatedDromProgrammingPlanId,
@@ -481,9 +481,9 @@ export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
 
 export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   stages: [
-    'PRODUCTION_PRIMAIRE_VEGETALE',
-    'ALIMENTATION_ANIMALE',
-    'TRANSFORMATION'
+    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
+    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
+    { stage: 'TRANSFORMATION', subStages: [] }
   ],
   stagesManaged: true,
   id: PPVInProgressProgrammingPlanId,
@@ -505,9 +505,9 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
 
 export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
   stages: [
-    'PRODUCTION_PRIMAIRE_VEGETALE',
-    'ALIMENTATION_ANIMALE',
-    'TRANSFORMATION'
+    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
+    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
+    { stage: 'TRANSFORMATION', subStages: [] }
   ],
   stagesManaged: true,
   id: PPVSubmittedProgrammingPlanId,

@@ -26,7 +26,7 @@ const sample = (
 });
 
 const planSettings: ProgrammingPlanSettings = {
-  stages: ['TRANSFORMATION'],
+  stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
   stagesManaged: true,
   substanceKinds: ['Mono', 'Multi'],
   substanceKindsManaged: true,
@@ -65,7 +65,7 @@ const inheritingSubPlan = {
 };
 
 const ownSubPlan = {
-  stages: ['PRODUCTION_PRIMAIRE_VEGETALE' as const],
+  stages: [{ stage: 'PRODUCTION_PRIMAIRE_VEGETALE' as const, subStages: [] }],
   stagesManaged: true,
   substanceKinds: ['Copper' as const],
   substanceKindsManaged: true,
@@ -97,7 +97,7 @@ describe('effectiveSubPlanSettings', () => {
         planSettings
       )
     ).toMatchObject({
-      stages: ['TRANSFORMATION'],
+      stages: [{ stage: 'TRANSFORMATION', subStages: [] }],
       substanceKinds: ['Copper'],
       samples: [sample('Copper')]
     });
@@ -132,10 +132,13 @@ describe('subPlanSettingsAfterPlanSave', () => {
     expect(
       subPlanSettingsAfterPlanSave(inheritingSubPlan, planSettings, {
         ...planSettings,
-        stages: ['ALIMENTATION_ANIMALE'],
+        stages: [{ stage: 'ALIMENTATION_ANIMALE', subStages: [] }],
         stagesManaged: false
       })
-    ).toMatchObject({ stages: ['ALIMENTATION_ANIMALE'], stagesManaged: true });
+    ).toMatchObject({
+      stages: [{ stage: 'ALIMENTATION_ANIMALE', subStages: [] }],
+      stagesManaged: true
+    });
   });
 
   test('ne change rien quand le plan garde la même gestion', () => {
@@ -286,7 +289,7 @@ describe('planSaveConflicts', () => {
     expect(
       planSaveConflicts([incoherentSubPlan], planSettings, {
         ...planSettings,
-        stages: ['ALIMENTATION_ANIMALE']
+        stages: [{ stage: 'ALIMENTATION_ANIMALE', subStages: [] }]
       })
     ).toStrictEqual([]);
   });

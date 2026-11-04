@@ -1,4 +1,5 @@
 import { uniq } from 'lodash-es';
+import { stagesOfSelection } from 'maestro-shared/referential/Stage';
 import {
   type ProgrammingPlanChecked,
   programmingPlanContexts
@@ -30,7 +31,8 @@ export const usePrescriptionFilters = (
           .flatMap((plan) => plan.subPlans)
           .filter(
             (subPlan) =>
-              !filters.stage || (subPlan.stages ?? []).includes(filters.stage)
+              !filters.stage ||
+              stagesOfSelection(subPlan.stages).includes(filters.stage)
           )
           .map((subPlan) => subPlan.id)
       ),
