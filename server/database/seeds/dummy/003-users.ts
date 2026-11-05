@@ -202,8 +202,7 @@ export const seed = async () => {
       stages: alanStages,
       certified: true,
       roles: ['Sampler'],
-      region: '53',
-      department: '35'
+      region: '53'
     },
     {
       id: crypto.randomUUID(),
