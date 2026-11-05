@@ -51,6 +51,7 @@ export const AdminViewDashboardNotice: FunctionComponent<Props> = ({
         inputForm={form}
         inputKey="description"
         label="Description du message du tableau de bord"
+        hintText="Mise en forme possible : **gras**, *italique*, [lien](https://adresse), listes avec - ou 1."
         required
       />
 
