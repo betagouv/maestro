@@ -16,7 +16,7 @@ const TemplateData = {
     content: 'Un nouveau commentaire a été ajouté'
   },
   AnalysisReviewTodoTemplate: {
-    subject: "Rapport d'analyse reçu",
+    subject: 'Un résultat est arrivé',
     content: "Un de vos rapports d'analyse vient d'être reçu"
   },
   GenericTemplate: {

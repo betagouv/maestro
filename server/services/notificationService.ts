@@ -107,6 +107,7 @@ const sendNotification = async <
   if (emailTemplateName !== null) {
     await mailService.send({
       templateName: emailTemplateName,
+      // @ts-expect-error TS2322 même limite qu'au-dessus : le lien entre la category et les params du template n'est pas résolu
       params: { ...params, link: fullLink },
       recipients: [
         ...new Set([

@@ -29,7 +29,8 @@ export const Templates = {
   AnalysisReviewTodoTemplate: {
     id: 11,
     params: z.object({
-      link: z.url()
+      link: z.url(),
+      planTitle: z.string()
     })
   },
   GenericTemplate: {
