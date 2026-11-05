@@ -193,6 +193,8 @@ export const genProgrammingSubPlan = (
   multiSubstancesManaged: true,
   sampleProcedure: null,
   sampleProcedureManaged: true,
+  delegated: false,
+  delegatedManaged: true,
   ...data
 });
 
@@ -358,6 +360,8 @@ export const genProgrammingPlan = (
     multiSubstancesManaged: false,
     sampleProcedure: null,
     sampleProcedureManaged: false,
+    delegated: null,
+    delegatedManaged: false,
     settingsCompleted: true,
     createdAt: new Date(),
     createdBy: crypto.randomUUID(),

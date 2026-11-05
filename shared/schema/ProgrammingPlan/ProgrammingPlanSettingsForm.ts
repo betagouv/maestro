@@ -38,7 +38,8 @@ const missingSettingMessages: Record<
   substanceKinds: 'Veuillez renseigner au moins un analyte.',
   samples: 'Veuillez configurer au moins un échantillon.',
   matrices: 'Veuillez renseigner au moins une catégorie de matrice.',
-  context: 'Veuillez renseigner le contexte.'
+  context: 'Veuillez renseigner le contexte.',
+  delegated: 'Veuillez renseigner la délégation.'
 };
 
 const inheritedMissingSettingMessage =

@@ -361,6 +361,8 @@ interface ProgrammingPlanSettings {
   multiSubstancesManaged: Generated<boolean>;
   sampleProcedure: SampleProcedure | null;
   sampleProcedureManaged: Generated<boolean>;
+  delegated: boolean | null;
+  delegatedManaged: Generated<boolean>;
 }
 
 export interface ProgrammingPlans extends ProgrammingPlanSettings {

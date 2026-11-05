@@ -51,6 +51,10 @@ const completedSettings: {
   context: {
     value: 'Control',
     message: 'Veuillez renseigner le contexte.'
+  },
+  delegated: {
+    value: false,
+    message: 'Veuillez renseigner la délégation.'
   }
 };
 
@@ -60,7 +64,8 @@ const inheritedSettings: ProgrammingPlanSettings = {
   substanceKinds: completedSettings.substanceKinds.value,
   samples: completedSettings.samples.value,
   matrices: completedSettings.matrices.value,
-  context: completedSettings.context.value
+  context: completedSettings.context.value,
+  delegated: completedSettings.delegated.value
 };
 
 const nationalCoordinator = {

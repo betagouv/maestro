@@ -86,6 +86,7 @@ export const useSettingInheritance = <T extends ProgrammingPlanSettings>({
 
 type Props<T extends ProgrammingPlanSettings> = SettingInheritanceOptions<T> & {
   labelContent?: ReactNode;
+  hintText?: string;
   children: (props: {
     disabled: boolean;
     label: ReactNode;
@@ -99,6 +100,7 @@ export const ProgrammingPlanSettingInheritance = <
   settingKey,
   label,
   labelContent = label,
+  hintText,
   settings,
   planSettings,
   editionPhase,
@@ -145,7 +147,7 @@ export const ProgrammingPlanSettingInheritance = <
         'border',
         cx('fr-p-2w')
       )}
-      style={{ gap: '0.5rem' }}
+      style={{ gap: '0.5rem', flexWrap: 'wrap' }}
     >
       <div style={{ flex: 1 }}>
         {isFieldVisible ? (
@@ -162,6 +164,14 @@ export const ProgrammingPlanSettingInheritance = <
         {disabledReasonHint}
       </div>
       {toggle}
+      {isFieldVisible && hintText && (
+        <p
+          className={cx('fr-message', 'fr-message--info')}
+          style={{ flexBasis: '100%' }}
+        >
+          {hintText}
+        </p>
+      )}
     </div>
   );
 };

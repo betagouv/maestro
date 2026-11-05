@@ -19,6 +19,7 @@ import {
 } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useContext } from 'react';
 import { AppMultiSelect } from 'src/components/_app/AppMultiSelect/AppMultiSelect';
+import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -212,6 +213,35 @@ export const ProgrammingPlanGlobalSettings = <
             inputForm={inputForm}
             inputKey="context"
             {...props}
+          />
+        )}
+      </ProgrammingPlanSettingInheritance>
+      <ProgrammingPlanSettingInheritance
+        settingKey="delegated"
+        label="Délégation"
+        hintText="Pour les départements hors hexagone (Corse / DROM), tous les plans sont considérés comme « non délégués »"
+        settings={settings}
+        planSettings={planSettings}
+        editionPhase={editionPhase}
+        onChange={onChange}
+      >
+        {({ disabled, label, required }) => (
+          <AppRadioButtons
+            legend={label}
+            required={required}
+            disabled={disabled}
+            options={[
+              { label: 'Délégué', value: true },
+              { label: 'Non délégué', value: false }
+            ].map(({ label, value }) => ({
+              label,
+              nativeInputProps: {
+                checked: settings.delegated === value,
+                onChange: () => onChange({ ...settings, delegated: value })
+              }
+            }))}
+            inputForm={inputForm}
+            inputKey="delegated"
           />
         )}
       </ProgrammingPlanSettingInheritance>

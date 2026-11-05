@@ -168,6 +168,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     multiSubstancesManaged: true,
     sampleProcedure: null,
     sampleProcedureManaged: true,
+    delegated: false,
+    delegatedManaged: true,
     fields: [matriceField, quantiteField].map(({ id }) => ({
       fieldId: id,
       required: false,
@@ -198,6 +200,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     multiSubstancesManaged: true,
     sampleProcedure: null,
     sampleProcedureManaged: true,
+    delegated: false,
+    delegatedManaged: true,
     fields: []
   },
   [AnimauxSubPlanId]: {
@@ -222,6 +226,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     multiSubstancesManaged: true,
     sampleProcedure: null,
     sampleProcedureManaged: true,
+    delegated: false,
+    delegatedManaged: true,
     fields: [
       {
         fieldId: especeField.id,
@@ -273,6 +279,8 @@ const planSettings: ProgrammingPlanSettingsForm = {
   multiSubstancesManaged: false,
   sampleProcedure: null,
   sampleProcedureManaged: false,
+  delegated: null,
+  delegatedManaged: false,
   settingsCompleted: false,
   nationalCoordinators: [nationalCoordinator],
   technicalInstruction: null,
@@ -1453,6 +1461,51 @@ export const PlanContext: Story = {
         ...planSettings,
         context: 'Surveillance',
         contextManaged: true
+      })
+    );
+  }
+};
+
+export const PlanDelegated: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    const managedSwitch = canvas.getByTitle(
+      'Paramétrer « Délégation » au niveau du plan'
+    );
+
+    await expect(managedSwitch).not.toBeChecked();
+    await expect(
+      canvas.queryByRole('radio', { name: 'Délégué' })
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(managedSwitch);
+    const delegatedRadio = await canvas.findByRole('radio', {
+      name: 'Délégué'
+    });
+    await expect(delegatedRadio).not.toBeChecked();
+    await expect(
+      canvas.getByRole('radio', { name: 'Non délégué' })
+    ).not.toBeChecked();
+    await expect(
+      canvas.getByText(
+        'Pour les départements hors hexagone (Corse / DROM), tous les plans sont considérés comme « non délégués »'
+      )
+    ).toBeInTheDocument();
+
+    await userEvent.click(delegatedRadio);
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        ...planSettings,
+        delegated: true,
+        delegatedManaged: true
       })
     );
   }
