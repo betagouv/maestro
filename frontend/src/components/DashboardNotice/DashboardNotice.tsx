@@ -7,6 +7,7 @@ import { Link } from 'react-router';
 import { assert, type Equals } from 'tsafe';
 import manon from '../../assets/manon.jpg';
 import config from '../../utils/config';
+import { AppMarkdown } from '../_app/AppMarkdown/AppMarkdown';
 import './DashboardNotice.scss';
 
 type Props = {
@@ -63,7 +64,7 @@ export const DashboardNotice: FunctionComponent<Props> = ({
           }
           size="xlarge"
           accentColor="green-emeraude"
-          text={description}
+          text={<AppMarkdown>{description}</AppMarkdown>}
           className={fullWidth ? 'quote-fullwidth' : undefined}
         />
       </div>

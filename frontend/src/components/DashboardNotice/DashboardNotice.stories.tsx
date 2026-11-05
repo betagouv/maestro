@@ -15,3 +15,20 @@ export const Default: Story = {
     className: ''
   }
 };
+
+export const Markdown: Story = {
+  args: {
+    description: `Un mot en **gras**, un autre en *italique* et un [lien](https://example.net).
+
+Les nouveautés :
+- première nouveauté
+- seconde nouveauté
+
+Les étapes :
+1. première étape
+2. seconde étape
+
+Du HTML brut reste du texte : <script>alert(1)</script>`,
+    className: ''
+  }
+};

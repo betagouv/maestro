@@ -57,6 +57,7 @@ export const AdminViewRootNotice: FunctionComponent<Props> = ({ ..._rest }) => {
         inputForm={form}
         inputKey="description"
         label="Description de l'alerte"
+        hintText="Mise en forme possible : **gras**, *italique*, [lien](https://adresse), listes avec - ou 1."
         required
       />
 

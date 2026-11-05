@@ -3,6 +3,8 @@ import type { Notice as NoticeType } from 'maestro-shared/schema/Notice/Notice';
 import { type FunctionComponent, useContext } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { ApiClientContext } from '../../services/apiClient';
+import { AppMarkdown } from '../_app/AppMarkdown/AppMarkdown';
+import './RootNotice.scss';
 
 type Props = Record<never, never>;
 export const RootNotice: FunctionComponent<Props> = ({ ..._rest }) => {
@@ -23,7 +25,10 @@ export const RootNoticeComponent: FunctionComponent<{
     notice.title && (
       <Notice
         title={notice.title}
-        description={notice.description}
+        description={
+          notice.description && <AppMarkdown>{notice.description}</AppMarkdown>
+        }
+        classes={{ description: 'notice-description' }}
         severity="warning"
         iconDisplayed={true}
         isClosable={true}
