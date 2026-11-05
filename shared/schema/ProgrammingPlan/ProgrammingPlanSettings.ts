@@ -22,7 +22,8 @@ export const ProgrammingPlanSettingKey = z.enum([
   'notes',
   'monoSubstances',
   'multiSubstances',
-  'sampleProcedure'
+  'sampleProcedure',
+  'delegated'
 ]);
 export type ProgrammingPlanSettingKey = z.infer<
   typeof ProgrammingPlanSettingKey
@@ -69,7 +70,9 @@ export const ProgrammingPlanSettings = z.object({
   multiSubstances: Substances.nullable(),
   multiSubstancesManaged: z.boolean(),
   sampleProcedure: SampleProcedure.nullable(),
-  sampleProcedureManaged: z.boolean()
+  sampleProcedureManaged: z.boolean(),
+  delegated: z.boolean().nullable(),
+  delegatedManaged: z.boolean()
 } satisfies Record<ProgrammingPlanSettingKey, z.ZodType> &
   Record<`${ProgrammingPlanSettingKey}Managed`, z.ZodType>);
 
@@ -109,7 +112,7 @@ export const inheritsUnmanagedSetting = (
   );
 
 export const isMissingSetting = (
-  value: unknown[] | SubPlanMatrices | ProgrammingPlanContext | null
+  value: unknown[] | SubPlanMatrices | ProgrammingPlanContext | boolean | null
 ): boolean => isNil(value) || (Array.isArray(value) && value.length === 0);
 
 export const SubstanceKindsDependentSettingKey =

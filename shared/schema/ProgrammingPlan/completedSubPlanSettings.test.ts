@@ -45,7 +45,9 @@ const planSettings: ProgrammingPlanSettings = {
   multiSubstances: null,
   multiSubstancesManaged: true,
   sampleProcedure: null,
-  sampleProcedureManaged: true
+  sampleProcedureManaged: true,
+  delegated: false,
+  delegatedManaged: true
 };
 
 const inheritingSubPlan = {
@@ -60,6 +62,7 @@ const inheritingSubPlan = {
   monoSubstancesManaged: false,
   multiSubstancesManaged: false,
   sampleProcedureManaged: false,
+  delegatedManaged: false,
   subPlanNumber: 'M01',
   settingsCompleted: true
 };
@@ -85,6 +88,8 @@ const ownSubPlan = {
   multiSubstancesManaged: true,
   sampleProcedure: null,
   sampleProcedureManaged: true,
+  delegated: true,
+  delegatedManaged: true,
   subPlanNumber: 'M02',
   settingsCompleted: true
 };

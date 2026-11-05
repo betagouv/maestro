@@ -33,7 +33,8 @@ const submittedLockedSettingKeys: ProgrammingPlanSettingKey[] = [
   'stages',
   'matrices',
   'substanceKinds',
-  'context'
+  'context',
+  'delegated'
 ];
 
 export const lockedSettingKeys: Record<
