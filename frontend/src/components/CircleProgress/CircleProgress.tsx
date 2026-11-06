@@ -1,3 +1,4 @@
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 
@@ -5,6 +6,7 @@ type Props = {
   sizePx: number;
   progress: number;
   colors?: string[];
+  label?: string;
 } & (
   | { type: 'percentage'; values?: never; total?: never }
   | { type: 'total'; values: number[]; total: number }
@@ -16,6 +18,7 @@ export const CircleProgress: FunctionComponent<Props> = ({
   values,
   total,
   colors,
+  label,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -39,7 +42,7 @@ export const CircleProgress: FunctionComponent<Props> = ({
       }
     ];
   } else {
-    const _colors = colors ?? ['#00A95F', '#E4794A', '#F3EDE5'];
+    const _colors = colors ?? ['#00A95F', '#F0CA3C', '#F3EDE5'];
     segments = values.reduce((acc, step, index) => {
       const length = Math.floor((step / total) * circumference);
       const offset =
@@ -55,7 +58,7 @@ export const CircleProgress: FunctionComponent<Props> = ({
 
   return (
     <div style={{ height: sizePx, width: sizePx }}>
-      <span
+      <div
         style={{
           position: 'absolute',
           zIndex: 2,
@@ -63,20 +66,30 @@ export const CircleProgress: FunctionComponent<Props> = ({
           height: sizePx
         }}
       >
-        <span
+        <div
           style={{
             width: '100%',
             height: '100%',
             display: 'flex',
+            flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            fontWeight: 'bold',
-            fontSize: sizePx / 5
+            lineHeight: 1.2
           }}
         >
-          {progress}%
-        </span>
-      </span>
+          <div style={{ fontWeight: 'bold', fontSize: sizePx / 5 }}>
+            {progress}%
+          </div>
+          {label && (
+            <div
+              className={cx('fr-hint-text', 'fr-mb-0')}
+              style={{ fontSize: sizePx / 10, textAlign: 'center' }}
+            >
+              {label}
+            </div>
+          )}
+        </div>
+      </div>
       <svg
         width={sizePx}
         height={sizePx}
