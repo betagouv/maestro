@@ -24,10 +24,10 @@ import {
 } from 'react';
 import BackToTopButton from 'src/components/BackToTopButton/BackToTopButton';
 import { LaboratoryAgreementDetailProvider } from 'src/components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { ApiClientContext } from '../../services/apiClient';
 import { getLaboratoryAgreementsExportURL } from '../../services/laboratory.service';
-import { groupSubstanceKindsBySample } from '../../utils/sampleLaboratories';
 import { pluralize } from '../../utils/stringUtils';
 import LaboratoryAgreementsModal from './LaboratoryAgreementsModal/LaboratoryAgreementsModal';
 import LaboratoryAgreementsTable, {
@@ -37,10 +37,11 @@ import LaboratoryAgreementsTable, {
   toRowKey
 } from './LaboratoryAgreementsTable/LaboratoryAgreementsTable';
 import './LaboratoryAgreementsView.scss';
-import type {
-  LaboratoryAgreement,
-  LaboratoryAgreementField,
-  LaboratoryAgreementRowKey
+import {
+  type LaboratoryAgreement,
+  type LaboratoryAgreementField,
+  type LaboratoryAgreementRowKey,
+  laboratoryAgreementRows
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import {
   type ProgrammingSubPlan,
@@ -49,6 +50,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { assert, type Equals } from 'tsafe';
 import { AppPageWithYearTitle } from '../../components/_app/AppPage/AppPageWithYearTitle';
+import { LaboratoryAgreementsDiffusionAction } from './LaboratoryAgreementsDiffusionAction';
 
 const agreementsModal = createModal({
   id: 'laboratory-agreements-modal',
@@ -63,6 +65,8 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
+  const { hasUserPermission } = useAuthentication();
+  const canEdit = hasUserPermission('manageLaboratoryAgreements');
   const matrixReferential = useMatrixReferential();
   const [selectedStringRowKeys, setSelectedStringRowKeys] = useState<string[]>(
     []
@@ -98,35 +102,20 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
     year
   });
   const { data: checks = [] } = apiClient.useFindLaboratoryAgreementChecksQuery(
-    { year }
+    { year },
+    { skip: !canEdit }
   );
-  const { data: allProgrammingPlans = [] } =
-    apiClient.useFindProgrammingPlansQuery({});
-  const programmingPlans = useMemo(
-    () => allProgrammingPlans.filter((p) => p.year === year),
-    [allProgrammingPlans, year]
-  );
+  const { data: subPlans = [] } =
+    apiClient.useFindLaboratoryAgreementSubPlansQuery({ year });
 
   const rows = useMemo(
     () =>
-      programmingPlans.flatMap((plan) =>
-        plan.subPlans.flatMap((subPlan) =>
-          groupSubstanceKindsBySample(
-            subPlan.samples,
-            subPlan.substanceKinds ?? []
-          ).map((substanceKinds) => ({
-            programmingSubPlan: subPlan,
-            programmingPlanYear: plan.year,
-            substanceKinds,
-            laboratories: agreements.filter(
-              (a) =>
-                a.programmingSubPlanId === subPlan.id &&
-                substanceKinds.includes(a.substanceKind)
-            )
-          }))
-        )
-      ),
-    [agreements, programmingPlans]
+      laboratoryAgreementRows(subPlans, agreements).map((row) => ({
+        programmingSubPlan: row.subPlan,
+        substanceKinds: row.substanceKinds,
+        laboratories: row.agreements
+      })),
+    [agreements, subPlans]
   );
 
   const rowsWithLab = useMemo(
@@ -188,8 +177,6 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
   );
 
   const matrixCombinedOptions = useMemo(() => {
-    const subPlans = programmingPlans.flatMap((plan) => plan.subPlans);
-
     const kindOptions = [
       ...new Set(
         subPlans.flatMap((subPlan) => getSubPlanMatrixKinds(subPlan.matrices))
@@ -215,7 +202,7 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
       .toSorted((a, b) => a.label.localeCompare(b.label));
 
     return [...kindOptions, ...specificMatrixOptions];
-  }, [programmingPlans, matrixReferential]);
+  }, [subPlans, matrixReferential]);
 
   const filteredRows = useMemo(() => {
     const checksSet = new Set(
@@ -532,6 +519,7 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
           onOpenModal={handleOpenModal}
           onOpenModalForRow={handleOpenModalForRow}
           onUpdateCheck={updateCheck}
+          canEdit={canEdit}
         />
       </div>
       <LaboratoryAgreementsModal
@@ -554,9 +542,27 @@ export const LaboratoryAgreementsView = ({
 }: Record<never, never> = {}) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  const apiClient = useContext(ApiClientContext);
+  const { hasUserPermission } = useAuthentication();
+  const { data: diffusions = [] } =
+    apiClient.useFindLaboratoryAgreementDiffusionsQuery();
+
+  const seesEveryYear = hasUserPermission('readUndiffusedLaboratoryAgreements');
+  const diffusedYears = useMemo(
+    () => diffusions.map(({ year }) => year),
+    [diffusions]
+  );
+
   return (
     <AppPageWithYearTitle
       title="Agréments laboratoires"
+      years={seesEveryYear ? undefined : diffusedYears}
+      action={(year) => (
+        <LaboratoryAgreementsDiffusionAction
+          year={year}
+          diffusion={diffusions.find((diffusion) => diffusion.year === year)}
+        />
+      )}
       render={(year) => <LaboratoryAgreements year={year} />}
     />
   );

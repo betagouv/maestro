@@ -16,6 +16,7 @@ import {
   PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
+  AdminBGIRFixture,
   AdminFixture,
   DepartmentalCoordinator,
   LaboratoryOfficeUserFixture,
@@ -24,11 +25,13 @@ import {
   NationalObserver,
   RegionalCoordinator,
   RegionalObserver,
-  Sampler1Fixture
+  Sampler1Fixture,
+  SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import request from 'supertest';
-import { describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test } from 'vitest';
+import { kysely } from '../../repositories/kysely';
 import { createServer } from '../../server';
 import { mockSendNotification } from '../../test/setupTests';
 import { tokenProvider } from '../../test/testUtils';
@@ -363,20 +366,94 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should fail if the user does not have the permission to manage laboratory agreements', async () => {
+    test('should fail if the user cannot read laboratory agreements', async () => {
       const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .get(testRoute)
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_FORBIDDEN);
 
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(NationalObserver);
+    });
+
+    test('should fail for a read-only user as long as the agreements are not diffused', async () => {
+      const forbiddenRequestTest = async (user: UserRefined) =>
+        request(app)
+          .get(testRoute)
+          .query({ year: PPVValidatedProgrammingPlanFixture.year })
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
       await forbiddenRequestTest(Sampler1Fixture);
       await forbiddenRequestTest(DepartmentalCoordinator);
       await forbiddenRequestTest(RegionalCoordinator);
-      await forbiddenRequestTest(RegionalObserver);
-      await forbiddenRequestTest(NationalObserver);
-      await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(LaboratoryUserFixture);
+    });
+
+    test('should return the agreements of a diffused year to a read-only user', async () => {
+      await kysely
+        .insertInto('laboratoryAgreementDiffusions')
+        .values({
+          year: PPVValidatedProgrammingPlanFixture.year,
+          diffusedAt: new Date(),
+          diffusedBy: AdminBGIRFixture.id
+        })
+        .execute();
+
+      await request(app)
+        .get(testRoute)
+        .query({ year: PPVValidatedProgrammingPlanFixture.year })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await request(app)
+        .get(testRoute)
+        .query({ year: PPVValidatedProgrammingPlanFixture.year + 1 })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await kysely.deleteFrom('laboratoryAgreementDiffusions').execute();
+    });
+
+    test('should return the sub-plans of a diffused year to a sampler, whatever his stages and the plan status', async () => {
+      await kysely
+        .insertInto('laboratoryAgreementDiffusions')
+        .values({
+          year: PPVValidatedProgrammingPlanFixture.year,
+          diffusedAt: new Date(),
+          diffusedBy: AdminBGIRFixture.id
+        })
+        .execute();
+
+      const res = await request(app)
+        .get('/api/laboratories/agreements/sub-plans')
+        .query({ year: PPVValidatedProgrammingPlanFixture.year })
+        .use(tokenProvider(SamplerDaoaFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body.length).toBeGreaterThan(0);
+      expect(res.body).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: PPVValidatedSubPlanId })
+        ])
+      );
+
+      await request(app)
+        .get('/api/laboratories/agreements/sub-plans')
+        .query({ year: PPVValidatedProgrammingPlanFixture.year + 1 })
+        .use(tokenProvider(SamplerDaoaFixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await kysely.deleteFrom('laboratoryAgreementDiffusions').execute();
+    });
+
+    test('should return the agreements of an undiffused year to a national coordinator', async () => {
+      await request(app)
+        .get(testRoute)
+        .query({ year: PPVValidatedProgrammingPlanFixture.year })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
     });
 
     test('should return all agreements', async () => {
@@ -662,6 +739,74 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
           confirmationAnalysis: false
         })
       ]);
+    });
+  });
+  describe('POST /laboratories/agreements/diffusions', () => {
+    const testRoute = '/api/laboratories/agreements/diffusions';
+    const year = PPVValidatedProgrammingPlanFixture.year;
+
+    afterEach(async () => {
+      await kysely.deleteFrom('laboratoryAgreementDiffusions').execute();
+    });
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({ year })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user cannot diffuse the laboratory agreements', async () => {
+      const forbiddenRequestTest = async (user: UserRefined) =>
+        request(app)
+          .post(testRoute)
+          .send({ year })
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
+      await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(Sampler1Fixture);
+    });
+
+    test('should refuse the diffusion while a sub-plan has no detection or confirmation laboratory', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({ year })
+        .use(tokenProvider(AdminBGIRFixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await expect(
+        kysely.selectFrom('laboratoryAgreementDiffusions').selectAll().execute()
+      ).resolves.toEqual([]);
+    });
+
+    test('should diffuse a year with no sub-plan left uncovered, and stay idempotent', async () => {
+      const emptyYear = 1999;
+
+      const res = await request(app)
+        .post(testRoute)
+        .send({ year: emptyYear })
+        .use(tokenProvider(AdminBGIRFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({
+        year: emptyYear,
+        diffusedBy: AdminBGIRFixture.id
+      });
+
+      const again = await request(app)
+        .post(testRoute)
+        .send({ year: emptyYear })
+        .use(tokenProvider(AdminBGIRFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(again.body).toMatchObject({ year: emptyYear });
+
+      await expect(
+        kysely.selectFrom('laboratoryAgreementDiffusions').selectAll().execute()
+      ).resolves.toHaveLength(1);
     });
   });
 });

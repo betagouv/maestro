@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { groupSubstanceKindsBySample } from '../ProgrammingPlan/ProgrammingPlanSampleSetting';
+import type { ProgrammingSubPlan } from '../ProgrammingPlan/ProgrammingSubPlan';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 
@@ -53,3 +55,47 @@ export const agreementLabels: Record<LaboratoryAgreementField, string> = {
   detectionAnalysis: 'Réalise les analyses de première intention',
   confirmationAnalysis: 'Réalise les analyses de confirmation'
 };
+
+export type AgreementSubPlan = Pick<
+  ProgrammingSubPlan,
+  'id' | 'subPlanNumber' | 'samples' | 'substanceKinds'
+>;
+
+export const laboratoryAgreementRows = <T extends AgreementSubPlan>(
+  subPlans: T[],
+  agreements: LaboratoryAgreement[]
+): {
+  subPlan: T;
+  substanceKinds: SubstanceKind[];
+  agreements: LaboratoryAgreement[];
+}[] =>
+  subPlans.flatMap((subPlan) =>
+    groupSubstanceKindsBySample(
+      subPlan.samples,
+      subPlan.substanceKinds ?? []
+    ).map((substanceKinds) => ({
+      subPlan,
+      substanceKinds,
+      agreements: agreements.filter(
+        (agreement) =>
+          agreement.programmingSubPlanId === subPlan.id &&
+          substanceKinds.includes(agreement.substanceKind)
+      )
+    }))
+  );
+
+const hasAnalysisLaboratory = (agreements: LaboratoryAgreement[]): boolean =>
+  agreements.some(
+    (agreement) => agreement.detectionAnalysis || agreement.confirmationAnalysis
+  );
+
+export const subPlanNumbersMissingAgreements = (
+  subPlans: AgreementSubPlan[],
+  agreements: LaboratoryAgreement[]
+): string[] => [
+  ...new Set(
+    laboratoryAgreementRows(subPlans, agreements)
+      .filter((row) => !hasAnalysisLaboratory(row.agreements))
+      .map((row) => row.subPlan.subPlanNumber)
+  )
+];

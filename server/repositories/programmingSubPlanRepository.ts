@@ -42,21 +42,39 @@ const findMany = async (
 ): Promise<ProgrammingSubPlan[]> => {
   console.info('Find programming sub-plans', findOptions);
 
-  let query = kysely.selectFrom('programmingSubPlans').selectAll();
+  let query = kysely
+    .selectFrom('programmingSubPlans')
+    .innerJoin(
+      'programmingPlans',
+      'programmingPlans.id',
+      'programmingSubPlans.programmingPlanId'
+    )
+    .selectAll('programmingSubPlans');
 
   for (const option of FindProgrammingSubPlanOptions.keyof().options) {
     switch (option) {
       case 'programmingPlanId':
         if (!isNil(findOptions?.programmingPlanId)) {
           query = query
-            .where('programmingPlanId', '=', findOptions.programmingPlanId)
+            .where(
+              'programmingSubPlans.programmingPlanId',
+              '=',
+              findOptions.programmingPlanId
+            )
             .orderBy('subPlanNumber');
         }
         break;
       case 'ids':
         if (!isNil(findOptions?.ids)) {
           if (findOptions.ids.length === 0) return [];
-          query = query.where('id', 'in', findOptions.ids);
+          query = query.where('programmingSubPlans.id', 'in', findOptions.ids);
+        }
+        break;
+      case 'year':
+        if (!isNil(findOptions?.year)) {
+          query = query
+            .where('programmingPlans.year', '=', findOptions.year)
+            .orderBy('subPlanNumber');
         }
         break;
       default:

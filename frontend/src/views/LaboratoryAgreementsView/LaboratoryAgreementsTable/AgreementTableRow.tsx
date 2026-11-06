@@ -26,7 +26,6 @@ const MATRIX_DISPLAY_LIMIT = 3;
 
 export type AgreementRow = {
   programmingSubPlan: ProgrammingSubPlan;
-  programmingPlanYear: number;
   substanceKinds: SubstanceKind[];
   laboratories: LaboratoryAgreement[];
 };
@@ -56,6 +55,7 @@ interface Props {
   isAnimating: boolean;
   isLabsExpanded: boolean;
   isMatrixExpanded: boolean;
+  canEdit: boolean;
   laboratoriesById: Map<string, Laboratory>;
   onToggleSelect: (key: string) => void;
   onToggleExpand: (key: string) => void;
@@ -79,6 +79,7 @@ const AgreementTableRow = memo(function AgreementTableRow({
   isAnimating,
   isLabsExpanded,
   isMatrixExpanded,
+  canEdit,
   laboratoriesById,
   onToggleSelect,
   onToggleExpand,
@@ -161,23 +162,28 @@ const AgreementTableRow = memo(function AgreementTableRow({
   return (
     <>
       <tr className={clsx({ 'row-animating-out': isAnimating })}>
-        <td rowSpan={isExpanded ? 2 : 1} className="selectable-cell">
-          <Checkbox
-            options={[
-              {
-                label: '',
-                nativeInputProps: {
-                  checked: isSelected,
-                  onChange: () => onToggleSelect(rowKey)
+        {canEdit && (
+          <td
+            rowSpan={isExpanded ? 2 : 1}
+            className="selectable-cell col-select"
+          >
+            <Checkbox
+              options={[
+                {
+                  label: '',
+                  nativeInputProps: {
+                    checked: isSelected,
+                    onChange: () => onToggleSelect(rowKey)
+                  }
                 }
-              }
-            ]}
-            small
-            className={cx('fr-pb-3w')}
-          />
-        </td>
+              ]}
+              small
+              className={cx('fr-pb-3w')}
+            />
+          </td>
+        )}
 
-        <td>
+        <td className="col-number">
           <div className={clsx('border-left', 'row-reference')}>
             {row.programmingSubPlan.subPlanNumber}
             <Button
@@ -194,11 +200,11 @@ const AgreementTableRow = memo(function AgreementTableRow({
           </div>
         </td>
 
-        <td>
+        <td className="col-substances">
           <div className="border-left">{substanceKindsLabel(row)}</div>
         </td>
 
-        <td>
+        <td className="col-matrix">
           <div className="border-left">
             {visibleMatrices.map((title, i) => (
               <div key={i}>{title}</div>
@@ -229,7 +235,7 @@ const AgreementTableRow = memo(function AgreementTableRow({
           </div>
         </td>
 
-        <td>
+        <td className="col-labs">
           <div
             className="border-left"
             style={{
@@ -248,6 +254,7 @@ const AgreementTableRow = memo(function AgreementTableRow({
                   laboratoryAgreement={lab}
                   programmingSubPlan={row.programmingSubPlan}
                   laboratory={laboratory}
+                  disabled={!canEdit}
                 />
               );
             })}
@@ -277,28 +284,30 @@ const AgreementTableRow = memo(function AgreementTableRow({
           </div>
         </td>
 
-        <td colSpan={isChecked ? 2 : 1}>
-          <div className="float-right">
-            <Button
-              iconId={
-                row.laboratories.length === 0
-                  ? 'fr-icon-add-line'
-                  : 'fr-icon-edit-line'
-              }
-              priority="tertiary"
-              size="medium"
-              title={
-                row.laboratories.length === 0
-                  ? 'Affecter des laboratoires'
-                  : 'Modifier les laboratoires'
-              }
-              onClick={() => onOpenModalForRow(row)}
-            />
-          </div>
-        </td>
+        {canEdit && (
+          <td className="col-actions" colSpan={isChecked ? 2 : 1}>
+            <div className="float-right">
+              <Button
+                iconId={
+                  row.laboratories.length === 0
+                    ? 'fr-icon-add-line'
+                    : 'fr-icon-edit-line'
+                }
+                priority="tertiary"
+                size="medium"
+                title={
+                  row.laboratories.length === 0
+                    ? 'Affecter des laboratoires'
+                    : 'Modifier les laboratoires'
+                }
+                onClick={() => onOpenModalForRow(row)}
+              />
+            </div>
+          </td>
+        )}
 
-        {!isChecked && (
-          <td>
+        {canEdit && !isChecked && (
+          <td className="col-check">
             <div className="check-cell row-unchecked">
               <RadioButtons
                 legend="Ligne vérifiée"
@@ -321,7 +330,7 @@ const AgreementTableRow = memo(function AgreementTableRow({
 
       {isExpanded && (
         <tr>
-          <td colSpan={6}>
+          <td colSpan={canEdit ? 6 : 4}>
             <div className="sub-row-content border-left">
               <div
                 style={{
