@@ -59,7 +59,7 @@
     "puppeteer-core": "^25.16.0",
     "sanitize-html": "^2.18.1",
     "ssh2-sftp-client": "^12.1.1",
-    "unpdf": "^1.9.1"
+    "unpdf": "^2.1.0"
   },
   "devDependencies": {
     "@types/carbone": "^3.2.5",
