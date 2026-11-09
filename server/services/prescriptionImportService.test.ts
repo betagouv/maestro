@@ -1,3 +1,4 @@
+import XLSX from '@e965/xlsx';
 import { describe, expect, test } from 'vitest';
 import { parsePrescriptionImportFile } from './prescriptionImportService';
 
@@ -12,6 +13,12 @@ const csv = (rows: string[][]): Buffer =>
 
 const parse = (rows: string[][]) =>
   parsePrescriptionImportFile(csv(rows), 'export.csv');
+
+const workbook = (rows: string[][], bookType: 'xlsx' | 'ods'): Buffer => {
+  const book = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet(rows), 'Export');
+  return XLSX.write(book, { bookType, type: 'buffer' });
+};
 
 describe('parsePrescriptionImportFile', () => {
   test('lit les colonnes régions et le total national', () => {
@@ -121,4 +128,26 @@ describe('parsePrescriptionImportFile', () => {
     expect(cells).toHaveLength(1);
     expect(cells[0].rowNumber).toBe(3);
   });
+
+  test.each(['xlsx', 'ods'] as const)(
+    'lit un classeur %s comme un csv',
+    (bookType) => {
+      const rows = [
+        [
+          'Sous-plan',
+          'Total national programmé',
+          'ARA',
+          'Département 44\nProgrammés'
+        ],
+        ['DAOA01', '30', '12', '7']
+      ];
+
+      expect(
+        parsePrescriptionImportFile(
+          workbook(rows, bookType),
+          `export.${bookType}`
+        )
+      ).toEqual(parse(rows));
+    }
+  );
 });
