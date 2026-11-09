@@ -33,7 +33,12 @@ export const PrescriptionImportResult = z.object({
 
 export type PrescriptionImportResult = z.infer<typeof PrescriptionImportResult>;
 
-export const PrescriptionImportExtensions = ['xls', 'xlsx', 'csv'] as const;
+export const PrescriptionImportExtensions = [
+  'xls',
+  'xlsx',
+  'csv',
+  'ods'
+] as const;
 
 export const isSupportedPrescriptionImportFile = (filename: string): boolean =>
   PrescriptionImportExtensions.some((extension) =>
