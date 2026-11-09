@@ -58,6 +58,15 @@
     background-color: var(--background-alt-grey);
   }
 
+  .sub-row-details {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 2rem;
+    row-gap: 0.25rem;
+    line-height: 1.25rem;
+  }
+
   thead::after,
   tbody::after {
     background-image:

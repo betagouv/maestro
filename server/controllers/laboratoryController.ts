@@ -171,7 +171,8 @@ export const laboratoriesRouter = {
         }
       }
 
-      const subPlans = await programmingSubPlanRepository.findMany({ year });
+      const subPlans =
+        await programmingSubPlanRepository.findManyWithPlan(year);
 
       return { status: HttpStatus.OK, response: subPlans };
     }

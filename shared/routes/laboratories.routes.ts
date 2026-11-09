@@ -10,6 +10,7 @@ import {
   LaboratoryAgreement,
   LaboratoryAgreementCheckUpdate,
   LaboratoryAgreementRowKey,
+  LaboratoryAgreementSubPlan,
   LaboratoryAgreementUpdate
 } from '../schema/Laboratory/LaboratoryAgreement';
 import { LaboratoryAgreementDiffusion } from '../schema/Laboratory/LaboratoryAgreementDiffusion';
@@ -17,7 +18,6 @@ import {
   LaboratoryResidueMapping,
   LaboratoryResidueMappingToUpdate
 } from '../schema/Laboratory/LaboratoryResidueMapping';
-import { ProgrammingSubPlan } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubRoutes } from './routes';
 
 export const laboratoriesRoutes = {
@@ -67,7 +67,7 @@ export const laboratoriesRoutes = {
     get: {
       query: z.object({ year: z.coerce.number().int() }),
       permissions: ['readLaboratoryAgreements', 'manageLaboratoryAgreements'],
-      response: z.array(ProgrammingSubPlan)
+      response: z.array(LaboratoryAgreementSubPlan)
     }
   },
   '/laboratories': {

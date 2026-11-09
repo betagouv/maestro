@@ -435,7 +435,11 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
       expect(res.body.length).toBeGreaterThan(0);
       expect(res.body).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ id: PPVValidatedSubPlanId })
+          expect.objectContaining({
+            id: PPVValidatedSubPlanId,
+            programmingPlanTitle: PPVValidatedProgrammingPlanFixture.title,
+            programmingPlanDomainId: PPVValidatedProgrammingPlanFixture.domainId
+          })
         ])
       );
 

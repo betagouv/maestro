@@ -6,10 +6,16 @@ import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { uniqBy } from 'lodash-es';
 import {
+  type Stage,
+  StageLabels,
+  stagesOfSelection
+} from 'maestro-shared/referential/Stage';
+import {
   type MatrixKind,
   matrixKindLabel,
   matrixLabel
 } from 'maestro-shared/schema/Matrix/MatrixReferential';
+import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { getSubPlanMatrixKinds } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
@@ -22,6 +28,7 @@ import {
   useRef,
   useState
 } from 'react';
+import AppCheckboxSelect from 'src/components/_app/AppCheckboxSelect/AppCheckboxSelect';
 import BackToTopButton from 'src/components/BackToTopButton/BackToTopButton';
 import { LaboratoryAgreementDetailProvider } from 'src/components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -96,11 +103,18 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
   const [subPlanFilter, setSubPlanFilter] = useState<ProgrammingSubPlanId[]>(
     []
   );
+  const [domainFilter, setDomainFilter] = useState<ProgrammingPlanDomainId[]>(
+    []
+  );
+  const [planFilter, setPlanFilter] = useState<string[]>([]);
+  const [stageFilter, setStageFilter] = useState<Stage[]>([]);
   const [showWithoutLab, setShowWithoutLab] = useState(false);
 
   const { data: agreements = [] } = apiClient.useFindLaboratoryAgreementsQuery({
     year
   });
+  const { data: allDomains = [] } =
+    apiClient.useFindProgrammingPlanDomainsQuery();
   const { data: checks = [] } = apiClient.useFindLaboratoryAgreementChecksQuery(
     { year },
     { skip: !canEdit }
@@ -145,6 +159,49 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
         };
       }),
     [rows]
+  );
+
+  const domainOptions = useMemo(() => {
+    const domainIds = new Set(
+      subPlans.map((subPlan) => subPlan.programmingPlanDomainId)
+    );
+    return allDomains
+      .filter((domain) => domain.year === year && domainIds.has(domain.id))
+      .map((domain) => ({ value: domain.id, label: domain.label }))
+      .toSorted((a, b) => a.label.localeCompare(b.label));
+  }, [allDomains, subPlans, year]);
+
+  const domainLabels = useMemo(
+    () =>
+      new Map(allDomains.map((domain) => [domain.id, domain.label] as const)),
+    [allDomains]
+  );
+
+  const planOptions = useMemo(
+    () =>
+      [
+        ...new Map(
+          subPlans.map((subPlan) => [
+            subPlan.programmingPlanId,
+            subPlan.programmingPlanTitle
+          ])
+        )
+      ]
+        .map(([value, label]) => ({ value, label }))
+        .toSorted((a, b) => a.label.localeCompare(b.label)),
+    [subPlans]
+  );
+
+  const stageOptions = useMemo(
+    () =>
+      [
+        ...new Set(
+          subPlans.flatMap((subPlan) => stagesOfSelection(subPlan.stages))
+        )
+      ]
+        .map((value) => ({ value, label: StageLabels[value] }))
+        .toSorted((a, b) => a.label.localeCompare(b.label)),
+    [subPlans]
   );
 
   const substanceOptions = useMemo(
@@ -214,6 +271,16 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
         (r) =>
           (subPlanFilter.length === 0 ||
             subPlanFilter.includes(r.programmingSubPlan.id)) &&
+          (domainFilter.length === 0 ||
+            domainFilter.includes(
+              r.programmingSubPlan.programmingPlanDomainId
+            )) &&
+          (planFilter.length === 0 ||
+            planFilter.includes(r.programmingSubPlan.programmingPlanId)) &&
+          (stageFilter.length === 0 ||
+            stagesOfSelection(r.programmingSubPlan.stages).some((stage) =>
+              stageFilter.includes(stage)
+            )) &&
           (substanceFilter.length === 0 ||
             r.substanceKinds.some((substanceKind) =>
               substanceFilter.includes(substanceKind)
@@ -266,6 +333,9 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
   }, [
     rows,
     subPlanFilter,
+    domainFilter,
+    planFilter,
+    stageFilter,
     substanceFilter,
     matrixCombinedFilter,
     labFilter,
@@ -351,10 +421,42 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
 
   const handleDeselect = useCallback(() => setSelectedStringRowKeys([]), []);
 
+  const exportSubPlanIds = useMemo(() => {
+    const isScoped =
+      domainFilter.length > 0 ||
+      planFilter.length > 0 ||
+      stageFilter.length > 0;
+
+    if (!isScoped) {
+      return subPlanFilter.length > 0 ? subPlanFilter : undefined;
+    }
+
+    const scopedSubPlanIds = subPlans
+      .filter(
+        (subPlan) =>
+          (domainFilter.length === 0 ||
+            domainFilter.includes(subPlan.programmingPlanDomainId)) &&
+          (planFilter.length === 0 ||
+            planFilter.includes(subPlan.programmingPlanId)) &&
+          (stageFilter.length === 0 ||
+            stagesOfSelection(subPlan.stages).some((stage) =>
+              stageFilter.includes(stage)
+            ))
+      )
+      .map((subPlan) => subPlan.id);
+
+    return subPlanFilter.length > 0
+      ? scopedSubPlanIds.filter((id) => subPlanFilter.includes(id))
+      : scopedSubPlanIds;
+  }, [subPlans, subPlanFilter, domainFilter, planFilter, stageFilter]);
+
   useEffect(() => {
     setSelectedStringRowKeys([]);
   }, [
     subPlanFilter,
+    domainFilter,
+    planFilter,
+    stageFilter,
     substanceFilter,
     matrixCombinedFilter,
     labFilter,
@@ -449,6 +551,51 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
       <div className={clsx('white-container', cx('fr-p-4w'))}>
         <div
           className={clsx(
+            cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-mb-2w'),
+            'laboratory-agreements-filters'
+          )}
+        >
+          <div className={cx('fr-col-12', 'fr-col-md-4')}>
+            <AppCheckboxSelect
+              label="Domaines"
+              options={domainOptions}
+              selectedValues={domainFilter}
+              onChange={(values) =>
+                setDomainFilter(values as ProgrammingPlanDomainId[])
+              }
+              emptyLabel="Tous"
+              summaryLabel="domaine"
+              searchable
+              disabled={domainOptions.length === 0}
+            />
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-md-4')}>
+            <AppCheckboxSelect
+              label="Plans"
+              options={planOptions}
+              selectedValues={planFilter}
+              onChange={setPlanFilter}
+              emptyLabel="Tous"
+              summaryLabel="plan"
+              searchable
+              disabled={planOptions.length === 0}
+            />
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-md-4')}>
+            <AppCheckboxSelect
+              label="Stades de prélèvement"
+              options={stageOptions}
+              selectedValues={stageFilter}
+              onChange={(values) => setStageFilter(values as Stage[])}
+              emptyLabel="Tous"
+              summaryLabel="stade"
+              searchable
+              disabled={stageOptions.length === 0}
+            />
+          </div>
+        </div>
+        <div
+          className={clsx(
             cx('fr-mb-3w'),
             'd-flex-align-center',
             'd-flex-justify-end',
@@ -465,13 +612,12 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
           <Button
             iconId="fr-icon-file-download-line"
             priority="secondary"
+            disabled={filteredRows.length === 0}
             onClick={() =>
               window.open(
                 getLaboratoryAgreementsExportURL({
                   year,
-                  programmingSubPlanIds: subPlanFilter.length
-                    ? subPlanFilter
-                    : undefined,
+                  programmingSubPlanIds: exportSubPlanIds,
                   substanceKinds: substanceFilter.length
                     ? substanceFilter
                     : undefined,
@@ -499,6 +645,7 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
           selectedRowsConsistent={selectedRowsConsistent}
           checks={checks}
           laboratories={laboratories}
+          domainLabels={domainLabels}
           kindFilter={subPlanFilter}
           kindOptions={subPlanOptions}
           onKindFilterChange={setSubPlanFilter}

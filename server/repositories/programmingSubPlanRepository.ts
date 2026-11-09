@@ -1,4 +1,5 @@
 import { isNil } from 'lodash-es';
+import { LaboratoryAgreementSubPlan } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { FindProgrammingSubPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingSubPlanOptions';
 import type { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import {
@@ -85,6 +86,30 @@ const findMany = async (
   return (await query.execute()).map((row) => ProgrammingSubPlan.parse(row));
 };
 
+const findManyWithPlan = async (
+  year: number
+): Promise<LaboratoryAgreementSubPlan[]> => {
+  console.info('Find programming sub-plans with plan', year);
+
+  const rows = await kysely
+    .selectFrom('programmingSubPlans')
+    .innerJoin(
+      'programmingPlans',
+      'programmingPlans.id',
+      'programmingSubPlans.programmingPlanId'
+    )
+    .selectAll('programmingSubPlans')
+    .select([
+      'programmingPlans.title as programmingPlanTitle',
+      'programmingPlans.domainId as programmingPlanDomainId'
+    ])
+    .where('programmingPlans.year', '=', year)
+    .orderBy('subPlanNumber')
+    .execute();
+
+  return rows.map((row) => LaboratoryAgreementSubPlan.parse(row));
+};
+
 const updateSettings = async (
   id: ProgrammingSubPlanId,
   settings: Partial<
@@ -164,6 +189,7 @@ const deleteOne = async (id: ProgrammingSubPlanId): Promise<void> => {
 export const programmingSubPlanRepository = {
   findUnique,
   findMany,
+  findManyWithPlan,
   findYearSubPlanNumbers,
   insert,
   updateSettings,

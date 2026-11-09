@@ -1,7 +1,10 @@
 import { z } from 'zod';
+import { ProgrammingPlanDomainId } from '../ProgrammingPlan/ProgrammingPlanDomain';
 import { groupSubstanceKindsBySample } from '../ProgrammingPlan/ProgrammingPlanSampleSetting';
-import type { ProgrammingSubPlan } from '../ProgrammingPlan/ProgrammingSubPlan';
-import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
+import {
+  ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from '../ProgrammingPlan/ProgrammingSubPlan';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 
 export const LaboratoryAgreementRowKey = z.object({
@@ -59,6 +62,15 @@ export const agreementLabels: Record<LaboratoryAgreementField, string> = {
 export type AgreementSubPlan = Pick<
   ProgrammingSubPlan,
   'id' | 'subPlanNumber' | 'samples' | 'substanceKinds'
+>;
+
+export const LaboratoryAgreementSubPlan = ProgrammingSubPlan.extend({
+  programmingPlanTitle: z.string(),
+  programmingPlanDomainId: ProgrammingPlanDomainId
+});
+
+export type LaboratoryAgreementSubPlan = z.infer<
+  typeof LaboratoryAgreementSubPlan
 >;
 
 export const laboratoryAgreementRows = <T extends AgreementSubPlan>(

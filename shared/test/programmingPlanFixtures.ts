@@ -300,7 +300,7 @@ export const DAOABovinInProgressSubPlanFixture = genProgrammingSubPlan({
 export const ALANRuminantsSubPlanFixture = genProgrammingSubPlan({
   id: ALANRuminantsSubPlanId,
   programmingPlanId: ALANProgrammingPlanId,
-  subPlanNumber: 'ALAN01',
+  subPlanNumber: 'ALAN1',
   stages: [{ stage: 'ALIMENTATION_ANIMALE', subStages: [] }],
   substanceKinds: ['Mono', 'Multi'],
   matrices: genSubPlanMatrices('TODO_16' as MatrixKind),
@@ -310,7 +310,7 @@ export const ALANRuminantsSubPlanFixture = genProgrammingSubPlan({
 export const ALANVolaillesSubPlanFixture = genProgrammingSubPlan({
   id: ALANVolaillesSubPlanId,
   programmingPlanId: ALANProgrammingPlanId,
-  subPlanNumber: 'ALAN02',
+  subPlanNumber: 'ALAN2',
   stages: [{ stage: 'ALIMENTATION_ANIMALE', subStages: [] }],
   substanceKinds: ['Mono', 'Multi'],
   matrices: genSubPlanMatrices('TODO_18' as MatrixKind),

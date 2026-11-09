@@ -3,17 +3,21 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import clsx from 'clsx';
+import { isNil } from 'lodash-es';
 import { stageSelectionLabels } from 'maestro-shared/referential/Stage';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type {
   LaboratoryAgreement,
-  LaboratoryAgreementCheckUpdate
+  LaboratoryAgreementCheckUpdate,
+  LaboratoryAgreementSubPlan
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
+import { matrixKindLabel } from 'maestro-shared/schema/Matrix/MatrixReferential';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import {
-  type ProgrammingSubPlan,
-  subPlanLabel
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
+  getSubPlanMatrixKinds,
+  getSubPlanMatrixLabels
+} from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { memo, useMemo } from 'react';
@@ -25,7 +29,7 @@ const LABS_DISPLAY_LIMIT = 10;
 const MATRIX_DISPLAY_LIMIT = 3;
 
 export type AgreementRow = {
-  programmingSubPlan: ProgrammingSubPlan;
+  programmingSubPlan: LaboratoryAgreementSubPlan;
   substanceKinds: SubstanceKind[];
   laboratories: LaboratoryAgreement[];
 };
@@ -57,6 +61,7 @@ interface Props {
   isMatrixExpanded: boolean;
   canEdit: boolean;
   laboratoriesById: Map<string, Laboratory>;
+  domainLabels: Map<ProgrammingPlanDomainId, string>;
   onToggleSelect: (key: string) => void;
   onToggleExpand: (key: string) => void;
   onToggleLabs: (key: string) => void;
@@ -81,6 +86,7 @@ const AgreementTableRow = memo(function AgreementTableRow({
   isMatrixExpanded,
   canEdit,
   laboratoriesById,
+  domainLabels,
   onToggleSelect,
   onToggleExpand,
   onToggleLabs,
@@ -127,10 +133,45 @@ const AgreementTableRow = memo(function AgreementTableRow({
     : allLabs.slice(0, LABS_DISPLAY_LIMIT);
   const remainingLabs = allLabs.length - LABS_DISPLAY_LIMIT;
 
-  const planStages = useMemo(
-    () => (isExpanded ? (row.programmingSubPlan.stages ?? []) : []),
-    [row.programmingSubPlan.stages, isExpanded]
-  );
+  const subPlanDetails = useMemo(() => {
+    if (!isExpanded) {
+      return [];
+    }
+
+    const subPlan = row.programmingSubPlan;
+    const stages = stageSelectionLabels(subPlan.stages);
+    const matrixKinds = getSubPlanMatrixKinds(subPlan.matrices).map((kind) =>
+      matrixKindLabel(matrixReferential, kind)
+    );
+
+    return [
+      {
+        label: 'Domaine',
+        value: domainLabels.get(subPlan.programmingPlanDomainId)
+      },
+      { label: 'Plan', value: subPlan.programmingPlanTitle },
+      {
+        label: `${pluralize(stages.length)('Stade')} de prélèvement`,
+        value: stages.length > 0 ? stages.join(', ') : undefined
+      },
+      {
+        label: 'Espèce/produit',
+        value: matrixKinds.length > 0 ? matrixKinds.join(', ') : undefined
+      },
+      {
+        label: 'Délégation',
+        value: isNil(subPlan.delegated)
+          ? undefined
+          : subPlan.delegated
+            ? 'Délégué'
+            : 'Non délégué'
+      },
+      {
+        label: 'Nature du plan',
+        value: subPlan.context ? ContextLabels[subPlan.context] : undefined
+      }
+    ].filter(({ value }) => !isNil(value));
+  }, [row.programmingSubPlan, isExpanded, domainLabels, matrixReferential]);
 
   const handleCheck = () => {
     if (isPending) return;
@@ -332,37 +373,12 @@ const AgreementTableRow = memo(function AgreementTableRow({
         <tr>
           <td colSpan={canEdit ? 6 : 4}>
             <div className="sub-row-content border-left">
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '2rem',
-                  flexWrap: 'wrap',
-                  alignItems: 'center'
-                }}
-              >
-                <div>
-                  Type de plan :{' '}
-                  <strong>
-                    {subPlanLabel(matrixReferential, row.programmingSubPlan)}
-                  </strong>
-                </div>
-                {planStages.length > 0 && (
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.25rem',
-                      flexWrap: 'wrap'
-                    }}
-                  >
-                    <span>
-                      {pluralize(planStages.length)('Stade')} de prélèvement :{' '}
-                      <strong>
-                        {stageSelectionLabels(planStages).join(', ')}
-                      </strong>
-                    </span>
-                  </div>
-                )}
+              <div className="sub-row-details">
+                {subPlanDetails.map(({ label, value }) => (
+                  <span key={label}>
+                    {label} : <strong>{value}</strong>
+                  </span>
+                ))}
               </div>
             </div>
           </td>

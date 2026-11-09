@@ -8,6 +8,7 @@ import type {
   LaboratoryAgreementField,
   LaboratoryAgreementRowKey
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
+import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -37,6 +38,7 @@ interface Props {
   selectedRowsConsistent: boolean;
   checks: LaboratoryAgreementRowKey[];
   laboratories: Laboratory[];
+  domainLabels: Map<ProgrammingPlanDomainId, string>;
   kindFilter: ProgrammingSubPlanId[];
   kindOptions: { value: ProgrammingSubPlanId; label: string }[];
   onKindFilterChange: (values: ProgrammingSubPlanId[]) => void;
@@ -66,6 +68,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   selectedRowsConsistent,
   checks,
   laboratories,
+  domainLabels,
   kindFilter,
   kindOptions,
   onKindFilterChange,
@@ -381,6 +384,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     isLabsExpanded={expandedLabRowKeys.includes(rowKey)}
                     isMatrixExpanded={expandedMatrixRowKeys.includes(rowKey)}
                     laboratoriesById={laboratoriesById}
+                    domainLabels={domainLabels}
                     onToggleSelect={onToggleRow}
                     onToggleExpand={handleToggleExpand}
                     onToggleLabs={handleToggleLabs}
