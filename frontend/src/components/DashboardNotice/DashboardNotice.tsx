@@ -1,5 +1,4 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Quote from '@codegouvfr/react-dsfr/Quote';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
 import type { FunctionComponent } from 'react';
@@ -38,9 +37,19 @@ export const DashboardNotice: FunctionComponent<Props> = ({
           'flex-grow-1'
         )}
       >
-        <Quote
-          author={
-            <>
+        <figure
+          className={clsx(
+            cx('fr-quote', 'fr-quote--green-emeraude'),
+            fullWidth && 'quote-fullwidth'
+          )}
+        >
+          <blockquote>
+            <p>
+              <AppMarkdown>{description}</AppMarkdown>
+            </p>
+          </blockquote>
+          <figcaption>
+            <p className={cx('fr-quote__author')}>
               <span>
                 <img
                   className="fr-responsive-img"
@@ -60,13 +69,9 @@ export const DashboardNotice: FunctionComponent<Props> = ({
                   de l'équipe {Brand}
                 </span>
               </span>
-            </>
-          }
-          size="xlarge"
-          accentColor="green-emeraude"
-          text={<AppMarkdown>{description}</AppMarkdown>}
-          className={fullWidth ? 'quote-fullwidth' : undefined}
-        />
+            </p>
+          </figcaption>
+        </figure>
       </div>
       <div
         className={clsx(
