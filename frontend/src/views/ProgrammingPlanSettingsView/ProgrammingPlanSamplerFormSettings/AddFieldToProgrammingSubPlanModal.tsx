@@ -11,7 +11,7 @@ import type React from 'react';
 import { useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
-import AppSelect from '../../../components/_app/AppSelect/AppSelect';
+import AppSearchInput from '../../../components/_app/AppSearchInput/AppSearchInput';
 import { useForm } from '../../../hooks/useForm';
 
 const AddFieldForm = z.object({
@@ -48,13 +48,10 @@ export const AddFieldToProgrammingSubPlanModal = ({
 
   const form = useForm(AddFieldForm, formData);
 
-  const fieldOptions = [
-    { value: '', label: '-- Sélectionner un descripteur --', hidden: true },
-    ...availableFields.map((f) => ({
-      value: f.id,
-      label: `${f.key} — ${f.label}`
-    }))
-  ];
+  const fieldOptions = availableFields.map((f) => ({
+    value: f.id,
+    label: `${f.key} — ${f.label}`
+  }));
 
   useIsModalOpen(modal, {
     onConceal: () => {
@@ -97,18 +94,20 @@ export const AddFieldToProgrammingSubPlanModal = ({
       ]}
     >
       <form>
-        <AppSelect
+        <AppSearchInput
           label="Descripteur"
           value={formData.fieldId}
-          inputForm={form}
-          inputKey="fieldId"
           options={fieldOptions}
-          onChange={(e) =>
+          onSelect={(value) =>
             setFormData((d) => ({
               ...d,
-              fieldId: e.target.value as SpecificDataFieldId
+              fieldId: (value ?? '') as SpecificDataFieldId
             }))
           }
+          placeholder="Rechercher un descripteur"
+          state={form.messageType('fieldId')}
+          stateRelatedMessage={form.message('fieldId')}
+          disableAutoSelectSingleOption
           required
         />
         <ToggleSwitch
