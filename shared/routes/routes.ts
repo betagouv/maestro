@@ -104,6 +104,7 @@ export const MaestroRoutes = [
   '/specific-data-fields/attribute',
   '/specific-data-fields/attribute/value',
   '/users',
+  '/users/export',
   '/users/:userId',
   '/users/:userId/certification'
 ] as const;

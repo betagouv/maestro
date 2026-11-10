@@ -1,5 +1,7 @@
+import type { FindUserExportOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
+import { getApiUrl } from 'src/utils/fetchUtils';
 
 const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -39,6 +41,9 @@ const userApi = api.injectEndpoints({
     })
   })
 });
+
+export const getUsersExportURL = (opts: FindUserExportOptions) =>
+  getApiUrl('/users/export', opts);
 
 export const {
   useGetUserQuery,

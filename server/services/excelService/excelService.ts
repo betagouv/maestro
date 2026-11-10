@@ -1,6 +1,9 @@
 import carbone, { type RenderOptions } from 'carbone';
 import { isNil, sumBy, uniq } from 'lodash-es';
-import type { Department } from 'maestro-shared/referential/Department';
+import {
+  type Department,
+  DepartmentLabels
+} from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import type { OptionalBoolean } from 'maestro-shared/referential/OptionnalBoolean';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
@@ -11,7 +14,10 @@ import {
 } from 'maestro-shared/referential/Region';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { stageSelectionLabels } from 'maestro-shared/referential/Stage';
+import {
+  StageLabels,
+  stageSelectionLabels
+} from 'maestro-shared/referential/Stage';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import { ContaminationSourceLabels } from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
@@ -51,8 +57,16 @@ import {
   type SubstanceKind,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
-import type { UserRole } from 'maestro-shared/schema/User/UserRole';
-import { formatMaestroDate, formatWithTz } from 'maestro-shared/utils/date';
+import type { UserListItem } from 'maestro-shared/schema/User/User';
+import {
+  type UserRole,
+  UserRoleLabels
+} from 'maestro-shared/schema/User/UserRole';
+import {
+  formatMaestroDate,
+  formatWithTz,
+  toMaestroDate
+} from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import companyRepository from '../../repositories/companyRepository';
@@ -923,6 +937,49 @@ const generateLaboratoryAgreementsExportExcel = async (
   return carboneRender('laboratoryAgreementsExport', { labHeaders, rows }, {});
 };
 
+type UsersExportExcelData = SetAttributesNullOrUndefined<{
+  name: string;
+  email: string;
+  roles: string;
+  region: string;
+  department: string;
+  stages: string;
+  laboratory: string;
+  companies: string;
+  certified: string;
+  active: string;
+  createdAt: string;
+}>;
+
+const generateUsersExportExcel = async (
+  users: UserListItem[],
+  laboratories: Laboratory[]
+): Promise<Buffer> => {
+  const laboratoryNameById = new Map(
+    laboratories.map((laboratory) => [laboratory.id, laboratory.name])
+  );
+
+  const usersData: UsersExportExcelData[] = users.map((user) => ({
+    name: user.name,
+    email: user.email,
+    roles: user.roles.map((role) => UserRoleLabels[role]).join(', '),
+    region: user.region ? Regions[user.region].name : '',
+    department: user.department ? DepartmentLabels[user.department] : '',
+    stages: user.stages.map((stage) => StageLabels[stage]).join(', '),
+    laboratory: user.laboratoryId
+      ? (laboratoryNameById.get(user.laboratoryId) ?? '')
+      : '',
+    companies: user.companies
+      .map((company) => `${company.name} (${company.siret})`)
+      .join(', '),
+    certified: user.certified ? 'Oui' : 'Non',
+    active: user.disabled ? 'Non' : 'Oui',
+    createdAt: formatMaestroDate(toMaestroDate(user.createdAt))
+  }));
+
+  return carboneRender('usersExport', { users: usersData }, {});
+};
+
 const carboneRender = (
   template: Template,
   data: object,
@@ -942,5 +999,6 @@ export const excelService = {
   generateAnalysisRequestExcel,
   generateSamplesExportExcel,
   generatePrescriptionsExportExcel,
-  generateLaboratoryAgreementsExportExcel
+  generateLaboratoryAgreementsExportExcel,
+  generateUsersExportExcel
 };
