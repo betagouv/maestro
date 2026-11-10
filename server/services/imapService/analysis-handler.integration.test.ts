@@ -1,4 +1,5 @@
 import { Sample13Fixture } from 'maestro-shared/test/sampleFixtures';
+import { Sampler2Fixture } from 'maestro-shared/test/userFixtures';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import { s3Service } from '../s3Service';
@@ -346,6 +347,48 @@ test(`emet une erreur labo si la référence du prélèvement est inconnue`, asy
   await expect(
     analysisHandler(analysisToSave, new Date(9999999))
   ).rejects.toBeInstanceOf(ExtractLabError);
+});
+
+const analysisWithoutResidue = {
+  notes: '',
+  pdfFile: new File([], 'fileName'),
+  sampleReference: Sample13Fixture.reference,
+  copyNumber: 1,
+  itemNumber: 1,
+  residues: []
+} as const satisfies AnalysisWithResidueWithSSD2Id;
+
+test("Ne retourne pas de second préleveur quand le prélèvement n'en a pas", async () => {
+  const { additionalSampler } = await analysisHandler(
+    analysisWithoutResidue,
+    new Date(9999999)
+  );
+
+  expect(additionalSampler).toBeNull();
+});
+
+test('Retourne le second préleveur du prélèvement quand il y en a un', async () => {
+  await kysely
+    .updateTable('samples')
+    .set({ additionalSampledBy: Sampler2Fixture.id })
+    .where('id', '=', Sample13Fixture.id)
+    .execute();
+
+  const { additionalSampler } = await analysisHandler(
+    analysisWithoutResidue,
+    new Date(9999999)
+  );
+
+  expect(additionalSampler).toEqual({
+    id: Sampler2Fixture.id,
+    email: Sampler2Fixture.email
+  });
+
+  await kysely
+    .updateTable('samples')
+    .set({ additionalSampledBy: null })
+    .where('id', '=', Sample13Fixture.id)
+    .execute();
 });
 
 test(`emet une erreur si l'exemplaire n'existe pas`, async () => {

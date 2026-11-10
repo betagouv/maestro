@@ -464,6 +464,7 @@ export interface Samples {
   sampledDate: MaestroDate;
   sampledTime: string;
   sampledBy: string | null;
+  additionalSampledBy: string | null;
   sentAt: Timestamp | null;
   seves: Seves | null;
   step: SampleStep;
