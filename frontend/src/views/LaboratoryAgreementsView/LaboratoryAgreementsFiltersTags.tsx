@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 
-export type LaboratoryAgreementsFilter = {
+type LaboratoryAgreementsFilter = {
   key: string;
   values: readonly string[];
   options: readonly { value: string; label: string }[];
