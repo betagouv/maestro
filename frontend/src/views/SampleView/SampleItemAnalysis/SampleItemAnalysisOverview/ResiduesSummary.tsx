@@ -54,9 +54,10 @@ export const ResiduesSummary: FunctionComponent<Props> = ({
                   cx('fr-text--sm', 'fr-text--regular', 'fr-m-0', 'fr-pl-1v')
                 )}
               >
-                {pluralize(countByCompliance[c], { preserveCount: true })(
-                  ResidueComplianceLabels[c].toLowerCase()
-                )}
+                {pluralize(countByCompliance[c], {
+                  preserveCount: true,
+                  ignores: ['non']
+                })(ResidueComplianceLabels[c].toLowerCase())}
               </span>
             </div>
           ))}
