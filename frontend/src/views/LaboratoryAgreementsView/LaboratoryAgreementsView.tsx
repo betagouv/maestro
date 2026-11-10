@@ -58,6 +58,7 @@ import {
 import { assert, type Equals } from 'tsafe';
 import { AppPageWithYearTitle } from '../../components/_app/AppPage/AppPageWithYearTitle';
 import { LaboratoryAgreementsDiffusionAction } from './LaboratoryAgreementsDiffusionAction';
+import { LaboratoryAgreementsFiltersTags } from './LaboratoryAgreementsFiltersTags';
 
 const agreementsModal = createModal({
   id: 'laboratory-agreements-modal',
@@ -594,6 +595,31 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
             />
           </div>
         </div>
+        <LaboratoryAgreementsFiltersTags
+          filters={[
+            {
+              key: 'domain',
+              values: domainFilter,
+              options: domainOptions,
+              onRemove: (value) =>
+                setDomainFilter((prev) => prev.filter((v) => v !== value))
+            },
+            {
+              key: 'plan',
+              values: planFilter,
+              options: planOptions,
+              onRemove: (value) =>
+                setPlanFilter((prev) => prev.filter((v) => v !== value))
+            },
+            {
+              key: 'stage',
+              values: stageFilter,
+              options: stageOptions,
+              onRemove: (value) =>
+                setStageFilter((prev) => prev.filter((v) => v !== value))
+            }
+          ]}
+        />
         <div
           className={clsx(
             cx('fr-mb-3w'),
