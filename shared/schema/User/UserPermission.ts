@@ -8,6 +8,7 @@ export const UserPermission = z.enum([
   'readSpecificDataFields',
   'manageLaboratoryConfig',
   'manageUsers',
+  'exportUsers',
   'createSample',
   'readSamples',
   'updateSample',

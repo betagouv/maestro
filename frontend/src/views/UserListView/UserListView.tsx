@@ -14,6 +14,8 @@ import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
+import { getUsersExportURL } from '../../services/user.service';
+import { pluralize } from '../../utils/stringUtils';
 import { UserCard } from './components/UserCard';
 import { UserModal } from './components/UserModal';
 import { type FindUserOptions, UsersFilters } from './components/UsersFilters';
@@ -32,7 +34,7 @@ const confirmDisablingUserModal = createModal({
 export const UserListView = () => {
   const apiClient = useContext(ApiClientContext);
   const { canManageUser } = useUserManagement();
-  const { hasRole, account } = useAuthentication();
+  const { hasRole, account, hasAccountPermission } = useAuthentication();
 
   const { data: allUsers } = apiClient.useFindUsersQuery({});
 
@@ -63,6 +65,25 @@ export const UserListView = () => {
   const [alertMessage, setAlertMessage] = useState<null | string>(null);
 
   const [usersFiltered, setUsersFiltered] = useState<UserListItem[]>(users);
+  const [appliedFilters, setAppliedFilters] = useState<FindUserOptions | null>(
+    null
+  );
+
+  const exportURL = useMemo(
+    () =>
+      getUsersExportURL({
+        regions: appliedFilters?.regions,
+        departments: appliedFilters?.departments,
+        roles: appliedFilters?.roles,
+        stages: appliedFilters?.stages,
+        label: appliedFilters?.label,
+        createdFrom: appliedFilters?.createdFrom,
+        createdTo: appliedFilters?.createdTo,
+        disabled: !!appliedFilters?.onlyDisabled,
+        certified: appliedFilters?.onlyUncertified ? false : undefined
+      }),
+    [appliedFilters]
+  );
 
   const onEdit = async (userToEdit: UserListItem) => {
     setUserToUpdate({ ...userToEdit });
@@ -109,6 +130,7 @@ export const UserListView = () => {
 
   const updateUsersFiltered = useCallback(
     (filters: FindUserOptions) => {
+      setAppliedFilters(filters);
       setUsersFiltered(
         users.filter((u) => {
           if (filters.onlyDisabled && !u.disabled) {
@@ -217,6 +239,29 @@ export const UserListView = () => {
               className={cx('fr-mb-3w')}
               onClose={() => setAlertMessage(null)}
             />
+          )}
+          {hasAccountPermission('exportUsers') && (
+            <div
+              className={clsx(
+                'd-flex-align-center',
+                cx('fr-mb-2w', 'fr-mb-md-5w')
+              )}
+            >
+              <div className={cx('fr-text--bold')}>
+                {pluralize(usersFiltered.length, { preserveCount: true })(
+                  'utilisateur'
+                )}
+              </div>
+              <Button
+                iconId="fr-icon-file-download-line"
+                priority="secondary"
+                onClick={() => window.open(exportURL)}
+                title="Exporter"
+                className={cx('fr-ml-auto')}
+              >
+                Exporter
+              </Button>
+            </div>
           )}
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             {usersFiltered.map((user) => (

@@ -7,12 +7,13 @@ describe('UserRole', () => {
     const bgirPermissions = UserRolePermissions.AdministratorBGIR;
     const maestroPermissions = UserRolePermissions.AdministratorMaestro;
 
-    test('should not be able to use mascarade, notices, descriptors and laboratory config', () => {
+    test('should not be able to use mascarade, notices, descriptors, laboratory config and the users export', () => {
       expect(difference(maestroPermissions, bgirPermissions)).toEqual([
         'manageMascarade',
         'manageNotices',
         'manageSpecificDataFields',
-        'manageLaboratoryConfig'
+        'manageLaboratoryConfig',
+        'exportUsers'
       ]);
     });
 
