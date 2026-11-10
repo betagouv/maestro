@@ -59,6 +59,7 @@ import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import { matrixRepository } from '../../repositories/matrixRepository';
 import { programmingPlanDomainRepository } from '../../repositories/programmingPlanDomainRepository';
+import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
@@ -74,6 +75,10 @@ type SetAttributesNullOrUndefined<T> = {
 
 type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   reference: string;
+  subPlanNumber: string;
+  domain: string;
+  plan: string;
+  subPlan: string;
   department: string;
   sampler: string;
   sampledAt: string;
@@ -184,6 +189,20 @@ const generateSamplesExportExcel = async (
   const laboratories = await laboratoryRepository.findMany();
   const matrixReferential = await matrixRepository.findReferential();
 
+  const programmingPlans = await programmingPlanRepository.findMany({
+    ids: uniq(samples.map((sample) => sample.programmingPlanId))
+  });
+  const planById = new Map(programmingPlans.map((plan) => [plan.id, plan]));
+  const subPlanById = new Map(
+    programmingPlans.flatMap((plan) =>
+      plan.subPlans.map((subPlan) => [subPlan.id, subPlan] as const)
+    )
+  );
+  const domains = await programmingPlanDomainRepository.findMany();
+  const domainLabelById = new Map(
+    domains.map((domain) => [domain.id, domain.label])
+  );
+
   const fieldConfigsCache = new Map<string, ProgrammingSubPlanFieldConfig[]>();
   const getFieldConfigs = async (
     programmingSubPlanId: ProgrammingSubPlanId | null | undefined
@@ -221,8 +240,20 @@ const generateSamplesExportExcel = async (
     const matrixPartField = fieldConfigs.find(
       (c) => c.field.key === 'matrixPart'
     )?.field;
+    const sampleSubPlan = sample.programmingSubPlanId
+      ? subPlanById.get(sample.programmingSubPlanId)
+      : undefined;
+    const samplePlan = planById.get(sample.programmingPlanId);
     const data: SamplesExportExcelData = {
       reference: sample.reference,
+      subPlanNumber: sampleSubPlan?.subPlanNumber ?? '',
+      domain: samplePlan?.domainId
+        ? (domainLabelById.get(samplePlan.domainId) ?? '')
+        : '',
+      plan: samplePlan?.title ?? '',
+      subPlan: sampleSubPlan
+        ? subPlanLabel(matrixReferential, sampleSubPlan)
+        : '',
       department: sample.department,
       sampler: `${sample.sampler.name}`,
       sampledAt: sample.sampledDate
