@@ -402,6 +402,138 @@ describe('computeCompleteness — National: complete only once regions reconcile
   });
 });
 
+describe('computeCompleteness — National: a sub-plan left at 0 is not programmed', () => {
+  const localPrescriptions = [
+    {
+      prescriptionId: 'p1',
+      region: '01' as const,
+      department: null,
+      sampleCount: 40
+    }
+  ];
+
+  test('every sub-plan programmed -> no unprogrammed sub-plan', () => {
+    const result = computeCompleteness(
+      [{ id: 'p1', sampleCount: 40 }],
+      localPrescriptions,
+      'National'
+    );
+    expect(result.hasUnprogrammedSubPlan).toBe(false);
+    expect(result.hasAnyProgrammedSample).toBe(true);
+  });
+
+  test('one sub-plan at 0 while the others are distributed -> unprogrammed, yet still reconciled', () => {
+    const result = computeCompleteness(
+      [
+        { id: 'p1', sampleCount: 40 },
+        { id: 'p2', sampleCount: 0 }
+      ],
+      localPrescriptions,
+      'National'
+    );
+    expect(result.hasUnprogrammedSubPlan).toBe(true);
+    expect(result.isComplete).toBe(true);
+  });
+
+  test('every sub-plan at 0 -> applicable all the same, so the plan reads as in progress', () => {
+    const result = computeCompleteness(
+      [{ id: 'p1', sampleCount: 0 }],
+      [],
+      'National'
+    );
+    expect(result.hasUnprogrammedSubPlan).toBe(true);
+    expect(result.hasAnyProgrammedSample).toBe(true);
+  });
+
+  test('no sub-plan at all -> not applicable', () => {
+    const result = computeCompleteness([], [], 'National');
+    expect(result.hasAnyProgrammedSample).toBe(false);
+    expect(result.hasUnprogrammedSubPlan).toBe(false);
+  });
+
+  test('Regional ignores the rule, 0 stays a legitimate allocation', () => {
+    const result = computeCompleteness(
+      [{ id: 'p1', sampleCount: 40 }],
+      [
+        {
+          prescriptionId: 'p1',
+          region: '01',
+          department: null,
+          sampleCount: 0
+        }
+      ],
+      'Regional',
+      'REGIONAL',
+      '01'
+    );
+    expect(result.hasUnprogrammedSubPlan).toBe(false);
+  });
+});
+
+describe('computeDisplayStatus — National: an unprogrammed sub-plan blocks the send', () => {
+  const base = {
+    status: 'InProgress' as const,
+    hasAnyProgrammedSample: true,
+    isComplete: true,
+    hasUnprogrammedSubPlan: true,
+    echelon: 'National' as const,
+    distributionKind: 'REGIONAL' as const
+  };
+
+  test('never sent -> InProgress instead of "Terminé, à envoyer"', () => {
+    const result = computeDisplayStatus({
+      ...base,
+      sentAt: null,
+      lastModifiedAt: null
+    });
+    expect(result.value).toBe('InProgress');
+  });
+
+  test('sent with a pending change -> InProgress instead of "Modifié, à envoyer"', () => {
+    const result = computeDisplayStatus({
+      ...base,
+      status: 'SubmittedToRegion',
+      sentAt: new Date('2026-01-01'),
+      lastModifiedAt: new Date('2026-01-05'),
+      hasPendingChange: true
+    });
+    expect(result.value).toBe('InProgress');
+    expect(result.label).toBe('En cours');
+  });
+
+  test('already sent with nothing pending -> stays Submitted, no regression on sent plans', () => {
+    const result = computeDisplayStatus({
+      ...base,
+      status: 'SubmittedToRegion',
+      sentAt: new Date('2026-01-01'),
+      lastModifiedAt: null
+    });
+    expect(result.value).toBe('Submitted');
+    expect(result.label).toBe('Soumis aux régions');
+  });
+
+  test('admin reviewing a plan submitted to them -> InProgress, the relay is blocked too', () => {
+    const result = computeDisplayStatus({
+      ...base,
+      status: 'SubmittedToAdmin',
+      viewerOwnsNationalRow: false,
+      sentAt: null,
+      lastModifiedAt: null
+    });
+    expect(result.value).toBe('InProgress');
+  });
+
+  test('without the flag the same plan is ReadyToSend', () => {
+    const result = computeDisplayStatus({
+      ...base,
+      hasUnprogrammedSubPlan: false,
+      sentAt: null,
+      lastModifiedAt: null
+    });
+    expect(result.value).toBe('ReadyToSend');
+  });
+});
+
 describe('computeCompleteness — Regional/Departmental: 0 is a legitimate final allocation', () => {
   const prescriptions = [
     { id: 'p1', sampleCount: 40 },
