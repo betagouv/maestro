@@ -305,6 +305,7 @@ interface CompletenessResult {
   isComplete: boolean;
   hasAnyProgrammedSample: boolean;
   hasUnprogrammedSubPlan: boolean;
+  programmedSubPlanCount: number;
   programmedCount: number;
   attributedCount: number;
 }
@@ -343,6 +344,8 @@ export const computeCompleteness = (
       isComplete,
       hasAnyProgrammedSample: prescriptions.length > 0,
       hasUnprogrammedSubPlan: prescriptions.some((p) => p.sampleCount === 0),
+      programmedSubPlanCount: prescriptions.filter((p) => p.sampleCount > 0)
+        .length,
       programmedCount: attributedCount,
       attributedCount
     };
@@ -419,6 +422,7 @@ export const computeCompleteness = (
       scoped.length > 0 && isReconciledWithChildren && hasLaboratoriesAssigned,
     hasAnyProgrammedSample: programmedCount > 0,
     hasUnprogrammedSubPlan: false,
+    programmedSubPlanCount: scopedPrescriptions.length,
     programmedCount,
     attributedCount: sumBy(prescriptions, 'sampleCount')
   };

@@ -4,11 +4,12 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useState } from 'react';
-import { pluralize } from 'src/utils/stringUtils';
 import { ApiClientContext } from '../../../../services/apiClient';
+import { BulkPlanList } from './BulkPlanList';
 
 interface Props {
   plans: ProgrammingPlanChecked[];
+  programmedSubPlanCounts: Map<string, number>;
   onSuccess: () => void;
 }
 
@@ -17,7 +18,11 @@ export const bulkSendAdminModal = createModal({
   isOpenedByDefault: false
 });
 
-const ProgrammingPlanBulkSendAdminModal = ({ plans, onSuccess }: Props) => {
+const ProgrammingPlanBulkSendAdminModal = ({
+  plans,
+  programmedSubPlanCounts,
+  onSuccess
+}: Props) => {
   const apiClient = useContext(ApiClientContext);
   const [sendProgrammingPlansToRegions] =
     apiClient.useSendProgrammingPlansToRegionsMutation();
@@ -54,17 +59,10 @@ const ProgrammingPlanBulkSendAdminModal = ({ plans, onSuccess }: Props) => {
             Confirmez-vous la diffusion des plans ci-dessous à toutes les
             régions ?
           </p>
-          <ul>
-            {plans.map((plan) => (
-              <li key={plan.id}>
-                {plan.title} (
-                {pluralize(plan.subPlans.length, { preserveCount: true })(
-                  'sous-plan'
-                )}
-                )
-              </li>
-            ))}
-          </ul>
+          <BulkPlanList
+            plans={plans}
+            programmedSubPlanCounts={programmedSubPlanCounts}
+          />
           {isError && (
             <Alert
               severity="error"

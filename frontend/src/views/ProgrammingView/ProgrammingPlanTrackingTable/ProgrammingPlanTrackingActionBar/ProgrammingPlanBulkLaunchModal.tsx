@@ -4,11 +4,12 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useState } from 'react';
-import { pluralize } from 'src/utils/stringUtils';
 import { ApiClientContext } from '../../../../services/apiClient';
+import { BulkPlanList } from './BulkPlanList';
 
 interface Props {
   plans: ProgrammingPlanChecked[];
+  programmedSubPlanCounts: Map<string, number>;
   onSuccess: () => void;
 }
 
@@ -17,7 +18,11 @@ export const bulkLaunchModal = createModal({
   isOpenedByDefault: false
 });
 
-const ProgrammingPlanBulkLaunchModal = ({ plans, onSuccess }: Props) => {
+const ProgrammingPlanBulkLaunchModal = ({
+  plans,
+  programmedSubPlanCounts,
+  onSuccess
+}: Props) => {
   const apiClient = useContext(ApiClientContext);
   const [launchProgrammingPlansCampaign] =
     apiClient.useLaunchProgrammingPlansCampaignMutation();
@@ -54,17 +59,10 @@ const ProgrammingPlanBulkLaunchModal = ({ plans, onSuccess }: Props) => {
     >
       {isOpen && (
         <>
-          <ul>
-            {plans.map((plan) => (
-              <li key={plan.id}>
-                {plan.title} (
-                {pluralize(plan.subPlans.length, { preserveCount: true })(
-                  'sous-plan'
-                )}
-                )
-              </li>
-            ))}
-          </ul>
+          <BulkPlanList
+            plans={plans}
+            programmedSubPlanCounts={programmedSubPlanCounts}
+          />
           <p>
             Cela aura pour effet de permettre la saisie de prélèvements par les
             préleveurs sur les plans lancés pour lesquels les départements ont
