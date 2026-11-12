@@ -35,7 +35,7 @@ import {
 import { savePrescriptions } from '../services/prescriptionSaveService';
 import { withEffectiveLocalPrescriptionChanges } from './localPrescriptionController';
 
-const withPendingPrescriptionChanges = async (
+export const withPendingPrescriptionChanges = async (
   prescriptions: Prescription[],
   userRole: Parameters<typeof editingEchelonForRole>[0]
 ): Promise<Prescription[]> => {

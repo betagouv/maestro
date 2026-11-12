@@ -73,6 +73,7 @@ import { documentRepository } from '../repositories/documentRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import { matrixRepository } from '../repositories/matrixRepository';
+import prescriptionRepository from '../repositories/prescriptionRepository';
 import { programmingPlanDomainRepository } from '../repositories/programmingPlanDomainRepository.ts';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
@@ -89,6 +90,7 @@ import { programmingPlanDeletionService } from '../services/programmingPlanDelet
 import { programmingPlanDuplicationService } from '../services/programmingPlanDuplicationService';
 import { programmingPlanSettingsService } from '../services/programmingPlanSettingsService';
 import { programmingSubPlanCreationService } from '../services/programmingSubPlanCreationService';
+import { withPendingPrescriptionChanges } from './prescriptionController';
 
 const planBatches = (
   plans: ProgrammingPlanChecked[]
@@ -103,6 +105,37 @@ const planBatches = (
 
 const batchStages = (plans: ProgrammingPlanChecked[]) =>
   stagesFromSubPlans(plans.flatMap((plan) => plan.subPlans));
+
+const findPlanIdsWithUnprogrammedSubPlan = async (
+  plans: ProgrammingPlanChecked[],
+  userRole: UserRole
+): Promise<Set<string>> => {
+  if (plans.length === 0) {
+    return new Set();
+  }
+
+  const planIdBySubPlanId = new Map(
+    plans.flatMap((plan) =>
+      plan.subPlans.map((subPlan) => [subPlan.id, plan.id] as const)
+    )
+  );
+
+  const prescriptions = await withPendingPrescriptionChanges(
+    await prescriptionRepository.findMany({
+      programmingPlanIds: plans.map((plan) => plan.id)
+    }),
+    userRole
+  );
+
+  return new Set(
+    prescriptions
+      .filter((prescription) => prescription.sampleCount === 0)
+      .flatMap((prescription) => {
+        const planId = planIdBySubPlanId.get(prescription.programmingSubPlanId);
+        return planId ? [planId] : [];
+      })
+  );
+};
 
 const batchLink = (plans: ProgrammingPlanChecked[], tab?: 'PlanTrackingTab') =>
   AppRouteLinks.ProgrammingRoute.link({
@@ -431,9 +464,16 @@ export const programmingPlanRouter = {
       const submittedToRegionPlans: ProgrammingPlanChecked[] = [];
       const modifiedPlansByRegion = new Map<Region, ProgrammingPlanChecked[]>();
 
+      const planIdsWithUnprogrammedSubPlan =
+        await findPlanIdsWithUnprogrammedSubPlan(plans, userRole);
+
       for (const plan of plans) {
         const isModified = plan.nationalStatus.hasPendingChange === true;
         const isFirstSend = isNil(plan.nationalStatus.sentAt);
+
+        if (planIdsWithUnprogrammedSubPlan.has(plan.id)) {
+          continue;
+        }
 
         if (userRole === 'NationalCoordinator') {
           await prescriptionDiffusionService.commitPendingNationalChanges(
