@@ -5,7 +5,10 @@ import type {
   AdminFieldConfig,
   ProgrammingSubPlanFieldSetting
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import { SpecificDataFieldId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import {
+  fieldInputTypeHasOptions,
+  SpecificDataFieldId
+} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { refineSchema } from 'maestro-shared/utils/zod';
 import type React from 'react';
 import { useState } from 'react';
@@ -62,10 +65,14 @@ export const AddFieldToProgrammingSubPlanModal = ({
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     await form.validate(async ({ fieldId, required }) => {
+      const selectedField = availableFields.find(({ id }) => id === fieldId);
       onAdd({
         fieldId,
         required,
-        optionIds: [],
+        optionIds:
+          selectedField && fieldInputTypeHasOptions(selectedField.inputType)
+            ? selectedField.options.map(({ id }) => id)
+            : [],
         inheritance: 'Own',
         managedAtPlanLevel: false
       });

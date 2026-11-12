@@ -17,7 +17,10 @@ import {
 import type { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import type { SachaContext } from 'maestro-shared/schema/SachaContext/SachaContext';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import { SpecificDataFieldId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import {
+  SpecificDataFieldId,
+  SpecificDataFieldOptionId
+} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { MatrixReferentialFixture } from 'maestro-shared/test/matrixFixtures';
 import {
@@ -97,6 +100,22 @@ const genAdminField = (key: string, id: string): AdminFieldConfig => ({
   options: []
 });
 
+const genAdminFieldWithOptions = (
+  key: string,
+  id: string,
+  optionLabels: string[]
+): AdminFieldConfig => ({
+  ...genAdminField(key, id),
+  inputType: 'select',
+  options: optionLabels.map((label, index) => ({
+    id: SpecificDataFieldOptionId.parse(`${id}-option-${index}`),
+    value: label,
+    label,
+    order: index + 1,
+    sachaCommemoratifValueSigle: null
+  }))
+});
+
 const matriceField = genAdminField(
   'matrice',
   '0c0f6a41-7a3d-4d6e-9f21-5b9c4a1e2d33'
@@ -108,6 +127,11 @@ const quantiteField = genAdminField(
 const especeField = genAdminField(
   'espece',
   '9f215b9c-4a1e-2d33-0c0f-6a417a3d4d6e'
+);
+const stadeField = genAdminFieldWithOptions(
+  'stade',
+  '5b9c4a1e-2d33-0c0f-6a41-7a3d4d6e9f21',
+  ['Récolte', 'Stockage', 'Expédition']
 );
 
 const cerealesSubPlan = genProgrammingSubPlan({
@@ -341,7 +365,7 @@ const mockApiConf: Partial<MockApi> = {
     programmingSubPlanId: string;
   }) => ({ data: subPlanSettings[programmingSubPlanId] }),
   useFindAllFieldConfigsQuery: {
-    data: [matriceField, quantiteField, especeField]
+    data: [matriceField, quantiteField, especeField, stadeField]
   },
   useFindProgrammingPlanDomainsQuery: { data: [pesticide2026] },
   useFindUsersQuery: {
@@ -1359,6 +1383,72 @@ export const SubPlanSamplerForm: Story = {
           managedAtPlanLevel: false
         }))
       })
+    );
+  }
+};
+
+export const SubPlanSamplerFormAddFieldChecksAllOptions: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await userEvent.click(
+      canvas.getByRole('tab', { name: 'Formulaire préleveur' })
+    );
+
+    await userEvent.click(
+      canvas.getByText('Ajouter un descripteur', { selector: 'button' })
+    );
+    const addModal = within(
+      canvasElement.querySelector(
+        '#sampler-form-add-field-modal'
+      ) as HTMLElement
+    );
+    await waitFor(() =>
+      expect(addModal.getByLabelText(/^Descripteur/)).toBeVisible()
+    );
+    await userEvent.type(addModal.getByLabelText(/^Descripteur/), 'stade');
+    await userEvent.click(await screen.findByRole('option', { name: /stade/ }));
+    await userEvent.click(
+      addModal.getByText('Ajouter', { selector: 'button' })
+    );
+
+    await waitFor(() =>
+      expect(
+        canvas.getByText('Champ stade', { selector: 'p' })
+      ).toBeInTheDocument()
+    );
+    for (const option of stadeField.options) {
+      await expect(canvas.getByLabelText(option.label)).toBeChecked();
+    }
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fields: expect.arrayContaining([
+            {
+              fieldId: stadeField.id,
+              required: false,
+              optionIds: stadeField.options.map(({ id }) => id),
+              inheritance: 'Own',
+              managedAtPlanLevel: false
+            }
+          ])
+        })
+      )
     );
   }
 };
