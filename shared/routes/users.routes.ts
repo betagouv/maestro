@@ -1,5 +1,8 @@
 import z from 'zod';
-import { FindUserOptions } from '../schema/User/FindUserOptions';
+import {
+  FindUserExportOptions,
+  FindUserOptions
+} from '../schema/User/FindUserOptions';
 import {
   UserListItem,
   UserRefined,
@@ -20,6 +23,14 @@ export const usersRoutes = {
       response: z.undefined(),
       accountPermissions: ['manageUsers'],
       body: UserToCreateRefined
+    }
+  },
+  '/users/export': {
+    params: undefined,
+    get: {
+      query: FindUserExportOptions,
+      accountPermissions: ['exportUsers'],
+      response: z.custom<Buffer>()
     }
   },
   '/users/:userId': {

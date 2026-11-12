@@ -1,5 +1,5 @@
 import { ImapFlow } from 'imapflow';
-import { isNil } from 'lodash-es';
+import { isNil, uniqBy } from 'lodash-es';
 import { getAlertEmails } from 'maestro-shared/referential/alertEmails';
 import type { Department } from 'maestro-shared/referential/Department';
 import type { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
@@ -139,6 +139,7 @@ type EmailRaiResult = {
   department: Department | null;
   programmingPlanId: string;
   programmingSubPlanNumber: string;
+  additionalSampler: { id: string; email: string } | null;
 };
 
 const processEmailRaiAttachments = async (
@@ -248,7 +249,8 @@ const processEmailRaiAttachments = async (
       region,
       department,
       programmingPlanId,
-      programmingSubPlanNumber
+      programmingSubPlanNumber,
+      additionalSampler
     } = await analysisHandler(
       {
         ...analysis,
@@ -271,7 +273,8 @@ const processEmailRaiAttachments = async (
       region,
       department,
       programmingPlanId,
-      programmingSubPlanNumber
+      programmingSubPlanNumber,
+      additionalSampler
     });
   }
 
@@ -596,7 +599,15 @@ export const checkEmails = async () => {
                       category: 'AnalysisReviewTodo',
                       link: AppRouteLinks.SampleRoute.link(result.sampleId)
                     },
-                    [{ id: result.samplerId, email: result.samplerEmail }],
+                    uniqBy(
+                      [
+                        { id: result.samplerId, email: result.samplerEmail },
+                        ...(result.additionalSampler
+                          ? [result.additionalSampler]
+                          : [])
+                      ],
+                      'id'
+                    ),
                     { planTitle: programmingPlan?.title ?? '' },
                     {
                       additionalEmails: programmingPlan

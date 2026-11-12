@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Autocomplete } from '@mui/material';
 import clsx from 'clsx';
 import type * as React from 'react';
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useId, useState } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import type { AppSelectOption } from 'src/components/_app/AppSelect/AppSelectOption';
 
@@ -48,6 +48,7 @@ const AppSearchInput = ({
   disableAutoSelectSingleOption,
   resetOnSelect
 }: Props) => {
+  const inputId = useId();
   const selectedLabel =
     options.find((option) => option.value === value)?.label ?? '';
   const [inputValue, setInputValue] = useState(selectedLabel);
@@ -87,8 +88,7 @@ const AppSearchInput = ({
         )
       )}
     >
-      {/** biome-ignore lint/a11y/noLabelWithoutControl: TODO */}
-      <label className={cx('fr-label')}>
+      <label className={cx('fr-label')} htmlFor={inputId}>
         {label && (
           <>
             {label}
@@ -99,6 +99,7 @@ const AppSearchInput = ({
       </label>
       <div className="fr-input-wrap fr-icon-search-line">
         <Autocomplete
+          id={inputId}
           autoComplete
           includeInputInList
           value={options.find((option) => option.value === value) ?? null}

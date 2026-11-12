@@ -55,6 +55,7 @@ export const analysisHandler = async (
   department: Department | null;
   programmingPlanId: string;
   programmingSubPlanNumber: string;
+  additionalSampler: { id: string; email: string } | null;
 }> => {
   const {
     sampleId,
@@ -62,12 +63,19 @@ export const analysisHandler = async (
     analyseId: oldAnalyseId,
     samplerId,
     samplerEmail,
+    additionalSamplerId,
+    additionalSamplerEmail,
     region,
     department,
     programmingPlanId
   } = await kysely
     .selectFrom('samples')
     .innerJoin('users', 'samples.sampledBy', 'users.id')
+    .leftJoin(
+      'users as additionalSamplerUser',
+      'additionalSamplerUser.id',
+      'samples.additionalSampledBy'
+    )
     .leftJoin('analysis', 'samples.id', 'analysis.sampleId')
     .innerJoin(
       'programmingSubPlans',
@@ -81,6 +89,8 @@ export const analysisHandler = async (
       'analysis.id as analyseId',
       'users.email as samplerEmail',
       'users.id as samplerId',
+      'additionalSamplerUser.id as additionalSamplerId',
+      'additionalSamplerUser.email as additionalSamplerEmail',
       'samples.region as region',
       'samples.department as department',
       'programmingSubPlans.programmingPlanId as programmingPlanId'
@@ -318,7 +328,11 @@ export const analysisHandler = async (
         region: region as Region,
         department: department as Department | null,
         programmingPlanId,
-        programmingSubPlanNumber
+        programmingSubPlanNumber,
+        additionalSampler:
+          additionalSamplerId && additionalSamplerEmail
+            ? { id: additionalSamplerId, email: additionalSamplerEmail }
+            : null
       };
     }
   );

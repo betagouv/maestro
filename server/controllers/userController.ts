@@ -20,12 +20,58 @@ import {
   mergeManagedStages
 } from 'maestro-shared/schema/User/UserManagement';
 import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
+import { includesIgnoringAccents } from 'maestro-shared/utils/utils';
 import { HttpStatus } from '../constants/httpStatus';
+import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
+import { excelService } from '../services/excelService/excelService';
 import { userService } from '../services/userService';
 
 export const usersRouter = {
+  '/users/export': {
+    get: async ({ query }, _params, response) => {
+      const { label, ...findOptions } = query;
+
+      console.info('Export users', findOptions);
+
+      const [allUsers, laboratories] = await Promise.all([
+        userRepository.findMany({
+          ...findOptions,
+          disabled: findOptions.disabled ?? null
+        }),
+        laboratoryRepository.findMany()
+      ]);
+
+      const users =
+        label && label !== ''
+          ? allUsers.filter(
+              (user) =>
+                includesIgnoringAccents(user.name ?? '', label) ||
+                includesIgnoringAccents(user.email, label)
+            )
+          : allUsers;
+
+      const buffer = await excelService.generateUsersExportExcel(
+        users,
+        laboratories
+      );
+
+      const fileName = 'utilisateurs.xlsx';
+
+      response.setHeader(
+        'Content-disposition',
+        `inline; filename=${encodeURIComponent(fileName)}`
+      );
+      response.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      response.setHeader('Content-Length', `${buffer.length}`);
+
+      return { status: HttpStatus.OK, response: buffer };
+    }
+  },
   '/users/:userId': {
     get: async ({ user: authUser, userRole }, { userId }) => {
       console.info('Get user', userId);

@@ -9,7 +9,8 @@ export type Template =
   | 'samplesExport'
   | 'samplesExportWithCodes'
   | 'prescriptionsExport'
-  | 'laboratoryAgreementsExport';
+  | 'laboratoryAgreementsExport'
+  | 'usersExport';
 
 export const templateContent = (template: Template) =>
   fs.readFileSync(
@@ -25,7 +26,8 @@ const TemplateFileTypes: Record<Template, string> = {
   samplesExport: 'xls',
   samplesExportWithCodes: 'xls',
   prescriptionsExport: 'xls',
-  laboratoryAgreementsExport: 'xls'
+  laboratoryAgreementsExport: 'xls',
+  usersExport: 'xls'
 };
 
 export const templatePath = (template: Template) =>

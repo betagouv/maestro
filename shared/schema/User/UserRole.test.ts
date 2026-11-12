@@ -13,7 +13,8 @@ describe('UserRole', () => {
         'manageMascarade',
         'manageNotices',
         'manageSpecificDataFields',
-        'manageLaboratoryConfig'
+        'manageLaboratoryConfig',
+        'exportUsers'
       ]);
     });
 

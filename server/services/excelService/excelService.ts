@@ -1,6 +1,9 @@
 import carbone, { type RenderOptions } from 'carbone';
 import { isNil, sumBy, uniq } from 'lodash-es';
-import type { Department } from 'maestro-shared/referential/Department';
+import {
+  type Department,
+  DepartmentLabels
+} from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import type { OptionalBoolean } from 'maestro-shared/referential/OptionnalBoolean';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
@@ -11,7 +14,10 @@ import {
 } from 'maestro-shared/referential/Region';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { stageSelectionLabels } from 'maestro-shared/referential/Stage';
+import {
+  StageLabels,
+  stageSelectionLabels
+} from 'maestro-shared/referential/Stage';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import { ContaminationSourceLabels } from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
@@ -51,14 +57,23 @@ import {
   type SubstanceKind,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
-import type { UserRole } from 'maestro-shared/schema/User/UserRole';
-import { formatMaestroDate, formatWithTz } from 'maestro-shared/utils/date';
+import type { UserListItem } from 'maestro-shared/schema/User/User';
+import {
+  type UserRole,
+  UserRoleLabels
+} from 'maestro-shared/schema/User/UserRole';
+import {
+  formatMaestroDate,
+  formatWithTz,
+  toMaestroDate
+} from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import { matrixRepository } from '../../repositories/matrixRepository';
 import { programmingPlanDomainRepository } from '../../repositories/programmingPlanDomainRepository';
+import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
@@ -74,6 +89,10 @@ type SetAttributesNullOrUndefined<T> = {
 
 type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   reference: string;
+  subPlanNumber: string;
+  domain: string;
+  plan: string;
+  subPlan: string;
   department: string;
   sampler: string;
   sampledAt: string;
@@ -184,6 +203,20 @@ const generateSamplesExportExcel = async (
   const laboratories = await laboratoryRepository.findMany();
   const matrixReferential = await matrixRepository.findReferential();
 
+  const programmingPlans = await programmingPlanRepository.findMany({
+    ids: uniq(samples.map((sample) => sample.programmingPlanId))
+  });
+  const planById = new Map(programmingPlans.map((plan) => [plan.id, plan]));
+  const subPlanById = new Map(
+    programmingPlans.flatMap((plan) =>
+      plan.subPlans.map((subPlan) => [subPlan.id, subPlan] as const)
+    )
+  );
+  const domains = await programmingPlanDomainRepository.findMany();
+  const domainLabelById = new Map(
+    domains.map((domain) => [domain.id, domain.label])
+  );
+
   const fieldConfigsCache = new Map<string, ProgrammingSubPlanFieldConfig[]>();
   const getFieldConfigs = async (
     programmingSubPlanId: ProgrammingSubPlanId | null | undefined
@@ -221,8 +254,20 @@ const generateSamplesExportExcel = async (
     const matrixPartField = fieldConfigs.find(
       (c) => c.field.key === 'matrixPart'
     )?.field;
+    const sampleSubPlan = sample.programmingSubPlanId
+      ? subPlanById.get(sample.programmingSubPlanId)
+      : undefined;
+    const samplePlan = planById.get(sample.programmingPlanId);
     const data: SamplesExportExcelData = {
       reference: sample.reference,
+      subPlanNumber: sampleSubPlan?.subPlanNumber ?? '',
+      domain: samplePlan?.domainId
+        ? (domainLabelById.get(samplePlan.domainId) ?? '')
+        : '',
+      plan: samplePlan?.title ?? '',
+      subPlan: sampleSubPlan
+        ? subPlanLabel(matrixReferential, sampleSubPlan)
+        : '',
       department: sample.department,
       sampler: `${sample.sampler.name}`,
       sampledAt: sample.sampledDate
@@ -892,6 +937,49 @@ const generateLaboratoryAgreementsExportExcel = async (
   return carboneRender('laboratoryAgreementsExport', { labHeaders, rows }, {});
 };
 
+type UsersExportExcelData = SetAttributesNullOrUndefined<{
+  name: string;
+  email: string;
+  roles: string;
+  region: string;
+  department: string;
+  stages: string;
+  laboratory: string;
+  companies: string;
+  certified: string;
+  active: string;
+  createdAt: string;
+}>;
+
+const generateUsersExportExcel = async (
+  users: UserListItem[],
+  laboratories: Laboratory[]
+): Promise<Buffer> => {
+  const laboratoryNameById = new Map(
+    laboratories.map((laboratory) => [laboratory.id, laboratory.name])
+  );
+
+  const usersData: UsersExportExcelData[] = users.map((user) => ({
+    name: user.name,
+    email: user.email,
+    roles: user.roles.map((role) => UserRoleLabels[role]).join(', '),
+    region: user.region ? Regions[user.region].name : '',
+    department: user.department ? DepartmentLabels[user.department] : '',
+    stages: user.stages.map((stage) => StageLabels[stage]).join(', '),
+    laboratory: user.laboratoryId
+      ? (laboratoryNameById.get(user.laboratoryId) ?? '')
+      : '',
+    companies: user.companies
+      .map((company) => `${company.name} (${company.siret})`)
+      .join(', '),
+    certified: user.certified ? 'Oui' : 'Non',
+    active: user.disabled ? 'Non' : 'Oui',
+    createdAt: formatMaestroDate(toMaestroDate(user.createdAt))
+  }));
+
+  return carboneRender('usersExport', { users: usersData }, {});
+};
+
 const carboneRender = (
   template: Template,
   data: object,
@@ -911,5 +999,6 @@ export const excelService = {
   generateAnalysisRequestExcel,
   generateSamplesExportExcel,
   generatePrescriptionsExportExcel,
-  generateLaboratoryAgreementsExportExcel
+  generateLaboratoryAgreementsExportExcel,
+  generateUsersExportExcel
 };

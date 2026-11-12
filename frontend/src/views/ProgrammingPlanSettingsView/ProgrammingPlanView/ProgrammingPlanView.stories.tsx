@@ -35,7 +35,7 @@ import {
   NationalCoordinatorDaoaFixture
 } from 'maestro-shared/test/userFixtures';
 import { Route, Routes } from 'react-router';
-import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { getMockApi, type MockApi } from '../../../services/mockApiClient';
 import { ProgrammingPlanView } from './ProgrammingPlanView';
 
@@ -978,7 +978,9 @@ const checkStages = async (
 
   await userEvent.click(
     canvas.queryByRole('button', { name: 'Ajouter stade(s) de prélèvement' }) ??
-      canvas.getByRole('button', { name: 'Modifier les stades de prélèvement' })
+      canvas.getByRole('button', {
+        name: 'Modifier les stades de prélèvement'
+      })
   );
   await waitFor(() =>
     expect(modal.getByLabelText('Rechercher un stade')).toBeVisible()
@@ -1310,9 +1312,12 @@ export const SubPlanSamplerForm: Story = {
         inModal('sampler-form-add-field-modal').getByLabelText(/^Descripteur/)
       ).toBeVisible()
     );
-    await userEvent.selectOptions(
+    await userEvent.type(
       inModal('sampler-form-add-field-modal').getByLabelText(/^Descripteur/),
-      especeField.id
+      'esp'
+    );
+    await userEvent.click(
+      await screen.findByRole('option', { name: /espece/ })
     );
     await userEvent.click(
       inModal('sampler-form-add-field-modal').getByText('Ajouter', {
@@ -2069,7 +2074,9 @@ export const SubPlanInheritedStages: Story = {
     await userEvent.click(canvas.getByTitle('Géré par le plan'));
     await expect(canvas.getByTitle('Détaché du plan')).toBeInTheDocument();
     await expect(
-      canvas.getByRole('button', { name: 'Modifier les stades de prélèvement' })
+      canvas.getByRole('button', {
+        name: 'Modifier les stades de prélèvement'
+      })
     ).toBeInTheDocument();
 
     await userEvent.click(
@@ -2102,7 +2109,9 @@ export const SubPlanDetachedStages: Story = {
 
     await expect(canvas.getByTitle('Détaché du plan')).toBeInTheDocument();
     await expect(
-      canvas.getByRole('button', { name: 'Modifier les stades de prélèvement' })
+      canvas.getByRole('button', {
+        name: 'Modifier les stades de prélèvement'
+      })
     ).toBeInTheDocument();
     await expect(
       canvas.getByText('Production primaire végétale', { selector: '.fr-tag' })
@@ -2184,9 +2193,9 @@ export const SubPlanManagedField: Story = {
     await waitFor(() =>
       expect(addModal.getByLabelText(/^Descripteur/)).toBeVisible()
     );
-    await userEvent.selectOptions(
-      addModal.getByLabelText(/^Descripteur/),
-      especeField.id
+    await userEvent.type(addModal.getByLabelText(/^Descripteur/), 'esp');
+    await userEvent.click(
+      await screen.findByRole('option', { name: /espece/ })
     );
     await userEvent.click(
       addModal.getByText('Ajouter', { selector: 'button' })
@@ -2321,7 +2330,9 @@ export const PlanNationalCoordinatorsLockedForCoordinator: Story = {
       })
     ).toBeDisabled();
     await expect(
-      canvas.getByRole('button', { name: 'Modifier les stades de prélèvement' })
+      canvas.getByRole('button', {
+        name: 'Modifier les stades de prélèvement'
+      })
     ).toBeInTheDocument();
     await expect(
       canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
@@ -2392,7 +2403,9 @@ export const SubPlanHasNoNationalCoordinators: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.getByRole('button', { name: 'Modifier les stades de prélèvement' })
+      canvas.getByRole('button', {
+        name: 'Modifier les stades de prélèvement'
+      })
     ).toBeInTheDocument();
     await expect(
       canvas.queryByRole('combobox', {
@@ -2599,7 +2612,10 @@ const submittedToRegionsForCoordinator = {
     ...mockApiConf,
     useFindProgrammingPlansQuery: {
       data: [
-        { ...ppvPlan, nationalStatus: { status: 'SubmittedToRegion' as const } }
+        {
+          ...ppvPlan,
+          nationalStatus: { status: 'SubmittedToRegion' as const }
+        }
       ]
     }
   })

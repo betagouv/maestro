@@ -180,7 +180,8 @@ const userRolePermissions = {
     'manageMascarade',
     'manageNotices',
     'manageSpecificDataFields',
-    'manageLaboratoryConfig'
+    'manageLaboratoryConfig',
+    'exportUsers'
   ],
   AdministratorBGIR: [
     ...AdministratorPermissionsList,

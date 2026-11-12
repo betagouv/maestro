@@ -148,6 +148,19 @@ const findMany = async (
           query = query.where('department', '=', findOptions.department);
         }
         break;
+      case 'regions':
+        if (!isNil(findOptions.regions) && findOptions.regions.length > 0) {
+          query = query.where('region', 'in', findOptions.regions);
+        }
+        break;
+      case 'departments':
+        if (
+          !isNil(findOptions.departments) &&
+          findOptions.departments.length > 0
+        ) {
+          query = query.where('department', 'in', findOptions.departments);
+        }
+        break;
       case 'roles':
         if (!isNil(findOptions.roles) && findOptions.roles.length > 0) {
           query = query.where('roles', '&&', toSqlArray(findOptions.roles));
@@ -186,6 +199,29 @@ const findMany = async (
       case 'disabled':
         if (!isNil(findOptions.disabled)) {
           query = query.where('disabled', 'is', findOptions.disabled);
+        }
+        break;
+      case 'certified':
+        if (!isNil(findOptions.certified)) {
+          query = query.where('certified', 'is', findOptions.certified);
+        }
+        break;
+      case 'createdFrom':
+        if (!isNil(findOptions.createdFrom)) {
+          query = query.where(
+            'createdAt',
+            '>=',
+            sql<Date>`${findOptions.createdFrom}::date`
+          );
+        }
+        break;
+      case 'createdTo':
+        if (!isNil(findOptions.createdTo)) {
+          query = query.where(
+            'createdAt',
+            '<',
+            sql<Date>`${findOptions.createdTo}::date + interval '1 day'`
+          );
         }
         break;
       default:
