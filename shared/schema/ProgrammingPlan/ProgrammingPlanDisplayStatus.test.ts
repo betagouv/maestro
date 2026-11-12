@@ -402,6 +402,102 @@ describe('computeCompleteness — National: complete only once regions reconcile
   });
 });
 
+describe('computeCompleteness — programmedSubPlanCount counts the sub-plans carrying volume in scope', () => {
+  const prescriptions = [
+    { id: 'p1', sampleCount: 40 },
+    { id: 'p2', sampleCount: 10 },
+    { id: 'p3', sampleCount: 0 }
+  ];
+
+  const bretagneRows = [
+    {
+      prescriptionId: 'p1',
+      region: '53' as const,
+      department: null,
+      sampleCount: 25
+    },
+    {
+      prescriptionId: 'p2',
+      region: '53' as const,
+      department: null,
+      sampleCount: 10
+    },
+    {
+      prescriptionId: 'p3',
+      region: '53' as const,
+      department: null,
+      sampleCount: 0
+    }
+  ];
+
+  test('National ignores the sub-plan nobody programmed', () => {
+    const result = computeCompleteness(prescriptions, bretagneRows, 'National');
+    expect(result.programmedSubPlanCount).toBe(2);
+  });
+
+  test('Regional counts the region own allocations, not the national catalogue', () => {
+    const result = computeCompleteness(
+      prescriptions,
+      [
+        ...bretagneRows,
+        {
+          prescriptionId: 'p3',
+          region: '52' as const,
+          department: null,
+          sampleCount: 30
+        }
+      ],
+      'Regional',
+      'DEPARTMENTAL',
+      '53'
+    );
+    expect(result.programmedSubPlanCount).toBe(2);
+  });
+
+  test('Departmental counts what the department received', () => {
+    const result = computeCompleteness(
+      prescriptions,
+      [
+        {
+          prescriptionId: 'p1',
+          region: '53' as const,
+          department: '22' as const,
+          sampleCount: 25
+        },
+        {
+          prescriptionId: 'p2',
+          region: '53' as const,
+          department: '22' as const,
+          sampleCount: 0
+        }
+      ],
+      'Departmental',
+      'DEPARTMENTAL',
+      '53',
+      '22'
+    );
+    expect(result.programmedSubPlanCount).toBe(1);
+  });
+
+  test('nothing programmed in scope -> 0', () => {
+    const result = computeCompleteness(
+      prescriptions,
+      [
+        {
+          prescriptionId: 'p1',
+          region: '52' as const,
+          department: null,
+          sampleCount: 40
+        }
+      ],
+      'Regional',
+      'DEPARTMENTAL',
+      '53'
+    );
+    expect(result.programmedSubPlanCount).toBe(0);
+  });
+});
+
 describe('computeCompleteness — Regional/Departmental: 0 is a legitimate final allocation', () => {
   const prescriptions = [
     { id: 'p1', sampleCount: 40 },
