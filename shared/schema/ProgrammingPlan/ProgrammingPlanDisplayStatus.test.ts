@@ -406,7 +406,7 @@ describe('computeCompleteness — National: a sub-plan left at 0 is not programm
   const localPrescriptions = [
     {
       prescriptionId: 'p1',
-      region: '01',
+      region: '01' as const,
       department: null,
       sampleCount: 40
     }
