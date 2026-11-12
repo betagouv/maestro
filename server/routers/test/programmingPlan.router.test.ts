@@ -2663,7 +2663,7 @@ describe('ProgrammingPlan router', () => {
 
     beforeEach(async () => {
       inProgressPlan = genPlan(null);
-      inProgressDAOAPlan = genPlan(null, 'ALAN01');
+      inProgressDAOAPlan = genPlan(null, 'ALAN1');
       launchedPlan = genPlan(new Date('2026-03-01'));
       await programmingPlanRepository.insert(inProgressPlan);
       await programmingPlanRepository.insert(inProgressDAOAPlan);
@@ -2762,7 +2762,7 @@ describe('ProgrammingPlan router', () => {
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_CREATED);
 
-      expect(res.body.subPlanNumber).toBe('ALAN02');
+      expect(res.body.subPlanNumber).toBe('ALAN2');
 
       const departmentRows = RegionList.flatMap((region) =>
         Regions[region].departments.map((department) => ({

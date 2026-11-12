@@ -27,6 +27,32 @@ export type ProgrammingPlanSampleSetting = z.infer<
   typeof ProgrammingPlanSampleSetting
 >;
 
+export const groupSubstanceKindsBySample = (
+  samples: Pick<ProgrammingPlanSampleSetting, 'substanceKinds'>[] | null,
+  groupableSubstanceKinds: SubstanceKind[]
+): SubstanceKind[][] => {
+  const assigned = new Set<SubstanceKind>();
+  const groups: SubstanceKind[][] = [];
+  for (const substanceKinds of [
+    ...(samples ?? []).map((sample) => sample.substanceKinds),
+    ...groupableSubstanceKinds.map((substanceKind) => [substanceKind])
+  ]) {
+    const group = substanceKinds.filter(
+      (substanceKind) =>
+        groupableSubstanceKinds.includes(substanceKind) &&
+        !assigned.has(substanceKind)
+    );
+    for (const substanceKind of group) {
+      assigned.add(substanceKind);
+    }
+    if (group.length > 0) {
+      groups.push(group);
+    }
+  }
+
+  return groups;
+};
+
 export const ProgrammingPlanSampleMaxCount = 10;
 
 export const defaultProgrammingPlanSample: ProgrammingPlanSampleSetting = {

@@ -8,6 +8,7 @@ import type {
   LaboratoryAgreementField,
   LaboratoryAgreementRowKey
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
+import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -37,6 +38,7 @@ interface Props {
   selectedRowsConsistent: boolean;
   checks: LaboratoryAgreementRowKey[];
   laboratories: Laboratory[];
+  domainLabels: Map<ProgrammingPlanDomainId, string>;
   kindFilter: ProgrammingSubPlanId[];
   kindOptions: { value: ProgrammingSubPlanId; label: string }[];
   onKindFilterChange: (values: ProgrammingSubPlanId[]) => void;
@@ -57,6 +59,7 @@ interface Props {
   onOpenModal: () => void;
   onOpenModalForRow: (row: AgreementRow) => void;
   onUpdateCheck: (params: LaboratoryAgreementCheckUpdate) => void;
+  canEdit: boolean;
 }
 const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   rows,
@@ -65,6 +68,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   selectedRowsConsistent,
   checks,
   laboratories,
+  domainLabels,
   kindFilter,
   kindOptions,
   onKindFilterChange,
@@ -84,7 +88,8 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   onDeselect,
   onOpenModal,
   onOpenModalForRow,
-  onUpdateCheck
+  onUpdateCheck,
+  canEdit
 }: Props) {
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [expandedLabRowKeys, setExpandedLabRowKeys] = useState<string[]>([]);
@@ -93,6 +98,8 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   );
   const [animatingRowKeys, setAnimatingRowKeys] = useState<string[]>([]);
   const [pendingCheckRowKeys, setPendingCheckRowKeys] = useState<string[]>([]);
+
+  const columnCount = canEdit ? 7 : 4;
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const tableTopRef = useRef(0);
@@ -241,37 +248,42 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
         >
           <table>
             <colgroup>
-              <col style={{ width: '3rem' }} />
+              {canEdit && <col style={{ width: '3rem' }} />}
               <col style={{ width: '6rem' }} />
               <col style={{ width: '12rem' }} />
               <col style={{ width: '16rem' }} />
               <col />
-              <col style={{ width: '4rem' }} />
-              <col style={{ width: '4rem' }} />
+              {canEdit && <col style={{ width: '4rem' }} />}
+              {canEdit && <col style={{ width: '4rem' }} />}
             </colgroup>
 
             <thead>
               <tr>
-                <th scope="col">
-                  <div
-                    className={clsx(cx('fr-checkbox-group'), 'selectable-cell')}
-                  >
-                    <Checkbox
-                      options={[
-                        {
-                          label: '',
-                          nativeInputProps: {
-                            checked: allSelected,
-                            onChange: onToggleAll
+                {canEdit && (
+                  <th scope="col" className="col-select">
+                    <div
+                      className={clsx(
+                        cx('fr-checkbox-group'),
+                        'selectable-cell'
+                      )}
+                    >
+                      <Checkbox
+                        options={[
+                          {
+                            label: '',
+                            nativeInputProps: {
+                              checked: allSelected,
+                              onChange: onToggleAll
+                            }
                           }
-                        }
-                      ]}
-                      small
-                      className={cx('fr-pb-3w')}
-                    />
-                  </div>
-                </th>
-                <th scope="col">
+                        ]}
+                        small
+                        className={cx('fr-pb-3w')}
+                      />
+                    </div>
+                  </th>
+                )}
+                <th scope="col" className="col-number">
                   <div className="border-left">
                     <ColumnFilterHeader
                       label="N°"
@@ -281,7 +293,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     />
                   </div>
                 </th>
-                <th scope="col">
+                <th scope="col" className="col-substances">
                   <div className="border-left">
                     <ColumnFilterHeader
                       label="Analytes"
@@ -291,7 +303,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     />
                   </div>
                 </th>
-                <th scope="col">
+                <th scope="col" className="col-matrix">
                   <div className="border-left">
                     <ColumnFilterHeader
                       label="Matrice"
@@ -301,7 +313,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     />
                   </div>
                 </th>
-                <th scope="col" colSpan={3}>
+                <th scope="col" className="col-labs" colSpan={canEdit ? 3 : 1}>
                   <div className="border-left">
                     <ColumnFilterHeader
                       label="Laboratoires agréés"
@@ -351,7 +363,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
               {paddingTop > 0 && (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={columnCount}
                     style={{ height: paddingTop, padding: 0, border: 'none' }}
                   />
                 </tr>
@@ -372,6 +384,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     isLabsExpanded={expandedLabRowKeys.includes(rowKey)}
                     isMatrixExpanded={expandedMatrixRowKeys.includes(rowKey)}
                     laboratoriesById={laboratoriesById}
+                    domainLabels={domainLabels}
                     onToggleSelect={onToggleRow}
                     onToggleExpand={handleToggleExpand}
                     onToggleLabs={handleToggleLabs}
@@ -382,6 +395,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     onPendingEnd={handlePendingEnd}
                     onAnimatingStart={handleAnimatingStart}
                     onAnimatingEnd={handleAnimatingEnd}
+                    canEdit={canEdit}
                   />
                 );
               })}
@@ -389,7 +403,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
               {paddingBottom > 0 && (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={columnCount}
                     style={{
                       height: paddingBottom,
                       padding: 0,

@@ -17,6 +17,7 @@ import { seed as documentsSeed } from './009-documents';
 import { seed as analysisSeed } from './010-analysis';
 import { seed as laboratoryAgreementChecksSeed } from './011-laboratory-agreement-checks';
 import { seed as companyWorkshopsSeed } from './012-company-workshops';
+import { seed as laboratoryAgreementDiffusionsSeed } from './013-laboratory-agreement-diffusions';
 
 const run = async () => {
   initKnex();
@@ -37,6 +38,7 @@ const run = async () => {
   await documentsSeed();
   await analysisSeed();
   await laboratoryAgreementChecksSeed();
+  await laboratoryAgreementDiffusionsSeed();
 
   try {
     await departmentsSeed();

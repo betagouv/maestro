@@ -48,7 +48,8 @@ const UserSamplerPermissionsList = [
   'performAnalysis',
   'readAnalysis',
   'deleteSampleDocument',
-  'viewDashboard'
+  'viewDashboard',
+  'readLaboratoryAgreements'
 ] as const satisfies UserPermission[];
 
 const ObserverPermissionsList = [
@@ -85,7 +86,8 @@ const AdministratorPermissionsList = [
   'readCompanies',
   'readAnalysis',
   'viewDashboard',
-  'manageLaboratoryAgreements',
+  'readLaboratoryAgreements',
+  'readUndiffusedLaboratoryAgreements',
   'manageUsers',
   'manageProgrammingPlanSettings',
   'manageProgrammingPlanNationalCoordinators',
@@ -116,7 +118,9 @@ const userRolePermissions = {
     'viewDashboard',
     'exportSamplesWithCodes',
     'manageProgrammingPlanSettings',
-    'readSpecificDataFields'
+    'readSpecificDataFields',
+    'readLaboratoryAgreements',
+    'readUndiffusedLaboratoryAgreements'
   ],
   RegionalCoordinator: [
     'viewProgrammingPlans',
@@ -137,7 +141,8 @@ const userRolePermissions = {
     'updatePrescriptionLaboratories',
     'commentPrescription',
     'distributePrescriptionToDepartments',
-    'manageUsers'
+    'manageUsers',
+    'readLaboratoryAgreements'
   ],
   NationalObserver: [
     ...ObserverPermissionsList,
@@ -165,11 +170,13 @@ const userRolePermissions = {
     'updatePrescriptionLaboratories',
     'distributePrescriptionToSlaughterhouses',
     'commentPrescription',
-    'manageUsers'
+    'manageUsers',
+    'readLaboratoryAgreements'
   ],
   DepartmentalObserver: ObserverPermissionsList,
   AdministratorMaestro: [
     ...AdministratorPermissionsList,
+    'manageLaboratoryAgreements',
     'manageMascarade',
     'manageNotices',
     'manageSpecificDataFields',
@@ -179,9 +186,14 @@ const userRolePermissions = {
   AdministratorBGIR: [
     ...AdministratorPermissionsList,
     'sendProgrammingPlansToRegions',
-    'launchProgrammingPlanCampaign'
+    'launchProgrammingPlanCampaign',
+    'diffuseLaboratoryAgreements'
   ],
-  LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated'],
+  LaboratoryUser: [
+    'readDocuments',
+    'readProgrammingPlanValidated',
+    'readLaboratoryAgreements'
+  ],
   LaboratoryOffice: [
     'readPrescriptions',
     'readProgrammingPlansInProgress',
@@ -189,6 +201,8 @@ const userRolePermissions = {
     'readProgrammingPlanSubmittedToDepartments',
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
+    'readLaboratoryAgreements',
+    'readUndiffusedLaboratoryAgreements',
     'manageLaboratoryAgreements'
   ]
 } as const satisfies Record<UserRole, UserPermission[]>;

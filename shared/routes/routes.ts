@@ -39,6 +39,8 @@ export const MaestroRoutes = [
   '/laboratories/agreements',
   '/laboratories/agreements/checks',
   '/laboratories/agreements/export',
+  '/laboratories/agreements/diffusions',
+  '/laboratories/agreements/sub-plans',
   '/laboratories/:laboratoryId',
   '/laboratories/:laboratoryId/config',
   '/laboratories/:laboratoryId/agreements',

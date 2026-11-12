@@ -1,4 +1,5 @@
 import { isNil } from 'lodash-es';
+import { LaboratoryAgreementSubPlan } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { FindProgrammingSubPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingSubPlanOptions';
 import type { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import {
@@ -42,21 +43,39 @@ const findMany = async (
 ): Promise<ProgrammingSubPlan[]> => {
   console.info('Find programming sub-plans', findOptions);
 
-  let query = kysely.selectFrom('programmingSubPlans').selectAll();
+  let query = kysely
+    .selectFrom('programmingSubPlans')
+    .innerJoin(
+      'programmingPlans',
+      'programmingPlans.id',
+      'programmingSubPlans.programmingPlanId'
+    )
+    .selectAll('programmingSubPlans');
 
   for (const option of FindProgrammingSubPlanOptions.keyof().options) {
     switch (option) {
       case 'programmingPlanId':
         if (!isNil(findOptions?.programmingPlanId)) {
           query = query
-            .where('programmingPlanId', '=', findOptions.programmingPlanId)
+            .where(
+              'programmingSubPlans.programmingPlanId',
+              '=',
+              findOptions.programmingPlanId
+            )
             .orderBy('subPlanNumber');
         }
         break;
       case 'ids':
         if (!isNil(findOptions?.ids)) {
           if (findOptions.ids.length === 0) return [];
-          query = query.where('id', 'in', findOptions.ids);
+          query = query.where('programmingSubPlans.id', 'in', findOptions.ids);
+        }
+        break;
+      case 'year':
+        if (!isNil(findOptions?.year)) {
+          query = query
+            .where('programmingPlans.year', '=', findOptions.year)
+            .orderBy('subPlanNumber');
         }
         break;
       default:
@@ -65,6 +84,30 @@ const findMany = async (
   }
 
   return (await query.execute()).map((row) => ProgrammingSubPlan.parse(row));
+};
+
+const findManyWithPlan = async (
+  year: number
+): Promise<LaboratoryAgreementSubPlan[]> => {
+  console.info('Find programming sub-plans with plan', year);
+
+  const rows = await kysely
+    .selectFrom('programmingSubPlans')
+    .innerJoin(
+      'programmingPlans',
+      'programmingPlans.id',
+      'programmingSubPlans.programmingPlanId'
+    )
+    .selectAll('programmingSubPlans')
+    .select([
+      'programmingPlans.title as programmingPlanTitle',
+      'programmingPlans.domainId as programmingPlanDomainId'
+    ])
+    .where('programmingPlans.year', '=', year)
+    .orderBy('subPlanNumber')
+    .execute();
+
+  return rows.map((row) => LaboratoryAgreementSubPlan.parse(row));
 };
 
 const updateSettings = async (
@@ -146,6 +189,7 @@ const deleteOne = async (id: ProgrammingSubPlanId): Promise<void> => {
 export const programmingSubPlanRepository = {
   findUnique,
   findMany,
+  findManyWithPlan,
   findYearSubPlanNumbers,
   insert,
   updateSettings,

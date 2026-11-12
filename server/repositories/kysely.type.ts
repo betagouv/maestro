@@ -313,6 +313,12 @@ export interface LaboratoryAgreements {
   confirmationAnalysis: boolean;
 }
 
+export interface LaboratoryAgreementDiffusions {
+  year: number;
+  diffusedAt: Timestamp;
+  diffusedBy: string | null;
+}
+
 export interface LaboratoryAgreementChecks {
   programmingSubPlanId: ProgrammingSubPlanId;
   substanceKind: SubstanceKind;
@@ -668,6 +674,7 @@ export interface DB {
   laboratoryResidueMappings: LaboratoryResidueMapping;
   laboratoryAgreements: LaboratoryAgreements;
   laboratoryAgreementChecks: LaboratoryAgreementChecks;
+  laboratoryAgreementDiffusions: LaboratoryAgreementDiffusions;
   localPrescriptionSubstanceKindsLaboratories: LocalPrescriptionSubstanceKindLaboratory;
   matrices: Matrices;
   matrixKinds: MatrixKinds;

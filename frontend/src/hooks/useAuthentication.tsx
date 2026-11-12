@@ -28,11 +28,13 @@ import {
   type UserRole
 } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { useAppSelector } from 'src/hooks/useStore';
+import { ApiClientContext } from '../services/apiClient';
 
 export const useAuthentication = () => {
   const { authUser } = useAppSelector((state) => state.auth);
+  const apiClient = useContext(ApiClientContext);
 
   const isAuthenticated = useMemo(() => !!authUser?.user, [authUser]);
 
@@ -118,6 +120,14 @@ export const useAuthentication = () => {
     [authUser]
   );
 
+  const { data: laboratoryAgreementDiffusions = [] } =
+    apiClient.useFindLaboratoryAgreementDiffusionsQuery(undefined, {
+      skip:
+        !isAuthenticated ||
+        !hasUserPermission('readLaboratoryAgreements') ||
+        hasUserPermission('manageLaboratoryAgreements')
+    });
+
   const availableRoutes = useMemo(() => {
     return isAuthenticated
       ? [
@@ -143,7 +153,9 @@ export const useAuthentication = () => {
           hasAccountPermission('readSpecificDataFields')
             ? 'AdminRoute'
             : undefined,
-          hasUserPermission('manageLaboratoryAgreements')
+          hasUserPermission('manageLaboratoryAgreements') ||
+          (hasUserPermission('readLaboratoryAgreements') &&
+            laboratoryAgreementDiffusions.length > 0)
             ? 'LaboratoryAgreementsRoute'
             : undefined,
           hasAccountPermission('manageProgrammingPlanSettings')
@@ -158,7 +170,13 @@ export const useAuthentication = () => {
           .flat()
           .filter(isDefined)
       : ['LoginRoute', 'LoginCallbackRoute'];
-  }, [isAuthenticated, hasUserPermission, hasAccountPermission, authUser]);
+  }, [
+    isAuthenticated,
+    hasUserPermission,
+    hasAccountPermission,
+    authUser,
+    laboratoryAgreementDiffusions
+  ]);
 
   return {
     user: authUser?.user,
