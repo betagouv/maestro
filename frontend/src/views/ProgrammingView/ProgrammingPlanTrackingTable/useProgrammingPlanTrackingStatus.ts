@@ -7,6 +7,7 @@ import {
   Regions
 } from 'maestro-shared/referential/Region';
 import {
+  computeCompleteness,
   type DisplayStatusResult,
   isCampaignLaunchable
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
@@ -34,6 +35,7 @@ interface PlanStatusInfo {
   departmentalDisplayStatus: DisplayStatusResult | undefined;
   isEligible: boolean;
   isLaunchable: boolean;
+  programmedSubPlanCount: number;
   regionalAggregate: AggregateDisplayStatus;
   departmentalAggregate: AggregateDisplayStatus | undefined;
 }
@@ -171,12 +173,22 @@ export const useProgrammingPlanTrackingStatus = (
         isCampaignLaunchable(plan) &&
         nationalDisplayStatus.value !== 'NotApplicable';
 
+      const { programmedSubPlanCount } = computeCompleteness(
+        planPrescriptions,
+        planLocalPrescriptions,
+        department ? 'Departmental' : region ? 'Regional' : 'National',
+        plan.distributionKind,
+        region,
+        department
+      );
+
       map.set(plan.id, {
         nationalDisplayStatus,
         regionalDisplayStatus,
         departmentalDisplayStatus,
         isEligible,
         isLaunchable,
+        programmedSubPlanCount,
         regionalAggregate,
         departmentalAggregate
       });

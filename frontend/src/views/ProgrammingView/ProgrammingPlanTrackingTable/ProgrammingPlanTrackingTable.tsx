@@ -279,6 +279,17 @@ const ProgrammingPlanTrackingTable = ({
     [programmingPlans, selectedPlanIds]
   );
 
+  const programmedSubPlanCounts = useMemo(
+    () =>
+      new Map(
+        [...planStatusInfo].map(([planId, info]) => [
+          planId,
+          info.programmedSubPlanCount
+        ])
+      ),
+    [planStatusInfo]
+  );
+
   const plansToAdmin = useMemo(
     () =>
       selectedPlans.filter(
@@ -480,24 +491,29 @@ const ProgrammingPlanTrackingTable = ({
       />
       <ProgrammingPlanBulkSendAdminModal
         plans={plansToRegionsByAdmin}
+        programmedSubPlanCounts={programmedSubPlanCounts}
         onSuccess={handleSendSuccess}
       />
       <ProgrammingPlanBulkLaunchModal
         plans={plansToLaunch}
+        programmedSubPlanCounts={programmedSubPlanCounts}
         onSuccess={handleLaunchSuccess}
       />
       <ProgrammingPlanBulkSendNationalModal
         plansToAdmin={plansToAdmin}
         plansToRegions={plansToRegions}
+        programmedSubPlanCounts={programmedSubPlanCounts}
         onSuccess={handleSendSuccess}
       />
       <ProgrammingPlanBulkSendDepartmentalModal
         plans={selectedPlans}
+        programmedSubPlanCounts={programmedSubPlanCounts}
         modified={selectedDepartmentalModified}
         onSuccess={handleSendSuccess}
       />
       <ProgrammingPlanBulkSendRegionalModal
         plans={selectedPlans}
+        programmedSubPlanCounts={programmedSubPlanCounts}
         modified={selectedRegionalModified}
         onSuccess={handleSendSuccess}
       />

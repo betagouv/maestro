@@ -6,10 +6,12 @@ import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPl
 import { useContext, useState } from 'react';
 import { ApiClientContext } from '../../../../services/apiClient';
 import { pluralize } from '../../../../utils/stringUtils';
+import { BulkPlanList } from './BulkPlanList';
 
 interface Props {
   plansToAdmin: ProgrammingPlanChecked[];
   plansToRegions: ProgrammingPlanChecked[];
+  programmedSubPlanCounts: Map<string, number>;
   onSuccess: () => void;
 }
 
@@ -21,6 +23,7 @@ export const bulkSendNationalModal = createModal({
 const ProgrammingPlanBulkSendNationalModal = ({
   plansToAdmin,
   plansToRegions,
+  programmedSubPlanCounts,
   onSuccess
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
@@ -66,17 +69,10 @@ const ProgrammingPlanBulkSendNationalModal = ({
               <p className={cx('fr-mb-1v')}>
                 <strong>À l'administrateur :</strong>
               </p>
-              <ul>
-                {plansToAdmin.map((plan) => (
-                  <li key={plan.id}>
-                    {plan.title} (
-                    {pluralize(plan.subPlans.length, { preserveCount: true })(
-                      'sous-plan'
-                    )}
-                    )
-                  </li>
-                ))}
-              </ul>
+              <BulkPlanList
+                plans={plansToAdmin}
+                programmedSubPlanCounts={programmedSubPlanCounts}
+              />
             </>
           )}
           {plansToRegions.length > 0 && (
@@ -84,17 +80,10 @@ const ProgrammingPlanBulkSendNationalModal = ({
               <p className={cx('fr-mb-1v')}>
                 <strong>Aux régions :</strong>
               </p>
-              <ul>
-                {plansToRegions.map((plan) => (
-                  <li key={plan.id}>
-                    {plan.title} (
-                    {pluralize(plan.subPlans.length, { preserveCount: true })(
-                      'sous-plan'
-                    )}
-                    )
-                  </li>
-                ))}
-              </ul>
+              <BulkPlanList
+                plans={plansToRegions}
+                programmedSubPlanCounts={programmedSubPlanCounts}
+              />
             </>
           )}
           <p className={cx('fr-text--sm')}>

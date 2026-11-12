@@ -5,11 +5,12 @@ import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useState } from 'react';
-import { pluralize } from 'src/utils/stringUtils';
 import { ApiClientContext } from '../../../../services/apiClient';
+import { BulkPlanList } from './BulkPlanList';
 
 interface Props {
   plans: ProgrammingPlanChecked[];
+  programmedSubPlanCounts: Map<string, number>;
   modified: boolean;
   onSuccess: () => void;
 }
@@ -21,6 +22,7 @@ export const bulkSendRegionalModal = createModal({
 
 const ProgrammingPlanBulkSendRegionalModal = ({
   plans,
+  programmedSubPlanCounts,
   modified,
   onSuccess
 }: Props) => {
@@ -93,17 +95,10 @@ const ProgrammingPlanBulkSendRegionalModal = ({
               ? 'Confirmez-vous la diffusion des plans ci-dessous aux préleveurs et préleveuses ?'
               : "Confirmez-vous l'envoi des plans ci-dessous ?"}
           </p>
-          <ul>
-            {plans.map((plan) => (
-              <li key={plan.id}>
-                {plan.title} (
-                {pluralize(plan.subPlans.length, { preserveCount: true })(
-                  'sous-plan'
-                )}
-                )
-              </li>
-            ))}
-          </ul>
+          <BulkPlanList
+            plans={plans}
+            programmedSubPlanCounts={programmedSubPlanCounts}
+          />
           <p>
             {allRegionalKind
               ? 'En cas de modification, seuls les préleveurs et préleveuses concernées par la/les modifications seront notifiés.'
