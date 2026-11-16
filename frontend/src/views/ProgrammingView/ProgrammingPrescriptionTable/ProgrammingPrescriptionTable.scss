@@ -310,7 +310,10 @@
     }
 
     .fr-table > table thead::after {
-      background-size: 100% 1px, 1px 100%, 0 0;
+      background-size:
+        100% 1px,
+        1px 100%,
+        0 0;
     }
   }
 
