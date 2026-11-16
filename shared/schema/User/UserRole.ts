@@ -91,7 +91,8 @@ const AdministratorPermissionsList = [
   'manageUsers',
   'manageProgrammingPlanSettings',
   'manageProgrammingPlanNationalCoordinators',
-  'readSpecificDataFields'
+  'readSpecificDataFields',
+  'manageSpecificDataFields'
 ] as const satisfies UserPermission[];
 
 const userRolePermissions = {
@@ -179,7 +180,6 @@ const userRolePermissions = {
     'manageLaboratoryAgreements',
     'manageMascarade',
     'manageNotices',
-    'manageSpecificDataFields',
     'manageLaboratoryConfig',
     'exportUsers'
   ],

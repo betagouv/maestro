@@ -36,13 +36,13 @@ describe('AdministratorBGIR permissions', () => {
         .post('/api/specific-data-fields')
         .send({ key: 'bgirField', inputType: 'text', label: 'Champ BGIR' })
         .use(tokenProvider(AdminBGIRFixture))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
+        .expect(constants.HTTP_STATUS_CREATED);
 
       await request(app)
         .post('/api/sacha/referentials')
         .send({ xmlContent: '<Commemoratifs />' })
         .use(tokenProvider(AdminBGIRFixture))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     test('should not be able to update the laboratory agreements', async () => {
