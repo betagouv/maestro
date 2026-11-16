@@ -47,6 +47,7 @@ export const buildEchelonDisplayStatus = (
     needsResend: localStatus?.needsResend,
     hasAnyProgrammedSample: completeness.hasAnyProgrammedSample,
     isComplete: completeness.isComplete,
+    hasUnprogrammedSubPlan: completeness.hasUnprogrammedSubPlan,
     echelon,
     distributionKind: programmingPlan.distributionKind,
     viewerOwnsNationalRow

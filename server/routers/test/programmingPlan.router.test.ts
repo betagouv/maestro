@@ -105,9 +105,15 @@ import { TEST_LOGGED_SECRET, tokenProvider } from '../../test/testUtils';
 describe('ProgrammingPlan router', () => {
   const { app } = createServer();
 
-  const insertPrescriptionInPlan = async (programmingPlanId: string) => {
+  const insertPrescriptionInPlan = async (
+    programmingPlanId: string,
+    sampleCount = 10
+  ) => {
     const subPlan = genProgrammingSubPlan({ programmingPlanId });
-    const prescription = genPrescription({ programmingSubPlanId: subPlan.id });
+    const prescription = genPrescription({
+      programmingSubPlanId: subPlan.id,
+      sampleCount
+    });
     await ProgrammingSubPlansRaw().insert(
       toProgrammingPlanSettingsRow(subPlan)
     );
@@ -1214,6 +1220,59 @@ describe('ProgrammingPlan router', () => {
 
   describe('POST /programming-plans/send-to-regions', () => {
     const testRoute = '/api/programming-plans/send-to-regions';
+
+    test('a plan holding a sub-plan left at 0 is skipped by the national coordinator', async () => {
+      const planId = PPVInProgressProgrammingPlanFixture.id;
+      const prescription = await insertPrescriptionInPlan(planId, 0);
+
+      try {
+        await request(app)
+          .post(testRoute)
+          .send({ programmingPlanIds: [planId] })
+          .use(tokenProvider(NationalCoordinator))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const national = await ProgrammingPlanLocalStatus()
+          .where({ programmingPlanId: planId, region: 'None' })
+          .first();
+        expect(national?.status).toBe('InProgress');
+        expect(national?.sentAt).toBeNull();
+      } finally {
+        await deletePrescription(prescription);
+        await ProgrammingPlanLocalStatus()
+          .where('programmingPlanId', planId)
+          .update({ status: 'InProgress', sentAt: null });
+      }
+    });
+
+    test('the administrator relay is blocked by the same unprogrammed sub-plan', async () => {
+      const planId = PPVInProgressProgrammingPlanFixture.id;
+      const prescription = await insertPrescriptionInPlan(planId, 0);
+
+      try {
+        await ProgrammingPlanLocalStatus()
+          .where({ programmingPlanId: planId, region: 'None' })
+          .update({ status: 'SubmittedToAdmin', sentAt: new Date() });
+
+        await request(app)
+          .post(testRoute)
+          .send({ programmingPlanIds: [planId] })
+          .use(tokenProvider(AdminBGIRFixture))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const regionalRows = await ProgrammingPlanLocalStatus()
+          .where('programmingPlanId', planId)
+          .andWhere('region', '!=', 'None');
+        expect(regionalRows.every((row) => row.status === 'InProgress')).toBe(
+          true
+        );
+      } finally {
+        await deletePrescription(prescription);
+        await ProgrammingPlanLocalStatus()
+          .where('programmingPlanId', planId)
+          .update({ status: 'InProgress', sentAt: null });
+      }
+    });
 
     test('a first submission carrying pending edits still reaches the administrator', async () => {
       const planId = PPVInProgressProgrammingPlanFixture.id;

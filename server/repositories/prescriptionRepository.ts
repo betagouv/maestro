@@ -356,12 +356,13 @@ const effectivePrescriptionSampleCount = (
     : `coalesce(${prescriptionsTable}.sample_count, 0)`;
 
 const distributedToRegions = (visibility?: PendingChangeVisibility) => `
-  ${effectivePrescriptionSampleCount(visibility)} <> ${effectiveChildSum(
-    (alias) => `
+  (${effectivePrescriptionSampleCount(visibility)} = 0
+   or ${effectivePrescriptionSampleCount(visibility)} <> ${effectiveChildSum(
+     (alias) => `
       and ${alias}.department = 'None'
       and ${alias}.company_siret = 'None'`,
-    visibility
-  )}`;
+     visibility
+   )})`;
 
 const hasDepartmentalEchelonExpression = `not exists (
   select 1 from ${programmingSubPlansTable} sibling

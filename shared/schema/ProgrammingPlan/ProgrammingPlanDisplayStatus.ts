@@ -150,6 +150,7 @@ interface DisplayStatusInput {
   needsResend?: boolean | null;
   hasAnyProgrammedSample: boolean;
   isComplete: boolean;
+  hasUnprogrammedSubPlan?: boolean;
   echelon: ProgrammingPlanEchelon;
   distributionKind: DistributionKind;
   viewerOwnsNationalRow?: boolean;
@@ -218,7 +219,7 @@ export const computeDisplayStatus = (
     input.viewerOwnsNationalRow === false &&
     input.status === 'SubmittedToAdmin'
   ) {
-    return input.isComplete
+    return input.isComplete && !input.hasUnprogrammedSubPlan
       ? {
           value: 'ReadyToSend',
           label: 'Terminé, à envoyer',
@@ -243,13 +244,21 @@ export const computeDisplayStatus = (
     (sentAt === null || input.hasPendingChange === true);
 
   if (needsSend) {
-    return {
-      value: 'ReadyToSend',
-      label: sentAt === null ? 'Terminé, à envoyer' : 'Modifié, à envoyer',
-      modified: sentAt !== null,
-      sentAt,
-      lastModifiedAt
-    };
+    return input.hasUnprogrammedSubPlan
+      ? {
+          value: 'InProgress',
+          label: ProgrammingPlanDisplayStatusLabels.InProgress,
+          modified: sentAt !== null,
+          sentAt,
+          lastModifiedAt
+        }
+      : {
+          value: 'ReadyToSend',
+          label: sentAt === null ? 'Terminé, à envoyer' : 'Modifié, à envoyer',
+          modified: sentAt !== null,
+          sentAt,
+          lastModifiedAt
+        };
   }
 
   if (
@@ -295,6 +304,7 @@ export const computeDisplayStatus = (
 interface CompletenessResult {
   isComplete: boolean;
   hasAnyProgrammedSample: boolean;
+  hasUnprogrammedSubPlan: boolean;
   programmedCount: number;
   attributedCount: number;
 }
@@ -331,7 +341,8 @@ export const computeCompleteness = (
       );
     return {
       isComplete,
-      hasAnyProgrammedSample: attributedCount > 0,
+      hasAnyProgrammedSample: prescriptions.length > 0,
+      hasUnprogrammedSubPlan: prescriptions.some((p) => p.sampleCount === 0),
       programmedCount: attributedCount,
       attributedCount
     };
@@ -407,6 +418,7 @@ export const computeCompleteness = (
     isComplete:
       scoped.length > 0 && isReconciledWithChildren && hasLaboratoriesAssigned,
     hasAnyProgrammedSample: programmedCount > 0,
+    hasUnprogrammedSubPlan: false,
     programmedCount,
     attributedCount: sumBy(prescriptions, 'sampleCount')
   };
