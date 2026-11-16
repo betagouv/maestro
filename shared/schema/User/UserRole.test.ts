@@ -12,7 +12,6 @@ describe('UserRole', () => {
         'manageLaboratoryAgreements',
         'manageMascarade',
         'manageNotices',
-        'manageSpecificDataFields',
         'manageLaboratoryConfig',
         'exportUsers'
       ]);
