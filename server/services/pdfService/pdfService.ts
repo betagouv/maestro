@@ -68,6 +68,11 @@ import {
 } from '../ediSacha/sachaReferences';
 import { buildSampleItems } from '../sampleItemService';
 
+const dsfrDistPath = path.join(
+  import.meta.dirname,
+  '../../../node_modules/@gouvfr/dsfr/dist'
+);
+
 export const getMatrixSectionItems = (
   referential: MatrixReferential,
   matrices: PartialSampleMatrix[] | null | undefined
@@ -185,16 +190,23 @@ const generatePDF = async (template: Template, data: unknown) => {
     const page = await browser.newPage();
     await page.emulateMediaType('print');
     await page.setContent(htmlContent);
-    const dsfrStyleSheet = await fetch(
-      `${config.serverUrl}/dsfr/dist/dsfr.min.css`
-    )
-      .then((response) => response.text())
-      .then((utilityStyleSheet) =>
-        utilityStyleSheet.replaceAll(
-          'fonts/Marianne',
-          `${config.serverUrl}/dsfr/dist/fonts/Marianne`
-        )
+    let dsfrStyleSheet = fs.readFileSync(
+      path.join(dsfrDistPath, 'dsfr.min.css'),
+      'utf8'
+    );
+    const marianneFontFiles = fs
+      .readdirSync(path.join(dsfrDistPath, 'fonts'))
+      .filter(
+        (fontFile) =>
+          fontFile.startsWith('Marianne') && fontFile.endsWith('.woff2')
       );
+    for (const fontFile of marianneFontFiles) {
+      const font = fs.readFileSync(path.join(dsfrDistPath, 'fonts', fontFile));
+      dsfrStyleSheet = dsfrStyleSheet.replaceAll(
+        `fonts/${fontFile}`,
+        `data:font/woff2;base64,${font.toString('base64')}`
+      );
+    }
 
     await page.addStyleTag({
       content: dsfrStyleSheet.replaceAll(

@@ -33,7 +33,6 @@ const configValidator = z
     NODE_ENV: z
       .enum(['development', 'production', 'test'])
       .default('development'),
-    VITE_API_URL: z.url().default('http://localhost:3001'),
     API_PORT: z.coerce.number().default(3001),
     AUTH_SECRET: z.string(),
     AUTH_EXPIRES_IN: z.string().default('12 hours'),
@@ -100,7 +99,6 @@ const configValidator = z
         isReviewApp: c.VITE_REVIEW_APP
       },
       environment: c.NODE_ENV,
-      serverUrl: c.VITE_API_URL,
       serverPort: c.API_PORT,
       auth: {
         secret: c.AUTH_SECRET,
