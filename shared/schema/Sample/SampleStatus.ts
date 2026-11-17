@@ -25,6 +25,6 @@ export const SampleStatusLabels: Record<SampleStatus, string> = {
   Sent: 'Transmis au labo',
   NotAdmissible: 'Non recevable',
   Analysis: 'En cours d’analyse',
-  InReview: 'À valider',
+  InReview: 'À interpréter',
   Completed: 'Terminé'
 };

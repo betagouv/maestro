@@ -17,6 +17,7 @@ import {
   Sampler1Fixture,
   SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
+import { formatWithTz, toMaestroDate } from 'maestro-shared/utils/date';
 import { Companies } from '../../../repositories/companyRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
 import { SampleItems } from '../../../repositories/sampleItemRepository';
@@ -33,6 +34,27 @@ import {
   oignons,
   ppvSubPlanIdByPrescriptionId
 } from './005-prescriptions-ppv';
+
+const genSampleDates = (year: number) => {
+  const currentDate = new Date();
+  const lastMonth =
+    year === currentDate.getFullYear() ? currentDate.getMonth() + 1 : 12;
+  const sampledDate = new Date(
+    year,
+    faker.number.int({ min: 0, max: lastMonth - 1 }),
+    faker.number.int({ min: 1, max: 28 }),
+    faker.number.int({ min: 8, max: 17 })
+  );
+
+  return {
+    sampledDate: toMaestroDate(sampledDate),
+    sampledTime: formatWithTz(sampledDate, 'HH:mm'),
+    sentAt: new Date(
+      sampledDate.getTime() +
+        faker.number.int({ min: 2, max: 72 }) * 60 * 60 * 1000
+    )
+  };
+};
 
 export const seed = async () => {
   const validatedProgrammingPlan = await ProgrammingPlans()
@@ -52,6 +74,8 @@ export const seed = async () => {
     return;
   }
 
+  const year = validatedProgrammingPlan.year;
+
   const samples = [
     faker.helpers.multiple<SampleChecked>(
       () =>
@@ -61,6 +85,7 @@ export const seed = async () => {
           context: 'Control',
           matrices: [{ matrixKind: 'A0DVX' as MatrixKind, matrix: 'A0DVX' }],
           step: 'Sent',
+          ...genSampleDates(year),
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: abricotsEtSimilaires.id,
@@ -79,6 +104,7 @@ export const seed = async () => {
           context: 'Control',
           matrices: [{ matrixKind: 'A000F' as MatrixKind, matrix: 'A000F' }],
           step: 'Sent',
+          ...genSampleDates(year),
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: avoineEtSimilaires.id,
@@ -97,6 +123,7 @@ export const seed = async () => {
           context: 'Control',
           matrices: [{ matrixKind: 'A00QH' as MatrixKind, matrix: 'A00QH' }],
           step: 'Sent',
+          ...genSampleDates(year),
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: carottes.id,
@@ -113,6 +140,7 @@ export const seed = async () => {
           context: 'Control',
           matrices: [{ matrixKind: 'A01GG' as MatrixKind, matrix: 'A01GG' }],
           step: 'Sent',
+          ...genSampleDates(year),
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: cerisesEtSimilaires.id,
@@ -131,6 +159,7 @@ export const seed = async () => {
           context: 'Control',
           matrices: [{ matrixKind: 'A00HC' as MatrixKind, matrix: 'A00HC' }],
           step: 'Sent',
+          ...genSampleDates(year),
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: oignons.id,
@@ -147,6 +176,7 @@ export const seed = async () => {
           context: 'Control',
           matrices: [{ matrixKind: 'A013Q' as MatrixKind, matrix: 'A013Q' }],
           step: 'Sent',
+          ...genSampleDates(year),
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: lentilles.id,
@@ -163,6 +193,7 @@ export const seed = async () => {
           context: 'Control',
           matrices: [{ matrixKind: 'A0DFR' as MatrixKind, matrix: 'A0DFR' }],
           step: 'Sent',
+          ...genSampleDates(year),
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: fevesDeSoja.id,
@@ -187,6 +218,7 @@ export const seed = async () => {
             { matrixKind: 'A01QX' as MatrixKind, matrix: 'A01XF#F28.A0C0S' }
           ],
           step: 'Sent',
+          ...genSampleDates(year),
           department: '85',
           company: CHARAL,
           prescriptionId: FoieDeBovinValidatedPrescriptionFixture.id,
