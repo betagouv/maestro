@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { isEqual, isNil, omit } from 'lodash-es';
+import { isEqual, isNil, omit, uniq } from 'lodash-es';
 import NoRegionError from 'maestro-shared/errors/noRegionError';
 import SampleItemMissingError from 'maestro-shared/errors/sampleItemMissingError';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
@@ -14,6 +14,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import { hasNewerLaunchedCampaign } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { SampleStatusCounts } from 'maestro-shared/schema/Sample/DashboardStats';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   hasSamplePermission,
@@ -147,6 +148,13 @@ export const sampleRouter = {
         ])
       );
 
+      const countsByTerritory = new Map(
+        sampleStats.byTerritory.map(({ key, countsByStatus }) => [
+          key,
+          countsByStatus
+        ])
+      );
+
       return {
         status: HttpStatus.OK,
         response: {
@@ -154,9 +162,14 @@ export const sampleRouter = {
           programmedCount: programmedStats.programmedCount,
           planCount: programmedStats.planCount,
           subPlanCount: programmedStats.subPlanCount,
-          byTerritory: sampleStats.byTerritory.map((territory) => ({
-            ...territory,
-            programmedCount: programmedByTerritory.get(territory.key) ?? 0
+          byTerritory: uniq([
+            ...programmedByTerritory.keys(),
+            ...countsByTerritory.keys()
+          ]).map((key) => ({
+            key,
+            programmedCount: programmedByTerritory.get(key) ?? 0,
+            countsByStatus:
+              countsByTerritory.get(key) ?? SampleStatusCounts.parse({})
           }))
         }
       };

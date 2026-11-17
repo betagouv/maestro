@@ -937,18 +937,22 @@ const findDashboardStats = async (
           db.raw('count(*) as count')
         )
         .whereNotNull(dashboardTerritoryColumns[territoryLevel])
-        .whereNotExists((builder) =>
-          builder
-            .select(db.raw('1'))
-            .from(programmingSubPlansTable)
-            .whereRaw(
-              `${programmingSubPlansTable}.id = ${samplesTable}.programming_sub_plan_id`
-            )
-            .whereLike(
-              `${programmingSubPlansTable}.subPlanNumber`,
-              `${PPVSubPlanNumberPrefix}%`
-            )
-        )
+        .modify((builder) => {
+          if (territoryLevel !== 'Region') {
+            builder.whereNotExists((subBuilder) =>
+              subBuilder
+                .select(db.raw('1'))
+                .from(programmingSubPlansTable)
+                .whereRaw(
+                  `${programmingSubPlansTable}.id = ${samplesTable}.programming_sub_plan_id`
+                )
+                .whereLike(
+                  `${programmingSubPlansTable}.subPlanNumber`,
+                  `${PPVSubPlanNumberPrefix}%`
+                )
+            );
+          }
+        })
         .groupBy(
           dashboardTerritoryColumns[territoryLevel],
           `${sampleStatusView}.status`

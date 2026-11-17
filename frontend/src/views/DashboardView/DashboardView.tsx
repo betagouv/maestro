@@ -89,30 +89,28 @@ const DashboardView = () => {
   const currentProgrammingPlan: ProgrammingPlanChecked | undefined =
     yearProgrammingPlans[0];
 
-  const filteredProgrammingPlans = useMemo(
-    () =>
-      yearProgrammingPlans
-        .filter(
-          (plan) =>
-            filters.programmingPlanDomainIds.length === 0 ||
-            filters.programmingPlanDomainIds.includes(plan.domainId)
-        )
-        .filter(
-          (plan) =>
-            filters.programmingPlanIds.length === 0 ||
-            filters.programmingPlanIds.includes(plan.id)
-        )
-        .filter(
-          (plan) =>
-            filters.stages.length === 0 ||
-            plan.subPlans.some((subPlan) =>
-              stagesOfSelection(subPlan.stages).some((stage) =>
-                filters.stages.includes(stage)
-              )
-            )
-        ),
-    [yearProgrammingPlans, filters]
-  );
+  const filteredProgrammingPlans = useMemo(() => {
+    const selectedStage = filters.stage;
+
+    return yearProgrammingPlans
+      .filter(
+        (plan) =>
+          filters.programmingPlanDomainIds.length === 0 ||
+          filters.programmingPlanDomainIds.includes(plan.domainId)
+      )
+      .filter(
+        (plan) =>
+          filters.programmingPlanIds.length === 0 ||
+          filters.programmingPlanIds.includes(plan.id)
+      )
+      .filter(
+        (plan) =>
+          !selectedStage ||
+          plan.subPlans.some((subPlan) =>
+            stagesOfSelection(subPlan.stages).includes(selectedStage)
+          )
+      );
+  }, [yearProgrammingPlans, filters]);
 
   const { stats, territoryLevel } = useDashboardStats(
     filteredProgrammingPlans,
@@ -181,30 +179,25 @@ const DashboardView = () => {
                   }
                 />
                 <DashboardKpiCards stats={stats} />
-                <div
-                  className={cx(
-                    'fr-grid-row',
-                    'fr-grid-row--gutters',
-                    'fr-mb-3w'
-                  )}
-                >
-                  {territoryLevel && (
+                {territoryLevel && (
+                  <div
+                    className={cx(
+                      'fr-grid-row',
+                      'fr-grid-row--gutters',
+                      'fr-mb-3w'
+                    )}
+                  >
                     <div className={cx('fr-col-12', 'fr-col-lg-6')}>
                       <DashboardTerritoryChart
                         stats={stats}
                         territoryLevel={territoryLevel}
                       />
                     </div>
-                  )}
-                  <div
-                    className={cx(
-                      'fr-col-12',
-                      territoryLevel ? 'fr-col-lg-6' : 'fr-col-lg-12'
-                    )}
-                  >
-                    <DashboardLaboratoryShipments stats={stats} />
+                    <div className={cx('fr-col-12', 'fr-col-lg-6')}>
+                      <DashboardLaboratoryShipments stats={stats} />
+                    </div>
                   </div>
-                </div>
+                )}
                 {!isNil(year) && (
                   <DashboardPlansProgress
                     year={year}

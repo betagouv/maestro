@@ -1,7 +1,5 @@
-import { BarChart } from '@codegouvfr/react-dsfr/Chart/BarChart';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { sumBy } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
 import type {
@@ -21,28 +19,28 @@ type Props = {
 
 const series = [
   {
+    key: 'completed',
     label: SampleStatusLabels.Completed,
-    color: 'green-bourgeon' as const,
     of: (counts: DashboardStats['countsByStatus']) => counts.Completed
   },
   {
+    key: 'in-review',
     label: SampleStatusLabels.InReview,
-    color: 'orange-terre-battue' as const,
     of: (counts: DashboardStats['countsByStatus']) => counts.InReview
   },
   {
+    key: 'sent',
     label: SampleStatusLabels.Sent,
-    color: 'pink-macaron' as const,
     of: (counts: DashboardStats['countsByStatus']) => counts.Sent
   },
   {
+    key: 'analysis',
     label: SampleStatusLabels.Analysis,
-    color: 'blue-cumulus' as const,
     of: (counts: DashboardStats['countsByStatus']) => counts.Analysis
   },
   {
+    key: 'submitted',
     label: SampleStatusLabels.Submitted,
-    color: 'yellow-tournesol' as const,
     of: (counts: DashboardStats['countsByStatus']) => counts.Submitted
   }
 ];
@@ -84,6 +82,9 @@ const DashboardTerritoryChart: FunctionComponent<Props> = ({
             key: territory.key,
             label: territoryLabel(territory.key),
             countsByStatus: territory.countsByStatus,
+            programmedCount: territory.programmedCount,
+            done,
+            scale: Math.max(territory.programmedCount, done),
             remaining: Math.max(0, territory.programmedCount - done),
             overflow: Math.max(0, done - territory.programmedCount)
           };
@@ -104,25 +105,8 @@ const DashboardTerritoryChart: FunctionComponent<Props> = ({
     return null;
   }
 
-  const labels = rows.map((row) => row.label);
-  const remainingTotal = sumBy(rows, 'remaining');
-
-  const chartSeries = [
-    ...displayedSeries.map((serie) => ({
-      name: serie.label,
-      color: serie.color,
-      values: rows.map((row) => serie.of(row.countsByStatus))
-    })),
-    ...(remainingTotal > 0
-      ? [
-          {
-            name: 'Restant',
-            color: 'beige-gris-galet' as const,
-            values: rows.map((row) => row.remaining)
-          }
-        ]
-      : [])
-  ];
+  const widthOf = (value: number, scale: number) =>
+    scale === 0 ? '0%' : `${(value / scale) * 100}%`;
 
   const title =
     territoryLevel === 'Region'
@@ -131,32 +115,85 @@ const DashboardTerritoryChart: FunctionComponent<Props> = ({
         ? 'Avancement par département'
         : 'Avancement par abattoir';
 
+  const legend = [
+    ...displayedSeries,
+    ...(rows.some((row) => row.remaining > 0)
+      ? [{ key: 'remaining', label: 'Restant' }]
+      : [])
+  ];
+
   return (
-    <div className={clsx('white-container', cx('fr-px-3w', 'fr-py-2w'))}>
+    <div
+      className={clsx(
+        'white-container',
+        'full-height',
+        cx('fr-px-3w', 'fr-py-2w')
+      )}
+    >
       <h5 className={cx('fr-text--lg', 'fr-text--regular', 'fr-mb-3w')}>
         {title}
       </h5>
-      <div className="territory-chart">
-        <BarChart
-          horizontal
-          stacked
-          x={chartSeries.map(() => labels)}
-          y={chartSeries.map((serie) => serie.values)}
-          name={chartSeries.map((serie) => serie.name)}
-          color={chartSeries.map((serie) => serie.color)}
-        />
-        <ul className="territory-chart-overflows">
-          {rows.map((row) => (
-            <li key={row.key}>
-              {row.overflow > 0 && (
-                <span className={cx('fr-text--sm', 'fr-text--bold')}>
-                  +{row.overflow}
-                </span>
+      <div className="territory-rows">
+        {rows.map((row) => (
+          <div className="territory-row" key={row.key}>
+            <span
+              className={clsx('territory-row-label', cx('fr-text--sm'))}
+              title={row.label}
+            >
+              {row.label}
+            </span>
+            <div
+              className="territory-row-bar"
+              role="img"
+              aria-label={`${row.label} : ${row.done} ${row.done > 1 ? 'réalisés' : 'réalisé'} sur ${row.programmedCount} ${row.programmedCount > 1 ? 'programmés' : 'programmé'}`}
+            >
+              {displayedSeries.map((serie) => {
+                const value = serie.of(row.countsByStatus);
+                return value === 0 ? null : (
+                  <div
+                    key={serie.key}
+                    className={clsx(
+                      'territory-row-segment',
+                      `territory-segment-${serie.key}`
+                    )}
+                    style={{ width: widthOf(value, row.scale) }}
+                    title={`${serie.label} : ${value}`}
+                  ></div>
+                );
+              })}
+              {row.remaining > 0 && (
+                <div
+                  className={clsx(
+                    'territory-row-segment',
+                    'territory-segment-remaining'
+                  )}
+                  style={{ width: widthOf(row.remaining, row.scale) }}
+                  title={`Restant : ${row.remaining}`}
+                ></div>
               )}
-            </li>
-          ))}
-        </ul>
+            </div>
+            <span className={clsx('territory-row-total', cx('fr-text--sm'))}>
+              {row.done}/{row.programmedCount}
+              {row.overflow > 0 && (
+                <span className={cx('fr-text--bold')}> +{row.overflow}</span>
+              )}
+            </span>
+          </div>
+        ))}
       </div>
+      <ul className="territory-legend">
+        {legend.map((item) => (
+          <li key={item.key}>
+            <span
+              className={clsx(
+                'territory-legend-bullet',
+                `territory-segment-${item.key}`
+              )}
+            ></span>
+            <span className={cx('fr-text--sm', 'fr-mb-0')}>{item.label}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

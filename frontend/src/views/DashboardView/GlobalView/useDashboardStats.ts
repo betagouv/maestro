@@ -54,20 +54,18 @@ export const useDashboardStats = (
     user?.companies
   ]);
 
-  const programmingSubPlanIds = useMemo(
-    () =>
-      filters.stages.length === 0
-        ? undefined
-        : programmingPlans
-            .flatMap((plan) => plan.subPlans)
-            .filter((subPlan) =>
-              stagesOfSelection(subPlan.stages).some((stage) =>
-                filters.stages.includes(stage)
-              )
-            )
-            .map((subPlan) => subPlan.id),
-    [programmingPlans, filters.stages]
-  );
+  const programmingSubPlanIds = useMemo(() => {
+    const selectedStage = filters.stage;
+
+    return !selectedStage
+      ? undefined
+      : programmingPlans
+          .flatMap((plan) => plan.subPlans)
+          .filter((subPlan) =>
+            stagesOfSelection(subPlan.stages).includes(selectedStage)
+          )
+          .map((subPlan) => subPlan.id);
+  }, [programmingPlans, filters.stage]);
 
   const programmingPlanIds = useMemo(
     () => programmingPlans.map((plan) => plan.id),

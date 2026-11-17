@@ -6,6 +6,7 @@ import { omit } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
 import { StageLabels } from 'maestro-shared/referential/Stage';
+import type { Company } from 'maestro-shared/schema/Company/Company';
 import type { Pagination } from 'maestro-shared/schema/commons/Pagination';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
@@ -46,6 +47,7 @@ interface Props {
   programmingPlans?: ProgrammingPlanChecked[];
   laboratories?: Pick<Laboratory, 'id' | 'name'>[];
   domains?: ProgrammingPlanDomain[];
+  companies?: Pick<Company, 'siret' | 'name'>[];
 }
 
 const tagProps = {
@@ -56,7 +58,7 @@ const tagProps = {
 
 type FilterableProp = keyof Omit<
   FilterableType,
-  keyof Pagination | 'reference' | 'companySirets' | 'prescriptionId'
+  keyof Pagination | 'reference' | 'prescriptionId'
 >;
 
 const renderArrayTags = <T extends string>(
@@ -170,6 +172,16 @@ const filtersConfig = {
         onChange
       )
   },
+  companySirets: {
+    prop: 'companySirets',
+    getComponent: (value, onChange, { companies }) =>
+      renderArrayTags(
+        'companySirets',
+        value,
+        (siret) => companies?.find((company) => company.siret === siret)?.name,
+        onChange
+      )
+  },
   contexts: {
     prop: 'contexts',
     getComponent: (value, onChange) =>
@@ -266,6 +278,7 @@ const filtersConfig = {
             users?: UserListItem[];
             laboratories?: Props['laboratories'];
             domains?: ProgrammingPlanDomain[];
+            companies?: Props['companies'];
             filters?: Partial<FilterableType>;
             matrixReferential: MatrixReferential;
           }
@@ -282,7 +295,8 @@ const FiltersTags = ({
   users,
   programmingPlans,
   laboratories,
-  domains
+  domains,
+  companies
 }: Props) => {
   const { hasNationalView } = useAuthentication();
   const matrixReferential = useMatrixReferential();
@@ -291,7 +305,12 @@ const FiltersTags = ({
     () =>
       Object.values(
         omit(filters, 'regions', 'page', 'perPage', 'programmingPlanIds')
-      ).some((value) => isDefinedAndNotNull(value) && value !== '') ||
+      ).some(
+        (value) =>
+          isDefinedAndNotNull(value) &&
+          value !== '' &&
+          (!Array.isArray(value) || value.length > 0)
+      ) ||
       ((programmingPlans ?? []).length > 1 &&
         (filters.programmingPlanIds ?? []).length > 0) ||
       ((filters.regions ?? []).length > 0 && hasNationalView),
@@ -330,6 +349,7 @@ const FiltersTags = ({
                 users,
                 laboratories,
                 domains,
+                companies,
                 filters,
                 matrixReferential
               });

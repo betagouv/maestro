@@ -3,7 +3,13 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  padding: 0.5rem
+  padding: 0.5rem;
+}
+
+.kpi-circle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
 }
 
 .kpi-detail-line {

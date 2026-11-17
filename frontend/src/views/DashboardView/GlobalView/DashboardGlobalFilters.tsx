@@ -1,6 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { sortBy, uniq } from 'lodash-es';
+import { pick, sortBy, uniq } from 'lodash-es';
 import {
   type Department,
   DepartmentLabels
@@ -21,9 +22,11 @@ import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/Progra
 import { getSubPlanMatrixKinds } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import { useContext, useMemo } from 'react';
 import AppCheckboxSelect from 'src/components/_app/AppCheckboxSelect/AppCheckboxSelect';
+import FiltersTags from 'src/components/FilterTags/FiltersTags';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useMatrixReferential } from 'src/hooks/useMatrixReferential';
 import { ApiClientContext } from 'src/services/apiClient';
+import '../Dashboard.scss';
 
 export type DashboardFilters = {
   programmingPlanDomainIds: ProgrammingPlanDomainId[];
@@ -32,7 +35,7 @@ export type DashboardFilters = {
   departments: Department[];
   companySirets: string[];
   matrixKinds: MatrixKind[];
-  stages: Stage[];
+  stage: Stage | undefined;
 };
 
 export const emptyDashboardFilters: DashboardFilters = {
@@ -42,7 +45,7 @@ export const emptyDashboardFilters: DashboardFilters = {
   departments: [],
   companySirets: [],
   matrixKinds: [],
-  stages: []
+  stage: undefined
 };
 
 type Props = {
@@ -52,6 +55,15 @@ type Props = {
 };
 
 const filterClassName = cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3');
+
+const activeFilterKeys = [
+  'programmingPlanDomainIds',
+  'programmingPlanIds',
+  'regions',
+  'departments',
+  'companySirets',
+  'matrixKinds'
+] as const;
 
 const DashboardGlobalFilters = ({
   programmingPlans,
@@ -127,20 +139,27 @@ const DashboardGlobalFilters = ({
     [hasRegionalView, user?.region]
   );
 
-  const companyOptions = useMemo(() => {
-    const companies = isDepartmentalCoordination
-      ? (departmentCompanies ?? [])
-      : isSampler
-        ? (user?.companies ?? [])
-        : [];
-    return sortBy(
+  const companies = useMemo(
+    () =>
+      sortBy(
+        isDepartmentalCoordination
+          ? (departmentCompanies ?? [])
+          : isSampler
+            ? (user?.companies ?? [])
+            : [],
+        'name'
+      ),
+    [isDepartmentalCoordination, isSampler, departmentCompanies, user]
+  );
+
+  const companyOptions = useMemo(
+    () =>
       companies.map((company) => ({
         label: company.name,
         value: company.siret
       })),
-      'label'
-    );
-  }, [isDepartmentalCoordination, isSampler, departmentCompanies, user]);
+    [companies]
+  );
 
   const matrixKindOptions = useMemo(
     () =>
@@ -160,16 +179,37 @@ const DashboardGlobalFilters = ({
     [isDepartmentalCoordination, isSampler, programmingPlans, matrixReferential]
   );
 
-  const stageOptions = useMemo(
+  const stages = useMemo(
     () =>
       sortBy(
-        stagesFromSubPlans(
-          programmingPlans.flatMap((plan) => plan.subPlans)
-        ).map((stage) => ({ label: StageLabels[stage], value: stage })),
-        'label'
+        stagesFromSubPlans(programmingPlans.flatMap((plan) => plan.subPlans)),
+        (stage) => StageLabels[stage]
       ),
     [programmingPlans]
   );
+
+  const stageTags =
+    stages.length <= 1 ? null : (
+      <div className={clsx(cx('fr-mb-3w'), 'dashboard-filters-stages')}>
+        <Tag
+          nativeButtonProps={{ onClick: () => onChange({ stage: undefined }) }}
+          pressed={!filters.stage}
+          small
+        >
+          Tous
+        </Tag>
+        {stages.map((stage) => (
+          <Tag
+            key={`stage-${stage}`}
+            nativeButtonProps={{ onClick: () => onChange({ stage }) }}
+            pressed={filters.stage === stage}
+            small
+          >
+            {StageLabels[stage]}
+          </Tag>
+        ))}
+      </div>
+    );
 
   const filterElements = [
     {
@@ -218,17 +258,33 @@ const DashboardGlobalFilters = ({
       selectedValues: filters.matrixKinds,
       searchable: true,
       onChange: (matrixKinds: MatrixKind[]) => onChange({ matrixKinds })
-    },
-    {
-      key: 'stages',
-      label: 'Stades de prélèvement',
-      options: stageOptions,
-      selectedValues: filters.stages,
-      onChange: (stages: Stage[]) => onChange({ stages })
     }
   ].filter((filter) => filter.options.length > 0);
 
-  if (filterElements.length === 0) {
+  const activeFilters = (
+    <FiltersTags
+      title="Filtres actifs"
+      filters={pick(filters, activeFilterKeys)}
+      programmingPlans={programmingPlans}
+      domains={allDomains}
+      companies={companies}
+      onChange={(changedFilters) => {
+        const changes = Object.fromEntries(
+          activeFilterKeys
+            .filter((key) => key in changedFilters)
+            .map((key) => [key, changedFilters[key] ?? []])
+        ) as Partial<DashboardFilters>;
+
+        onChange(
+          'programmingPlanDomainIds' in changes
+            ? { ...changes, programmingPlanIds: [] }
+            : changes
+        );
+      }}
+    />
+  );
+
+  if (filterElements.length === 0 && !stageTags) {
     return null;
   }
 
@@ -239,6 +295,7 @@ const DashboardGlobalFilters = ({
         cx('fr-px-3w', 'fr-py-2w', 'fr-mb-3w')
       )}
     >
+      {stageTags}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         {filterElements.map((filter) => (
           <div className={filterClassName} key={filter.key}>
@@ -253,6 +310,7 @@ const DashboardGlobalFilters = ({
           </div>
         ))}
       </div>
+      {activeFilters}
     </div>
   );
 };

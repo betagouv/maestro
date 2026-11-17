@@ -38,7 +38,13 @@ const DashboardLaboratoryShipments: FunctionComponent<Props> = ({ stats }) => {
   );
 
   return (
-    <div className={clsx('white-container', cx('fr-px-3w', 'fr-py-2w'))}>
+    <div
+      className={clsx(
+        'white-container',
+        'full-height',
+        cx('fr-px-3w', 'fr-py-2w')
+      )}
+    >
       <h5
         className={clsx(
           'd-flex-align-center',
@@ -55,7 +61,7 @@ const DashboardLaboratoryShipments: FunctionComponent<Props> = ({ stats }) => {
         x={[monthLabels]}
         y={[monthLabels.map((_, index) => countByMonth.get(index + 1) ?? 0)]}
         name={['Prélèvements transmis']}
-        color={['green-bourgeon']}
+        color={['pink-macaron']}
       />
       {!isNil(stats.averageSampledToDaiHours) && (
         <div

@@ -1,5 +1,11 @@
 @use "../../constants" as constants;
 
+.dashboard-filters-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .dashboard-prescription-card.fr-card.fr-enlarge-link {
   height: auto;
 
@@ -39,7 +45,7 @@
     }
 
     &.in-progress {
-      background-color: var(--yellow-tournesol-main-731);
+      background-color: var(--orange-terre-battue-main-645);
     }
 
     &.remaining {

@@ -666,7 +666,10 @@ const findProgrammedCounts = async (
 
   const territoryRows = options.territoryLevel
     ? await programmedRequest(
-        { ...options, excludePPV: true },
+        {
+          ...options,
+          excludePPV: options.territoryLevel !== 'Region'
+        },
         options.territoryLevel
       )
         .select(

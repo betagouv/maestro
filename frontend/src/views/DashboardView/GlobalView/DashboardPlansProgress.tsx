@@ -1,7 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { sumBy } from 'lodash-es';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
   filteredLocalPrescriptions,
@@ -39,7 +38,7 @@ type ProgressEntry = {
   linkTo: string;
   localPrescriptions: LocalPrescription[];
   plan: ProgrammingPlanChecked;
-  subPlanCount?: number;
+  isPPV: boolean;
 };
 
 const DashboardPlansProgress: FunctionComponent<Props> = ({
@@ -120,7 +119,8 @@ const DashboardPlansProgress: FunctionComponent<Props> = ({
               )
             }),
             localPrescriptions: rowsOf([prescription.id]),
-            plan
+            plan,
+            isPPV: true
           }))
           .filter((entry) => entry.localPrescriptions.length > 0);
       }
@@ -140,7 +140,7 @@ const DashboardPlansProgress: FunctionComponent<Props> = ({
               }),
               localPrescriptions: planRows,
               plan,
-              subPlanCount: plan.subPlans.length
+              isPPV: false
             }
           ];
     });
@@ -157,6 +157,37 @@ const DashboardPlansProgress: FunctionComponent<Props> = ({
     return null;
   }
 
+  const hasMixedStages =
+    entries.some((entry) => entry.isPPV) &&
+    entries.some((entry) => !entry.isPPV);
+
+  const cardHeader = (entry: ProgressEntry) => {
+    if (entry.isPPV) {
+      return hasMixedStages ? (
+        <div className={cx('fr-mb-1w')}>
+          <Tag small>{StageLabels.PRODUCTION_PRIMAIRE_VEGETALE}</Tag>
+        </div>
+      ) : undefined;
+    }
+
+    const subPlanCount = entry.plan.subPlans.length;
+
+    return (
+      <div className={cx('fr-mb-1w')}>
+        <div>
+          {stagesFromSubPlans(entry.plan.subPlans).map((stage) => (
+            <Tag key={`${entry.key}-${stage}`} small>
+              {StageLabels[stage]}
+            </Tag>
+          ))}
+        </div>
+        <span className={cx('fr-hint-text', 'fr-text--sm')}>
+          {subPlanCount} {pluralize(subPlanCount)('sous-plan')}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div className={clsx('white-container', cx('fr-px-3w', 'fr-py-2w'))}>
       <h5 className={cx('fr-text--lg', 'fr-text--regular', 'fr-mb-3w')}>
@@ -169,32 +200,10 @@ const DashboardPlansProgress: FunctionComponent<Props> = ({
             title={entry.title}
             linkTo={entry.linkTo}
             localPrescriptions={entry.localPrescriptions}
-            header={
-              entry.subPlanCount === undefined ? undefined : (
-                <div className={cx('fr-mb-1w')}>
-                  <div>
-                    {stagesFromSubPlans(entry.plan.subPlans).map((stage) => (
-                      <Tag key={`${entry.key}-${stage}`} small>
-                        {StageLabels[stage]}
-                      </Tag>
-                    ))}
-                  </div>
-                  <span className={cx('fr-hint-text', 'fr-text--sm')}>
-                    {entry.subPlanCount}{' '}
-                    {pluralize(entry.subPlanCount)('sous-plan')}
-                  </span>
-                </div>
-              )
-            }
+            header={cardHeader(entry)}
           />
         ))}
       </div>
-      <p className={cx('fr-hint-text', 'fr-text--xs', 'fr-mt-2w', 'fr-mb-0')}>
-        {sumBy(entries, (entry) =>
-          sumBy(entry.localPrescriptions, 'sampleCount')
-        )}{' '}
-        prélèvements programmés sur les plans affichés
-      </p>
     </div>
   );
 };

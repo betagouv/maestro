@@ -207,7 +207,10 @@ export const DashboardViewForRegionalCoordinator: Story = {
     await expect(canvas.getByText('Tableau de bord')).toBeInTheDocument();
     await expect(canvas.getByText('Domaines')).toBeInTheDocument();
     await expect(canvas.getByText('Plans')).toBeInTheDocument();
-    await expect(canvas.getByText('Stades de prélèvement')).toBeInTheDocument();
+    await expect(canvas.getByText('Tous')).toBeInTheDocument();
+    await expect(
+      canvas.getByText('Production primaire végétale')
+    ).toBeInTheDocument();
     await expect(canvas.queryByText('Régions')).not.toBeInTheDocument();
   }
 };

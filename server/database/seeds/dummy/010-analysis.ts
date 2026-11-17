@@ -1,4 +1,6 @@
+import { faker } from '@faker-js/faker';
 import { Analysis } from '../../../repositories/analysisRepository';
+import { kysely } from '../../../repositories/kysely';
 import { Samples } from '../../../repositories/sampleRepository';
 
 export const seed = async () => {
@@ -24,5 +26,34 @@ export const seed = async () => {
         status: 'Sent'
       }))
     );
+  }
+
+  const analysisWithoutDai = await Analysis()
+    .join('samples', 'samples.id', 'analysis.sample_id')
+    .whereNotNull('samples.sent_at')
+    .whereNotExists((query) =>
+      query
+        .select(1)
+        .from('analysis_dai')
+        .whereRaw('analysis_dai.analysis_id = analysis.id')
+    )
+    .select('analysis.id', 'samples.sent_at');
+
+  if (analysisWithoutDai.length > 0) {
+    await kysely
+      .insertInto('analysisDai')
+      .values(
+        analysisWithoutDai.map((analysis) => ({
+          analysisId: analysis.id,
+          state: 'SENT' as const,
+          sentMethod: 'EMAIL' as const,
+          edi: false,
+          sentAt: new Date(
+            new Date(analysis.sentAt).getTime() +
+              faker.number.int({ min: 1, max: 48 }) * 60 * 60 * 1000
+          )
+        }))
+      )
+      .execute();
   }
 };

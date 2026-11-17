@@ -42,7 +42,7 @@ export const CircleProgress: FunctionComponent<Props> = ({
       }
     ];
   } else {
-    const _colors = colors ?? ['#00A95F', '#F0CA3C', '#F3EDE5'];
+    const _colors = colors ?? ['#00A95F', '#E4794A', '#F3EDE5'];
     segments = values.reduce((acc, step, index) => {
       const length = Math.floor((step / total) * circumference);
       const offset =

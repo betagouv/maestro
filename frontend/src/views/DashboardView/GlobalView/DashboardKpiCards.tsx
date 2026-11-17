@@ -30,6 +30,7 @@ const KpiCard: FunctionComponent<{
     <div
       className={clsx(
         'white-container',
+        'full-height',
         cx('fr-pt-2w', 'fr-pb-3w', 'fr-px-3v')
       )}
     >
@@ -126,12 +127,14 @@ const DashboardKpiCards: FunctionComponent<Props> = ({ stats }) => {
         tooltip="Prélèvements terminés conformes ou non conformes, à interpréter, transmis au laboratoire et en cours d'analyse"
       >
         <h2 className={cx('fr-mb-1v')}>{realized}</h2>
-        <CircleProgress
-          progress={objectiveRate(realized, stats.programmedCount)}
-          sizePx={120}
-          type="percentage"
-          label="de l'objectif"
-        />
+        <div className="kpi-circle">
+          <CircleProgress
+            progress={objectiveRate(realized, stats.programmedCount)}
+            sizePx={160}
+            type="percentage"
+            label="de l'objectif"
+          />
+        </div>
         <KpiDetails
           lines={[
             {
@@ -163,12 +166,14 @@ const DashboardKpiCards: FunctionComponent<Props> = ({ stats }) => {
         tooltip="Prélèvements terminés conformes ou non conformes et à interpréter"
       >
         <h2 className={cx('fr-mb-1v')}>{analyzed}</h2>
-        <CircleProgress
-          progress={objectiveRate(analyzed, stats.programmedCount)}
-          sizePx={120}
-          type="percentage"
-          label="de l'objectif"
-        />
+        <div className="kpi-circle">
+          <CircleProgress
+            progress={objectiveRate(analyzed, stats.programmedCount)}
+            sizePx={160}
+            type="percentage"
+            label="de l'objectif"
+          />
+        </div>
         <KpiDetails
           lines={[
             {
