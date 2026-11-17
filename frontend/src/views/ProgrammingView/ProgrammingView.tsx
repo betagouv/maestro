@@ -443,13 +443,11 @@ const ProgrammingView = () => {
                               }}
                             />
                           )}
-                        {selectedTabId === 'CommentsTab' &&
-                          filteredProgrammingPlans.map((plan) => (
-                            <ProgrammingCommentList
-                              key={plan.id}
-                              programmingPlan={plan}
-                            />
-                          ))}
+                        {selectedTabId === 'CommentsTab' && (
+                          <ProgrammingCommentList
+                            programmingPlans={filteredProgrammingPlans}
+                          />
+                        )}
                         {selectedTabId === 'PlanTrackingTab' &&
                           hasRole(
                             'AdministratorBGIR',

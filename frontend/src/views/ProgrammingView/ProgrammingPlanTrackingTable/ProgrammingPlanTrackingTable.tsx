@@ -332,11 +332,18 @@ const ProgrammingPlanTrackingTable = ({
     selectedPlans.every(
       (plan) => !hasDepartmentalEchelon(plan.distributionKind)
     );
+  const selectedAllDepartmentalKind =
+    selectedPlans.length > 0 &&
+    selectedPlans.every((plan) =>
+      hasDepartmentalEchelon(plan.distributionKind)
+    );
   const regionalActionLabel = selectedAllRegionalKind
     ? selectedRegionalModified
       ? 'Diffuser les modifications aux préleveurs'
       : 'Diffuser les plans aux préleveurs'
-    : 'Soumettre les plans aux départements';
+    : selectedAllDepartmentalKind
+      ? 'Soumettre les plans aux départements'
+      : 'Soumettre les plans aux départements et/ou aux préleveurs';
 
   const handleSendSuccess = () => {
     setSelectedPlanIds(new Set());
