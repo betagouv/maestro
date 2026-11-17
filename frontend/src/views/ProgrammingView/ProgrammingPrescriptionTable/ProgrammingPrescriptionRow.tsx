@@ -17,7 +17,10 @@ import {
   hasPrescriptionPermission,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
+import {
+  hasCompanyEchelon,
+  hasDepartmentalEchelon
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { sampleProcedureItems } from 'maestro-shared/schema/ProgrammingPlan/SampleProcedure';
@@ -140,9 +143,12 @@ const ProgrammingPrescriptionRow = ({
     !isSamplerView &&
     (prescription.sampleCount !== 0 || totalSampleCount !== 0);
   const regionDistributedCount = sumBy(rowSubLocalPrescriptions, 'sampleCount');
+  const distributesBelow = department
+    ? hasCompanyEchelon(plan.distributionKind)
+    : hasDepartmentalEchelon(plan.distributionKind);
   const showRegionDistributionBadge =
     !isSamplerView &&
-    hasDepartmentalEchelon(plan.distributionKind) &&
+    distributesBelow &&
     ((ownRegionalPrescription?.sampleCount ?? 0) !== 0 ||
       regionDistributedCount !== 0);
   const rowHasUnviewedChange = region

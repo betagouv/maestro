@@ -24,7 +24,10 @@ import type {
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
+import {
+  hasCompanyEchelon,
+  hasDepartmentalEchelon
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   Fragment,
@@ -528,10 +531,19 @@ const ProgrammingPrescriptionTable = ({
     ? regionDepartmentList
     : EMPTY_DEPARTMENTS;
 
+  const hasVisibleCompanyEchelonPlan = planOrder.some((planId) => {
+    const plan = programmingPlans.find((p) => p.id === planId);
+    return !isNil(plan) && hasCompanyEchelon(plan.distributionKind);
+  });
+
+  const companyList = hasVisibleCompanyEchelonPlan
+    ? companies
+    : EMPTY_COMPANIES;
+
   const columnCount = isSamplerView
     ? 0
     : department
-      ? companies.length
+      ? companyList.length
       : region
         ? departmentList.length
         : RegionList.length;
@@ -629,7 +641,7 @@ const ProgrammingPrescriptionTable = ({
                   )}
                   {!isSamplerView &&
                     (department
-                      ? companies.map((company, columnIdx) => (
+                      ? companyList.map((company, columnIdx) => (
                           <th
                             scope="col"
                             className={clsx(
@@ -717,7 +729,7 @@ const ProgrammingPrescriptionTable = ({
                   )}
                   {!isSamplerView &&
                     (department
-                      ? companies.map((company, columnIdx) => (
+                      ? companyList.map((company, columnIdx) => (
                           <td
                             key={`total-${company.siret}`}
                             className={clsx(
@@ -895,7 +907,7 @@ const ProgrammingPrescriptionTable = ({
                                 )}
                                 {!isSamplerView &&
                                   (department
-                                    ? companies.map((company, columnIdx) => (
+                                    ? companyList.map((company, columnIdx) => (
                                         <td
                                           key={company.siret}
                                           className={clsx('align-center', {
@@ -996,7 +1008,7 @@ const ProgrammingPrescriptionTable = ({
                           showLaboratoryColumn={showLaboratoryColumn}
                           columnCount={columnCount}
                           departmentList={departmentList}
-                          companies={companies}
+                          companies={companyList}
                           region={region}
                           department={department}
                           pendingLocalKeys={pendingLocalKeys}

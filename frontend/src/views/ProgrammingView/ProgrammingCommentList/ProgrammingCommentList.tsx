@@ -23,12 +23,13 @@ import { useAppDispatch, useAppSelector } from '../../../hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
+import { findPrescriptionPlan } from '../prescriptionPlan';
 
 interface Props {
-  programmingPlan: ProgrammingPlanChecked;
+  programmingPlans: ProgrammingPlanChecked[];
 }
 
-const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
+const ProgrammingCommentList = ({ programmingPlans, ..._rest }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
@@ -41,13 +42,18 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
   const [matrixQuery, setMatrixQuery] = useState('');
   const [regionFilter, setRegionFilter] = useState<Region>();
 
+  const programmingPlanIds = useMemo(
+    () => programmingPlans.map((plan) => plan.id),
+    [programmingPlans]
+  );
+
   const findPrescriptionOptions = useMemo(
     () => ({
-      programmingPlanId: programmingPlan.id,
+      programmingPlanIds,
       programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
       contexts: prescriptionFilters.contexts
     }),
-    [programmingPlan, prescriptionFilters]
+    [programmingPlanIds, prescriptionFilters]
   );
 
   const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
@@ -59,12 +65,12 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
 
   const findLocalPrescriptionOptions = useMemo(
     () => ({
-      programmingPlanIds: [programmingPlan.id],
+      programmingPlanIds,
       programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
       contexts: prescriptionFilters.contexts,
       includes: ['comments' as const, 'sampleCounts' as const]
     }),
-    [programmingPlan, prescriptionFilters]
+    [programmingPlanIds, prescriptionFilters]
   );
 
   const { data: regionalPrescriptions } =
@@ -74,31 +80,36 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
 
   const commentedPrescriptions = useMemo(
     () =>
-      (allPrescriptions ?? [])
-        .map((prescription) => ({
-          ...prescription,
-          regionalCommentedPrescriptions: (regionalPrescriptions ?? []).filter(
-            (regionalPrescription) =>
-              regionalPrescription.prescriptionId === prescription.id &&
-              (regionalPrescription.comments ?? []).length > 0
-          )
-        }))
+      (allPrescriptions ?? []).flatMap((prescription) => {
+        const programmingPlan = findPrescriptionPlan(
+          programmingPlans,
+          prescription
+        );
+        const regionalCommentedPrescriptions = (
+          regionalPrescriptions ?? []
+        ).filter(
+          (regionalPrescription) =>
+            regionalPrescription.prescriptionId === prescription.id &&
+            (regionalPrescription.comments ?? []).length > 0
+        );
 
-        .filter(
-          (prescription) =>
-            prescription.regionalCommentedPrescriptions?.length > 0
-        ),
-    [allPrescriptions, regionalPrescriptions]
+        return programmingPlan && regionalCommentedPrescriptions.length > 0
+          ? [
+              {
+                ...prescription,
+                programmingPlan,
+                regionalCommentedPrescriptions
+              }
+            ]
+          : [];
+      }),
+    [allPrescriptions, regionalPrescriptions, programmingPlans]
   );
 
   const filteredPrescriptions = commentedPrescriptions
     .filter((prescription) =>
       includesIgnoringAccents(
-        getPrescriptionTitle(
-          matrixReferential,
-          [programmingPlan],
-          prescription
-        ),
+        getPrescriptionTitle(matrixReferential, programmingPlans, prescription),
         matrixQuery
       )
     )
@@ -178,7 +189,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
                   <h6 className="flex-grow-1">
                     {getPrescriptionTitle(
                       matrixReferential,
-                      [programmingPlan],
+                      programmingPlans,
                       prescription
                     )}
                   </h6>
@@ -188,7 +199,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
                       dispatch(
                         prescriptionsSlice.actions.setPrescriptionCommentsData({
                           viewBy: 'Prescription',
-                          programmingPlan,
+                          programmingPlan: prescription.programmingPlan,
                           prescription,
                           regionalCommentsList:
                             prescription.regionalCommentedPrescriptions.map(
@@ -228,7 +239,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
                               prescriptionsSlice.actions.setPrescriptionCommentsData(
                                 {
                                   viewBy: 'Prescription',
-                                  programmingPlan,
+                                  programmingPlan: prescription.programmingPlan,
                                   prescription,
                                   currentRegion: regionalPrescription.region,
                                   regionalCommentsList:

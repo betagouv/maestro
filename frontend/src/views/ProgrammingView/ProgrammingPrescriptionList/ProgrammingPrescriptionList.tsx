@@ -931,7 +931,7 @@ const ProgrammingPrescriptionList = ({
         commonSlots: [],
         commonSamples: [],
         blockReason:
-          "Les sous-plans sélectionnés n'ont pas le même nombre de laboratoires à attribuer. L'action groupée n'est pas possible."
+          "Les sous-plans sélectionnés n'ont pas les mêmes analytes à attribuer. L'action groupée n'est pas possible."
       };
     }
 

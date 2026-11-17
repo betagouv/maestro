@@ -37,15 +37,20 @@ const ProgrammingPlanBulkSendRegionalModal = ({
     onConceal: () => setIsError(false)
   });
 
+  const departmentalEchelonPlans = plans.filter((plan) =>
+    hasDepartmentalEchelon(plan.distributionKind)
+  );
+  const regionalKindPlans = plans.filter(
+    (plan) => !hasDepartmentalEchelon(plan.distributionKind)
+  );
+
   const submit = async () => {
     setIsError(false);
     try {
-      const departmentalEchelonPlanIds = plans
-        .filter((plan) => hasDepartmentalEchelon(plan.distributionKind))
-        .map((plan) => plan.id);
-      const regionalKindPlanIds = plans
-        .filter((plan) => !hasDepartmentalEchelon(plan.distributionKind))
-        .map((plan) => plan.id);
+      const departmentalEchelonPlanIds = departmentalEchelonPlans.map(
+        (plan) => plan.id
+      );
+      const regionalKindPlanIds = regionalKindPlans.map((plan) => plan.id);
 
       await Promise.all([
         departmentalEchelonPlanIds.length > 0
@@ -78,7 +83,7 @@ const ProgrammingPlanBulkSendRegionalModal = ({
       ? modified
         ? 'Diffuser les modifications aux préleveurs'
         : 'Diffuser les plans aux préleveurs'
-      : 'Envoyer';
+      : 'Envoyer aux départements et/ou aux préleveurs';
 
   return (
     <bulkSendRegionalModal.Component
@@ -95,10 +100,29 @@ const ProgrammingPlanBulkSendRegionalModal = ({
               ? 'Confirmez-vous la diffusion des plans ci-dessous aux préleveurs et préleveuses ?'
               : "Confirmez-vous l'envoi des plans ci-dessous ?"}
           </p>
-          <BulkPlanList
-            plans={plans}
-            programmedSubPlanCounts={programmedSubPlanCounts}
-          />
+          {allDepartmentalEchelon || allRegionalKind ? (
+            <BulkPlanList
+              plans={plans}
+              programmedSubPlanCounts={programmedSubPlanCounts}
+            />
+          ) : (
+            <>
+              <p className={cx('fr-mb-1v')}>
+                <strong>Aux départements :</strong>
+              </p>
+              <BulkPlanList
+                plans={departmentalEchelonPlans}
+                programmedSubPlanCounts={programmedSubPlanCounts}
+              />
+              <p className={cx('fr-mb-1v')}>
+                <strong>Aux préleveurs et préleveuses :</strong>
+              </p>
+              <BulkPlanList
+                plans={regionalKindPlans}
+                programmedSubPlanCounts={programmedSubPlanCounts}
+              />
+            </>
+          )}
           <p>
             {allRegionalKind
               ? 'En cas de modification, seuls les préleveurs et préleveuses concernées par la/les modifications seront notifiés.'
