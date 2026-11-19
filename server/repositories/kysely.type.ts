@@ -66,6 +66,7 @@ import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKin
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import type { MaestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
+import type { NumeroDAP } from '../services/ediSacha/sachaReferences';
 import type {
   ProgrammingPlanSamplesJson,
   ProgrammingPlanStagesJson
@@ -457,6 +458,7 @@ export interface Samples {
   context: string;
   createdAt: Generated<Timestamp | null>;
   department: string | null;
+  dapNumber: NumeroDAP | null;
   geolocation: Point | null;
   id: Generated<string>;
   laboratoryId: string | null;
