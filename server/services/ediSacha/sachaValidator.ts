@@ -5,22 +5,6 @@ import { z } from 'zod';
 import { NumeroEtiquette } from './sachaReferences';
 import { siglePlanAnalyseValidator } from './sachaReferential';
 
-// FIXME EDI à supprimer et remplir correctement isArray de XMLParser
-const coerceToArray = <Schema extends z.ZodObject>(
-  schema: Schema
-): z.ZodArray<Schema> => {
-  return z.codec(z.array(schema).or(schema), z.array(schema), {
-    encode: (value) => value as z.infer<Schema>[],
-    decode: (value) => {
-      if (Array.isArray(value)) {
-        return value as z.input<Schema>[];
-      } else {
-        return [value] as z.input<Schema>[];
-      }
-    }
-  }) as unknown as z.ZodArray<Schema>;
-};
-
 // 1900-01-01
 const sachaDate = maestroDateRefined;
 
@@ -65,29 +49,33 @@ const referenceEtablissement = z.object({
   Email: z.string().optional(),
   Pays: z.string().optional()
 });
-const dialogueCommemoratif = coerceToArray(
-  z.object({
-    Sigle: z.string(),
-    TexteValeur: z.string().optional(),
-    SigleValeur: z.string().optional()
-  })
-).optional();
-const dialogueEchantillonCommemoratifType = coerceToArray(
-  z.object({
-    DialogueEchantillonComplet: z.object({
-      NumeroEchantillon: z.coerce.number().int(),
-      SigleMatriceSpecifique: MatrixSigleSacha,
-      NumeroIdentificationExterne: z.string().optional(),
-      IdentifiantLabo: z.string().optional(),
-      NumeroLot: z.coerce.number().int().optional(),
-      NumeroEtiquette: NumeroEtiquette.optional(),
-      DateRealisationPrelevement: sachaDate.optional(),
-      SigleMotifNonAnalysabilite: z.string().optional(),
-      Commentaire: z.string().optional()
-    }),
-    DialogueCommemoratif: dialogueCommemoratif
-  })
-).optional();
+const dialogueCommemoratif = z
+  .array(
+    z.object({
+      Sigle: z.string(),
+      TexteValeur: z.string().optional(),
+      SigleValeur: z.string().optional()
+    })
+  )
+  .optional();
+const dialogueEchantillonCommemoratifType = z
+  .array(
+    z.object({
+      DialogueEchantillonComplet: z.object({
+        NumeroEchantillon: z.coerce.number().int(),
+        SigleMatriceSpecifique: MatrixSigleSacha,
+        NumeroIdentificationExterne: z.string().optional(),
+        IdentifiantLabo: z.string().optional(),
+        NumeroLot: z.coerce.number().int().optional(),
+        NumeroEtiquette: NumeroEtiquette.optional(),
+        DateRealisationPrelevement: sachaDate.optional(),
+        SigleMotifNonAnalysabilite: z.string().optional(),
+        Commentaire: z.string().optional()
+      }),
+      DialogueCommemoratif: dialogueCommemoratif
+    })
+  )
+  .optional();
 const referencePlanAnalyseEffectuer = z.object({
   SiglePlanAnalyse: siglePlanAnalyseValidator,
   EditionRapports: z.literal(['A', 'T', 'P']).optional(),
@@ -110,20 +98,22 @@ const messageParametres = z.object({
   VersionLogicielCreation: z.string(),
   CodeReferentielPrescripteur: z.string().optional()
 });
-const dialogueEchantillonSimple = coerceToArray(
-  z.object({ NumeroEchantillon: z.coerce.number().int() })
-).optional();
+const dialogueEchantillonSimple = z
+  .array(z.object({ NumeroEchantillon: z.coerce.number().int() }))
+  .optional();
 
-const dialogueAnalyseType = coerceToArray(
-  z.object({
-    DialogueAnalyse: z.object({
-      SigleMatriceSpecifique: z.string(),
-      SigleAnalyte: z.string(),
-      SigleMethodeSpecifique: z.string()
-    }),
-    DialogueEchantillonSimple: dialogueEchantillonSimple
-  })
-).optional();
+const dialogueAnalyseType = z
+  .array(
+    z.object({
+      DialogueAnalyse: z.object({
+        SigleMatriceSpecifique: z.string(),
+        SigleAnalyte: z.string(),
+        SigleMethodeSpecifique: z.string()
+      }),
+      DialogueEchantillonSimple: dialogueEchantillonSimple
+    })
+  )
+  .optional();
 const referencePlanAnalyseContenu = z.object({
   LibelleMatrice: z.string(),
   SigleAnalyte: z.string(),
@@ -141,12 +131,14 @@ const partenaire = z.object({
   LibellePartenaire: z.string(),
   EmailPartenaire: z.string()
 });
-const dialogueResultatLot = coerceToArray(
-  z.object({
-    NumeroLot: z.coerce.number().int(),
-    SigleConclusion: z.string()
-  })
-).optional();
+const dialogueResultatLot = z
+  .array(
+    z.object({
+      NumeroLot: z.coerce.number().int(),
+      SigleConclusion: z.string()
+    })
+  )
+  .optional();
 export const baseValidator = z.object({
   MessageParametres: messageParametres,
   Emetteur: partenaire,
@@ -235,12 +227,14 @@ const resultatsValidator = z.object({
                 })
               )
               .optional(),
-            DialogueResultatEchantillonPlan: coerceToArray(
-              z.object({
-                IdentifiantLabo: z.string(),
-                SigleConclusion: z.string()
-              })
-            ).optional(),
+            DialogueResultatEchantillonPlan: z
+              .array(
+                z.object({
+                  IdentifiantLabo: z.string(),
+                  SigleConclusion: z.string()
+                })
+              )
+              .optional(),
             DialogueResultatLotPlan: dialogueResultatLot
           })
         )
@@ -288,12 +282,14 @@ export const demandesAnalysesValidator = z.object({
         .optional()
     }),
     DialogueEchantillonCommemoratifType: dialogueEchantillonCommemoratifType,
-    DialoguePrevisionnelEchantillon: coerceToArray(
-      z.object({
-        SigleMatriceSpecifique: z.string(),
-        Nombre: z.coerce.number().int()
-      })
-    ).optional(),
+    DialoguePrevisionnelEchantillon: z
+      .array(
+        z.object({
+          SigleMatriceSpecifique: z.string(),
+          Nombre: z.coerce.number().int()
+        })
+      )
+      .optional(),
     ReferencePlanAnalyseType: z.array(
       z.object({
         ReferencePlanAnalyseEffectuer: referencePlanAnalyseEffectuer,
@@ -307,17 +303,21 @@ export const demandesAnalysesValidator = z.object({
 
 export const acquittementValidator = z.object({
   ...baseValidator.shape,
-  MessageAcquittement: coerceToArray(
-    z.object({ NomFichier: z.string(), DateAcquittement: sachaDateTime })
-  ).optional(),
-  MessageNonAcquittement: coerceToArray(
-    z.object({
-      NomFichier: z.string(),
-      LibelleMotif: z.string(),
-      TypeMotif: z.string().optional(),
-      DateNonAcquittement: sachaDateTime
-    })
-  ).optional()
+  MessageAcquittement: z
+    .array(
+      z.object({ NomFichier: z.string(), DateAcquittement: sachaDateTime })
+    )
+    .optional(),
+  MessageNonAcquittement: z
+    .array(
+      z.object({
+        NomFichier: z.string(),
+        LibelleMotif: z.string(),
+        TypeMotif: z.string().optional(),
+        DateNonAcquittement: sachaDateTime
+      })
+    )
+    .optional()
 });
 export type Acquittement = z.infer<typeof acquittementValidator>;
 
