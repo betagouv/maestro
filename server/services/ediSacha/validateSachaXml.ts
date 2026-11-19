@@ -34,8 +34,19 @@ export const validateAndDecodeSachaXml = <S extends z.ZodType>(
       isArray: (_tagName, path): boolean => {
         return [
           'Resultats.DialogueResultatType.DialoguePlanAnalyseType',
+          'Resultats.DialogueResultatType.DialoguePlanAnalyseType.DialogueResultatEchantillonPlan',
           'Resultats.DialogueResultatType.DialoguePlanAnalyseType.DialogueAnalyseType',
-          'Resultats.DialogueResultatType.DialoguePlanAnalyseType.DialogueAnalyseType.DialogueResultatEchantillonAnalyse'
+          'Resultats.DialogueResultatType.DialoguePlanAnalyseType.DialogueAnalyseType.DialogueResultatEchantillonAnalyse',
+          'Resultats.DialogueResultatType.DialogueEchantillonCommemoratifType',
+          'Resultats.DialogueResultatType.DialogueEchantillonCommemoratifType.DialogueCommemoratif',
+          'Resultats.DialogueResultatType.DialoguePlanAnalyseType.DialogueAnalyseType.DialogueCommemoratif',
+          'Resultats.DialogueResultatType.DialoguePlanAnalyseType.DialogueAnalyseType.DialogueResultatLotAnalyse',
+          'Resultats.DialogueResultatType.DialoguePlanAnalyseType.DialogueResultatLotPlan',
+          'Resultats.DialogueResultatType.DialogueCommemoratif',
+          'Resultats.DialogueResultatType.DialogueAnalyseType',
+          'Resultats.DialogueResultatType.DialogueAnalyseType.DialogueEchantillonSimple',
+          'AcquittementNonAcquittement.MessageAcquittement',
+          'AcquittementNonAcquittement.MessageNonAcquittement'
         ].includes(path as string);
       }
     });
