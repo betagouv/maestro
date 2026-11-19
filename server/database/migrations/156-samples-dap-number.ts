@@ -35,4 +35,4 @@ export const up = async (knex: Knex) => {
 //FIXME lors de la réception de la RAI, faire un where avec le numéro du DAP
 //FIXME normalement on doit avoir des acquittements avec les RAI de tests
 
-export const down = async (knex: Knex) => {};
+export const down = async (_knex: Knex) => {};
