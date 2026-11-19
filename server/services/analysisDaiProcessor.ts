@@ -6,6 +6,7 @@ import { analysisRepository } from '../repositories/analysisRepository';
 import { executeTransaction } from '../repositories/kysely';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
+import { sachaOutgoingFileRepository } from '../repositories/sachaOutgoingFileRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import {
@@ -110,12 +111,18 @@ const processPending = async (): Promise<void> => {
 
       try {
         const result = await processAnalysisDai(dai);
+        if (result.sachaFile) {
+          await sachaOutgoingFileRepository.insert(
+            { ...result.sachaFile, fileType: 'DA01', analysisDaiId: dai.id },
+            trx
+          );
+        }
         await analysisDaiRepository.update(
           {
             id: dai.id,
             sentMethod: result.sentMethod,
             edi: result.edi,
-            state: 'SENT'
+            state: result.sachaFile ? 'QUEUED' : 'SENT'
           },
           trx
         );
@@ -124,7 +131,9 @@ const processPending = async (): Promise<void> => {
           result.documentIds,
           trx
         );
-        console.info(`[analysisDaiProcessor] DAI ${dai.id} sent.`);
+        console.info(
+          `[analysisDaiProcessor] DAI ${dai.id} ${result.sachaFile ? 'queued' : 'sent'}.`
+        );
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         const edi = err instanceof DaiProcessingError ? err.edi : null;

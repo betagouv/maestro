@@ -9,11 +9,11 @@ export const SampleReference = z
   .brand('SampleReference');
 export type SampleReference = z.infer<typeof SampleReference>;
 
-const NumeroDAP = z
+export const numeroDAPValidator = z
   .string()
   .regex(/^\d{12}$/)
   .brand('NumeroDAP');
-type NumeroDAP = z.infer<typeof NumeroDAP>;
+export type NumeroDAP = z.infer<typeof numeroDAPValidator>;
 
 export const NumeroEtiquette = z
   .string()
@@ -25,7 +25,7 @@ export const numeroDAPFromReference = (
   reference: SampleReference
 ): NumeroDAP => {
   const [, year, serial] = reference.split('-');
-  return NumeroDAP.parse(
+  return numeroDAPValidator.parse(
     `${MAESTRO_PREFIX_NUMERO_DAP}${year}${serial.padStart(6, '0')}`
   );
 };
@@ -55,7 +55,7 @@ export const referencesFromEtiquette = (
   year: number;
   dayOfYear: number;
 } => {
-  const numeroDAP = NumeroDAP.parse(etiquette.substring(2, 14));
+  const numeroDAP = numeroDAPValidator.parse(etiquette.substring(2, 14));
   const year = Number.parseInt(etiquette.substring(14, 18), 10);
   const dayOfYear = Number.parseInt(etiquette.substring(18, 21), 10);
   const itemNumber = Number.parseInt(etiquette.substring(21, 24), 10);
