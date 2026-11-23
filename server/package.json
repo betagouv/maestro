@@ -57,7 +57,7 @@
     "pdf-lib": "^1.17.1",
     "pg": "^8.23.1",
     "puppeteer-core": "^25.17.0",
-    "sanitize-html": "^2.18.1",
+    "sanitize-html": "^2.18.2",
     "ssh2-sftp-client": "^12.1.1",
     "unpdf": "^2.1.0"
   },
