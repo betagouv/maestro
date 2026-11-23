@@ -23,7 +23,7 @@ registerSW({
 
 Sentry.init({
   dsn: config.sentryDns,
-  sendDefaultPii: true
+  dataCollection: { userInfo: true }
 });
 
 const container = document.getElementById('root');
