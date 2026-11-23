@@ -93,6 +93,9 @@ export {
   SpecificDataFieldOptionId
 };
 
+/**
+ * @deprecated use types2.ts
+ */
 export interface AnalysisRai {
   id: Generated<AnalysisRaiId>;
   analysisId: string | null;
@@ -105,7 +108,9 @@ export interface AnalysisRai {
   receivedAt: Timestamp;
   createdAt: Generated<Timestamp>;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface AnalysisDai {
   id: Generated<AnalysisDaiId>;
   analysisId: string;
@@ -116,17 +121,23 @@ export interface AnalysisDai {
   edi: boolean | null;
   createdAt: Generated<Timestamp>;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface AnalysisDaiDocuments {
   analysisDaiId: AnalysisDaiId;
   documentId: string;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface AnalysisRaiDocuments {
   analysisRaiId: AnalysisRaiId;
   documentId: string;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface Analysis {
   compliance: boolean | null;
   createdAt: Generated<Timestamp | null>;
@@ -139,12 +150,16 @@ export interface Analysis {
   copyNumber: number | null;
   status: AnalysisStatus;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface AnalysisReportDocuments {
   analysisId: string;
   documentId: string;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface AnalysisResidues {
   analysisId: string;
   analysisMethod: AnalysisMethod;
@@ -170,7 +185,9 @@ export interface AnalysisResidues {
   accredited: boolean | null;
   preciseMethod: string | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface AnalysisErrors {
   analysisId: string;
   residues: {
@@ -178,7 +195,9 @@ export interface AnalysisErrors {
     new: Omit<PartialResidue, 'analysisId'>[];
   };
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface Companies {
   address: string | null;
   city: string | null;
@@ -190,7 +209,9 @@ export interface Companies {
   kinds: CompanyKind[];
   geolocation: Point | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface CompanyWorkshops {
   id: Generated<string>;
   siret: string;
@@ -206,7 +227,9 @@ export interface CompanyWorkshops {
   cataLbs: string | null;
   cataLb: string | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface Documents {
   createdAt: Generated<Timestamp | null>;
   createdBy: string | null;
@@ -218,35 +241,47 @@ export interface Documents {
   notes: string | null;
   year: number | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface DocumentProgrammingPlans {
   documentId: string;
   programmingPlanId: string;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface KnexMigrations {
   batch: number | null;
   id: Generated<number>;
   migrationTime: Timestamp | null;
   name: string | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SachaSender {
   sachaSigle: string;
   name: string;
   sachaEmail: string;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SachaResidueMappings {
   label: SachaResidueId;
   ssd2Id: SSD2Id;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SachaConf {
   versionReferenceStandardisees: string;
   versionReferencePrescripteur: string;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SachaCommemoratifs {
   sigle: CommemoratifSigle;
   libelle: string;
@@ -254,27 +289,35 @@ export interface SachaCommemoratifs {
   unite: string | null;
   deprecated: Generated<boolean>;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SachaCommemoratifValues {
   sigle: CommemoratifValueSigle;
   commemoratifSigle: CommemoratifSigle;
   libelle: string;
   deprecated: Generated<boolean>;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SachaContexts {
   sigle: SachaContextSigle;
   libelle: string;
   deprecated: Generated<boolean>;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SachaContextCommemoratifs {
   contextSigle: SachaContextSigle;
   commemoratifSigle: CommemoratifSigle;
   level: SachaCommemoratifLevel;
   deprecated: Generated<boolean>;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface Laboratories {
   emails: string[];
   id: string;
@@ -297,13 +340,17 @@ export interface Laboratories {
   sachaCommunicationMethod: SachaCommunicationMethod | null;
   programmingPlanIds: string[] | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface LaboratoryResidueMapping {
   laboratoryId: string;
   label: string;
   ssd2Id: SSD2Id | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface LaboratoryAgreements {
   laboratoryId: string;
   programmingSubPlanId: ProgrammingSubPlanId;
@@ -312,32 +359,42 @@ export interface LaboratoryAgreements {
   detectionAnalysis: boolean;
   confirmationAnalysis: boolean;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface LaboratoryAgreementDiffusions {
   year: number;
   diffusedAt: Timestamp;
   diffusedBy: string | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface LaboratoryAgreementChecks {
   programmingSubPlanId: ProgrammingSubPlanId;
   substanceKind: SubstanceKind;
   checkedAt: Generated<Timestamp>;
   checkedBy: string;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface Notices {
   type: 'root' | 'dashboard';
   title: string | null;
   description: string | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface Prescriptions {
   id: Generated<string>;
   programmingSubPlanId: ProgrammingSubPlanId;
   sampleCount: number;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 interface ProgrammingPlanSettings {
   stages: ColumnType<
     SubPlanStages | null,
@@ -370,7 +427,9 @@ interface ProgrammingPlanSettings {
   delegated: boolean | null;
   delegatedManaged: Generated<boolean>;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface ProgrammingPlans extends ProgrammingPlanSettings {
   createdAt: Generated<Timestamp | null>;
   settingsCompleted: Generated<boolean>;
@@ -384,7 +443,9 @@ export interface ProgrammingPlans extends ProgrammingPlanSettings {
   launchedAt: Timestamp | null;
   launchedBy: string | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface LocalPrescriptionComments {
   comment: string;
   createdAt: Generated<Timestamp | null>;
@@ -393,7 +454,9 @@ export interface LocalPrescriptionComments {
   prescriptionId: string;
   region: string;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface LocalPrescriptions {
   companySiret: Generated<string>;
   department: Generated<string>;
@@ -401,7 +464,9 @@ export interface LocalPrescriptions {
   region: string;
   sampleCount: number | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface ResidueAnalytes {
   analysisId: string;
   analyteNumber: number;
@@ -410,7 +475,9 @@ export interface ResidueAnalytes {
   result: number | null;
   resultKind: ResultKind | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SampleItems {
   compliance200263: boolean | null;
   itemNumber: number;
@@ -437,7 +504,9 @@ export interface SampleItems {
   invoiceNumber: string | null;
   budgetNotes: string | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface Samples {
   companyOffline: string | null;
   companySiret: string | null;
@@ -475,7 +544,9 @@ export interface Samples {
   seves: Seves | null;
   step: SampleStep;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SampleSpecificDataValues {
   id: Generated<string>;
   sampleId: string;
@@ -483,24 +554,32 @@ export interface SampleSpecificDataValues {
   value: string | null;
   optionId: SpecificDataFieldOptionId | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SampleSequenceNumbers {
   nextSequence: Generated<number>;
   programmingPlanYear: number;
   region: string;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SampleStatusView {
   sampleId: string;
   status: SampleStatusType;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SampleItemStatusView {
   sampleId: string;
   itemNumber: number;
   status: SampleStatusType | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface Users {
   email: string;
   name: string | null;
@@ -515,36 +594,48 @@ export interface Users {
   laboratoryId: string | null;
   createdAt: Generated<Date>;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface UserCompanies {
   companySiret: string;
   userId: string;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface MatrixKinds {
   code: MatrixKind;
   label: string;
   deprecated: Generated<boolean>;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface Matrices {
   code: Matrix;
   label: string;
   deprecated: Generated<boolean>;
   sachaSigle: MatrixSigleSacha | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface MatrixKindMatrices {
   matrixKindCode: MatrixKind;
   matrixCode: Matrix;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface ProgrammingPlanDomains {
   id: Generated<ProgrammingPlanDomainId>;
   label: string;
   year: number;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface ProgrammingSubPlans extends ProgrammingPlanSettings {
   id: ProgrammingSubPlanId;
   settingsCompleted: Generated<boolean>;
@@ -554,27 +645,37 @@ export interface ProgrammingSubPlans extends ProgrammingPlanSettings {
   withSacha: boolean;
   sachaContextSigle: SachaContextSigle | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 type ProgrammingSubPlanManagedColumns = {
   [K in keyof ProgrammingPlanSettings as K extends `${string}Managed`
     ? K
     : never]: boolean;
 };
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface ProgrammingSubPlansRaw
   extends Omit<ProgrammingSubPlans, keyof ProgrammingSubPlanManagedColumns>,
     ProgrammingSubPlanManagedColumns {}
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SampleDocuments {
   documentId: string;
   sampleId: string;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface Departments {
   id: string;
   geometry: ColumnType<never, unknown, unknown>;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SpecificDataFields {
   id: Generated<SpecificDataFieldId>;
   key: string;
@@ -583,7 +684,9 @@ export interface SpecificDataFields {
   hintText: string | null;
   sachaCommemoratifSigle: CommemoratifSigle | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface SpecificDataFieldOptions {
   id: Generated<SpecificDataFieldOptionId>;
   fieldKey: string;
@@ -592,7 +695,9 @@ export interface SpecificDataFieldOptions {
   order: number;
   sachaCommemoratifValueSigle: CommemoratifValueSigle | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface ProgrammingSubPlanFieldsRaw {
   id: Generated<ProgrammingSubPlanFieldId>;
   programmingSubPlanId: ProgrammingSubPlanId;
@@ -601,7 +706,9 @@ export interface ProgrammingSubPlanFieldsRaw {
   order: number;
   inheritance: Generated<FieldInheritance>;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface ProgrammingSubPlanFields {
   id: ProgrammingSubPlanFieldId;
   programmingSubPlanId: ProgrammingSubPlanId;
@@ -611,12 +718,16 @@ export interface ProgrammingSubPlanFields {
   inheritance: FieldInheritance;
   programmingPlanFieldId: ProgrammingPlanFieldId | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface ProgrammingSubPlanFieldOptions {
   programmingSubPlanFieldId: ProgrammingSubPlanFieldId;
   specificDataFieldOptionId: SpecificDataFieldOptionId;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface ProgrammingPlanFields {
   id: Generated<ProgrammingPlanFieldId>;
   programmingPlanId: string;
@@ -624,17 +735,23 @@ export interface ProgrammingPlanFields {
   required: Generated<boolean>;
   order: number;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface ProgrammingPlanFieldOptions {
   programmingPlanFieldId: ProgrammingPlanFieldId;
   specificDataFieldOptionId: SpecificDataFieldOptionId;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface ProgrammingPlanNationalCoordinators {
   programmingPlanId: string;
   userId: string;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface ProgrammingPlanLocalStatus {
   programmingPlanId: string;
   region: string;
@@ -644,7 +761,9 @@ export interface ProgrammingPlanLocalStatus {
   lastSentAt: Timestamp | null;
   lastModifiedAt: Timestamp | null;
 }
-
+/**
+ * @deprecated use types2.ts
+ */
 export interface DB {
   analysisRai: AnalysisRai;
   analysisRaiDocuments: AnalysisRaiDocuments;
@@ -705,8 +824,14 @@ export interface DB {
   users: Users;
   userCompanies: UserCompanies;
 }
+/**
+ * @deprecated use types2.ts
+ */
 export type KyselyMaestro = Kysely<DB>;
 
+/**
+ * @deprecated use types2.ts
+ */
 export const toSqlArray = <T extends string>(args: T[], pgType = 'text') => {
   return sql<
     string[]
