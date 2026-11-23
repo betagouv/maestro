@@ -1,3 +1,6 @@
+
+import { type Expression, type Kysely, sql } from 'kysely';
+
 import type { Department } from 'maestro-shared/referential/Department';
 import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import type { Region } from 'maestro-shared/referential/Region';
@@ -73,3 +76,11 @@ export interface AnalysisErrorsResidues {
 
 export const SachaResidueId = z.string().brand<'SachaResidueId'>();
 export type SachaResidueId = z.infer<typeof SachaResidueId>;
+
+export type KyselyMaestro = Kysely<DB>;
+
+export const toSqlArray = <T extends string>(args: T[], pgType = 'text') => {
+  return sql<
+    string[]
+  >`ARRAY[${sql.join(args)}]::${sql.raw(pgType)}[]` as Expression<T[]>;
+};
