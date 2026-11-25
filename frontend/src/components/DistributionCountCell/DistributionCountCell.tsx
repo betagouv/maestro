@@ -1,13 +1,9 @@
 import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useEffect, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import './DistributionCountCell.scss';
 
 interface Props {
-  programmingPlan: ProgrammingPlanChecked;
-  prescription: Prescription;
   localPrescription: LocalPrescription;
   isEditable?: boolean;
   isPending?: boolean;
@@ -15,8 +11,6 @@ interface Props {
 }
 
 const DistributionCountCell = ({
-  programmingPlan,
-  prescription,
   localPrescription,
   isEditable,
   isPending,

@@ -309,8 +309,6 @@ const ProgrammingPrescriptionRow = ({
                         )}
                       >
                         <DistributionCountCell
-                          programmingPlan={plan}
-                          prescription={prescription}
                           localPrescription={ownRegionalPrescription}
                           isEditable={
                             hasUserLocalPrescriptionPermission(
@@ -512,8 +510,6 @@ const ProgrammingPrescriptionRow = ({
                           >
                             {plan.distributionKind === 'SLAUGHTERHOUSE' ? (
                               <DistributionCountCell
-                                programmingPlan={plan}
-                                prescription={prescription}
                                 localPrescription={localPrescription}
                                 isEditable={
                                   hasUserLocalPrescriptionPermission(
@@ -566,8 +562,6 @@ const ProgrammingPrescriptionRow = ({
                             >
                               {localPrescription ? (
                                 <DistributionCountCell
-                                  programmingPlan={plan}
-                                  prescription={prescription}
                                   localPrescription={localPrescription}
                                   isEditable={
                                     hasUserLocalPrescriptionPermission(
@@ -628,8 +622,6 @@ const ProgrammingPrescriptionRow = ({
                             >
                               <div className="prescription-sample-count-cell">
                                 <DistributionCountCell
-                                  programmingPlan={plan}
-                                  prescription={prescription}
                                   localPrescription={localPrescription}
                                   isEditable={
                                     hasUserLocalPrescriptionPermission(

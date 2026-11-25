@@ -403,8 +403,6 @@ const hasSachaContextIssue = async (
 export const programmingPlanRouter = {
   '/programming-plans': {
     get: async ({ query: findOptions, user, userRole }) => {
-      console.info('Find programmingPlans for user', user.id, findOptions);
-
       const userLaboratory =
         userRole === 'LaboratoryUser'
           ? await laboratoryRepository.findUnique(user.laboratoryId as string)
@@ -419,13 +417,46 @@ export const programmingPlanRouter = {
         )
       );
 
-      console.info('Found programmingPlans', programmingPlans);
-
       return {
         status: HttpStatus.OK,
-        response: programmingPlans.map((plan) =>
-          maskHasPendingChangeForViewer(plan, userRole, user)
-        )
+        response: programmingPlans
+          .map((plan) => {
+            return {
+              ...plan,
+              samples:
+                plan.samples
+                  ?.map((sample) => ({
+                    ...sample,
+                    substanceKinds: sample.substanceKinds.toSorted()
+                  }))
+                  .toSorted((a, b) =>
+                    a.substanceKinds
+                      .join('-')
+                      .localeCompare(b.substanceKinds.join('-'))
+                  ) ?? [],
+              substanceKinds: plan.substanceKinds?.toSorted() ?? [],
+              subPlans: plan.subPlans.map((subplan) => ({
+                ...subplan,
+                samples:
+                  subplan.samples
+                    ?.map((sample) => ({
+                      ...sample,
+                      substanceKinds: sample.substanceKinds.toSorted()
+                    }))
+                    .toSorted((a, b) =>
+                      a.substanceKinds
+                        .join('-')
+                        .localeCompare(b.substanceKinds.join('-'))
+                    ) ?? [],
+
+                substanceKinds:
+                  subplan.substanceKinds?.toSorted((a, b) =>
+                    a.localeCompare(b)
+                  ) ?? []
+              }))
+            };
+          })
+          .map((plan) => maskHasPendingChangeForViewer(plan, userRole, user))
       };
     },
     post: async ({ user, account, body: { domainId, title } }) => {

@@ -288,7 +288,7 @@ const findMany = async (
       }
     })
     .then((programmingPlans) =>
-      [...programmingPlans].sort(ProgrammingPlanSort).map((_: : any) => {
+      [...programmingPlans].sort(ProgrammingPlanSort).map((_: any) => {
         return parseProgrammingPlan(_);
       })
     );
