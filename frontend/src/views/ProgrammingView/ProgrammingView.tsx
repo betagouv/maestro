@@ -308,7 +308,10 @@ const ProgrammingView = () => {
       iconId: 'fr-icon-survey-line'
     },
     (programmingPlans ?? []).some((p) => p.distributionKind === 'REGIONAL') &&
-    hasUserPermission('commentPrescription')
+    hasUserPermission('commentPrescription') &&
+    // FIXME ça me fait peur ce truc là, je ne sais pas trop comment s'organise tout ça.
+    // ici on pourrait aussi parcourir le programmingPlan pour voir si il y'a un stage de PPV
+    user?.stages.includes('PRODUCTION_PRIMAIRE_VEGETALE')
       ? {
           label: 'Commentaires',
           tabId: 'CommentsTab',
