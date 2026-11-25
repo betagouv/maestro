@@ -510,7 +510,6 @@ const ProgrammingPrescriptionRow = ({
                             data-testid={`cell-${prescription.id}`}
                             key={`cell-${prescription.id}-${company.siret}`}
                           >
-                            {plan.distributionKind}
                             {plan.distributionKind === 'SLAUGHTERHOUSE' ? (
                               <DistributionCountCell
                                 programmingPlan={plan}

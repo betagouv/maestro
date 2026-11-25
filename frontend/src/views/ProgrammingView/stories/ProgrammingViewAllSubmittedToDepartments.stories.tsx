@@ -48,11 +48,12 @@ const programmingPlan = {
   )
 };
 
+const prescriptionId = '8154e757-7393-4d98-bb43-ed3977d4f342';
 const prescriptions = [
   FoieDeBovinPrescriptionFixture,
   VolaillePrescriptionFixture,
   genPrescription({
-    id: '8154e757-7393-4d98-bb43-ed3977d4f342',
+    id: prescriptionId,
     programmingSubPlanId: ALANRuminantsSubPlanId,
     sampleCount: 80
   })
@@ -62,7 +63,7 @@ const regionalPrescriptions = [
   ...FoieDeBovinLocalPrescriptionFixture,
   ...VolailleLocalPrescriptionFixture,
   ...genLocalPrescriptions(
-    '8154e757-7393-4d98-bb43-ed3977d4f342',
+    prescriptionId,
     [3, 2, 5, 8, 10, 1, 2, 10, 3, 3, 2, 9, 4, 4, 2, 1, 5, 6],
     { withDepartment: true }
   )
@@ -84,7 +85,10 @@ export const DepartmentalCoordinatorView: Story = {
     },
     apiClient: getMockApi({
       useFindProgrammingPlansQuery: {
-        data: [programmingPlan, ALANProgrammingPlanFixture]
+        data: [
+          programmingPlan,
+          { ...ALANProgrammingPlanFixture, year: new Date().getFullYear() + 1 }
+        ]
       },
       useFindPrescriptionsQuery: {
         data: prescriptions
