@@ -193,7 +193,9 @@ describe('ProgrammingPlan router', () => {
             expect.objectContaining(regionalStatus)
           )
         ),
-        departmentalStatus: []
+        departmentalStatus: [],
+        substanceKinds: [],
+        samples: []
       });
     }
   };
