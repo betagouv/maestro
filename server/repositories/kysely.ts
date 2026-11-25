@@ -13,10 +13,12 @@ import type { DB as NewDB, NewKyselyMaestro } from './kysely.types2';
  */
 export let kysely: KyselyMaestro;
 export let newKysely2: NewKyselyMaestro;
-/**
- * @deprecated use types2.ts
- */
 export const initKysely = (connectionString: string) => {
+  const pool = new pg.Pool({
+    connectionString,
+    max: config.databasePool.kyselyMax,
+    connectionTimeoutMillis: 10000
+  });
   kysely = new Kysely<DB>({
     // log(event) {
     //   if (event.level === "error") {
@@ -35,40 +37,17 @@ export const initKysely = (connectionString: string) => {
     //   }
     // },
     dialect: new PostgresDialect({
-      pool: new pg.Pool({
-        connectionString,
-        max: config.databasePool.kyselyMax,
-        connectionTimeoutMillis: 10000
-      })
+      pool: pool
     }),
     plugins: [new CamelCasePlugin()]
   });
   newKysely2 = new Kysely<NewDB>({
-    // log(event) {
-    //   if (event.level === "error") {
-    //     console.error("Query failed : ", {
-    //       durationMs: event.queryDurationMillis,
-    //       error: event.error,
-    //       sql: event.query.sql,
-    //       params: event.query.parameters,
-    //     });
-    //   } else { // `'query'`
-    //     console.log("Query executed : ", {
-    //       durationMs: event.queryDurationMillis,
-    //       sql: event.query.sql,
-    //       params: event.query.parameters,
-    //     });
-    //   }
-    // },
     dialect: new PostgresDialect({
-      pool: new pg.Pool({
-        connectionString,
-        max: config.databasePool.kyselyMax,
-        connectionTimeoutMillis: 10000
-      })
+      pool: pool
     })
   });
 };
+
 /**
  * @deprecated use types2.ts
  */

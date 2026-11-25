@@ -1,5 +1,4 @@
-
-import { type Expression, type Kysely, sql } from 'kysely';
+import type { Kysely } from 'kysely';
 
 import type { Department } from 'maestro-shared/referential/Department';
 import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
@@ -26,8 +25,6 @@ import type {
 import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
-// FIXME c'est pas possible cet import maintenant, bizarre non ?
-// import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type {
   Matrix,
   MatrixKind,
@@ -63,24 +60,18 @@ import type {
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import type { MaestroDate } from 'maestro-shared/utils/date';
-import { z } from 'zod';
 import type {
   ProgrammingPlanSamplesJson,
   ProgrammingPlanStagesJson
 } from './programmingPlanSettingsRow';
+import z from 'zod';
 
 export interface AnalysisErrorsResidues {
     old: Omit<PartialResidue, 'analysisId'>[];
     new: Omit<PartialResidue, 'analysisId'>[];
   }
 
-export const SachaResidueId = z.string().brand<'SachaResidueId'>();
-export type SachaResidueId = z.infer<typeof SachaResidueId>;
-
 export type NewKyselyMaestro = Kysely<DB>;
 
-export const toSqlArray = <T extends string>(args: T[], pgType = 'text') => {
-  return sql<
-    string[]
-  >`ARRAY[${sql.join(args)}]::${sql.raw(pgType)}[]` as Expression<T[]>;
-};
+const sachaResidueIdValidator = z.string().brand<'SachaResidueId'>();
+export type SachaResidueId = z.infer<typeof sachaResidueIdValidator>;

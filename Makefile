@@ -12,3 +12,10 @@ ifndef CI
 else
 	npm run db:verify-types -w server -- --url postgres://postgres:password@localhost/maestro
 endif
+
+server/lint:
+ifndef CI
+	npm run lint -w server
+else
+	npm run lint:verify -w server
+endif
