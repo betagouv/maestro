@@ -259,7 +259,7 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   contactListId: 9,
   withSacha: true,
   sachaContextSigle: 'PR17_2026_RPDA_PVOL' as SachaContextSigle,
-  substanceKinds: ['Mono', 'Multi', 'Copper'],
+  substanceKinds: ['Copper', 'Mono', 'Multi'],
   matrices: genSubPlanMatrices('A01SN' as MatrixKind),
   sampleProcedure: DAOASampleProcedure,
   context: 'Surveillance'
