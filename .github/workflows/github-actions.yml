@@ -81,6 +81,8 @@ jobs:
           AUTH_SECRET: abcd1234
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
           M2M_BASIC_TOKEN: fakeBasicToken
+      - name: Check kylesy types
+        run: make db/check-kysely
   # FIXME add checks github for kysely check db generation + add knex migration for kysely preparation
   frontend_test:
     needs: changes
