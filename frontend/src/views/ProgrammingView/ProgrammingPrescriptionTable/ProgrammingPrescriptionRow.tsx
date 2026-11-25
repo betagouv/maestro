@@ -17,6 +17,7 @@ import {
   hasPrescriptionPermission,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
+import { subPlanDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import {
   hasCompanyEchelon,
   hasDepartmentalEchelon
@@ -508,7 +509,9 @@ const ProgrammingPrescriptionRow = ({
                             data-testid={`cell-${prescription.id}`}
                             key={`cell-${prescription.id}-${company.siret}`}
                           >
-                            {plan.distributionKind === 'SLAUGHTERHOUSE' ? (
+                            {subPlan &&
+                            subPlanDistributionKind(subPlan) ===
+                              'SLAUGHTERHOUSE' ? (
                               <DistributionCountCell
                                 localPrescription={localPrescription}
                                 isEditable={
