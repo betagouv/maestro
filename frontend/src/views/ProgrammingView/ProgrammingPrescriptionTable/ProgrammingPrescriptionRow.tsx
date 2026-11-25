@@ -510,38 +510,43 @@ const ProgrammingPrescriptionRow = ({
                             data-testid={`cell-${prescription.id}`}
                             key={`cell-${prescription.id}-${company.siret}`}
                           >
-                            <DistributionCountCell
-                              programmingPlan={plan}
-                              prescription={prescription}
-                              localPrescription={localPrescription}
-                              isEditable={
-                                hasUserLocalPrescriptionPermission(
-                                  plan,
-                                  localPrescription
-                                )?.distributeToSlaughterhouses
-                              }
-                              isPending={pendingLocalKeys?.has(
-                                toLocalPrescriptionKeyString({
-                                  prescriptionId:
-                                    localPrescription.prescriptionId,
-                                  region: localPrescription.region,
-                                  department: localPrescription.department,
-                                  companySiret: localPrescription.companySiret
-                                })
-                              )}
-                              onChange={async (value) =>
-                                onChangeLocalPrescriptionCount(
-                                  {
+                            {plan.distributionKind === 'SLAUGHTERHOUSE' ? (
+                              <DistributionCountCell
+                                programmingPlan={plan}
+                                prescription={prescription}
+                                localPrescription={localPrescription}
+                                isEditable={
+                                  hasUserLocalPrescriptionPermission(
+                                    plan,
+                                    localPrescription
+                                  )?.distributeToSlaughterhouses
+                                }
+                                isPending={pendingLocalKeys?.has(
+                                  toLocalPrescriptionKeyString({
                                     prescriptionId:
                                       localPrescription.prescriptionId,
                                     region: localPrescription.region,
                                     department: localPrescription.department,
                                     companySiret: localPrescription.companySiret
-                                  },
-                                  value
-                                )
-                              }
-                            />
+                                  })
+                                )}
+                                onChange={async (value) =>
+                                  onChangeLocalPrescriptionCount(
+                                    {
+                                      prescriptionId:
+                                        localPrescription.prescriptionId,
+                                      region: localPrescription.region,
+                                      department: localPrescription.department,
+                                      companySiret:
+                                        localPrescription.companySiret
+                                    },
+                                    value
+                                  )
+                                }
+                              />
+                            ) : (
+                              'N/A'
+                            )}
                           </td>
                         );
                       })
