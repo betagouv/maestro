@@ -28,6 +28,7 @@ export const maskingExceptions: Record<string, string[]> = {
   document_programming_plans: ['document_id', 'programming_plan_id'],
   documents: ['created_by', 'id', 'kind'],
   knex_migrations: ['name'],
+  kysely_migration: ['name', 'timestamp'],
   laboratories: [
     'address',
     'billing_address',

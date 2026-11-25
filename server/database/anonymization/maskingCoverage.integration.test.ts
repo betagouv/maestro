@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { sql } from 'kysely';
 import { describe, expect, test } from 'vitest';
-import { kysely } from '../../repositories/kysely';
+import { newKysely2 } from '../../repositories/kysely';
 import { maskingExceptions } from './maskingExceptions';
 
 const maskingRulesPath = join(
@@ -52,7 +52,7 @@ const findSensitiveColumns = async () => {
       AND t.table_type = 'BASE TABLE'
       AND c.data_type = ANY(${sensitiveDataTypes})
     ORDER BY c.table_name, c.column_name
-  `.execute(kysely);
+  `.execute(newKysely2);
 
   return rows;
 };
