@@ -1,6 +1,9 @@
 import type { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy, uniq } from 'lodash-es';
-import { Department } from 'maestro-shared/referential/Department';
+import {
+  type Department,
+  departementValidator
+} from 'maestro-shared/referential/Department';
 import type {
   FindLocalPrescriptionOptions,
   LocalPrescriptionOptionsInclude
@@ -30,7 +33,7 @@ const localPrescriptionsTable = 'local_prescriptions';
 
 const LocalPrescriptionsDbo = z.object({
   ...LocalPrescription.shape,
-  department: z.union([Department, z.literal('None')]),
+  department: z.union([departementValidator, z.literal('None')]),
   companySiret: z.union([z.guid(), z.literal('None')])
 });
 

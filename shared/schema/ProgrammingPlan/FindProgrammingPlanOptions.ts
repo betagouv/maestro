@@ -1,6 +1,6 @@
 import { intersection } from 'lodash-es';
 import { z } from 'zod';
-import { Department } from '../../referential/Department';
+import { departementValidator } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import type { Laboratory } from '../Laboratory/Laboratory';
 import {
@@ -27,7 +27,7 @@ export const FindProgrammingPlanOptions = z.object({
   year: z.number().int().nullish(),
   status: z.array(ProgrammingPlanStatus).nullish(),
   region: Region.nullish(),
-  department: Department.nullish(),
+  department: departementValidator.nullish(),
   scope: z.enum(['owned']).nullish(),
   launchedOnly: z.boolean().nullish()
 });

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Department } from '../../referential/Department';
+import { departementValidator } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import { Pagination } from '../commons/Pagination';
 import { Matrix, MatrixKind } from '../Matrix/MatrixReferential';
@@ -24,7 +24,7 @@ export const FindSampleOptions = z.object({
   programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   contexts: z.array(Context).nullish(),
   regions: z.array(Region).nullish(),
-  departments: z.array(Department).nullish(),
+  departments: z.array(departementValidator).nullish(),
   companySirets: z.array(z.string()).nullish(),
   statuses: z.array(SampleStatus).nullish(),
   matrices: z.array(Matrix).nullish(),
@@ -63,7 +63,7 @@ export const buildFindSampleOptions = (
       !isNationalRole(userRole) &&
       !isRegionalRole(userRole) &&
       departmentIsRequired(user)
-        ? [user.department as Department]
+        ? [user.department]
         : query.departments,
     companySirets,
     programmingSubPlanIds: programmingSubPlansAreRestricted(user)

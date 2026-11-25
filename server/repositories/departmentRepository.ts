@@ -1,6 +1,9 @@
 import { sql } from 'kysely';
-import { Department } from 'maestro-shared/referential/Department';
-import { kysely } from './kysely';
+import {
+  type Department,
+  departementValidator
+} from 'maestro-shared/referential/Department';
+import { newKysely2 } from './kysely';
 
 const getDepartment = async (
   x: number | undefined,
@@ -10,7 +13,7 @@ const getDepartment = async (
     return null;
   }
 
-  const department = await kysely
+  const department = await newKysely2
     .selectFrom('departments')
     .select('id')
     .where(({ eb }) => {
@@ -21,7 +24,7 @@ const getDepartment = async (
     })
     .executeTakeFirst();
 
-  return Department.safeParse(department?.id).data ?? null;
+  return departementValidator.safeParse(department?.id).data ?? null;
 };
 
 export const departmentRepository = {

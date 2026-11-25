@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Department } from '../../referential/Department';
+import { departementValidator } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 
 export const PrescriptionImportFile = z.object({
@@ -16,7 +16,7 @@ export const PrescriptionImportResult = z.object({
       prescriptionId: z.guid(),
       programmingPlanId: z.guid(),
       region: Region,
-      department: Department.nullish(),
+      department: departementValidator.nullish(),
       companySiret: z.string().nullish(),
       sampleCount: z.number().int().nonnegative()
     })

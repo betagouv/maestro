@@ -1,6 +1,9 @@
 import type { Knex } from 'knex';
 import { isNil } from 'lodash-es';
-import { Department } from 'maestro-shared/referential/Department';
+import {
+  type Department,
+  departementValidator
+} from 'maestro-shared/referential/Department';
 import type { Region } from 'maestro-shared/referential/Region';
 import {
   LocalPrescriptionChange,
@@ -16,7 +19,7 @@ const localPrescriptionChangesTable = 'local_prescription_changes';
 
 const LocalPrescriptionChangeDbo = z.object({
   ...LocalPrescriptionChange.shape,
-  department: z.union([Department, z.literal('None')]),
+  department: z.union([departementValidator, z.literal('None')]),
   companySiret: z.union([z.string(), z.literal('None')]),
   substanceKindsLaboratories: z.union([
     z.string(),

@@ -2,7 +2,7 @@ import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import type { Establishment } from './Region';
 
-export const Department = z.enum(
+export const departementValidator = z.enum(
   [
     '01',
     '02',
@@ -112,9 +112,9 @@ export const Department = z.enum(
   }
 );
 
-export type Department = z.infer<typeof Department>;
+export type Department = z.infer<typeof departementValidator>;
 
-export const DepartmentList: Department[] = Department.options;
+export const DepartmentList: Department[] = departementValidator.options;
 
 export const DepartmentLabels: Record<Department, string> = {
   '01': 'Ain',

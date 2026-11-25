@@ -1,6 +1,9 @@
 import XLSX from '@e965/xlsx';
 import { parse } from 'csv-parse/sync';
-import { Department } from 'maestro-shared/referential/Department';
+import {
+  type Department,
+  departementValidator
+} from 'maestro-shared/referential/Department';
 import {
   type Region,
   RegionList,
@@ -74,7 +77,9 @@ const headerDepartment = (label: string): Department | undefined => {
     .replace(/ programmés$/, '')
     .match(/^département ([0-9ab]{2,3})$/);
 
-  return match ? Department.safeParse(match[1].toUpperCase()).data : undefined;
+  return match
+    ? departementValidator.safeParse(match[1].toUpperCase()).data
+    : undefined;
 };
 
 const headerCompanySiret = (label: string): string | undefined =>

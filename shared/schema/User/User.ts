@@ -1,6 +1,9 @@
 import { intersection, isNil } from 'lodash-es';
 import { type RefinementCtx, z } from 'zod';
-import { Department } from '../../referential/Department';
+import {
+  type Department,
+  departementValidator
+} from '../../referential/Department';
 import { Region, RegionList, Regions } from '../../referential/Region';
 import { SlaughterhouseStage, Stage } from '../../referential/Stage';
 import type { Nullable } from '../../utils/typescript';
@@ -24,7 +27,7 @@ export const UserBase = z.object({
   programmingSubPlans: z.array(ProgrammingSubPlan),
   roles: z.array(UserRole).min(1, 'Veuillez renseigner au moins un rôle.'),
   region: Region.nullable(),
-  department: Department.nullable(),
+  department: departementValidator.nullable(),
   companies: z.array(Company),
   laboratoryId: z.string().nullable(),
   disabled: z.boolean(),

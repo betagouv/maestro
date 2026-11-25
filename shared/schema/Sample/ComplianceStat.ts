@@ -1,12 +1,12 @@
 import z from 'zod';
-import { Department } from '../../referential/Department';
+import { departementValidator } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import { Matrix, MatrixKind } from '../Matrix/MatrixReferential';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 
 export const ComplianceStat = z.object({
   region: Region,
-  department: Department.optional(),
+  department: departementValidator.optional(),
   matrixKind: MatrixKind.optional().catch(undefined),
   matrix: Matrix.optional().catch(undefined),
   totalCount: z.coerce.number(),

@@ -1,6 +1,9 @@
 import type { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy, uniqBy } from 'lodash-es';
-import { Department } from 'maestro-shared/referential/Department';
+import {
+  type Department,
+  departementValidator
+} from 'maestro-shared/referential/Department';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
 import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import type { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
@@ -64,7 +67,7 @@ const ProgrammingPlanLocalStatusDbo = z.object({
   ...ProgrammingPlanLocalStatusType.shape,
   programmingPlanId: z.string(),
   region: z.union([Region, z.literal('None')]),
-  department: z.union([Department, z.literal('None')])
+  department: z.union([departementValidator, z.literal('None')])
 });
 
 type ProgrammingPlanLocalStatusDbo = z.infer<

@@ -5,10 +5,11 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import {
-  Department,
+  type Department,
   DepartmentLabels,
   DepartmentList,
-  DepartmentSort
+  DepartmentSort,
+  departementValidator
 } from 'maestro-shared/referential/Department';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import {
@@ -38,7 +39,7 @@ import { UsersFilterTags } from './UsersFilterTags';
 
 const _findUserOptions = z.object({
   regions: z.array(Region).nullable(),
-  departments: z.array(Department).nullable(),
+  departments: z.array(departementValidator).nullable(),
   roles: z.array(UserRole).nullable(),
   stages: z.array(Stage).nullable(),
   label: z.string().nullable(),

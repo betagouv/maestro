@@ -77,7 +77,7 @@ export interface AnalysisErrorsResidues {
 export const SachaResidueId = z.string().brand<'SachaResidueId'>();
 export type SachaResidueId = z.infer<typeof SachaResidueId>;
 
-export type KyselyMaestro = Kysely<DB>;
+export type NewKyselyMaestro = Kysely<DB>;
 
 export const toSqlArray = <T extends string>(args: T[], pgType = 'text') => {
   return sql<
