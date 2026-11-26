@@ -564,7 +564,7 @@ export interface SampleItems {
 export interface SampleItemStatus {
   item_number: number | null;
   sample_id: string | null;
-  status: SampleStatusType;
+  status: SampleStatusType | null;
 }
 
 export interface Samples {
