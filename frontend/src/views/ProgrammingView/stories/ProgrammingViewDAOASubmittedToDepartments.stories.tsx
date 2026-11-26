@@ -25,7 +25,7 @@ import {
   RegionalCoordinator,
   SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
-import { expect, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 import { getMockApi } from '../../../services/mockApiClient';
 import ProgrammingView from '../ProgrammingView';
 
@@ -175,6 +175,14 @@ export const DepartmentalCoordinatorView: Story = {
     ).toBeGreaterThan(0);
 
     await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
+
+    const table = canvas.getByTestId('prescription-table');
+    const checkbox = table.querySelector('table input[type="checkbox"]');
+    await userEvent.click(checkbox!);
+
+    const buttonAttribuer = canvas.getByTestId('attribuer-laboratoires');
+    await expect(buttonAttribuer).toBeInTheDocument();
+    await expect(buttonAttribuer).not.toBeDisabled();
   }
 };
 

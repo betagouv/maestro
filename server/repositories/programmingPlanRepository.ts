@@ -2,7 +2,10 @@ import type { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy, uniqBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
-import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
+import {
+  type DistributionKind,
+  subPlansDistributionKind
+} from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import type { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { hasSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
@@ -29,7 +32,6 @@ import {
   ProgrammingSubPlansRaw,
   programmingSubPlansTable
 } from './programmingSubPlanRepository';
-import { subPlansDistributionKind } from './subPlansDistributionKind';
 
 export const programmingPlansTable = 'programming_plans';
 const programmingPlanLocalStatusTable = 'programming_plan_local_status';

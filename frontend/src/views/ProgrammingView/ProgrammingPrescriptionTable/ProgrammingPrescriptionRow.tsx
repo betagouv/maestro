@@ -17,6 +17,7 @@ import {
   hasPrescriptionPermission,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
+import { subPlanDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import {
   hasCompanyEchelon,
   hasDepartmentalEchelon
@@ -309,8 +310,6 @@ const ProgrammingPrescriptionRow = ({
                         )}
                       >
                         <DistributionCountCell
-                          programmingPlan={plan}
-                          prescription={prescription}
                           localPrescription={ownRegionalPrescription}
                           isEditable={
                             hasUserLocalPrescriptionPermission(
@@ -510,10 +509,10 @@ const ProgrammingPrescriptionRow = ({
                             data-testid={`cell-${prescription.id}`}
                             key={`cell-${prescription.id}-${company.siret}`}
                           >
-                            {plan.distributionKind === 'SLAUGHTERHOUSE' ? (
+                            {subPlan &&
+                            subPlanDistributionKind(subPlan) ===
+                              'SLAUGHTERHOUSE' ? (
                               <DistributionCountCell
-                                programmingPlan={plan}
-                                prescription={prescription}
                                 localPrescription={localPrescription}
                                 isEditable={
                                   hasUserLocalPrescriptionPermission(
@@ -566,8 +565,6 @@ const ProgrammingPrescriptionRow = ({
                             >
                               {localPrescription ? (
                                 <DistributionCountCell
-                                  programmingPlan={plan}
-                                  prescription={prescription}
                                   localPrescription={localPrescription}
                                   isEditable={
                                     hasUserLocalPrescriptionPermission(
@@ -628,8 +625,6 @@ const ProgrammingPrescriptionRow = ({
                             >
                               <div className="prescription-sample-count-cell">
                                 <DistributionCountCell
-                                  programmingPlan={plan}
-                                  prescription={prescription}
                                   localPrescription={localPrescription}
                                   isEditable={
                                     hasUserLocalPrescriptionPermission(

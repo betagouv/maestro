@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { subPlansDistributionKind } from './subPlansDistributionKind';
+import { subPlansDistributionKind } from './DistributionKind';
 
 describe('subPlansDistributionKind', () => {
   test('should be regional for a plan with a PPV sub-plan', () => {

@@ -1068,6 +1068,7 @@ const ProgrammingPrescriptionList = ({
                 priority="secondary"
                 size="small"
                 iconId="fr-icon-list-check"
+                data-testid="attribuer-laboratoires"
                 disabled={!!bulkAssignCheck.blockReason}
                 onClick={() => bulkAssignLaboratoriesModal.open()}
                 className={cx('fr-ml-3w')}
