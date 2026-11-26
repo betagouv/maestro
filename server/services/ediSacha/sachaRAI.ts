@@ -1,5 +1,8 @@
 import type { Insertable } from 'kysely';
-import { Department } from 'maestro-shared/referential/Department';
+import {
+  type Department,
+  departementValidator
+} from 'maestro-shared/referential/Department';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import type { AnalysisKind } from 'maestro-shared/schema/Analysis/Residue/AnalysisKind';
@@ -254,7 +257,7 @@ export const processSachaRAI = async (
       xmlDocumentId
     );
   }
-  const department = Department.safeParse(departmentValue);
+  const department = departementValidator.safeParse(departmentValue);
   if (!department.success) {
     throw new RaiMaestroError(
       `Département invalide pour l'échantillon ${reference}`,

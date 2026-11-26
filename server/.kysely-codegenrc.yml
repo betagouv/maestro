@@ -1,0 +1,142 @@
+# une fois le fichier types.ts généré il faut vérifier que tous les imports de types sont présents
+# si un import est manquant le rajouter dans le fichier _headers du même dossier
+includePattern: "public.*"
+excludePattern: "(geography_columns|geometry_columns|spatial_ref_sys|knex_migrations|knex_migrations_lock|maestro_ateliers_national_202610061730)"
+outFile: "./repositories/kysely/types_gen"
+dialect: postgres
+overrides:
+  columns:
+    # /!\ DANGER /!\
+    # Pour tous les types overrided, faire hyper-gaffe aux nullables et à ce genre de cas particuliers
+    # /!\ ------ /!\
+    analysis.status: AnalysisStatus
+    analysis_dai.id: Generated<AnalysisDaiId>
+    analysis_dai.state: AnalysisDaiState
+    analysis_dai.sent_method: SachaCommunicationMethod | null
+    analysis_dai_documents.analysis_dai_id: AnalysisDaiId
+    analysis_errors.residues: AnalysisErrorsResidues
+    analysis_rai.id: Generated<AnalysisRaiId>
+    analysis_rai.state: AnalysisRaiState
+    analysis_rai.source: AnalysisRaiSource
+    analysis_rai.payload: Record<string, unknown> | null
+    analysis_rai_documents.analysis_rai_id: AnalysisRaiId
+    analysis_residues.analysis_method: AnalysisMethod
+    analysis_residues.compliance: ResidueCompliance | ResidueComplianceDAOA | null
+    analysis_residues.contamination_sources: ContaminationSource[] | null
+    analysis_residues.reference: SSD2Id
+    analysis_residues.result_kind: ResultKind
+    analysis_residues.analysis_date: MaestroDate | null
+    analysis_residues.analysis_kind: AnalysisKind | null
+    companies.kinds: CompanyKind[]
+    companies.geolocation: Point | null
+    departments.geometry: ColumnType<never, unknown, unknown>
+    documents.kind: DocumentKind
+    laboratories.short_name: LaboratoryShortName
+    laboratories.sacha_communication_method: SachaCommunicationMethod | null
+    laboratory_agreement_checks.programming_sub_plan_id: ProgrammingSubPlanId
+    laboratory_agreement_checks.substance_kind: SubstanceKind
+    laboratory_agreements.substance_kind: SubstanceKind
+    laboratory_residue_mappings.ssd2_id: SSD2Id | null
+    matrices.code: Matrix
+    matrices.sacha_sigle: MatrixSigleSacha | null
+    matrix_kind_matrices.matrix_code: Matrix
+    matrix_kind_matrices.matrix_kind_code: MatrixKind
+    matrix_kind.code: MatrixKind
+    notices.type: "'root' | 'dashboard'"
+    prescriptions.programming_sub_plan_id: ProgrammingSubPlanId
+    programming_plan_field_options.programming_plan_field_id: ProgrammingPlanFieldId
+    programming_plan_field_options.specific_data_field_option_id: SpecificDataFieldOptionId
+    programming_plan_fields.id: Generated<ProgrammingPlanFieldId>
+    programming_plan_fields.field_id: SpecificDataFieldId
+    programming_plans.domain_id: ProgrammingPlanDomainId
+    # /!\ DANGER /!\
+    # TODO 2026-11-23 ce sont les mêmes types que programming_sub_plans, ne pas oublier
+    # /!\ DANGER /!\
+    programming_plans.stages: ColumnType<SubPlanStages | null, ProgrammingPlanStagesJson | null | undefined, ProgrammingPlanStagesJson | null >
+    programming_plans.substance_kinds: SubstanceKind[] | null
+    programming_plans.samples: ColumnType<ProgrammingPlanSampleSetting[] | null, ProgrammingPlanSamplesJson | null | undefined, ProgrammingPlanSamplesJson | null>
+    programming_plans.matrices: SubPlanMatrices | null
+    programming_plans.context: ProgrammingPlanContext | null
+    programming_plans.mono_substances: SSD2Id[] | null
+    programming_plans.multi_substances: SSD2Id[] | null
+    programming_plans.sample_procedure: SampleProcedure | null
+    # /!\ DANGER /!\
+    # TODO 2026-11-23 ce sont les mêmes types que programming_sub_plans, ne pas oublier
+    # /!\ DANGER /!\
+    programming_sub_plan_field_options.programming_sub_plan_field_id: ProgrammingSubPlanFieldId
+    programming_sub_plan_field_options.specific_data_field_option_id: SpecificDataFieldOptionId
+    programming_sub_plan_fields.id: ProgrammingSubPlanFieldId
+    programming_sub_plan_fields.programming_sub_plan_id: ProgrammingSubPlanId
+    programming_sub_plan_fields.field_id: SpecificDataFieldId
+    programming_sub_plan_fields.inheritance: FieldInheritance
+    programming_sub_plan_fields.programming_plan_field_id: ProgrammingPlanFieldId | null
+    programming_sub_plan_fields_raw.id: Generated<ProgrammingSubPlanFieldId>
+    programming_sub_plan_fields_raw.programming_sub_plan_id: ProgrammingSubPlanId
+    programming_sub_plan_fields_raw.field_id: SpecificDataFieldId
+    programming_sub_plan_fields_raw.inheritance: Generated<FieldInheritance>
+    programming_sub_plans.id: ProgrammingSubPlanId
+    programming_sub_plans.sacha_context_sigle: SachaContextSigle | null
+    # /!\ DANGER /!\
+    # TODO 2026-11-23 ce sont les mêmes types que programming_plans, ne pas oublier
+    # /!\ DANGER /!\
+    programming_sub_plans.stages: ColumnType<SubPlanStages | null, ProgrammingPlanStagesJson | null | undefined, ProgrammingPlanStagesJson | null >
+    programming_sub_plans.substance_kinds: SubstanceKind[] | null
+    programming_sub_plans.samples: ColumnType<ProgrammingPlanSampleSetting[] | null, ProgrammingPlanSamplesJson | null | undefined, ProgrammingPlanSamplesJson | null>
+    programming_sub_plans.matrices: SubPlanMatrices | null
+    programming_sub_plans.context: ProgrammingPlanContext | null
+    programming_sub_plans.mono_substances: SSD2Id[] | null
+    programming_sub_plans.multi_substances: SSD2Id[] | null
+    programming_sub_plans.sample_procedure: SampleProcedure | null
+    # /!\ DANGER /!\
+    # TODO 2026-11-23 ce sont les mêmes types que programming_plans, ne pas oublier
+    # /!\ DANGER /!\
+    # /!\ DANGER /!\
+    # TODO 2026-11-23 ce sont les mêmes types que programming_plans, ne pas oublier
+    # /!\ DANGER /!\
+    programming_sub_plans_raw.stages: ColumnType<SubPlanStages | null, ProgrammingPlanStagesJson | null | undefined, ProgrammingPlanStagesJson | null >
+    programming_sub_plans_raw.substance_kinds: SubstanceKind[] | null
+    programming_sub_plans_raw.samples: ColumnType<ProgrammingPlanSampleSetting[] | null, ProgrammingPlanSamplesJson | null | undefined, ProgrammingPlanSamplesJson | null>
+    programming_sub_plans_raw.matrices: SubPlanMatrices | null
+    programming_sub_plans_raw.context: ProgrammingPlanContext | null
+    programming_sub_plans_raw.mono_substances: SSD2Id[] | null
+    programming_sub_plans_raw.multi_substances: SSD2Id[] | null
+    programming_sub_plans_raw.sample_procedure: SampleProcedure | null
+    # /!\ DANGER /!\
+    # TODO 2026-11-23 ce sont les mêmes types que programming_plans, ne pas oublier
+    # /!\ DANGER /!\
+    residue_analytes.reference: SSD2Id | null
+    residue_analytes.result_kind: ResultKind | null
+    sacha_commemoratifs.sigle: CommemoratifSigle
+    sacha_commemoratifs.type_donnee: SachaCommemoratifTypeDonnee
+    sacha_commemoratif_values.sigle: CommemoratifValueSigle
+    sacha_commemoratif_values.commemoratif_sigle: CommemoratifSigle
+    sacha_context_commemoratifs.context_sigle: SachaContextSigle
+    sacha_context_commemoratifs.commemoratif_sigle: CommemoratifSigle
+    sacha_context_commemoratifs.level: SachaCommemoratifLevel
+    sacha_contexts.sigle: SachaContextSigle
+    sacha_residue_mappings.label: SachaResidueId
+    sacha_residue_mappings.ssd2_id: SSD2Id
+    sample_items.substance_kinds: SubstanceKind[]
+    sample_items.recipient_kind: SampleItemRecipientKind | null
+    sample_items.receipt_date: MaestroDate | null
+    sample_items.shipping_date: MaestroDate | null
+    sample_items.destruction_date: MaestroDate | null
+    sample_items.invoicing_date: MaestroDate | null
+    sample_items.paid_date: MaestroDate | null
+    sample_item_status.status: SampleStatusType | null
+    samples.matrices: ColumnType<PartialSampleMatrix[] | null, string | null | undefined, string | null>
+    samples.programming_sub_plan_id: ProgrammingSubPlanId
+    samples.sampled_date: MaestroDate
+    samples.seves: Seves | null
+    samples.step: SampleStep
+    sample_specific_data_values.field_id: SpecificDataFieldId
+    sample_specific_data_values.option_id: SpecificDataFieldOptionId | null
+    sample_status.status: SampleStatusType
+    specific_data_field_options.id: Generated<SpecificDataFieldOptionId>
+    specific_data_field_options.sacha_commemoratif_value_sigle: CommemoratifValueSigle | null
+    specific_data_fields.id: Generated<SpecificDataFieldId>
+    specific_data_fields.sacha_commemoratif_sigle: CommemoratifSigle | null
+    users.region: Region | null
+    users.department: Department | null
+    users.roles: UserRole[]
+    users.stages: Stage[]

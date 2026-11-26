@@ -13,6 +13,7 @@ export default {
       entry: [
         'database/migrations/*.ts',
         'repositories/kysely.type.ts',
+        'repositories/kysely.types2.ts',
         'scripts/*',
         'services/ediSacha/sftpService.ts'
       ]

@@ -1,6 +1,6 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
-import { Department } from '../../referential/Department';
+import { departementValidator } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 import { refineSchema } from '../../utils/zod';
@@ -22,7 +22,7 @@ export const FindPrescriptionOptions = z.object({
   coordinatorIds: z.array(z.guid()).nullish(),
   laboratoryIds: z.array(z.guid()).nullish(),
   region: Region.nullish(),
-  department: Department.nullish(),
+  department: departementValidator.nullish(),
   missingDistribution: z.boolean().nullish(),
   missingLaboratory: z.boolean().nullish(),
   withNovelty: z.boolean().nullish(),

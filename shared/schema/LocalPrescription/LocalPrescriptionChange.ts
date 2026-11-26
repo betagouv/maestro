@@ -1,6 +1,6 @@
 import { isNil, sumBy } from 'lodash-es';
 import { z } from 'zod';
-import { Department } from '../../referential/Department';
+import { departementValidator } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import type { DistributionKind } from '../ProgrammingPlan/DistributionKind';
 import { ProgrammingPlanEchelon } from '../ProgrammingPlan/ProgrammingPlanEchelon';
@@ -23,7 +23,7 @@ export const LocalPrescriptionChange = z.object({
   id: z.guid(),
   prescriptionId: z.guid(),
   region: Region,
-  department: Department.nullish(),
+  department: departementValidator.nullish(),
   companySiret: z.string().nullish(),
   echelon: ProgrammingPlanEchelon,
   kind: LocalPrescriptionChangeKind,

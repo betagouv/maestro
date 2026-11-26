@@ -1,4 +1,7 @@
-import { Department } from 'maestro-shared/referential/Department';
+import {
+  type Department,
+  departementValidator
+} from 'maestro-shared/referential/Department';
 import type { Region } from 'maestro-shared/referential/Region';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
@@ -14,7 +17,7 @@ export const localPrescriptionSubstanceKindsLaboratoriesTable =
 
 const LocalPrescriptionSubstanceKindLaboratoryDbo = z.object({
   ...LocalPrescriptionSubstanceKindLaboratory.shape,
-  department: z.union([Department, z.literal('None')])
+  department: z.union([departementValidator, z.literal('None')])
 });
 
 type LocalPrescriptionSubstanceKindLaboratoryDbo = z.infer<

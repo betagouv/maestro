@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Department } from '../referential/Department';
+import { departementValidator } from '../referential/Department';
 import { Region } from '../referential/Region';
 import { FindLocalPrescriptionOptions } from '../schema/LocalPrescription/FindLocalPrescriptionOptions';
 import {
@@ -93,7 +93,7 @@ export const prescriptionsRoutes = {
       body: z.object({
         prescriptionIds: z.array(z.guid()),
         region: Region.nullish(),
-        department: Department.nullish()
+        department: departementValidator.nullish()
       }),
       permissions: ['readPrescriptions'],
       response: z.undefined()
@@ -112,7 +112,7 @@ export const prescriptionsRoutes = {
       params: {
         prescriptionId: z.guid(),
         region: Region,
-        department: Department
+        department: departementValidator
       },
       post: {
         body: LocalPrescriptionCommentToCreate,
@@ -137,7 +137,7 @@ export const prescriptionsRoutes = {
     params: {
       prescriptionId: z.guid(),
       region: Region,
-      department: Department
+      department: departementValidator
     },
     put: {
       body: LocalPrescriptionUpdate,
@@ -154,7 +154,7 @@ export const prescriptionsRoutes = {
       params: {
         prescriptionId: z.guid(),
         region: Region,
-        department: Department,
+        department: departementValidator,
         companySiret: z.string()
       },
       get: {

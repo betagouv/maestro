@@ -81,6 +81,12 @@ jobs:
           AUTH_SECRET: abcd1234
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
           M2M_BASIC_TOKEN: fakeBasicToken
+      - name: Check kylesy types
+        run: make db/check-kysely
+        env:
+          AUTH_SECRET: abcd1234
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/maestro
+          M2M_BASIC_TOKEN: fakeBasicToken
   frontend_test:
     needs: changes
     if: needs.changes.outputs.frontend == 'true'

@@ -1,0 +1,77 @@
+import type { Kysely } from 'kysely';
+
+import type { Department } from 'maestro-shared/referential/Department';
+import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
+import type { Region } from 'maestro-shared/referential/Region';
+import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import type { Stage, SubPlanStages } from 'maestro-shared/referential/Stage';
+import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
+import type { AnalysisKind } from 'maestro-shared/schema/Analysis/Residue/AnalysisKind';
+import type { ContaminationSource } from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
+import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import type {
+  ResidueCompliance,
+  ResidueComplianceDAOA
+} from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
+import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import type { AnalysisDaiId } from 'maestro-shared/schema/AnalysisDai/AnalysisDai';
+import type { AnalysisDaiState } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiState';
+import type {
+  AnalysisRaiId,
+  AnalysisRaiSource,
+  AnalysisRaiState
+} from 'maestro-shared/schema/AnalysisRai/AnalysisRai';
+import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
+import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
+import type {
+  Matrix,
+  MatrixKind,
+  MatrixSigleSacha
+} from 'maestro-shared/schema/Matrix/MatrixReferential';
+import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
+import type { ProgrammingPlanSampleSetting } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
+import type {
+  ProgrammingSubPlanId,
+  SachaContextSigle
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { SampleProcedure } from 'maestro-shared/schema/ProgrammingPlan/SampleProcedure';
+import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
+import type {
+  CommemoratifSigle,
+  CommemoratifValueSigle,
+  SachaCommemoratifTypeDonnee
+} from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import type { SachaCommemoratifLevel } from 'maestro-shared/schema/SachaContext/SachaContext';
+import type { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import type { PartialSampleMatrix } from 'maestro-shared/schema/Sample/SampleMatrix';
+import type { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sample/SampleStatus';
+import type { SampleStep } from 'maestro-shared/schema/Sample/SampleStep';
+import type { Seves } from 'maestro-shared/schema/Sample/Seves';
+import type { FieldInheritance } from 'maestro-shared/schema/SpecificData/FieldInheritance';
+import type {
+  ProgrammingPlanFieldId,
+  ProgrammingSubPlanFieldId,
+  SpecificDataFieldId,
+  SpecificDataFieldOptionId
+} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
+import type { UserRole } from 'maestro-shared/schema/User/UserRole';
+import type { MaestroDate } from 'maestro-shared/utils/date';
+import type {
+  ProgrammingPlanSamplesJson,
+  ProgrammingPlanStagesJson
+} from './programmingPlanSettingsRow';
+import z from 'zod';
+
+export interface AnalysisErrorsResidues {
+    old: Omit<PartialResidue, 'analysisId'>[];
+    new: Omit<PartialResidue, 'analysisId'>[];
+  }
+
+export type NewKyselyMaestro = Kysely<DB>;
+
+const sachaResidueIdValidator = z.string().brand<'SachaResidueId'>();
+export type SachaResidueId = z.infer<typeof sachaResidueIdValidator>;

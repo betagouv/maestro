@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { Department } from '../../referential/Department';
+import { departementValidator } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 
 export const ProgrammingPlanLocalStatus = z.object({
   status: ProgrammingPlanStatus,
   region: Region.nullish(),
-  department: Department.nullish(),
+  department: departementValidator.nullish(),
   sentAt: z.coerce.date().nullish(),
   lastSentAt: z.coerce.date().nullish(),
   lastModifiedAt: z.coerce.date().nullish(),
@@ -27,7 +27,7 @@ export const ProgrammingPlanRegionalStatus = z.object({
 export const ProgrammingPlanDepartmentalStatus = z.object({
   ...ProgrammingPlanLocalStatus.shape,
   region: Region,
-  department: Department
+  department: departementValidator
 });
 
 export type ProgrammingPlanLocalStatus = z.infer<

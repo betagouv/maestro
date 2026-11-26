@@ -3,7 +3,10 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import type { Readable } from 'node:stream';
 import { promisify } from 'node:util';
-import { Department } from 'maestro-shared/referential/Department';
+import {
+  type Department,
+  departementValidator
+} from 'maestro-shared/referential/Department';
 import type {
   AnalysisRai,
   AnalysisRaiState
@@ -126,7 +129,7 @@ const processResultats = async (
 };
 
 const departmentFromSigle = (sigle: string): Department | null => {
-  const parsed = Department.safeParse(sigle.replace(/^M?DDSV/, ''));
+  const parsed = departementValidator.safeParse(sigle.replace(/^M?DDSV/, ''));
   return parsed.success ? parsed.data : null;
 };
 

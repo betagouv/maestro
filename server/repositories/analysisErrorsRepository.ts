@@ -1,20 +1,20 @@
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { executeTransaction } from './kysely';
+import { executeNewTransaction } from './kysely';
 
 const upsert = async (
   analysisId: string,
   oldResidues: Omit<PartialResidue, 'analysisId'>[],
   newResidues: Omit<PartialResidue, 'analysisId'>[]
 ) => {
-  return executeTransaction(async (trx) => {
+  return executeNewTransaction(async (trx) => {
     await trx
-      .deleteFrom('analysisErrors')
-      .where('analysisId', '=', analysisId)
+      .deleteFrom('analysis_errors')
+      .where('analysis_id', '=', analysisId)
       .execute();
     await trx
-      .insertInto('analysisErrors')
+      .insertInto('analysis_errors')
       .values({
-        analysisId,
+        analysis_id: analysisId,
         residues: {
           old: oldResidues,
           new: newResidues

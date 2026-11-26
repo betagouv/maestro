@@ -2,8 +2,8 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import {
-  Department,
-  DepartmentLabels
+  DepartmentLabels,
+  departementValidator
 } from 'maestro-shared/referential/Department';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { StageLabels, StageList } from 'maestro-shared/referential/Stage';
@@ -305,7 +305,9 @@ export const UserModal = ({
           departmentIsRequired(user) && (
             <AppSelect
               onChange={(e) => {
-                const { data, success } = Department.safeParse(e.target.value);
+                const { data, success } = departementValidator.safeParse(
+                  e.target.value
+                );
                 setUser((u) => ({
                   ...u,
                   department: success ? data : null

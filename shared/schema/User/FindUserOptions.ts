@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Department } from '../../referential/Department';
+import { departementValidator } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
 import { maestroDateRefined } from '../../utils/date';
@@ -8,9 +8,9 @@ import { UserRole } from './UserRole';
 export const FindUserOptions = z.object({
   ids: z.array(z.guid()).nullish(),
   region: Region.nullish(),
-  department: Department.nullish(),
+  department: departementValidator.nullish(),
   regions: z.array(Region).nullish(),
-  departments: z.array(Department).nullish(),
+  departments: z.array(departementValidator).nullish(),
   roles: z.array(UserRole).nullish(),
   stages: z.array(Stage).nullish(),
   companySirets: z.array(z.string()).nullish(),

@@ -1,5 +1,6 @@
 BEGIN;
-
+SECURITY LABEL FOR anon ON COLUMN kysely_migration_lock.id
+  IS 'MASKED WITH VALUE ''{}''';
 SECURITY LABEL FOR anon ON COLUMN users.email
   IS 'MASKED WITH FUNCTION anon.pseudo_email(users.email)';
 SECURITY LABEL FOR anon ON COLUMN users.name

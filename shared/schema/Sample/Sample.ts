@@ -2,7 +2,7 @@ import { isNil, uniq } from 'lodash-es';
 
 import { z } from 'zod';
 import type { CheckFn } from 'zod/v4/core';
-import { Department } from '../../referential/Department';
+import { departementValidator } from '../../referential/Department';
 import { LegalContext } from '../../referential/LegalContext';
 import { Region } from '../../referential/Region';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
@@ -37,7 +37,7 @@ export const SampleContextData = z.object({
   sampler: Sampler,
   additionalSampler: Sampler.nullish(),
   geolocation: Geolocation.nullish(),
-  department: Department.nullish(),
+  department: departementValidator.nullish(),
   parcel: z.string().nullish(),
   programmingPlanId: z.guid(),
   programmingSubPlanId: ProgrammingSubPlanId,
@@ -245,7 +245,7 @@ export const SampleBase = SampleToCreate.extend({
   ...CreatedSampleData.shape,
   ...SampleComplianceData.shape,
   geolocation: Geolocation,
-  department: Department,
+  department: departementValidator,
   company: Company,
   items: z.array(SampleItem),
   sentAt: z.coerce.date().nullish()

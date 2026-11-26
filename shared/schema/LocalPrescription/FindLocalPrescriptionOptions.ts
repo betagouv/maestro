@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Department } from '../../referential/Department';
+import { departementValidator } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
@@ -21,7 +21,7 @@ export const FindLocalPrescriptionOptions = z.object({
   programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   contexts: z.array(ProgrammingPlanContext).nullish(),
   region: Region.nullish(),
-  department: Department.nullish(),
+  department: departementValidator.nullish(),
   companySirets: z.array(z.string()).nullish(),
   allLevels: z.boolean().nullish(),
   includeCompanies: z.boolean().nullish(),

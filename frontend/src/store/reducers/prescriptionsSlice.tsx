@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { Department } from 'maestro-shared/referential/Department';
+import { departementValidator } from 'maestro-shared/referential/Department';
 import { Region } from 'maestro-shared/referential/Region';
 import { Stage } from 'maestro-shared/referential/Stage';
 import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
@@ -38,7 +38,7 @@ const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
     regionalCommentsList: z.array(
       z.object({
         region: Region,
-        department: Department.nullish(),
+        department: departementValidator.nullish(),
         comments: z
           .array(
             LocalPrescriptionComment.pick({
