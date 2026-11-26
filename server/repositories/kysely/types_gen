@@ -263,25 +263,6 @@ export interface LocalPrescriptionSubstanceKindsLaboratories {
   substance_kind: string;
 }
 
-export interface MaestroAteliersNational202610061730 {
-  adr_ligne1: string | null;
-  ate_identifiant: string | null;
-  ate_lb: string | null;
-  cata_lb: string | null;
-  cata_lbs: string | null;
-  cata_spa_on: string | null;
-  cata_ssa_on: string | null;
-  commune_etab: string | null;
-  cp_etab: string | null;
-  dep_rfa: string | null;
-  ede: string | null;
-  eta_id: string | null;
-  eta_lb: string | null;
-  ide_lb: string | null;
-  siret: number | null;
-  type_ident_eta: string | null;
-}
-
 export interface Matrices {
   code: Matrix;
   deprecated: Generated<boolean>;
@@ -707,7 +688,6 @@ export interface DB {
   local_prescription_comments: LocalPrescriptionComments;
   local_prescription_substance_kinds_laboratories: LocalPrescriptionSubstanceKindsLaboratories;
   local_prescriptions: LocalPrescriptions;
-  maestro_ateliers_national_202610061730: MaestroAteliersNational202610061730;
   matrices: Matrices;
   matrix_kind_matrices: MatrixKindMatrices;
   matrix_kinds: MatrixKinds;

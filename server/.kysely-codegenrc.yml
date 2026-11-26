@@ -1,7 +1,7 @@
 # une fois le fichier types.ts généré il faut vérifier que tous les imports de types sont présents
 # si un import est manquant le rajouter dans le fichier _headers du même dossier
 includePattern: "public.*"
-excludePattern: "(geography_columns|geometry_columns|spatial_ref_sys|knex_migrations|knex_migrations_lock)"
+excludePattern: "(geography_columns|geometry_columns|spatial_ref_sys|knex_migrations|knex_migrations_lock|maestro_ateliers_national_202610061730)"
 outFile: "./repositories/kysely/types_gen"
 dialect: postgres
 overrides:
