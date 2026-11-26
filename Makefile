@@ -10,6 +10,7 @@ ifndef CI
 	npm run postdb:generate-types -w server
 	npm run db:verify-types -w server
 else
+	npm run migrate-latest -w server
 	npm run db:verify-types -w server -- --url postgres://postgres:postgres@localhost/maestro
 endif
 
