@@ -10,7 +10,7 @@ ifndef CI
 	npm run postdb:generate-types -w server
 	npm run db:verify-types -w server
 else
-	npm run db:verify-types -w server -- --url postgres://postgres:password@localhost/maestro
+	npm run db:verify-types -w server -- --url postgres://postgres:postgres@localhost/maestro
 endif
 
 server/lint:
