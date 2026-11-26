@@ -1,22 +1,23 @@
-import {
-  DAOAInProgressProgrammingPlanFixture,
-  DAOAValidatedProgrammingPlanFixture,
-  PPVClosedProgrammingPlanFixture,
-  PPVInProgressProgrammingPlanFixture,
-  PPVSubmittedProgrammingPlanFixture,
-  PPVValidatedDromProgrammingPlanFixture,
-  PPVValidatedProgrammingPlanFixture,
-  ProgrammingPlanDomainFixtures
-} from 'maestro-shared/test/programmingPlanFixtures';
+import { ProgrammingPlanDomainFixtures } from 'maestro-shared/test/programmingPlanFixtures';
 import { kysely } from '../../repositories/kysely';
 import {
   formatProgrammingPlan,
+  type ProgrammingPlanDBChecked,
   ProgrammingPlanLocalStatus,
   ProgrammingPlanNationalCoordinators,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
 import { toProgrammingPlanSettingsRow } from '../../repositories/programmingPlanSettingsRow';
 import { ProgrammingSubPlansRaw } from '../../repositories/programmingSubPlanRepository';
+import {
+  DAOAInProgressProgrammingPlanFixtureDB,
+  DAOAValidatedProgrammingPlanFixtureDB,
+  PPVClosedProgrammingPlanFixtureDB,
+  PPVInProgressProgrammingPlanFixtureDB,
+  PPVSubmittedProgrammingPlanFixtureDB,
+  PPVValidatedDromProgrammingPlanFixtureDB,
+  PPVValidatedProgrammingPlanFixtureDB
+} from '../programmingPlanFixtures';
 
 export const seed = async (): Promise<void> => {
   await kysely
@@ -30,28 +31,21 @@ export const seed = async (): Promise<void> => {
     )
     .execute();
 
+  const defaultProgrammingPlans: ProgrammingPlanDBChecked[] = [
+    PPVClosedProgrammingPlanFixtureDB,
+    PPVValidatedProgrammingPlanFixtureDB,
+    PPVValidatedDromProgrammingPlanFixtureDB,
+    PPVInProgressProgrammingPlanFixtureDB,
+    PPVSubmittedProgrammingPlanFixtureDB,
+    DAOAValidatedProgrammingPlanFixtureDB,
+    DAOAInProgressProgrammingPlanFixtureDB
+  ];
   await ProgrammingPlans().insert(
-    [
-      PPVClosedProgrammingPlanFixture,
-      PPVValidatedProgrammingPlanFixture,
-      PPVValidatedDromProgrammingPlanFixture,
-      PPVInProgressProgrammingPlanFixture,
-      PPVSubmittedProgrammingPlanFixture,
-      DAOAValidatedProgrammingPlanFixture,
-      DAOAInProgressProgrammingPlanFixture
-    ].map(formatProgrammingPlan)
+    defaultProgrammingPlans.map(formatProgrammingPlan)
   );
 
   await Promise.all(
-    [
-      PPVClosedProgrammingPlanFixture,
-      PPVValidatedProgrammingPlanFixture,
-      PPVValidatedDromProgrammingPlanFixture,
-      PPVInProgressProgrammingPlanFixture,
-      PPVSubmittedProgrammingPlanFixture,
-      DAOAValidatedProgrammingPlanFixture,
-      DAOAInProgressProgrammingPlanFixture
-    ].flatMap((plan) => [
+    defaultProgrammingPlans.flatMap((plan) => [
       ProgrammingPlanLocalStatus().insert({
         ...plan.nationalStatus,
         programmingPlanId: plan.id,
@@ -68,15 +62,7 @@ export const seed = async (): Promise<void> => {
   );
 
   await ProgrammingPlanNationalCoordinators().insert(
-    [
-      PPVClosedProgrammingPlanFixture,
-      PPVValidatedProgrammingPlanFixture,
-      PPVValidatedDromProgrammingPlanFixture,
-      PPVInProgressProgrammingPlanFixture,
-      PPVSubmittedProgrammingPlanFixture,
-      DAOAValidatedProgrammingPlanFixture,
-      DAOAInProgressProgrammingPlanFixture
-    ].flatMap((plan) =>
+    defaultProgrammingPlans.flatMap((plan) =>
       plan.nationalCoordinators.map(({ id }) => ({
         programmingPlanId: plan.id,
         userId: id
@@ -85,15 +71,7 @@ export const seed = async (): Promise<void> => {
   );
 
   await ProgrammingSubPlansRaw().insert(
-    [
-      PPVClosedProgrammingPlanFixture,
-      PPVValidatedProgrammingPlanFixture,
-      PPVValidatedDromProgrammingPlanFixture,
-      PPVInProgressProgrammingPlanFixture,
-      PPVSubmittedProgrammingPlanFixture,
-      DAOAValidatedProgrammingPlanFixture,
-      DAOAInProgressProgrammingPlanFixture
-    ].flatMap((plan) =>
+    defaultProgrammingPlans.flatMap((plan) =>
       plan.subPlans.map((subPlan) => ({
         ...toProgrammingPlanSettingsRow(subPlan),
         programmingPlanId: plan.id

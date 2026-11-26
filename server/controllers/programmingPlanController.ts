@@ -423,18 +423,6 @@ export const programmingPlanRouter = {
           .map((plan) => {
             return {
               ...plan,
-              samples:
-                plan.samples
-                  ?.map((sample) => ({
-                    ...sample,
-                    substanceKinds: sample.substanceKinds.toSorted()
-                  }))
-                  .toSorted((a, b) =>
-                    a.substanceKinds
-                      .join('-')
-                      .localeCompare(b.substanceKinds.join('-'))
-                  ) ?? [],
-              substanceKinds: plan.substanceKinds?.toSorted() ?? [],
               subPlans: plan.subPlans.map((subplan) => ({
                 ...subplan,
                 samples:

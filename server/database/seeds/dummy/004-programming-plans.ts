@@ -1,13 +1,5 @@
 import { hasSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
-import {
-  ALANProgrammingPlanFixture,
-  DAOAInProgressProgrammingPlanFixture,
-  DAOAValidatedProgrammingPlanFixture,
-  PPVClosedProgrammingPlanFixture,
-  PPVInProgressProgrammingPlanFixture,
-  PPVValidatedProgrammingPlanFixture,
-  ProgrammingPlanDomainFixtures
-} from 'maestro-shared/test/programmingPlanFixtures';
+import { ProgrammingPlanDomainFixtures } from 'maestro-shared/test/programmingPlanFixtures';
 import { kysely } from '../../../repositories/kysely';
 import {
   formatProgrammingPlan,
@@ -18,15 +10,23 @@ import {
 import { toProgrammingPlanSettingsRow } from '../../../repositories/programmingPlanSettingsRow';
 import { ProgrammingSubPlansRaw } from '../../../repositories/programmingSubPlanRepository';
 import { Users } from '../../../repositories/userRepository';
+import {
+  ALANProgrammingPlanFixtureDB,
+  DAOAInProgressProgrammingPlanFixtureDB,
+  DAOAValidatedProgrammingPlanFixtureDB,
+  PPVClosedProgrammingPlanFixtureDB,
+  PPVInProgressProgrammingPlanFixtureDB,
+  PPVValidatedProgrammingPlanFixtureDB
+} from '../../../test/programmingPlanFixtures';
 
 export const seed = async () => {
   const plans = [
-    PPVClosedProgrammingPlanFixture,
-    PPVValidatedProgrammingPlanFixture,
-    PPVInProgressProgrammingPlanFixture,
-    DAOAValidatedProgrammingPlanFixture,
-    DAOAInProgressProgrammingPlanFixture,
-    ALANProgrammingPlanFixture
+    PPVClosedProgrammingPlanFixtureDB,
+    PPVValidatedProgrammingPlanFixtureDB,
+    PPVInProgressProgrammingPlanFixtureDB,
+    DAOAValidatedProgrammingPlanFixtureDB,
+    DAOAInProgressProgrammingPlanFixtureDB,
+    ALANProgrammingPlanFixtureDB
   ];
 
   await kysely

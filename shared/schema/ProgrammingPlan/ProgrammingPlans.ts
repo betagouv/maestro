@@ -15,17 +15,15 @@ import {
   ProgrammingPlanRegionalStatus
 } from './ProgrammingPlanLocalStatus';
 import { ProgrammingPlanNationalCoordinator } from './ProgrammingPlanNationalCoordinator';
-import { ProgrammingPlanSettings } from './ProgrammingPlanSettings';
 import { ProgrammingSubPlan } from './ProgrammingSubPlan';
 
-export const ProgrammingPlanBase = z.object({
+const ProgrammingPlanBase = z.object({
   id: z.guid(),
   domainId: ProgrammingPlanDomainId,
   title: z.string().min(1, 'Veuillez renseigner le titre.'),
   subPlans: z.array(ProgrammingSubPlan),
   distributionKind: DistributionKind,
   nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator),
-  ...ProgrammingPlanSettings.shape,
   settingsCompleted: z.boolean(),
   createdAt: z.coerce.date(),
   createdBy: z.guid(),

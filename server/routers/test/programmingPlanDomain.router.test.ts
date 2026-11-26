@@ -1,6 +1,5 @@
 import { constants } from 'node:http2';
 import {
-  genDeletableProgrammingPlan,
   genProgrammingPlanDomain,
   ProgrammingPlanDomainFixtures
 } from 'maestro-shared/test/programmingPlanFixtures';
@@ -26,6 +25,7 @@ import { programmingPlanDomainRepository } from '../../repositories/programmingP
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import { createServer } from '../../server';
+import { genDeletableProgrammingPlanDB } from '../../test/programmingPlanFixtures';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Programming plan domain router', () => {
@@ -121,7 +121,7 @@ describe('Programming plan domain router', () => {
 
   describe('PUT /programming-plan-domains/:programmingPlanDomainId', () => {
     const renamedDomain = genProgrammingPlanDomain({ year: 2044 });
-    const renamedDomainPlan = genDeletableProgrammingPlan({
+    const renamedDomainPlan = genDeletableProgrammingPlanDB({
       domainId: renamedDomain.id,
       year: renamedDomain.year
     });
@@ -179,7 +179,7 @@ describe('Programming plan domain router', () => {
 
   describe('DELETE /programming-plan-domains/:programmingPlanDomainId', () => {
     const deletableDomain = genProgrammingPlanDomain({ year: 2043 });
-    const deletablePlan = genDeletableProgrammingPlan({
+    const deletablePlan = genDeletableProgrammingPlanDB({
       domainId: deletableDomain.id,
       year: deletableDomain.year
     });

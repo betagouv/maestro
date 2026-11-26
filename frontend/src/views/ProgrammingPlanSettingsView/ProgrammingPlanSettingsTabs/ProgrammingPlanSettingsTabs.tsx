@@ -134,10 +134,7 @@ export const ProgrammingPlanSettingsTabs = ({
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
   const { data: planSettings, isFetching: isFetchingPlanSettings } =
-    apiClient.useFindProgrammingPlanSettingsQuery(
-      { programmingPlanId },
-      { skip: !!subPlan }
-    );
+    apiClient.useFindProgrammingPlanSettingsQuery({ programmingPlanId });
   const { data: subPlanSettings, isFetching: isFetchingSubPlanSettings } =
     apiClient.useFindProgrammingSubPlanSettingsQuery(
       {
@@ -183,10 +180,13 @@ export const ProgrammingPlanSettingsTabs = ({
 
   const editionPhase = programmingPlanEditionPhase(programmingPlan);
 
+  const parentPlanSettings = subPlan ? planSettings : undefined;
+
   const settings: ProgrammingLevelSettingsForm | undefined = useMemo(
     () =>
       subPlan
-        ? subPlanSettings && {
+        ? subPlanSettings &&
+          planSettings && {
             ...subPlanSettings,
             nationalCoordinators: null,
             technicalInstruction: null,
@@ -287,9 +287,12 @@ export const ProgrammingPlanSettingsTabs = ({
             }
           })
         : checkSchema(ProgrammingLevelSettingsForm, (ctx) => {
+            if (!planSettings) {
+              return;
+            }
             for (const conflict of planSaveConflicts(
               programmingPlan.subPlans,
-              programmingPlan,
+              planSettings,
               ctx.value
             )) {
               ctx.issues.push({
@@ -303,6 +306,7 @@ export const ProgrammingPlanSettingsTabs = ({
     [
       subPlan,
       programmingPlan,
+      planSettings,
       programmingPlans,
       sachaContexts,
       fieldConfigs,
@@ -419,7 +423,7 @@ export const ProgrammingPlanSettingsTabs = ({
   const changeDraft = (changedDraft: ProgrammingLevelSettingsForm) => {
     const cascadedDraft = withSettingsBelowSubstanceKinds(
       changedDraft,
-      subPlan ? programmingPlan : undefined
+      parentPlanSettings
     );
     setDraft(
       withoutOrphanSubstances(
@@ -436,7 +440,7 @@ export const ProgrammingPlanSettingsTabs = ({
         return (
           <ProgrammingPlanGlobalSettings
             settings={draft}
-            planSettings={subPlan ? programmingPlan : undefined}
+            planSettings={parentPlanSettings}
             editionPhase={editionPhase}
             technicalInstructionFile={technicalInstructionFile}
             inputForm={form}
@@ -458,7 +462,7 @@ export const ProgrammingPlanSettingsTabs = ({
         return (
           <ProgrammingPlanSampleSettings
             settings={draft}
-            planSettings={subPlan ? programmingPlan : undefined}
+            planSettings={parentPlanSettings}
             editionPhase={editionPhase}
             inputForm={form}
             onChange={changeDraft}
@@ -468,7 +472,7 @@ export const ProgrammingPlanSettingsTabs = ({
         return (
           <ProgrammingPlanAnalysisSettings
             settings={draft}
-            planSettings={subPlan ? programmingPlan : undefined}
+            planSettings={parentPlanSettings}
             editionPhase={editionPhase}
             inputForm={form}
             onChange={changeDraft}

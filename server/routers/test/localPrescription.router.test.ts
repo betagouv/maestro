@@ -14,7 +14,6 @@ import type {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
@@ -28,7 +27,6 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   DAOAVolailleValidatedSubPlanFixture,
-  genProgrammingPlan,
   genProgrammingPlanDomain,
   genProgrammingSubPlan,
   PPVClosedProgrammingPlanFixture,
@@ -74,6 +72,7 @@ import { PrescriptionChanges } from '../../repositories/prescriptionChangeReposi
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
+  type ProgrammingPlanDBChecked,
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
@@ -91,6 +90,7 @@ import {
 } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import prescriptionDiffusionService from '../../services/prescriptionDiffusionService';
+import { genProgrammingPlanDB } from '../../test/programmingPlanFixtures';
 import { toDbRow } from '../../test/seed/002-laboratories';
 import { mockSendNotification } from '../../test/setupTests';
 import { TEST_LOGGED_SECRET, tokenProvider } from '../../test/testUtils';
@@ -1197,7 +1197,7 @@ describe('Local prescriptions router', () => {
     const slaughterhouseDomain = genProgrammingPlanDomain({ year: 1922 });
     const slaughterhouseClosedDomain = genProgrammingPlanDomain({ year: 1923 });
 
-    const asSlaughterhousePlan = (plan: ProgrammingPlanChecked) => ({
+    const asSlaughterhousePlan = (plan: ProgrammingPlanDBChecked) => ({
       ...plan,
       subPlans: plan.subPlans.map((subPlan) => ({
         ...subPlan,
@@ -1207,7 +1207,7 @@ describe('Local prescriptions router', () => {
     });
 
     const programmingPlanSlaughterhouse = asSlaughterhousePlan(
-      genProgrammingPlan({
+      genProgrammingPlanDB({
         createdBy: NationalCoordinator.id,
         domainId: slaughterhouseDomain.id,
         distributionKind: 'SLAUGHTERHOUSE',
@@ -1227,7 +1227,7 @@ describe('Local prescriptions router', () => {
     );
 
     const programmingPlanSlaughterhouseClosed = asSlaughterhousePlan(
-      genProgrammingPlan({
+      genProgrammingPlanDB({
         createdBy: NationalCoordinator.id,
         domainId: slaughterhouseClosedDomain.id,
         distributionKind: 'SLAUGHTERHOUSE',
@@ -1286,7 +1286,7 @@ describe('Local prescriptions router', () => {
     };
 
     const insertPlanWithStatus = async (
-      plan: ReturnType<typeof genProgrammingPlan>
+      plan: ReturnType<typeof genProgrammingPlanDB>
     ) => {
       await ProgrammingPlans().insert(formatProgrammingPlan(plan));
       await ProgrammingPlanLocalStatus().insert([
