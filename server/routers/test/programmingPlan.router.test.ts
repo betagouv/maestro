@@ -33,8 +33,6 @@ import {
   DAOAValidatedProgrammingPlanFixture,
   DAOAVolailleInProgressSubPlanFixture,
   DAOAVolailleValidatedSubPlanFixture,
-  genDeletableProgrammingPlan,
-  genProgrammingPlan,
   genProgrammingSubPlan,
   PesticideResidueDomainId,
   PPVClosedProgrammingPlanFixture,
@@ -83,6 +81,7 @@ import prescriptionRepository, {
   Prescriptions
 } from '../../repositories/prescriptionRepository';
 import programmingPlanRepository, {
+  type ProgrammingPlanDBChecked,
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
@@ -99,6 +98,10 @@ import {
 import { createServer } from '../../server';
 import prescriptionDiffusionService from '../../services/prescriptionDiffusionService';
 import { programmingPlanSettingsService } from '../../services/programmingPlanSettingsService';
+import {
+  genDeletableProgrammingPlanDB,
+  genProgrammingPlanDB
+} from '../../test/programmingPlanFixtures';
 import { mockSendNotification } from '../../test/setupTests';
 import { TEST_LOGGED_SECRET, tokenProvider } from '../../test/testUtils';
 
@@ -193,9 +196,7 @@ describe('ProgrammingPlan router', () => {
             expect.objectContaining(regionalStatus)
           )
         ),
-        departmentalStatus: [],
-        substanceKinds: [],
-        samples: []
+        departmentalStatus: []
       });
     }
   };
@@ -1167,7 +1168,7 @@ describe('ProgrammingPlan router', () => {
       const department = DepartmentalCoordinator.department as Department;
 
       const departmentalPlanId = crypto.randomUUID();
-      const departmentalPlan = genProgrammingPlan({
+      const departmentalPlan = genProgrammingPlanDB({
         id: departmentalPlanId,
         domainId: PesticideResidueDomainId,
         createdBy: NationalCoordinator.id,
@@ -2684,7 +2685,7 @@ describe('ProgrammingPlan router', () => {
 
     const genPlan = (launchedAt: Date | null, subPlanNumber = 'PPV01') => {
       const planId = crypto.randomUUID();
-      return genDeletableProgrammingPlan({
+      return genDeletableProgrammingPlanDB({
         id: planId,
         stagesManaged: true,
         subPlans: [
@@ -2718,9 +2719,9 @@ describe('ProgrammingPlan router', () => {
         .where('prescriptions.programmingSubPlanId', '=', programmingSubPlanId)
         .execute();
 
-    let inProgressPlan: ProgrammingPlanChecked;
-    let inProgressDAOAPlan: ProgrammingPlanChecked;
-    let launchedPlan: ProgrammingPlanChecked;
+    let inProgressPlan: ProgrammingPlanDBChecked;
+    let inProgressDAOAPlan: ProgrammingPlanDBChecked;
+    let launchedPlan: ProgrammingPlanDBChecked;
 
     beforeEach(async () => {
       inProgressPlan = genPlan(null);
@@ -2849,10 +2850,10 @@ describe('ProgrammingPlan router', () => {
     const planRoute = (programmingPlanId: string) =>
       `/api/programming-plans/${programmingPlanId}`;
 
-    let deletablePlan: ProgrammingPlanChecked;
+    let deletablePlan: ProgrammingPlanDBChecked;
 
     beforeEach(async () => {
-      deletablePlan = genDeletableProgrammingPlan();
+      deletablePlan = genDeletableProgrammingPlanDB();
       await programmingPlanRepository.insert(deletablePlan);
       await prescriptionRepository.insertEmpty(deletablePlan.subPlans[0]);
       await kysely
@@ -2939,11 +2940,11 @@ describe('ProgrammingPlan router', () => {
     ) =>
       `/api/programming-plans/${programmingPlanId}/sub-plans/${programmingSubPlanId}`;
 
-    let deletablePlan: ProgrammingPlanChecked;
+    let deletablePlan: ProgrammingPlanDBChecked;
 
     beforeEach(async () => {
       const planId = crypto.randomUUID();
-      deletablePlan = genDeletableProgrammingPlan({
+      deletablePlan = genDeletableProgrammingPlanDB({
         id: planId,
         subPlans: [
           genProgrammingSubPlan({

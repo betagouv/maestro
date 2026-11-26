@@ -340,28 +340,7 @@ export const genProgrammingPlan = (
         email: NationalCoordinatorEmail
       }
     ],
-    stages: null,
-    stagesManaged: false,
-    substanceKinds: null,
-    substanceKindsManaged: false,
-    samples: null,
-    samplesManaged: false,
-    matrices: null,
-    matricesManaged: false,
-    context: null,
-    contextManaged: false,
-    programmingInstruction: null,
-    programmingInstructionManaged: false,
-    notes: null,
-    notesManaged: false,
-    monoSubstances: null,
-    monoSubstancesManaged: false,
-    multiSubstances: null,
-    multiSubstancesManaged: false,
-    sampleProcedure: null,
-    sampleProcedureManaged: false,
-    delegated: null,
-    delegatedManaged: false,
+
     settingsCompleted: true,
     createdAt: new Date(),
     createdBy: crypto.randomUUID(),
@@ -397,31 +376,7 @@ export const withMatrixKindSubPlans = <T extends ProgrammingPlanChecked>(
   }))
 });
 
-export const genDeletableProgrammingPlan = (
-  data?: Partial<ProgrammingPlanChecked>
-): ProgrammingPlanChecked => {
-  const planId = data?.id ?? crypto.randomUUID();
-  return genProgrammingPlan({
-    settingsCompleted: false,
-    createdBy: NationalCoordinatorId,
-    subPlans: [
-      genProgrammingSubPlan({
-        programmingPlanId: planId,
-        settingsCompleted: false
-      })
-    ],
-    ...data,
-    id: planId
-  });
-};
-
 export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
-  stages: [
-    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
-    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
-    { stage: 'TRANSFORMATION', subStages: [] }
-  ],
-  stagesManaged: true,
   id: PPVClosedProgrammingPlanId,
   domainId: PesticideResiduePreviousYearDomainId,
   title: 'Production primaire végétale',
@@ -440,12 +395,6 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
-  stages: [
-    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
-    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
-    { stage: 'TRANSFORMATION', subStages: [] }
-  ],
-  stagesManaged: true,
   id: PPVValidatedProgrammingPlanId,
   domainId: PesticideResidueDomainId,
   title: 'Production primaire végétale',
@@ -462,12 +411,6 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
-  stages: [
-    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
-    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
-    { stage: 'TRANSFORMATION', subStages: [] }
-  ],
-  stagesManaged: true,
   id: PPVValidatedDromProgrammingPlanId,
   domainId: PesticideResidueInTenYearsDomainId,
   title: 'Production primaire végétale - DROM',
@@ -484,12 +427,6 @@ export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
-  stages: [
-    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
-    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
-    { stage: 'TRANSFORMATION', subStages: [] }
-  ],
-  stagesManaged: true,
   id: PPVInProgressProgrammingPlanId,
   domainId: PesticideResidueNextYearDomainId,
   title: 'Production primaire végétale',
@@ -508,12 +445,6 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
-  stages: [
-    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
-    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
-    { stage: 'TRANSFORMATION', subStages: [] }
-  ],
-  stagesManaged: true,
   id: PPVSubmittedProgrammingPlanId,
   domainId: PesticideResidueInTwoYearsDomainId,
   title: 'Production primaire végétale',

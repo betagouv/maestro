@@ -10,10 +10,12 @@ import type { FindProgrammingPlanOptions } from 'maestro-shared/schema/Programmi
 import { hasSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanLocalStatus as ProgrammingPlanLocalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
-import { emptyProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
+import {
+  emptyProgrammingPlanSettings,
+  ProgrammingPlanSettings
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
-  ProgrammingPlanBase,
   ProgrammingPlanChecked,
   ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -45,7 +47,13 @@ const sendStamps = (sentAt: Date) => ({
   lastSentAt: sentAt
 });
 
-const ProgrammingPlanDbo = ProgrammingPlanBase.omit({
+const programmingPlanDbChecked = z.object({
+  ...ProgrammingPlanChecked.shape,
+  ...ProgrammingPlanSettings.shape
+});
+export type ProgrammingPlanDBChecked = z.infer<typeof programmingPlanDbChecked>;
+
+const ProgrammingPlanDbo = programmingPlanDbChecked.omit({
   subPlans: true,
   nationalStatus: true,
   regionalStatus: true,
@@ -185,7 +193,7 @@ const ProgrammingPlanQuery = () =>
 
 const findUnique = async (
   id: string
-): Promise<ProgrammingPlanChecked | undefined> => {
+): Promise<ProgrammingPlanDBChecked | undefined> => {
   console.info('Find programming plan', id);
   return ProgrammingPlanQuery()
     .where({ id })
@@ -297,7 +305,7 @@ const findMany = async (
 };
 
 const insert = async (
-  programmingPlan: ProgrammingPlanChecked
+  programmingPlan: ProgrammingPlanDBChecked
 ): Promise<void> => {
   console.info('Insert programming plan', programmingPlan.id);
 
@@ -393,7 +401,7 @@ const create = async ({
 };
 
 const update = async (
-  programmingPlan: ProgrammingPlanChecked
+  programmingPlan: ProgrammingPlanDBChecked
 ): Promise<void> => {
   console.info('Update programming plan with id', programmingPlan.id);
   await ProgrammingPlans()
@@ -570,14 +578,14 @@ const touchLocalStatuses = async (
 };
 
 export const formatProgrammingPlan = (
-  programmingPlan: ProgrammingPlanChecked
+  programmingPlan: ProgrammingPlanDBChecked
 ): ProgrammingPlanSettingsRow<ProgrammingPlanDbo> =>
   toProgrammingPlanSettingsRow(ProgrammingPlanDbo.parse(programmingPlan));
 
 const parseProgrammingPlan = (
   row: ProgrammingPlanRow
-): ProgrammingPlanChecked =>
-  ProgrammingPlanChecked.parse({
+): ProgrammingPlanDBChecked =>
+  programmingPlanDbChecked.parse({
     ...row,
     nationalStatus: row.nationalStatus?.[0],
     distributionKind: subPlansDistributionKind(row.subPlans)

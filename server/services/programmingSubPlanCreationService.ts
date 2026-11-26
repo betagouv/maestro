@@ -4,13 +4,13 @@ import {
   ProgrammingPlanSettingKey,
   ProgrammingPlanSettings
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isPPVSubPlanNumber,
   type ProgrammingSubPlanId
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { executeTransaction } from '../repositories/kysely';
 import prescriptionRepository from '../repositories/prescriptionRepository';
+import type { ProgrammingPlanDBChecked } from '../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { nextSubPlanNumber } from './programmingPlanDuplicationService';
 
@@ -41,7 +41,7 @@ export const newSubPlanNumber = (
 };
 
 const createSubPlan = async (
-  programmingPlan: ProgrammingPlanChecked
+  programmingPlan: ProgrammingPlanDBChecked
 ): Promise<ProgrammingSubPlanId> =>
   executeTransaction(async (trx) => {
     const subPlanNumber = newSubPlanNumber(

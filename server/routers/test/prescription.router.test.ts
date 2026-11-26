@@ -5,7 +5,6 @@ import type { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Pres
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import {
-  genProgrammingPlan,
   genProgrammingPlanDomain,
   genProgrammingSubPlan
 } from 'maestro-shared/test/programmingPlanFixtures';
@@ -32,6 +31,7 @@ import {
 import { toProgrammingPlanSettingsRow } from '../../repositories/programmingPlanSettingsRow';
 import { ProgrammingSubPlansRaw } from '../../repositories/programmingSubPlanRepository';
 import { createServer } from '../../server';
+import { genProgrammingPlanDB } from '../../test/programmingPlanFixtures';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Prescriptions router', () => {
@@ -42,7 +42,7 @@ describe('Prescriptions router', () => {
   const inProgressDomain = genProgrammingPlanDomain({ year: 1822 });
   const departmentalDomain = genProgrammingPlanDomain({ year: 1823 });
 
-  const programmingPlanClosed = genProgrammingPlan({
+  const programmingPlanClosed = genProgrammingPlanDB({
     createdBy: NationalCoordinator.id,
     domainId: closedDomain.id,
     regionalStatus: RegionList.map((region) => ({
@@ -51,7 +51,7 @@ describe('Prescriptions router', () => {
     })),
     year: 1820
   });
-  const programmingPlanSubmitted = genProgrammingPlan({
+  const programmingPlanSubmitted = genProgrammingPlanDB({
     createdBy: NationalCoordinator.id,
     domainId: submittedDomain.id,
     regionalStatus: RegionList.map((region) => ({
@@ -60,7 +60,7 @@ describe('Prescriptions router', () => {
     })),
     year: 1821
   });
-  const programmingPlanInProgress = genProgrammingPlan({
+  const programmingPlanInProgress = genProgrammingPlanDB({
     createdBy: NationalCoordinator.id,
     domainId: inProgressDomain.id,
     regionalStatus: RegionList.map((region) => ({
@@ -80,7 +80,7 @@ describe('Prescriptions router', () => {
     subPlanNumber: 'TEST4',
     stages: [{ stage: 'TRANSFORMATION', subStages: [] }]
   });
-  const programmingPlanDepartmental = genProgrammingPlan({
+  const programmingPlanDepartmental = genProgrammingPlanDB({
     id: programmingPlanDepartmentalId,
     createdBy: NationalCoordinator.id,
     domainId: departmentalDomain.id,
