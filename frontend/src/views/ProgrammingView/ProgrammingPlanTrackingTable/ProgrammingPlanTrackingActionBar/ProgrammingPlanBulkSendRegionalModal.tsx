@@ -2,6 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useState } from 'react';
@@ -38,10 +39,10 @@ const ProgrammingPlanBulkSendRegionalModal = ({
   });
 
   const departmentalEchelonPlans = plans.filter((plan) =>
-    hasDepartmentalEchelon(plan.distributionKind)
+    hasDepartmentalEchelon(planDistributionKind(plan))
   );
   const regionalKindPlans = plans.filter(
-    (plan) => !hasDepartmentalEchelon(plan.distributionKind)
+    (plan) => !hasDepartmentalEchelon(planDistributionKind(plan))
   );
 
   const submit = async () => {
@@ -72,11 +73,11 @@ const ProgrammingPlanBulkSendRegionalModal = ({
   };
 
   const allDepartmentalEchelon = plans.every((plan) =>
-    hasDepartmentalEchelon(plan.distributionKind)
+    hasDepartmentalEchelon(planDistributionKind(plan))
   );
   const allRegionalKind =
     plans.length > 0 &&
-    plans.every((plan) => !hasDepartmentalEchelon(plan.distributionKind));
+    plans.every((plan) => !hasDepartmentalEchelon(planDistributionKind(plan)));
   const title = allDepartmentalEchelon
     ? 'Envoyer aux départements'
     : allRegionalKind

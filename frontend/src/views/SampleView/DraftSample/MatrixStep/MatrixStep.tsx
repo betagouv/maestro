@@ -20,6 +20,10 @@ import {
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
+  planDistributionKind,
+  subPlanDistributionKind
+} from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
+import {
   hasCompanyEchelon,
   hasDepartmentalEchelon
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
@@ -127,6 +131,9 @@ const MatrixStep = ({ partialSample }: Props) => {
   const programmingSubPlanId = partialSample.programmingSubPlanId;
   const planSubPlans =
     (programmingPlan as ProgrammingPlanChecked)?.subPlans ?? [];
+  const programmingSubPlan = planSubPlans.find(
+    ({ id }) => id === programmingSubPlanId
+  );
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
@@ -150,13 +157,12 @@ const MatrixStep = ({ partialSample }: Props) => {
         ? partialSample.region
         : user?.region,
       ...(hasDepartmentalEchelon(
-        (programmingPlan as ProgrammingPlanChecked).distributionKind
+        planDistributionKind({ subPlans: planSubPlans })
       )
         ? {
             department: partialSample.department,
-            ...(hasCompanyEchelon(
-              (programmingPlan as ProgrammingPlanChecked).distributionKind
-            )
+            ...(programmingSubPlan &&
+            hasCompanyEchelon(subPlanDistributionKind(programmingSubPlan))
               ? { companySiret: partialSample.company?.siret }
               : {})
           }

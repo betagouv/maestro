@@ -59,8 +59,7 @@ const sampler = genUser({
 });
 const programmingPlan = withMatrixKindSubPlans(
   genProgrammingPlan({
-    subPlans: [PPVValidatedSubPlanFixture],
-    distributionKind: 'REGIONAL'
+    subPlans: [PPVValidatedSubPlanFixture]
   }),
   ['A001M', 'A00TQ'] as MatrixKind[]
 );
@@ -324,8 +323,7 @@ const andSubPlan = {
   }
 };
 const andProgrammingPlan = genProgrammingPlan({
-  subPlans: [andSubPlan],
-  distributionKind: 'REGIONAL'
+  subPlans: [andSubPlan]
 });
 const andPrescription = genPrescription({
   programmingSubPlanId: andSubPlan.id

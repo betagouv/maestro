@@ -13,18 +13,17 @@ export const DistributionKind = z.enum(
 );
 
 export type DistributionKind = z.infer<typeof DistributionKind>;
-export const subPlanDistributionKind = (
-  subPlan: Pick<ProgrammingSubPlan, 'subPlanNumber' | 'stages'>
-): DistributionKind => subPlansDistributionKind([subPlan]);
 
-export const subPlansDistributionKind = (
-  subPlans: Pick<ProgrammingSubPlan, 'subPlanNumber' | 'stages'>[]
-): DistributionKind => {
-  if (subPlans.some(isPPVSubPlan)) {
+type DistributionSubPlan = Pick<ProgrammingSubPlan, 'subPlanNumber' | 'stages'>;
+
+export const planDistributionKind = (plan: {
+  subPlans: DistributionSubPlan[];
+}): DistributionKind => {
+  if (plan.subPlans.some(isPPVSubPlan)) {
     return 'REGIONAL';
   }
   if (
-    subPlans.some((subPlan) =>
+    plan.subPlans.some((subPlan) =>
       stagesOfSelection(subPlan.stages).includes(SlaughterhouseStage)
     )
   ) {
@@ -32,3 +31,7 @@ export const subPlansDistributionKind = (
   }
   return 'DEPARTMENTAL';
 };
+
+export const subPlanDistributionKind = (
+  subPlan: DistributionSubPlan
+): DistributionKind => planDistributionKind({ subPlans: [subPlan] });

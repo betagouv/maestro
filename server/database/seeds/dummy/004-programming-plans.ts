@@ -1,3 +1,4 @@
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import { hasSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import { ProgrammingPlanDomainFixtures } from 'maestro-shared/test/programmingPlanFixtures';
 import { kysely } from '../../../repositories/kysely';
@@ -69,14 +70,14 @@ export const seed = async () => {
       status: plan.nationalStatus.status,
       sentAt: hasSentOnward(
         'National',
-        plan.distributionKind,
+        planDistributionKind(plan),
         plan.nationalStatus.status
       )
         ? plan.createdAt
         : null,
       lastSentAt: hasSentOnward(
         'National',
-        plan.distributionKind,
+        planDistributionKind(plan),
         plan.nationalStatus.status
       )
         ? plan.createdAt
@@ -92,14 +93,14 @@ export const seed = async () => {
         status: regionalStatus.status,
         sentAt: hasSentOnward(
           'Regional',
-          plan.distributionKind,
+          planDistributionKind(plan),
           regionalStatus.status
         )
           ? plan.createdAt
           : null,
         lastSentAt: hasSentOnward(
           'Regional',
-          plan.distributionKind,
+          planDistributionKind(plan),
           regionalStatus.status
         )
           ? plan.createdAt
@@ -117,14 +118,14 @@ export const seed = async () => {
         status: departmentalStatus.status,
         sentAt: hasSentOnward(
           'Departmental',
-          plan.distributionKind,
+          planDistributionKind(plan),
           departmentalStatus.status
         )
           ? plan.createdAt
           : null,
         lastSentAt: hasSentOnward(
           'Departmental',
-          plan.distributionKind,
+          planDistributionKind(plan),
           departmentalStatus.status
         )
           ? plan.createdAt

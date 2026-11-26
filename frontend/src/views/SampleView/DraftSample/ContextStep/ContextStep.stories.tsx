@@ -1,11 +1,21 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
+import {
+  genLocalPrescription,
+  genPrescription
+} from 'maestro-shared/test/prescriptionFixtures';
 import {
   genProgrammingPlan,
   genProgrammingSubPlan
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genSampleContextData } from 'maestro-shared/test/sampleFixtures';
-import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import {
+  genAuthUser,
+  genUser,
+  Sampler1Fixture,
+  SamplerDaoaFixture
+} from 'maestro-shared/test/userFixtures';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { getMockApi } from '../../../../services/mockApiClient';
 import ContextStep from './ContextStep';
 
@@ -29,6 +39,7 @@ const programmingPlan = {
     ...controlProgrammingPlan.subPlans,
     genProgrammingSubPlan({
       programmingPlanId: controlProgrammingPlan.id,
+      subPlanNumber: 'PPV02',
       context: 'Surveillance'
     })
   ]
@@ -145,6 +156,95 @@ export const SubmittingSuccess: Story = {
         ...sampleContextData,
         step: 'DraftMatrix'
       })
+    );
+  }
+};
+
+const mixedPlanId = crypto.randomUUID();
+const slaughterhouseSubPlan = genProgrammingSubPlan({
+  programmingPlanId: mixedPlanId,
+  subPlanNumber: 'M01',
+  stages: [{ stage: 'ABATTAGE', subStages: [] }]
+});
+const farmingSubPlan = genProgrammingSubPlan({
+  programmingPlanId: mixedPlanId,
+  subPlanNumber: 'M03',
+  stages: [{ stage: 'ELEVAGE', subStages: [] }]
+});
+const mixedProgrammingPlan = genProgrammingPlan({
+  id: mixedPlanId,
+  subPlans: [slaughterhouseSubPlan, farmingSubPlan]
+});
+const mixedPlanSampler = genUser({
+  ...SamplerDaoaFixture,
+  programmingSubPlans: [slaughterhouseSubPlan, farmingSubPlan]
+});
+const slaughterhousePrescription = genPrescription({
+  programmingSubPlanId: slaughterhouseSubPlan.id
+});
+const farmingPrescription = genPrescription({
+  programmingSubPlanId: farmingSubPlan.id
+});
+
+export const MixedPlanCompanyFollowsSubPlan: Story = {
+  parameters: {
+    preloadedState: {
+      auth: { authUser: genAuthUser(mixedPlanSampler) }
+    },
+    apiClient: getMockApi({
+      useFindProgrammingPlansQuery: () => ({
+        data: [mixedProgrammingPlan]
+      }),
+      useGetProgrammingPlanQuery: () => ({
+        data: mixedProgrammingPlan
+      }),
+      useFindPrescriptionsQuery: {
+        data: [slaughterhousePrescription, farmingPrescription]
+      },
+      useFindLocalPrescriptionsQuery: {
+        data: [
+          genLocalPrescription({
+            prescriptionId: slaughterhousePrescription.id,
+            region: mixedPlanSampler.region,
+            department: mixedPlanSampler.department,
+            companySiret: SlaughterhouseCompanyFixture1.siret,
+            sampleCount: 2
+          }),
+          genLocalPrescription({
+            prescriptionId: farmingPrescription.id,
+            region: mixedPlanSampler.region,
+            department: mixedPlanSampler.department,
+            sampleCount: 3
+          })
+        ]
+      }
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.queryByTestId('companySearch-input')
+    ).not.toBeInTheDocument();
+
+    await userEvent.selectOptions(
+      canvas.getByRole('combobox', { name: /Type de plan/ }),
+      farmingSubPlan.id
+    );
+
+    await expect(await canvas.findByTestId('companySearch-input')).toHaveValue(
+      ''
+    );
+
+    await userEvent.selectOptions(
+      canvas.getByRole('combobox', { name: /Type de plan/ }),
+      slaughterhouseSubPlan.id
+    );
+
+    await waitFor(() =>
+      expect(
+        (canvas.getByTestId('companySearch-input') as HTMLInputElement).value
+      ).toContain(SlaughterhouseCompanyFixture1.siret)
     );
   }
 };

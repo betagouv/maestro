@@ -1,9 +1,11 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { uniq } from 'lodash-es';
 import type { Company } from 'maestro-shared/schema/Company/Company';
 import {
   type CompanyWorkshop,
   companyWorkshopLabel
 } from 'maestro-shared/schema/Company/CompanyWorkshop';
+import { subPlanDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type {
   PartialSample,
@@ -48,6 +50,19 @@ const SampleCompany = ({
   onGeolocationChange
 }: Props) => {
   const { user } = useAuthentication();
+
+  const distributionKind = useMemo(() => {
+    const subPlan = programmingPlan.subPlans.find(
+      ({ id }) => id === programmingSubPlanId
+    );
+    if (subPlan) {
+      return subPlanDistributionKind(subPlan);
+    }
+    const subPlanKinds = uniq(
+      programmingPlan.subPlans.map(subPlanDistributionKind)
+    );
+    return subPlanKinds.length === 1 ? subPlanKinds[0] : undefined;
+  }, [programmingPlan, programmingSubPlanId]);
   const { programmingPlanPrescriptions, programmingPlanLocalPrescriptions } =
     usePartialSample(partialSample);
 
@@ -68,7 +83,7 @@ const SampleCompany = ({
   );
 
   const filteredCompanies = useMemo(() => {
-    if (programmingPlan.distributionKind !== 'SLAUGHTERHOUSE') {
+    if (distributionKind !== 'SLAUGHTERHOUSE') {
       return undefined;
     }
 
@@ -86,17 +101,14 @@ const SampleCompany = ({
         : true
     );
   }, [
-    programmingPlan.distributionKind,
+    distributionKind,
     user?.companies,
     programmingSubPlanLocalPrescriptions,
     programmingSubPlanId
   ]);
 
   useEffect(() => {
-    if (
-      programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
-      filteredCompanies
-    ) {
+    if (distributionKind === 'SLAUGHTERHOUSE' && filteredCompanies) {
       if (
         company &&
         !filteredCompanies.some((c) => c.siret === company.siret)
@@ -112,7 +124,11 @@ const SampleCompany = ({
         }
       }
     }
-  }, [filteredCompanies, company, programmingPlan.distributionKind]);
+  }, [filteredCompanies, company, distributionKind]);
+
+  if (!distributionKind) {
+    return null;
+  }
 
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -137,7 +153,7 @@ const SampleCompany = ({
             onSelect={(result) => {
               onCompanyChange(result);
               if (
-                programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
+                distributionKind === 'SLAUGHTERHOUSE' &&
                 onGeolocationChange
               ) {
                 onGeolocationChange(

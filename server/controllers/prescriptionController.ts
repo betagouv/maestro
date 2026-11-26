@@ -10,6 +10,7 @@ import {
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { hasPermission } from 'maestro-shared/schema/User/User';
@@ -310,7 +311,7 @@ export const prescriptionsRouter = {
         ids: uniq(rows.map((row) => row.planId))
       });
       const distributionKindByPlanId = new Map(
-        plans.map((plan) => [plan.id, plan.distributionKind])
+        plans.map((plan) => [plan.id, planDistributionKind(plan)])
       );
 
       const assignsLaboratories = (planId: string): boolean => {

@@ -7,7 +7,11 @@ import {
   type LocalPrescription
 } from '../LocalPrescription/LocalPrescription';
 import type { Prescription } from '../Prescription/Prescription';
-import type { DistributionKind } from './DistributionKind';
+import {
+  type DistributionKind,
+  planDistributionKind,
+  subPlanDistributionKind
+} from './DistributionKind';
 import {
   hasCompanyEchelon,
   hasDepartmentalEchelon,
@@ -15,6 +19,7 @@ import {
 } from './ProgrammingPlanEchelon';
 import type { ProgrammingPlanLocalStatus } from './ProgrammingPlanLocalStatus';
 import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
+import type { ProgrammingSubPlan } from './ProgrammingSubPlan';
 
 export const ProgrammingPlanEchelon = z.enum([
   'National',
@@ -117,11 +122,15 @@ export const hasEverSentOnward = (
 
 export const isCampaignLaunchable = (plan: {
   launchedAt?: Date | null;
-  distributionKind: DistributionKind;
+  subPlans: Pick<ProgrammingSubPlan, 'subPlanNumber' | 'stages'>[];
   nationalStatus: Pick<ProgrammingPlanLocalStatus, 'status'>;
 }): boolean =>
   isNil(plan.launchedAt) &&
-  hasSentOnward('National', plan.distributionKind, plan.nationalStatus.status);
+  hasSentOnward(
+    'National',
+    planDistributionKind(plan),
+    plan.nationalStatus.status
+  );
 
 const hasReceivedFromAbove = (
   echelon: ProgrammingPlanEchelon,
@@ -311,7 +320,10 @@ interface CompletenessResult {
 }
 
 export const computeCompleteness = (
-  prescriptions: Pick<Prescription, 'id' | 'sampleCount'>[],
+  prescriptions: Pick<
+    Prescription,
+    'id' | 'sampleCount' | 'programmingSubPlanId'
+  >[],
   localPrescriptions: Pick<
     LocalPrescription,
     | 'prescriptionId'
@@ -323,10 +335,14 @@ export const computeCompleteness = (
     | 'substanceKindsLaboratories'
   >[],
   echelon: ProgrammingPlanEchelon,
-  distributionKind?: DistributionKind,
+  programmingPlan?: {
+    subPlans: Pick<ProgrammingSubPlan, 'id' | 'subPlanNumber' | 'stages'>[];
+  },
   region?: Region,
   department?: Department
 ): CompletenessResult => {
+  const distributionKind =
+    programmingPlan && planDistributionKind(programmingPlan);
   if (echelon === 'National') {
     const attributedCount = sumBy(prescriptions, 'sampleCount');
     const regionalByPrescription = groupBy(
@@ -365,6 +381,17 @@ export const computeCompleteness = (
     (p) => (scopedByPrescription[p.id]?.[0]?.sampleCount ?? 0) > 0
   );
 
+  const distributesToCompanies = ({
+    programmingSubPlanId
+  }: Pick<Prescription, 'programmingSubPlanId'>) => {
+    const subPlan = programmingPlan?.subPlans.find(
+      ({ id }) => id === programmingSubPlanId
+    );
+    return (
+      !isNil(subPlan) && hasCompanyEchelon(subPlanDistributionKind(subPlan))
+    );
+  };
+
   const isReconciledWithChildren =
     echelon === 'Regional' && distributionKind !== 'REGIONAL'
       ? scopedPrescriptions.every((p) => {
@@ -383,10 +410,8 @@ export const computeCompleteness = (
           );
           return departmentSum === regionalSampleCount;
         })
-      : echelon === 'Departmental' &&
-          !isNil(distributionKind) &&
-          hasCompanyEchelon(distributionKind)
-        ? scopedPrescriptions.every((p) => {
+      : echelon === 'Departmental'
+        ? scopedPrescriptions.filter(distributesToCompanies).every((p) => {
             const departmentalRow = scopedByPrescription[p.id]?.[0];
             const departmentalSampleCount =
               departmentalRow?.diffusedSampleCount ??

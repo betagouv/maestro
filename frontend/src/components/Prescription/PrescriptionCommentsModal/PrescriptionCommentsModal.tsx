@@ -22,7 +22,9 @@ import {
   PrescriptionCommentSort,
   type PrescriptionComments
 } from 'maestro-shared/schema/Prescription/PrescriptionComments';
+import { subPlanDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { useEffect, useMemo, useState } from 'react';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -168,6 +170,16 @@ const PrescriptionCommentsModal = ({
     [prescriptionCommentsData, currentComments]
   );
 
+  const subPlan = useMemo(() => {
+    const prescription =
+      prescriptionCommentsData?.viewBy === 'Prescription'
+        ? prescriptionCommentsData.prescription
+        : (currentComments as PrescriptionComments)?.prescription;
+    return programmingPlan && prescription
+      ? findPrescriptionSubPlan([programmingPlan], prescription)
+      : undefined;
+  }, [prescriptionCommentsData, currentComments, programmingPlan]);
+
   const { visibleComments, hasComments, hasMoreComments } = useMemo(() => {
     const commentsArray = [...(currentComments?.comments ?? [])].sort(
       (c1, c2) => c1.createdAt.getTime() - c2.createdAt.getTime()
@@ -239,7 +251,8 @@ const PrescriptionCommentsModal = ({
             `Région ${Regions[prescriptionCommentsData.region].name}`}
           {hasRegionalView &&
             prescriptionCommentsData?.viewBy === 'Prescription' &&
-            programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
+            !isNil(subPlan) &&
+            subPlanDistributionKind(subPlan) === 'SLAUGHTERHOUSE' &&
             prescriptionCommentsData.regionalCommentsList.some(
               (_) => !isNil(_.department)
             ) && (
@@ -362,6 +375,7 @@ const PrescriptionCommentsModal = ({
           {programmingPlan &&
             hasUserLocalPrescriptionPermission(
               programmingPlan,
+              subPlan,
               getLocalPrescriptionPartialKey
             )?.comment && (
               <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>

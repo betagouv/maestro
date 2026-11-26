@@ -332,7 +332,6 @@ export const genProgrammingPlan = (
         programmingPlanId: planId
       }
     ],
-    distributionKind: 'REGIONAL',
     nationalCoordinators: [
       {
         id: NationalCoordinatorId,
@@ -381,7 +380,6 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   domainId: PesticideResiduePreviousYearDomainId,
   title: 'Production primaire végétale',
   subPlans: [PPVClosedSubPlanFixture],
-  distributionKind: 'REGIONAL',
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
   closedAt: new Date(),
@@ -399,7 +397,6 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   domainId: PesticideResidueDomainId,
   title: 'Production primaire végétale',
   subPlans: [PPVValidatedSubPlanFixture],
-  distributionKind: 'REGIONAL',
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
   nationalStatus: { status: 'SubmittedToRegion' },
@@ -415,7 +412,6 @@ export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
   domainId: PesticideResidueInTenYearsDomainId,
   title: 'Production primaire végétale - DROM',
   subPlans: [PPVValidatedDromSubPlanFixture],
-  distributionKind: 'REGIONAL',
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
   nationalStatus: { status: 'SubmittedToRegion' },
@@ -431,7 +427,6 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   domainId: PesticideResidueNextYearDomainId,
   title: 'Production primaire végétale',
   subPlans: [PPVInProgressSubPlanFixture],
-  distributionKind: 'REGIONAL',
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
   launchedAt: null,
@@ -449,7 +444,6 @@ export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
   domainId: PesticideResidueInTwoYearsDomainId,
   title: 'Production primaire végétale',
   subPlans: [PPVSubmittedSubPlanFixture],
-  distributionKind: 'REGIONAL',
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
   nationalStatus: { status: 'SubmittedToRegion' },
@@ -469,7 +463,6 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
     DAOAVolailleValidatedSubPlanFixture,
     DAOABovinValidatedSubPlanFixture
   ],
-  distributionKind: 'SLAUGHTERHOUSE',
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
   nationalStatus: { status: 'SubmittedToRegion' },
@@ -493,7 +486,6 @@ export const ALANProgrammingPlanFixture = genProgrammingPlan({
   domainId: ChemicalContaminantDomainId,
   title: 'Alimentation animale',
   subPlans: [ALANRuminantsSubPlanFixture, ALANVolaillesSubPlanFixture],
-  distributionKind: 'DEPARTMENTAL',
   createdAt: new Date(),
   createdBy: NationalCoordinatorAlanId,
   nationalStatus: { status: 'SubmittedToRegion' },
@@ -520,7 +512,6 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
     DAOAVolailleInProgressSubPlanFixture,
     DAOABovinInProgressSubPlanFixture
   ],
-  distributionKind: 'SLAUGHTERHOUSE',
   settingsCompleted: false,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,

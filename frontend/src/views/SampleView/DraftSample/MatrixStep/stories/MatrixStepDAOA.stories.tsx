@@ -33,8 +33,7 @@ const sampler = genUser({
   programmingSubPlanIds: [DAOABovinValidatedSubPlanId]
 });
 const programmingPlan = genProgrammingPlan({
-  subPlans: [DAOABovinValidatedSubPlanFixture],
-  distributionKind: 'SLAUGHTERHOUSE'
+  subPlans: [DAOABovinValidatedSubPlanFixture]
 });
 
 export const MatrixStepDAOA: Story = {

@@ -116,21 +116,12 @@ const ContextStep = ({ partialSample }: Props) => {
   const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
 
   const [geolocationX, setGeolocationX] = useState(
-    partialSample?.geolocation?.x ??
-      (user?.companies?.length === 1
-        ? user?.companies?.[0].geolocation?.x
-        : undefined)
+    partialSample?.geolocation?.x
   );
   const [geolocationY, setGeolocationY] = useState(
-    partialSample?.geolocation?.y ??
-      (user?.companies?.length === 1
-        ? user?.companies?.[0].geolocation?.y
-        : undefined)
+    partialSample?.geolocation?.y
   );
-  const [company, setCompany] = useState(
-    partialSample?.company ??
-      (user?.companies?.length === 1 ? user?.companies?.[0] : undefined)
-  );
+  const [company, setCompany] = useState(partialSample?.company ?? undefined);
   const [companyWorkshop, setCompanyWorkshop] = useState(
     partialSample?.companyWorkshop ?? undefined
   );
@@ -463,6 +454,21 @@ const ContextStep = ({ partialSample }: Props) => {
           )}
         <AppRequiredText />
       </div>
+      {programmingPlan.subPlans.length > 1 && (
+        <AppSelect
+          value={programmingSubPlanId}
+          options={programmingSubPlanOptions}
+          onChange={(e) => setProgrammingSubPlanId(e.target.value)}
+          inputForm={form}
+          inputKey="programmingSubPlanId"
+          whenValid="Type de plan correctement renseigné."
+          data-testid="programmingSubPlan-select"
+          label="Type de plan"
+          disabled={readonly}
+          required
+          className={cx('fr-mb-0')}
+        />
+      )}
       {isPPV && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
@@ -567,21 +573,6 @@ const ContextStep = ({ partialSample }: Props) => {
             />
           </div>
         </SampleGeolocationForm>
-      )}
-      {programmingPlan.subPlans.length > 1 && (
-        <AppSelect
-          value={programmingSubPlanId}
-          options={programmingSubPlanOptions}
-          onChange={(e) => setProgrammingSubPlanId(e.target.value)}
-          inputForm={form}
-          inputKey="programmingSubPlanId"
-          whenValid="Type de plan correctement renseigné."
-          data-testid="programmingSubPlan-select"
-          label="Type de plan"
-          disabled={readonly}
-          required
-          className={cx('fr-mb-0')}
-        />
       )}
       {contextOptions.length > 1 && (
         <AppRadioButtons

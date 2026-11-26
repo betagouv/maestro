@@ -11,6 +11,7 @@ import type {
   MatrixKind
 } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import {
   emptyProgrammingPlanSettings,
@@ -1206,9 +1207,7 @@ describe('ProgrammingPlan router', () => {
         .use(tokenProvider(DepartmentalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject({
-        distributionKind: 'DEPARTMENTAL'
-      });
+      expect(planDistributionKind(res.body)).toBe('DEPARTMENTAL');
 
       await expect(
         ProgrammingPlanLocalStatus()
@@ -2652,7 +2651,6 @@ describe('ProgrammingPlan router', () => {
         year: new Date().getFullYear(),
         title: 'Nouveau plan',
         subPlans: [],
-        distributionKind: 'DEPARTMENTAL',
         settingsCompleted: false,
         createdBy: NationalCoordinator.id,
         nationalStatus: { status: 'InProgress' },

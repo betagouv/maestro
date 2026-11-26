@@ -32,8 +32,10 @@ import {
   sortPrescriptions
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { PrescriptionImportResult } from 'maestro-shared/schema/Prescription/PrescriptionImport';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import {
   changeViewAudienceForRole,
@@ -465,7 +467,7 @@ const ProgrammingPrescriptionList = ({
             );
             return (
               !isNil(prescriptionPlan) &&
-              !hasDepartmentalEchelon(prescriptionPlan.distributionKind)
+              !hasDepartmentalEchelon(planDistributionKind(prescriptionPlan))
             );
           })
           .map((prescription) => prescription.id)
@@ -786,10 +788,10 @@ const ProgrammingPrescriptionList = ({
       return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser à l\'administrateur et/ou aux régions dans "Suivi des plans".';
     if (isRegionalRole(userRole)) {
       const hasRegionalKind = programmingPlans.some(
-        (plan) => !hasDepartmentalEchelon(plan.distributionKind)
+        (plan) => !hasDepartmentalEchelon(planDistributionKind(plan))
       );
       const hasDepartmentalEchelonKind = programmingPlans.some((plan) =>
-        hasDepartmentalEchelon(plan.distributionKind)
+        hasDepartmentalEchelon(planDistributionKind(plan))
       );
       if (hasRegionalKind && !hasDepartmentalEchelonKind) {
         return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs dans "Suivi des plans".';
@@ -813,8 +815,15 @@ const ProgrammingPrescriptionList = ({
         const plan = prescription
           ? getPrescriptionPlan(prescription)
           : programmingPlans[0];
-        return hasUserLocalPrescriptionPermission(plan, regionalPrescription)
-          ?.updateLaboratories;
+        const subPlan =
+          plan && prescription
+            ? findPrescriptionSubPlan([plan], prescription)
+            : undefined;
+        return hasUserLocalPrescriptionPermission(
+          plan,
+          subPlan,
+          regionalPrescription
+        )?.updateLaboratories;
       }),
     [
       programmingPlans,
@@ -869,7 +878,9 @@ const ProgrammingPrescriptionList = ({
       if (!plan) {
         return [];
       }
-      const isLaboratoryEchelon = hasDepartmentalEchelon(plan.distributionKind)
+      const isLaboratoryEchelon = hasDepartmentalEchelon(
+        planDistributionKind(plan)
+      )
         ? !!department
         : !department;
       if (!isLaboratoryEchelon) {
