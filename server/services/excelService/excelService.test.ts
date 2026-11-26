@@ -181,9 +181,20 @@ describe('generatePrescriptionsExportExcel', async () => {
       programmingSubPlanId: PPVInProgressSubPlanId,
       sampleCount: 12
     });
+    const programmingPlan = {
+      ...PPVInProgressProgrammingPlanFixture,
+      subPlans: PPVInProgressProgrammingPlanFixture.subPlans.map((subPlan) => ({
+        ...subPlan,
+        stages: [
+          { stage: 'PRODUCTION_PRIMAIRE_VEGETALE' as const, subStages: [] },
+          { stage: 'ALIMENTATION_ANIMALE' as const, subStages: [] },
+          { stage: 'TRANSFORMATION' as const, subStages: [] }
+        ]
+      }))
+    };
 
     const buffer = await excelService.generatePrescriptionsExportExcel(
-      [PPVInProgressProgrammingPlanFixture],
+      [programmingPlan],
       [prescription],
       [
         genLocalPrescription({

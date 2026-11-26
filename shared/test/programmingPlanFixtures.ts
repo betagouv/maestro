@@ -1,4 +1,5 @@
 import { isDromRegion, RegionList, Regions } from '../referential/Region';
+import type { SubPlanStages } from '../referential/Stage';
 import {
   type Matrix,
   type MatrixKind,
@@ -198,15 +199,15 @@ export const genProgrammingSubPlan = (
   ...data
 });
 
+export const PPVStagesFixture: SubPlanStages = [
+  { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] }
+];
+
 export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
   id: PPVValidatedSubPlanId,
   programmingPlanId: PPVValidatedProgrammingPlanId,
   subPlanNumber: 'PPV01',
-  stages: [
-    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
-    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
-    { stage: 'TRANSFORMATION', subStages: [] }
-  ],
+  stages: PPVStagesFixture,
   contactListId: 7,
   withSacha: false,
   substanceKinds: ['Mono', 'Multi'],
