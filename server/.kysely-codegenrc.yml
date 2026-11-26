@@ -9,14 +9,6 @@ overrides:
     # /!\ DANGER /!\
     # Pour tous les types overrided, faire hyper-gaffe aux nullables et à ce genre de cas particuliers
     # /!\ ------ /!\
-    # FIXME
-    # local_prescription_changes
-    # LocalPrescriptionSubstanceKindsLaboratories
-    # MaestroAteliersNational202610061730
-    # Notifications
-    # PrescriptionChanges
-    # ProgrammingSubPlanFieldSettings
-    # pas dans l'ancien modèle, on laisse tout en type de base ?
     analysis.status: AnalysisStatus
     analysis_dai.id: Generated<AnalysisDaiId>
     analysis_dai.state: AnalysisDaiState
@@ -37,14 +29,12 @@ overrides:
     analysis_residues.analysis_kind: AnalysisKind | null
     companies.kinds: CompanyKind[]
     companies.geolocation: Point | null
-    # FIXME une raison ?
     departments.geometry: ColumnType<never, unknown, unknown>
     documents.kind: DocumentKind
     laboratories.short_name: LaboratoryShortName
     laboratories.sacha_communication_method: SachaCommunicationMethod | null
     laboratory_agreement_checks.programming_sub_plan_id: ProgrammingSubPlanId
     laboratory_agreement_checks.substance_kind: SubstanceKind
-    # FIXME Sur laboratory_agreements et d'autres on a des Generated<boolean> maintenant au lieu de juste boolean, c'est grave ?
     laboratory_agreements.substance_kind: SubstanceKind
     laboratory_residue_mappings.ssd2_id: SSD2Id | null
     matrices.code: Matrix
@@ -133,8 +123,7 @@ overrides:
     sample_items.destruction_date: MaestroDate | null
     sample_items.invoicing_date: MaestroDate | null
     sample_items.paid_date: MaestroDate | null
-    # FIXME la BDD accepte les null
-    sample_item_status.status: SampleStatusType
+    sample_item_status.status: SampleStatusType | null
     samples.matrices: ColumnType<PartialSampleMatrix[] | null, string | null | undefined, string | null>
     samples.programming_sub_plan_id: ProgrammingSubPlanId
     samples.sampled_date: MaestroDate

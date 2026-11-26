@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "npm run migrate-latest && node --enable-source-maps --max-semi-space-size=16 --max-http-header-size=8192 --import ./loaders/register.mjs --watch --watch-kill-signal SIGINT --inspect ./index.ts",
     "build": "tsc",
-    "db:verify-types": "DATABASE_URL=postgres://postgres:password@localhost/maestro  npx -y --package kysely-codegen@0.18.5 --package pg@8.16.3 kysely-codegen --verify",
-    "db:generate-types": "DATABASE_URL=postgres://postgres:password@localhost/maestro  npx -y --package kysely-codegen@0.18.5 --package pg@8.16.3 kysely-codegen",
+    "db:verify-types": "DATABASE_URL=postgres://postgres:password@localhost/maestro kysely-codegen --verify",
+    "db:generate-types": "DATABASE_URL=postgres://postgres:password@localhost/maestro kysely-codegen",
     "postdb:generate-types": "cat ./repositories/kysely/_headers ./repositories/kysely/types_gen > ./repositories/kysely.types2.ts",
     "tsc": "tsc",
     "start": "npm run migrate-latest && node --enable-source-maps --max-semi-space-size=16 --import ./sentry.mjs --import ./loaders/register.mjs ./index.ts",
@@ -53,6 +53,7 @@
     "knex": "^3.3.0",
     "knex-stringcase": "^1.6.0",
     "kysely": "^0.29.9",
+    "kysely-codegen": "^0.18.5",
     "libxml2-wasm": "^0.7.2",
     "maestro-shared": "^0.0.1",
     "mailparser": "^3.14.5",
