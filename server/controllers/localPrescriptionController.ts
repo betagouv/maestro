@@ -395,6 +395,7 @@ export const localPrescriptionsRouter = {
         user,
         userRole,
         programmingPlan,
+        subPlan,
         localPrescription
       ).comment;
 
@@ -478,6 +479,7 @@ export const localPrescriptionsRouter = {
           user,
           userRole,
           programmingPlan,
+          subPlan,
           localPrescription
         ).comment;
 

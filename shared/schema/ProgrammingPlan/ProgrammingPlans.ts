@@ -7,7 +7,6 @@ import {
   type ProgrammingPlanContext,
   ProgrammingPlanContextList
 } from './Context';
-import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomainId } from './ProgrammingPlanDomain';
 import {
   ProgrammingPlanDepartmentalStatus,
@@ -22,7 +21,6 @@ const ProgrammingPlanBase = z.object({
   domainId: ProgrammingPlanDomainId,
   title: z.string().min(1, 'Veuillez renseigner le titre.'),
   subPlans: z.array(ProgrammingSubPlan),
-  distributionKind: DistributionKind,
   nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator),
   settingsCompleted: z.boolean(),
   createdAt: z.coerce.date(),

@@ -13,6 +13,7 @@ import type { Stage } from 'maestro-shared/referential/Stage';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { MatrixKind } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
@@ -274,10 +275,10 @@ const ProgrammingView = () => {
     }
     if (hasRole('RegionalCoordinator')) {
       const hasDepartmentalEchelonPlan = readyToSendPlans.some((plan) =>
-        hasDepartmentalEchelon(plan.distributionKind)
+        hasDepartmentalEchelon(planDistributionKind(plan))
       );
       const hasRegional = readyToSendPlans.some(
-        (plan) => !hasDepartmentalEchelon(plan.distributionKind)
+        (plan) => !hasDepartmentalEchelon(planDistributionKind(plan))
       );
       if (hasDepartmentalEchelonPlan && hasRegional) {
         return `${plural} à être soumis aux départements et/ou ${diffused} aux préleveurs.`;
@@ -307,8 +308,9 @@ const ProgrammingView = () => {
       tabId: 'ProgrammationTab',
       iconId: 'fr-icon-survey-line'
     },
-    (programmingPlans ?? []).some((p) => p.distributionKind === 'REGIONAL') &&
-    hasUserPermission('commentPrescription')
+    (programmingPlans ?? []).some(
+      (p) => planDistributionKind(p) === 'REGIONAL'
+    ) && hasUserPermission('commentPrescription')
       ? {
           label: 'Commentaires',
           tabId: 'CommentsTab',

@@ -36,6 +36,7 @@ import {
   sortPrescriptions
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import {
   hasCompanyEchelon,
   hasDepartmentalEchelon
@@ -481,13 +482,13 @@ const generatePrescriptionsExportExcel = async (
   const matrixReferential = await matrixRepository.findReferential();
 
   const hasRegionalPlan = programmingPlans.some(
-    (plan) => plan.distributionKind === 'REGIONAL'
+    (plan) => planDistributionKind(plan) === 'REGIONAL'
   );
   const hasCompanyEchelonPlan = programmingPlans.some((plan) =>
-    hasCompanyEchelon(plan.distributionKind)
+    hasCompanyEchelon(planDistributionKind(plan))
   );
   const hasDepartmentalEchelonPlan = programmingPlans.some((plan) =>
-    hasDepartmentalEchelon(plan.distributionKind)
+    hasDepartmentalEchelon(planDistributionKind(plan))
   );
 
   const showLaboratoryColumns =
@@ -677,7 +678,8 @@ const generatePrescriptionsExportExcel = async (
             localPrescription?.sampleCount ?? 0,
             ...(showRegionalLaboratoryColumns
               ? effectiveSubstanceKinds.map((substanceKind) =>
-                  prescriptionPlan?.distributionKind === 'REGIONAL' &&
+                  !isNil(prescriptionPlan) &&
+                  planDistributionKind(prescriptionPlan) === 'REGIONAL' &&
                   (prescriptionSubPlan?.substanceKinds ?? []).includes(
                     substanceKind
                   )
@@ -700,7 +702,9 @@ const generatePrescriptionsExportExcel = async (
             ...(showDepartmentalLaboratoryColumns
               ? effectiveSubstanceKinds.map((substanceKind) =>
                   !isNil(prescriptionPlan) &&
-                  hasDepartmentalEchelon(prescriptionPlan.distributionKind) &&
+                  hasDepartmentalEchelon(
+                    planDistributionKind(prescriptionPlan)
+                  ) &&
                   (prescriptionSubPlan?.substanceKinds ?? []).includes(
                     substanceKind
                   )

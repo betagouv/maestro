@@ -24,6 +24,7 @@ import type {
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import {
   hasCompanyEchelon,
   hasDepartmentalEchelon
@@ -484,7 +485,7 @@ const ProgrammingPrescriptionTable = ({
     !!region &&
     userRole !== 'Sampler' &&
     programmingPlans.some(
-      (p) => !hasDepartmentalEchelon(p.distributionKind) || !!department
+      (p) => !hasDepartmentalEchelon(planDistributionKind(p)) || !!department
     );
 
   const prescriptions = region
@@ -524,7 +525,7 @@ const ProgrammingPrescriptionTable = ({
 
   const hasVisibleDepartmentalEchelonPlan = planOrder.some((planId) => {
     const plan = programmingPlans.find((p) => p.id === planId);
-    return !isNil(plan) && hasDepartmentalEchelon(plan.distributionKind);
+    return !isNil(plan) && hasDepartmentalEchelon(planDistributionKind(plan));
   });
 
   const departmentList = hasVisibleDepartmentalEchelonPlan
@@ -533,7 +534,7 @@ const ProgrammingPrescriptionTable = ({
 
   const hasVisibleCompanyEchelonPlan = planOrder.some((planId) => {
     const plan = programmingPlans.find((p) => p.id === planId);
-    return !isNil(plan) && hasCompanyEchelon(plan.distributionKind);
+    return !isNil(plan) && hasCompanyEchelon(planDistributionKind(plan));
   });
 
   const companyList = hasVisibleCompanyEchelonPlan
@@ -935,7 +936,7 @@ const ProgrammingPrescriptionTable = ({
                                               })}
                                             >
                                               {hasDepartmentalEchelon(
-                                                plan.distributionKind
+                                                planDistributionKind(plan)
                                               )
                                                 ? sumBy(
                                                     contextSubLocalPrescriptions.filter(

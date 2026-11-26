@@ -2,6 +2,7 @@ import type { Department } from 'maestro-shared/referential/Department';
 import type { Region } from 'maestro-shared/referential/Region';
 import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import {
   computeCompleteness,
   computeDisplayStatus,
@@ -33,7 +34,7 @@ export const buildEchelonDisplayStatus = (
     prescriptions,
     localPrescriptions,
     echelon,
-    programmingPlan.distributionKind,
+    programmingPlan,
     region,
     department
   );
@@ -49,7 +50,7 @@ export const buildEchelonDisplayStatus = (
     isComplete: completeness.isComplete,
     hasUnprogrammedSubPlan: completeness.hasUnprogrammedSubPlan,
     echelon,
-    distributionKind: programmingPlan.distributionKind,
+    distributionKind: planDistributionKind(programmingPlan),
     viewerOwnsNationalRow
   });
 };

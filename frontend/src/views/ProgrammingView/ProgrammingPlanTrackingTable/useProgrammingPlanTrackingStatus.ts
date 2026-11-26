@@ -6,6 +6,7 @@ import {
   RegionList,
   Regions
 } from 'maestro-shared/referential/Region';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import {
   computeCompleteness,
   type DisplayStatusResult,
@@ -62,7 +63,7 @@ export const useProgrammingPlanTrackingStatus = (
     { skip: planIds.length === 0 }
   );
   const hasCompanyEchelonPlan = programmingPlans.some((plan) =>
-    hasCompanyEchelon(plan.distributionKind)
+    hasCompanyEchelon(planDistributionKind(plan))
   );
 
   const { data: localPrescriptions } = apiClient.useFindLocalPrescriptionsQuery(
@@ -129,7 +130,7 @@ export const useProgrammingPlanTrackingStatus = (
       );
 
       const departmentalDisplayStatus =
-        department && hasDepartmentalEchelon(plan.distributionKind)
+        department && hasDepartmentalEchelon(planDistributionKind(plan))
           ? buildEchelonDisplayStatus(
               plan,
               planPrescriptions,
@@ -141,7 +142,7 @@ export const useProgrammingPlanTrackingStatus = (
           : undefined;
 
       const departmentalAggregate =
-        !department && hasDepartmentalEchelon(plan.distributionKind)
+        !department && hasDepartmentalEchelon(planDistributionKind(plan))
           ? buildAggregateDisplayStatus(
               (region ? [region] : RegionList).flatMap((regionColumn) =>
                 sortedDepartments(regionColumn).map((departmentColumn) =>
@@ -177,7 +178,7 @@ export const useProgrammingPlanTrackingStatus = (
         planPrescriptions,
         planLocalPrescriptions,
         department ? 'Departmental' : region ? 'Regional' : 'National',
-        plan.distributionKind,
+        plan,
         region,
         department
       );

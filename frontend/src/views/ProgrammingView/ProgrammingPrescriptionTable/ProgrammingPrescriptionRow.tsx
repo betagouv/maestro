@@ -17,7 +17,10 @@ import {
   hasPrescriptionPermission,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { subPlanDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
+import {
+  planDistributionKind,
+  subPlanDistributionKind
+} from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import {
   hasCompanyEchelon,
   hasDepartmentalEchelon
@@ -145,8 +148,8 @@ const ProgrammingPrescriptionRow = ({
     (prescription.sampleCount !== 0 || totalSampleCount !== 0);
   const regionDistributedCount = sumBy(rowSubLocalPrescriptions, 'sampleCount');
   const distributesBelow = department
-    ? hasCompanyEchelon(plan.distributionKind)
-    : hasDepartmentalEchelon(plan.distributionKind);
+    ? !isNil(subPlan) && hasCompanyEchelon(subPlanDistributionKind(subPlan))
+    : hasDepartmentalEchelon(planDistributionKind(plan));
   const showRegionDistributionBadge =
     !isSamplerView &&
     distributesBelow &&
@@ -161,11 +164,11 @@ const ProgrammingPrescriptionRow = ({
       .map((_) => [_.region, _] as const)
   );
   const showComments =
-    plan.distributionKind === 'REGIONAL' &&
+    planDistributionKind(plan) === 'REGIONAL' &&
     hasUserPermission('commentPrescription') &&
     !!onOpenComments;
   const showRowLaboratoryCells =
-    (!hasDepartmentalEchelon(plan.distributionKind) || department) &&
+    (!hasDepartmentalEchelon(planDistributionKind(plan)) || department) &&
     !!ownRegionalPrescription;
   const rowSubstanceKindsLaboratories: SubstanceKindLaboratory[] = (
     showRowLaboratoryCells
@@ -300,7 +303,7 @@ const ProgrammingPrescriptionRow = ({
                     />
                   )}
                   {region ? (
-                    plan.distributionKind === 'REGIONAL' &&
+                    planDistributionKind(plan) === 'REGIONAL' &&
                     ownRegionalPrescription ? (
                       <div
                         className={clsx(
@@ -314,6 +317,7 @@ const ProgrammingPrescriptionRow = ({
                           isEditable={
                             hasUserLocalPrescriptionPermission(
                               plan,
+                              subPlan,
                               ownRegionalPrescription
                             )?.updateSampleCount
                           }
@@ -437,6 +441,7 @@ const ProgrammingPrescriptionRow = ({
                       ? (() => {
                           const isEditable = hasUserLocalPrescriptionPermission(
                             plan,
+                            subPlan,
                             ownRegionalPrescription
                           )?.updateLaboratories;
                           const isLaboratoryPending =
@@ -517,6 +522,7 @@ const ProgrammingPrescriptionRow = ({
                                 isEditable={
                                   hasUserLocalPrescriptionPermission(
                                     plan,
+                                    subPlan,
                                     localPrescription
                                   )?.distributeToSlaughterhouses
                                 }
@@ -569,6 +575,7 @@ const ProgrammingPrescriptionRow = ({
                                   isEditable={
                                     hasUserLocalPrescriptionPermission(
                                       plan,
+                                      subPlan,
                                       localPrescription
                                     )?.distributeToDepartments
                                   }
@@ -593,7 +600,9 @@ const ProgrammingPrescriptionRow = ({
                                     )
                                   }
                                 />
-                              ) : plan.distributionKind !== 'SLAUGHTERHOUSE' ? (
+                              ) : isNil(subPlan) ||
+                                subPlanDistributionKind(subPlan) !==
+                                  'SLAUGHTERHOUSE' ? (
                                 'N/A'
                               ) : null}
                             </td>
@@ -629,6 +638,7 @@ const ProgrammingPrescriptionRow = ({
                                   isEditable={
                                     hasUserLocalPrescriptionPermission(
                                       plan,
+                                      subPlan,
                                       localPrescription
                                     )?.updateSampleCount
                                   }

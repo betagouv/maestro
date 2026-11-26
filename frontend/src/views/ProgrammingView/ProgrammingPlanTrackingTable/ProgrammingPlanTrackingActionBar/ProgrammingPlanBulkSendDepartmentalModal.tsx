@@ -4,6 +4,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import type { Department } from 'maestro-shared/referential/Department';
 import type { Region } from 'maestro-shared/referential/Region';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import {
   NextProgrammingPlanStatus,
   type ProgrammingPlanStatus
@@ -53,7 +54,7 @@ const ProgrammingPlanBulkSendDepartmentalModal = ({
               {
                 region: user?.region as Region,
                 department: user?.department as Department,
-                status: NextProgrammingPlanStatus[plan.distributionKind][
+                status: NextProgrammingPlanStatus[planDistributionKind(plan)][
                   'SubmittedToDepartments'
                 ] as ProgrammingPlanStatus
               }

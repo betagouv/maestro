@@ -1,7 +1,12 @@
 import {
+  planDistributionKind,
+  subPlanDistributionKind
+} from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
+import {
   hasCompanyEchelon,
   hasDepartmentalEchelon
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
+import { findPrescriptionSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   isCreatedPartialSample,
   type PartialSample,
@@ -90,7 +95,7 @@ export const usePartialSample = (
         .filter((localPrescription) => {
           if (
             !programmingPlan ||
-            !hasDepartmentalEchelon(programmingPlan.distributionKind)
+            !hasDepartmentalEchelon(planDistributionKind(programmingPlan))
           ) {
             return true;
           }
@@ -102,7 +107,16 @@ export const usePartialSample = (
           ) {
             return false;
           }
-          if (!hasCompanyEchelon(programmingPlan.distributionKind)) {
+          const prescription = programmingPlanPrescriptions?.find(
+            ({ id }) => id === localPrescription.prescriptionId
+          );
+          const subPlan =
+            prescription &&
+            findPrescriptionSubPlan([programmingPlan], prescription);
+          if (!subPlan) {
+            return false;
+          }
+          if (!hasCompanyEchelon(subPlanDistributionKind(subPlan))) {
             return true;
           }
           return isCreatedPartialSample(partialSample)
@@ -113,6 +127,7 @@ export const usePartialSample = (
         }),
     [
       programmingPlanLocalPrescriptionsData,
+      programmingPlanPrescriptions,
       partialSample,
       user,
       programmingPlan

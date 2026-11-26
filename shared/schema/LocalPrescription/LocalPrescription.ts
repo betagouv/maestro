@@ -4,10 +4,15 @@ import { type Department, DepartmentSort } from '../../referential/Department';
 import { type Region, RegionSort } from '../../referential/Region';
 import type { Company } from '../Company/Company';
 import {
+  planDistributionKind,
+  subPlanDistributionKind
+} from '../ProgrammingPlan/DistributionKind';
+import {
   hasCompanyEchelon,
   hasDepartmentalEchelon
 } from '../ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlan } from '../ProgrammingPlan/ProgrammingSubPlan';
 import { hasPermission, type UserBase, userRegionsForRole } from '../User/User';
 import type { UserRole } from '../User/UserRole';
 import { LocalPrescriptionComment } from './LocalPrescriptionComment';
@@ -150,6 +155,7 @@ export const hasLocalPrescriptionPermission = (
   user: Pick<UserBase, 'region' | 'department'>,
   userRole: UserRole,
   programmingPlan: ProgrammingPlanChecked,
+  subPlan: Pick<ProgrammingSubPlan, 'subPlanNumber' | 'stages'>,
   localPrescription: { region: Region; department?: Department | null }
 ): Record<LocalPrescriptionPermission, boolean> => ({
   updateSampleCount:
@@ -163,11 +169,11 @@ export const hasLocalPrescriptionPermission = (
     programmingPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === localPrescription.region
     )?.status !== 'Closed' &&
-    (hasDepartmentalEchelon(programmingPlan.distributionKind)
+    (hasDepartmentalEchelon(planDistributionKind(programmingPlan))
       ? hasPermission(userRole, 'distributePrescriptionToDepartments')
       : hasPermission(userRole, 'approveProgrammingPlan')),
   distributeToSlaughterhouses:
-    hasCompanyEchelon(programmingPlan.distributionKind) &&
+    hasCompanyEchelon(subPlanDistributionKind(subPlan)) &&
     hasPermission(userRole, 'distributePrescriptionToSlaughterhouses') &&
     userRegionsForRole(user, userRole).includes(localPrescription.region) &&
     user.department === localPrescription.department &&
@@ -182,7 +188,7 @@ export const hasLocalPrescriptionPermission = (
   comment:
     hasPermission(userRole, 'commentPrescription') &&
     userRegionsForRole(user, userRole).includes(localPrescription.region) &&
-    programmingPlan.distributionKind === 'REGIONAL' &&
+    planDistributionKind(programmingPlan) === 'REGIONAL' &&
     programmingPlan.regionalStatus.some(
       (regionStatus) =>
         regionStatus.region === localPrescription.region &&
@@ -191,13 +197,13 @@ export const hasLocalPrescriptionPermission = (
   updateLaboratories:
     hasPermission(userRole, 'updatePrescriptionLaboratories') &&
     userRegionsForRole(user, userRole).includes(localPrescription.region) &&
-    ((!hasDepartmentalEchelon(programmingPlan.distributionKind) &&
+    ((!hasDepartmentalEchelon(planDistributionKind(programmingPlan)) &&
       programmingPlan.regionalStatus.some(
         (regionStatus) =>
           regionStatus.region === localPrescription.region &&
           ['Validated', 'SubmittedToRegion'].includes(regionStatus.status)
       )) ||
-      (hasDepartmentalEchelon(programmingPlan.distributionKind) &&
+      (hasDepartmentalEchelon(planDistributionKind(programmingPlan)) &&
         user.department === localPrescription.department &&
         programmingPlan.departmentalStatus.some(
           (departmentalStatus) =>

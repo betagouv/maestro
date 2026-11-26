@@ -3,7 +3,8 @@ import { SlaughterhouseCompanyFixture1 } from '../../test/companyFixtures';
 import { genLocalPrescription } from '../../test/prescriptionFixtures';
 import {
   ALANProgrammingPlanFixture,
-  DAOAValidatedProgrammingPlanFixture
+  DAOAValidatedProgrammingPlanFixture,
+  genProgrammingSubPlan
 } from '../../test/programmingPlanFixtures';
 import {
   filteredLocalPrescriptions,
@@ -90,6 +91,7 @@ describe('hasLocalPrescriptionPermission — DEPARTMENTAL plan (ALAN)', () => {
         { region: '44', department: null },
         'RegionalCoordinator',
         ALANProgrammingPlanFixture,
+        ALANProgrammingPlanFixture.subPlans[0],
         departmentRow
       ).distributeToDepartments
     ).toBe(true);
@@ -101,6 +103,7 @@ describe('hasLocalPrescriptionPermission — DEPARTMENTAL plan (ALAN)', () => {
         { region: '44', department: '08' },
         'DepartmentalCoordinator',
         ALANProgrammingPlanFixture,
+        ALANProgrammingPlanFixture.subPlans[0],
         departmentRow
       ).updateLaboratories
     ).toBe(true);
@@ -112,6 +115,7 @@ describe('hasLocalPrescriptionPermission — DEPARTMENTAL plan (ALAN)', () => {
         { region: '44', department: '08' },
         'DepartmentalCoordinator',
         ALANProgrammingPlanFixture,
+        ALANProgrammingPlanFixture.subPlans[0],
         departmentRow
       ).updateSampleCount
     ).toBe(false);
@@ -123,6 +127,7 @@ describe('hasLocalPrescriptionPermission — DEPARTMENTAL plan (ALAN)', () => {
         { region: '44', department: '08' },
         'DepartmentalCoordinator',
         ALANProgrammingPlanFixture,
+        ALANProgrammingPlanFixture.subPlans[0],
         departmentRow
       ).distributeToSlaughterhouses
     ).toBe(false);
@@ -131,8 +136,25 @@ describe('hasLocalPrescriptionPermission — DEPARTMENTAL plan (ALAN)', () => {
         { region: '44', department: '08' },
         'DepartmentalCoordinator',
         DAOAValidatedProgrammingPlanFixture,
+        DAOAValidatedProgrammingPlanFixture.subPlans[0],
         departmentRow
       ).distributeToSlaughterhouses
     ).toBe(true);
+  });
+
+  test('no abattoir split for a sub-plan outside the slaughter stage of a slaughterhouse plan', () => {
+    expect(
+      hasLocalPrescriptionPermission(
+        { region: '44', department: '08' },
+        'DepartmentalCoordinator',
+        DAOAValidatedProgrammingPlanFixture,
+        genProgrammingSubPlan({
+          programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+          subPlanNumber: 'M03',
+          stages: [{ stage: 'ELEVAGE', subStages: [] }]
+        }),
+        departmentRow
+      ).distributeToSlaughterhouses
+    ).toBe(false);
   });
 });

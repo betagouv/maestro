@@ -1,6 +1,9 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
+import {
+  type DistributionKind,
+  planDistributionKind
+} from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -52,7 +55,7 @@ const DashboardNoticeAndActions: FunctionComponent<Props> = ({
     }
     const statusByRoleForDistributionKind =
       prioritySamplesStatusList[
-        currentValidatedProgrammingPlan.distributionKind
+        planDistributionKind(currentValidatedProgrammingPlan)
       ];
     return userRole in statusByRoleForDistributionKind
       ? statusByRoleForDistributionKind[

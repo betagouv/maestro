@@ -4,6 +4,29 @@ const assignedLaboratories = [
   { substanceKind: 'Mono' as const, laboratoryId: 'lab-1' }
 ];
 
+const subPlanId = 'sp1' as ProgrammingSubPlanId;
+const regionalPlan = {
+  subPlans: [{ id: subPlanId, subPlanNumber: 'PPV01', stages: null }]
+};
+const slaughterhousePlan = {
+  subPlans: [
+    {
+      id: subPlanId,
+      subPlanNumber: 'M01',
+      stages: [{ stage: 'ABATTAGE' as const, subStages: [] }]
+    }
+  ]
+};
+const departmentalPlan = {
+  subPlans: [
+    {
+      id: subPlanId,
+      subPlanNumber: 'M01',
+      stages: [{ stage: 'ELEVAGE' as const, subStages: [] }]
+    }
+  ]
+};
+
 import {
   computeCompleteness,
   computeDisplayStatus,
@@ -11,6 +34,7 @@ import {
   isCampaignLaunchable,
   isModifiedSinceSent
 } from './ProgrammingPlanDisplayStatus';
+import type { ProgrammingSubPlanId } from './ProgrammingSubPlan';
 
 describe('hasSentOnward — Regional, REGIONAL distributionKind', () => {
   test('SubmittedToRegion (just received, not yet acted on) does not count as sent', () => {
@@ -53,7 +77,7 @@ describe('Regional echelon, DEPARTMENTAL distributionKind', () => {
 describe('isCampaignLaunchable', () => {
   const plan = {
     launchedAt: null,
-    distributionKind: 'REGIONAL' as const,
+    subPlans: regionalPlan.subPlans,
     nationalStatus: { status: 'SubmittedToRegion' as const }
   };
 
@@ -333,7 +357,9 @@ describe('computeDisplayStatus — needsResend (diffused into me since my last s
 });
 
 describe('computeCompleteness — National: complete only once regions reconcile to the national total', () => {
-  const prescriptions = [{ id: 'p1', sampleCount: 40 }];
+  const prescriptions = [
+    { id: 'p1', sampleCount: 40, programmingSubPlanId: subPlanId }
+  ];
 
   test('national sampleCount matches sum of regional allocations -> complete', () => {
     const result = computeCompleteness(
@@ -359,7 +385,7 @@ describe('computeCompleteness — National: complete only once regions reconcile
 
   test('national sampleCount changed without regions catching up -> incomplete', () => {
     const result = computeCompleteness(
-      [{ id: 'p1', sampleCount: 50 }],
+      [{ id: 'p1', sampleCount: 50, programmingSubPlanId: subPlanId }],
       [
         {
           prescriptionId: 'p1',
@@ -414,7 +440,7 @@ describe('computeCompleteness — National: a sub-plan left at 0 is not programm
 
   test('every sub-plan programmed -> no unprogrammed sub-plan', () => {
     const result = computeCompleteness(
-      [{ id: 'p1', sampleCount: 40 }],
+      [{ id: 'p1', sampleCount: 40, programmingSubPlanId: subPlanId }],
       localPrescriptions,
       'National'
     );
@@ -425,8 +451,8 @@ describe('computeCompleteness — National: a sub-plan left at 0 is not programm
   test('one sub-plan at 0 while the others are distributed -> unprogrammed, yet still reconciled', () => {
     const result = computeCompleteness(
       [
-        { id: 'p1', sampleCount: 40 },
-        { id: 'p2', sampleCount: 0 }
+        { id: 'p1', sampleCount: 40, programmingSubPlanId: subPlanId },
+        { id: 'p2', sampleCount: 0, programmingSubPlanId: subPlanId }
       ],
       localPrescriptions,
       'National'
@@ -437,7 +463,7 @@ describe('computeCompleteness — National: a sub-plan left at 0 is not programm
 
   test('every sub-plan at 0 -> applicable all the same, so the plan reads as in progress', () => {
     const result = computeCompleteness(
-      [{ id: 'p1', sampleCount: 0 }],
+      [{ id: 'p1', sampleCount: 0, programmingSubPlanId: subPlanId }],
       [],
       'National'
     );
@@ -453,7 +479,7 @@ describe('computeCompleteness — National: a sub-plan left at 0 is not programm
 
   test('Regional ignores the rule, 0 stays a legitimate allocation', () => {
     const result = computeCompleteness(
-      [{ id: 'p1', sampleCount: 40 }],
+      [{ id: 'p1', sampleCount: 40, programmingSubPlanId: subPlanId }],
       [
         {
           prescriptionId: 'p1',
@@ -463,7 +489,7 @@ describe('computeCompleteness — National: a sub-plan left at 0 is not programm
         }
       ],
       'Regional',
-      'REGIONAL',
+      regionalPlan,
       '01'
     );
     expect(result.hasUnprogrammedSubPlan).toBe(false);
@@ -536,9 +562,9 @@ describe('computeDisplayStatus — National: an unprogrammed sub-plan blocks the
 
 describe('computeCompleteness — programmedSubPlanCount counts the sub-plans carrying volume in scope', () => {
   const prescriptions = [
-    { id: 'p1', sampleCount: 40 },
-    { id: 'p2', sampleCount: 10 },
-    { id: 'p3', sampleCount: 0 }
+    { id: 'p1', sampleCount: 40, programmingSubPlanId: subPlanId },
+    { id: 'p2', sampleCount: 10, programmingSubPlanId: subPlanId },
+    { id: 'p3', sampleCount: 0, programmingSubPlanId: subPlanId }
   ];
 
   const bretagneRows = [
@@ -580,7 +606,7 @@ describe('computeCompleteness — programmedSubPlanCount counts the sub-plans ca
         }
       ],
       'Regional',
-      'DEPARTMENTAL',
+      departmentalPlan,
       '53'
     );
     expect(result.programmedSubPlanCount).toBe(2);
@@ -604,7 +630,7 @@ describe('computeCompleteness — programmedSubPlanCount counts the sub-plans ca
         }
       ],
       'Departmental',
-      'DEPARTMENTAL',
+      departmentalPlan,
       '53',
       '22'
     );
@@ -623,7 +649,7 @@ describe('computeCompleteness — programmedSubPlanCount counts the sub-plans ca
         }
       ],
       'Regional',
-      'DEPARTMENTAL',
+      departmentalPlan,
       '53'
     );
     expect(result.programmedSubPlanCount).toBe(0);
@@ -632,8 +658,8 @@ describe('computeCompleteness — programmedSubPlanCount counts the sub-plans ca
 
 describe('computeCompleteness — Regional/Departmental: 0 is a legitimate final allocation', () => {
   const prescriptions = [
-    { id: 'p1', sampleCount: 40 },
-    { id: 'p2', sampleCount: 10 }
+    { id: 'p1', sampleCount: 40, programmingSubPlanId: subPlanId },
+    { id: 'p2', sampleCount: 10, programmingSubPlanId: subPlanId }
   ];
 
   test('a distributed count of 0 counts as complete, not missing', () => {
@@ -656,7 +682,7 @@ describe('computeCompleteness — Regional/Departmental: 0 is a legitimate final
         }
       ],
       'Regional',
-      'REGIONAL',
+      regionalPlan,
       '01'
     );
     expect(result.isComplete).toBe(true);
@@ -674,7 +700,7 @@ describe('computeCompleteness — Regional/Departmental: 0 is a legitimate final
         }
       ],
       'Regional',
-      'REGIONAL',
+      regionalPlan,
       '01'
     );
     expect(result.isComplete).toBe(false);
@@ -700,7 +726,7 @@ describe('computeCompleteness — Regional/Departmental: 0 is a legitimate final
         }
       ],
       'Regional',
-      'REGIONAL',
+      regionalPlan,
       '01'
     );
     expect(result.isComplete).toBe(true);
@@ -709,7 +735,9 @@ describe('computeCompleteness — Regional/Departmental: 0 is a legitimate final
 });
 
 describe('computeCompleteness — SLAUGHTERHOUSE: Regional/Departmental must also reconcile with their children', () => {
-  const prescriptions = [{ id: 'p1', sampleCount: 40 }];
+  const prescriptions = [
+    { id: 'p1', sampleCount: 40, programmingSubPlanId: subPlanId }
+  ];
 
   test("REGIONAL plan: a region's own row existing is enough, no department reconciliation expected", () => {
     const result = computeCompleteness(
@@ -724,7 +752,7 @@ describe('computeCompleteness — SLAUGHTERHOUSE: Regional/Departmental must als
         }
       ],
       'Regional',
-      'REGIONAL',
+      regionalPlan,
       '01'
     );
     expect(result.isComplete).toBe(true);
@@ -748,7 +776,7 @@ describe('computeCompleteness — SLAUGHTERHOUSE: Regional/Departmental must als
         }
       ],
       'Regional',
-      'SLAUGHTERHOUSE',
+      slaughterhousePlan,
       '01'
     );
     expect(result.isComplete).toBe(false);
@@ -778,7 +806,7 @@ describe('computeCompleteness — SLAUGHTERHOUSE: Regional/Departmental must als
         }
       ],
       'Regional',
-      'SLAUGHTERHOUSE',
+      slaughterhousePlan,
       '01'
     );
     expect(result.isComplete).toBe(true);
@@ -803,7 +831,7 @@ describe('computeCompleteness — SLAUGHTERHOUSE: Regional/Departmental must als
         }
       ],
       'Departmental',
-      'SLAUGHTERHOUSE',
+      slaughterhousePlan,
       '01',
       '75'
     );
@@ -812,7 +840,9 @@ describe('computeCompleteness — SLAUGHTERHOUSE: Regional/Departmental must als
 });
 
 describe('computeCompleteness — DEPARTMENTAL: region reconciles with departments, department is terminal', () => {
-  const prescriptions = [{ id: 'p1', sampleCount: 40 }];
+  const prescriptions = [
+    { id: 'p1', sampleCount: 40, programmingSubPlanId: subPlanId }
+  ];
 
   test("DEPARTMENTAL: region row exists but departments haven't caught up -> incomplete", () => {
     const result = computeCompleteness(
@@ -832,7 +862,7 @@ describe('computeCompleteness — DEPARTMENTAL: region reconciles with departmen
         }
       ],
       'Regional',
-      'DEPARTMENTAL',
+      departmentalPlan,
       '01'
     );
     expect(result.isComplete).toBe(false);
@@ -862,7 +892,7 @@ describe('computeCompleteness — DEPARTMENTAL: region reconciles with departmen
         }
       ],
       'Regional',
-      'DEPARTMENTAL',
+      departmentalPlan,
       '01'
     );
     expect(result.isComplete).toBe(true);
@@ -882,7 +912,7 @@ describe('computeCompleteness — DEPARTMENTAL: region reconciles with departmen
         }
       ],
       'Departmental',
-      'DEPARTMENTAL',
+      departmentalPlan,
       '01',
       '75'
     );
@@ -902,7 +932,7 @@ describe('computeCompleteness — DEPARTMENTAL: region reconciles with departmen
         }
       ],
       'Departmental',
-      'DEPARTMENTAL',
+      departmentalPlan,
       '01',
       '75'
     );
@@ -911,7 +941,9 @@ describe('computeCompleteness — DEPARTMENTAL: region reconciles with departmen
 });
 
 describe('computeCompleteness — Departmental: complete only once abattoirs reconcile', () => {
-  const prescriptions = [{ id: 'p1', sampleCount: 40 }];
+  const prescriptions = [
+    { id: 'p1', sampleCount: 40, programmingSubPlanId: subPlanId }
+  ];
   const departmentRow = {
     prescriptionId: 'p1',
     region: '01' as const,
@@ -942,7 +974,7 @@ describe('computeCompleteness — Departmental: complete only once abattoirs rec
         }
       ],
       'Departmental',
-      'SLAUGHTERHOUSE',
+      slaughterhousePlan,
       '01',
       '85'
     );
@@ -963,7 +995,7 @@ describe('computeCompleteness — Departmental: complete only once abattoirs rec
         }
       ],
       'Departmental',
-      'SLAUGHTERHOUSE',
+      slaughterhousePlan,
       '01',
       '85'
     );
@@ -975,7 +1007,42 @@ describe('computeCompleteness — Departmental: complete only once abattoirs rec
       prescriptions,
       [departmentRow],
       'Departmental',
-      'REGIONAL',
+      regionalPlan,
+      '01',
+      '85'
+    );
+    expect(result.isComplete).toBe(true);
+  });
+
+  test('a sub-plan outside the slaughter stage of a mixed plan has no abattoir level to reconcile -> complete', () => {
+    const elevageSubPlanId = 'sp2' as ProgrammingSubPlanId;
+    const result = computeCompleteness(
+      [
+        ...prescriptions,
+        { id: 'p2', sampleCount: 20, programmingSubPlanId: elevageSubPlanId }
+      ],
+      [
+        { ...departmentRow, sampleCount: 7 },
+        {
+          prescriptionId: 'p1',
+          region: '01' as const,
+          department: '85' as const,
+          companySiret: 'siret-1',
+          sampleCount: 7
+        },
+        { ...departmentRow, prescriptionId: 'p2', sampleCount: 5 }
+      ],
+      'Departmental',
+      {
+        subPlans: [
+          ...slaughterhousePlan.subPlans,
+          ...departmentalPlan.subPlans.map((subPlan) => ({
+            ...subPlan,
+            id: elevageSubPlanId,
+            subPlanNumber: 'M03'
+          }))
+        ]
+      },
       '01',
       '85'
     );
@@ -984,7 +1051,9 @@ describe('computeCompleteness — Departmental: complete only once abattoirs rec
 });
 
 describe('computeCompleteness — the terminal echelon must have assigned its laboratories', () => {
-  const prescriptions = [{ id: 'p1', sampleCount: 40 }];
+  const prescriptions = [
+    { id: 'p1', sampleCount: 40, programmingSubPlanId: subPlanId }
+  ];
   const regionalRow = {
     prescriptionId: 'p1',
     region: '01' as const,
@@ -998,7 +1067,7 @@ describe('computeCompleteness — the terminal echelon must have assigned its la
         prescriptions,
         [regionalRow],
         'Regional',
-        'REGIONAL',
+        regionalPlan,
         '01'
       ).isComplete
     ).toBe(false);
@@ -1018,7 +1087,7 @@ describe('computeCompleteness — the terminal echelon must have assigned its la
           }
         ],
         'Regional',
-        'REGIONAL',
+        regionalPlan,
         '01'
       ).isComplete
     ).toBe(false);
@@ -1045,7 +1114,7 @@ describe('computeCompleteness — the terminal echelon must have assigned its la
         prescriptions,
         [departmentRow, abattoirRow],
         'Departmental',
-        'SLAUGHTERHOUSE',
+        slaughterhousePlan,
         '01',
         '85'
       ).isComplete
@@ -1062,7 +1131,7 @@ describe('computeCompleteness — the terminal echelon must have assigned its la
           abattoirRow
         ],
         'Departmental',
-        'SLAUGHTERHOUSE',
+        slaughterhousePlan,
         '01',
         '85'
       ).isComplete
@@ -1073,7 +1142,7 @@ describe('computeCompleteness — the terminal echelon must have assigned its la
         prescriptions,
         [departmentRow, abattoirRow],
         'Regional',
-        'SLAUGHTERHOUSE',
+        slaughterhousePlan,
         '01'
       ).isComplete
     ).toBe(false);

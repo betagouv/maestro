@@ -13,6 +13,7 @@ import type {
   LocalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
@@ -795,7 +796,7 @@ describe('Local prescriptions router', () => {
       await prescriptionDiffusionService.commitPendingRegionalChanges(
         PPVValidatedProgrammingPlanFixture.id,
         validatedLocalPrescription.region,
-        PPVValidatedProgrammingPlanFixture.distributionKind
+        planDistributionKind(PPVValidatedProgrammingPlanFixture)
       );
 
       await expect(
@@ -821,7 +822,7 @@ describe('Local prescriptions router', () => {
       await prescriptionDiffusionService.commitPendingRegionalChanges(
         PPVValidatedProgrammingPlanFixture.id,
         validatedLocalPrescription.region,
-        PPVValidatedProgrammingPlanFixture.distributionKind
+        planDistributionKind(PPVValidatedProgrammingPlanFixture)
       );
 
       await expect(
@@ -975,7 +976,7 @@ describe('Local prescriptions router', () => {
         await prescriptionDiffusionService.commitPendingRegionalChanges(
           PPVValidatedProgrammingPlanFixture.id,
           validatedLocalPrescription.region,
-          PPVValidatedProgrammingPlanFixture.distributionKind
+          planDistributionKind(PPVValidatedProgrammingPlanFixture)
         );
 
         const updatedLaboratoryItem = await SampleItems()
@@ -1029,7 +1030,7 @@ describe('Local prescriptions router', () => {
         await prescriptionDiffusionService.commitPendingRegionalChanges(
           PPVValidatedProgrammingPlanFixture.id,
           validatedLocalPrescription.region,
-          PPVValidatedProgrammingPlanFixture.distributionKind
+          planDistributionKind(PPVValidatedProgrammingPlanFixture)
         );
 
         const updatedItem = await SampleItems()
@@ -1210,7 +1211,6 @@ describe('Local prescriptions router', () => {
       genProgrammingPlanDB({
         createdBy: NationalCoordinator.id,
         domainId: slaughterhouseDomain.id,
-        distributionKind: 'SLAUGHTERHOUSE',
         year: 1922,
         regionalStatus: RegionList.map((region) => ({
           region,
@@ -1230,7 +1230,6 @@ describe('Local prescriptions router', () => {
       genProgrammingPlanDB({
         createdBy: NationalCoordinator.id,
         domainId: slaughterhouseClosedDomain.id,
-        distributionKind: 'SLAUGHTERHOUSE',
         year: 1923,
         regionalStatus: RegionList.map((region) => ({
           region,
@@ -1509,7 +1508,7 @@ describe('Local prescriptions router', () => {
       await prescriptionDiffusionService.commitPendingRegionalChanges(
         programmingPlanSlaughterhouse.id,
         departmentalLocalPrescription.region,
-        programmingPlanSlaughterhouse.distributionKind
+        planDistributionKind(programmingPlanSlaughterhouse)
       );
 
       await expect(
@@ -1572,7 +1571,7 @@ describe('Local prescriptions router', () => {
       await prescriptionDiffusionService.commitPendingRegionalChanges(
         programmingPlanSlaughterhouse.id,
         departmentalLocalPrescription.region,
-        programmingPlanSlaughterhouse.distributionKind
+        planDistributionKind(programmingPlanSlaughterhouse)
       );
 
       const res = await request(app)
@@ -2966,7 +2965,7 @@ describe('Local prescriptions router', () => {
       await prescriptionDiffusionService.commitPendingRegionalChanges(
         PPVValidatedProgrammingPlanFixture.id,
         region,
-        PPVValidatedProgrammingPlanFixture.distributionKind
+        planDistributionKind(PPVValidatedProgrammingPlanFixture)
       );
 
       await expect(liveRow()).resolves.toMatchObject({
@@ -2994,7 +2993,7 @@ describe('Local prescriptions router', () => {
       await prescriptionDiffusionService.commitPendingRegionalChanges(
         PPVValidatedProgrammingPlanFixture.id,
         region,
-        PPVValidatedProgrammingPlanFixture.distributionKind
+        planDistributionKind(PPVValidatedProgrammingPlanFixture)
       );
 
       await submitToRegion(secondSampleCount);
@@ -3028,7 +3027,7 @@ describe('Local prescriptions router', () => {
       await prescriptionDiffusionService.commitPendingRegionalChanges(
         PPVValidatedProgrammingPlanFixture.id,
         region,
-        PPVValidatedProgrammingPlanFixture.distributionKind
+        planDistributionKind(PPVValidatedProgrammingPlanFixture)
       );
 
       await expect(liveRow()).resolves.toMatchObject({
@@ -3054,7 +3053,7 @@ describe('Local prescriptions router', () => {
       await prescriptionDiffusionService.commitPendingRegionalChanges(
         PPVValidatedProgrammingPlanFixture.id,
         region,
-        PPVValidatedProgrammingPlanFixture.distributionKind
+        planDistributionKind(PPVValidatedProgrammingPlanFixture)
       );
 
       const rows = await LocalPrescriptionChanges()

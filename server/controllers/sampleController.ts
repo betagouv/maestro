@@ -9,6 +9,10 @@ import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStat
 import { getSupportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
+  planDistributionKind,
+  subPlanDistributionKind
+} from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
+import {
   hasCompanyEchelon,
   hasDepartmentalEchelon
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
@@ -657,10 +661,11 @@ export const sampleRouter = {
         const localPrescription = await localPrescriptionRepository.findUnique({
           prescriptionId: prescription.id,
           region: sample.region,
-          ...(hasDepartmentalEchelon(programmingPlan.distributionKind)
+          ...(hasDepartmentalEchelon(planDistributionKind(programmingPlan))
             ? {
                 department: sampleUpdate.department,
-                ...(hasCompanyEchelon(programmingPlan.distributionKind)
+                ...(prescriptionSubPlan &&
+                hasCompanyEchelon(subPlanDistributionKind(prescriptionSubPlan))
                   ? { companySiret: sampleUpdate.company?.siret }
                   : {})
               }

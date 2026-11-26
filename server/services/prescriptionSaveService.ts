@@ -20,9 +20,11 @@ import type {
   PrescriptionSaveResult,
   ScopedLocalPrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/PrescriptionSave';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import { hasEverSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserBase } from 'maestro-shared/schema/User/User';
 import {
   changeViewAudienceForRole,
@@ -119,22 +121,27 @@ export const savePrescriptions = async ({
   const programmingPlans = await programmingPlanRepository.findMany({
     subPlanIds
   });
-  const programmingPlanBySubPlanId = new Map(
+  const planAndSubPlanBySubPlanId = new Map(
     programmingPlans.flatMap((programmingPlan) =>
       programmingPlan.subPlans.map(
-        (subPlan) => [subPlan.id, programmingPlan] as const
+        (subPlan) => [subPlan.id, { programmingPlan, subPlan }] as const
       )
     )
   );
 
-  const programmingPlanOf = (prescription: Prescription) => {
-    const programmingPlan = programmingPlanBySubPlanId.get(
+  const planAndSubPlanOf = (
+    prescription: Prescription
+  ): {
+    programmingPlan: ProgrammingPlanChecked;
+    subPlan: ProgrammingSubPlan;
+  } => {
+    const planAndSubPlan = planAndSubPlanBySubPlanId.get(
       prescription.programmingSubPlanId
     );
-    if (!programmingPlan) {
+    if (!planAndSubPlan) {
       throw new ProgrammingPlanMissingError(prescription.programmingSubPlanId);
     }
-    return programmingPlan;
+    return planAndSubPlan;
   };
 
   const scopeKeys: LocalPrescriptionKey[] = localPrescriptionUpdates.map(
@@ -178,7 +185,7 @@ export const savePrescriptions = async ({
 
   for (const { prescriptionId, sampleCount } of prescriptionUpdates) {
     const prescription = prescriptionById.get(prescriptionId) as Prescription;
-    const programmingPlan = programmingPlanOf(prescription);
+    const { programmingPlan } = planAndSubPlanOf(prescription);
 
     if (!hasPrescriptionPermission(userRole, programmingPlan).update) {
       return { status: HttpStatus.FORBIDDEN };
@@ -200,7 +207,7 @@ export const savePrescriptions = async ({
     update
   } of localPrescriptionUpdates) {
     const prescription = prescriptionById.get(prescriptionId) as Prescription;
-    const programmingPlan = programmingPlanOf(prescription);
+    const { programmingPlan, subPlan } = planAndSubPlanOf(prescription);
 
     const localPrescription = localPrescriptionByKey.get(
       toLocalPrescriptionKeyString({ prescriptionId, region, department })
@@ -213,6 +220,7 @@ export const savePrescriptions = async ({
       user,
       userRole,
       programmingPlan,
+      subPlan,
       localPrescription
     );
 
@@ -307,7 +315,7 @@ export const savePrescriptions = async ({
           lastDiffusedChanges,
           hasEverSentOnward(
             'National',
-            programmingPlan.distributionKind,
+            planDistributionKind(programmingPlan),
             programmingPlan.nationalStatus
           )
             ? localPrescription.sampleCount
@@ -334,7 +342,7 @@ export const savePrescriptions = async ({
         lastDiffusedChanges,
         hasEverSentOnward(
           'Regional',
-          programmingPlan.distributionKind,
+          planDistributionKind(programmingPlan),
           programmingPlan.regionalStatus.find((_) => _.region === region)
         )
           ? localPrescription.sampleCount

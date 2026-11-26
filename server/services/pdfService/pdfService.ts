@@ -21,6 +21,7 @@ import {
   matrixKindLabel
 } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import {
   isPPVSubPlanNumber,
   subPlanLabel
@@ -440,7 +441,7 @@ const generateSamplePDF = async (
       ? sample.specificData.releaseControl
       : undefined,
     establishment:
-      programmingPlan.distributionKind === 'REGIONAL'
+      planDistributionKind(programmingPlan) === 'REGIONAL'
         ? Regions[sample.region].establishment
         : sample.department
           ? DepartmentEstablishments[sample.department]

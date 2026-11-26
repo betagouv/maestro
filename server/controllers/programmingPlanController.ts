@@ -14,6 +14,7 @@ import {
   effectiveSubPlanSettings,
   planSaveConflicts
 } from 'maestro-shared/schema/ProgrammingPlan/completedSubPlanSettings';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import {
   hasSentOnward,
@@ -274,7 +275,7 @@ ${samplersCanSampleNotice}`;
   >();
 
   for (const plan of plans) {
-    const validatedScopes = hasDepartmentalEchelon(plan.distributionKind)
+    const validatedScopes = hasDepartmentalEchelon(planDistributionKind(plan))
       ? plan.departmentalStatus
           .filter((_) => _.status === 'Validated')
           .map((_) => ({
@@ -504,7 +505,7 @@ export const programmingPlanRouter = {
           await programmingPlanRepository.updateNationalStatus(
             plan.id,
             'SubmittedToAdmin',
-            plan.distributionKind
+            planDistributionKind(plan)
           );
 
           readyForAdminReviewPlans.push(plan);
@@ -528,14 +529,14 @@ export const programmingPlanRouter = {
               programmingPlanRepository.updateLocalStatus(
                 plan.id,
                 { region: regionalStatus.region, status: 'SubmittedToRegion' },
-                plan.distributionKind
+                planDistributionKind(plan)
               )
             )
           );
           await programmingPlanRepository.updateNationalStatus(
             plan.id,
             'SubmittedToRegion',
-            plan.distributionKind
+            planDistributionKind(plan)
           );
 
           submittedToRegionPlans.push(plan);
@@ -712,14 +713,14 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           regionalStatus.needsResend === true;
         const isFirstSend = regionalStatus.status === 'SubmittedToRegion';
 
-        if (plan.distributionKind === 'REGIONAL') {
+        if (planDistributionKind(plan) === 'REGIONAL') {
           continue;
         }
 
         await prescriptionDiffusionService.commitPendingRegionalChanges(
           plan.id,
           region,
-          plan.distributionKind
+          planDistributionKind(plan)
         );
 
         if (isFirstSend) {
@@ -734,7 +735,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           await programmingPlanRepository.updateLocalStatus(
             plan.id,
             { region, status: 'SubmittedToDepartments' },
-            plan.distributionKind
+            planDistributionKind(plan)
           );
 
           submittedToDepartmentsPlans.push(plan);
@@ -813,7 +814,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
       });
 
       for (const plan of plans) {
-        if (plan.distributionKind !== 'REGIONAL') {
+        if (planDistributionKind(plan) !== 'REGIONAL') {
           continue;
         }
 
@@ -835,7 +836,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
         await prescriptionDiffusionService.commitPendingRegionalChanges(
           plan.id,
           region,
-          plan.distributionKind
+          planDistributionKind(plan)
         );
 
         const samplers = await userRepository.findMany({
@@ -849,7 +850,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           await programmingPlanRepository.updateLocalStatus(
             plan.id,
             { region, status: 'Validated' },
-            plan.distributionKind
+            planDistributionKind(plan)
           );
 
           if (!isNil(plan.launchedAt)) {
@@ -865,7 +866,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           isModified &&
           hasSentOnward(
             'Regional',
-            plan.distributionKind,
+            planDistributionKind(plan),
             regionalStatus.status
           )
         ) {
@@ -947,7 +948,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
       const filterProgrammingPlanStatus =
         isNationalRole(userRole) ||
         isRegionalRole(userRole) ||
-        maskedProgrammingPlan.distributionKind === 'REGIONAL'
+        planDistributionKind(maskedProgrammingPlan) === 'REGIONAL'
           ? maskedProgrammingPlan.regionalStatus.filter(
               (_) =>
                 userStatusAuthorized.includes(_.status) &&
@@ -986,7 +987,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
         newProgrammingPlanStatus !== 'Closed' ||
         programmingPlan.regionalStatus.some(
           (programmingPlanLocalStatus) =>
-            NextProgrammingPlanStatus[programmingPlan.distributionKind][
+            NextProgrammingPlanStatus[planDistributionKind(programmingPlan)][
               programmingPlanLocalStatus.status
             ] !== newProgrammingPlanStatus
         )
@@ -1002,7 +1003,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
               region,
               status: newProgrammingPlanStatus
             },
-            programmingPlan.distributionKind
+            planDistributionKind(programmingPlan)
           )
         )
       );
@@ -1449,14 +1450,14 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
         programmingPlanLocalStatus: (typeof programmingPlanLocalStatusList)[number]
       ) =>
         (programmingPlanLocalStatus.department
-          ? NextProgrammingPlanStatus[programmingPlan.distributionKind][
+          ? NextProgrammingPlanStatus[planDistributionKind(programmingPlan)][
               programmingPlan.departmentalStatus?.find(
                 (_) =>
                   _.region === programmingPlanLocalStatus.region &&
                   _.department === programmingPlanLocalStatus.department
               )?.status as ProgrammingPlanStatus
             ]
-          : NextProgrammingPlanStatus[programmingPlan.distributionKind][
+          : NextProgrammingPlanStatus[planDistributionKind(programmingPlan)][
               programmingPlan.regionalStatus.find(
                 (_) => _.region === programmingPlanLocalStatus.region
               )?.status as ProgrammingPlanStatus
@@ -1516,7 +1517,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
               !_.department &&
               (_.status === 'SubmittedToDepartments' ||
                 (_.status === 'Validated' &&
-                  programmingPlan.distributionKind === 'REGIONAL'))
+                  planDistributionKind(programmingPlan) === 'REGIONAL'))
           )
           .map((_) => _.region as Region)
       );
@@ -1524,7 +1525,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
         await prescriptionDiffusionService.commitPendingRegionalChanges(
           programmingPlanId,
           region,
-          programmingPlan.distributionKind
+          planDistributionKind(programmingPlan)
         );
       }
 
@@ -1625,7 +1626,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
                   await programmingPlanRepository.updateNationalStatus(
                     programmingPlanId,
                     'SubmittedToRegion',
-                    programmingPlan.distributionKind
+                    planDistributionKind(programmingPlan)
                   );
                 }
 
@@ -1696,7 +1697,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
             await programmingPlanRepository.updateLocalStatus(
               programmingPlanId,
               programmingPlanLocalStatus,
-              programmingPlan.distributionKind
+              planDistributionKind(programmingPlan)
             );
 
             //TODO notif + test
@@ -1726,7 +1727,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                       region: programmingPlanLocalStatus.region,
                       status: 'Validated'
                     },
-                    programmingPlan.distributionKind
+                    planDistributionKind(programmingPlan)
                   );
                 }
               }

@@ -12,6 +12,7 @@ import {
   RegionList,
   Regions
 } from 'maestro-shared/referential/Region';
+import { planDistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import { hasDepartmentalEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanEchelon';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -157,7 +158,7 @@ const ProgrammingPlanTrackingTable = ({
   } = useProgrammingPlanTrackingStatus(programmingPlans, region, department);
 
   const hasDepartmentalEchelonPlan = programmingPlans.some((plan) =>
-    hasDepartmentalEchelon(plan.distributionKind)
+    hasDepartmentalEchelon(planDistributionKind(plan))
   );
 
   const { data: programmingPlanDomains } =
@@ -330,12 +331,12 @@ const ProgrammingPlanTrackingTable = ({
   const selectedAllRegionalKind =
     selectedPlans.length > 0 &&
     selectedPlans.every(
-      (plan) => !hasDepartmentalEchelon(plan.distributionKind)
+      (plan) => !hasDepartmentalEchelon(planDistributionKind(plan))
     );
   const selectedAllDepartmentalKind =
     selectedPlans.length > 0 &&
     selectedPlans.every((plan) =>
-      hasDepartmentalEchelon(plan.distributionKind)
+      hasDepartmentalEchelon(planDistributionKind(plan))
     );
   const regionalActionLabel = selectedAllRegionalKind
     ? selectedRegionalModified
@@ -610,7 +611,7 @@ const ProgrammingPlanTrackingTable = ({
 
                     const isPlanExpanded = expandedPlanIds.has(plan.id);
                     const canExpandDepartments =
-                      hasDepartmentalEchelon(plan.distributionKind) &&
+                      hasDepartmentalEchelon(planDistributionKind(plan)) &&
                       !department;
 
                     const relevantStatus = department
