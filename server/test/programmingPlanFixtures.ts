@@ -7,6 +7,7 @@ import {
   NationalCoordinatorId,
   PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
+  PPVStagesFixture,
   PPVSubmittedProgrammingPlanFixture,
   PPVValidatedDromProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
@@ -62,11 +63,7 @@ export const genDeletableProgrammingPlanDB = (
 };
 
 const ppvDefault: Pick<ProgrammingPlanDBChecked, 'stages' | 'stagesManaged'> = {
-  stages: [
-    { stage: 'PRODUCTION_PRIMAIRE_VEGETALE', subStages: [] },
-    { stage: 'ALIMENTATION_ANIMALE', subStages: [] },
-    { stage: 'TRANSFORMATION', subStages: [] }
-  ],
+  stages: PPVStagesFixture,
   stagesManaged: true
 } as const;
 export const PPVSubmittedProgrammingPlanFixtureDB = genProgrammingPlanDB({
