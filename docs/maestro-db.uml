@@ -631,7 +631,7 @@ entity "**samples**" {
   *""programming_sub_plan_id"": //uuid [FK]//
   ""matrices"": //jsonb //
   ""company_workshop_id"": //uuid [FK]//
-  ""dap_number"": //character varying(255) //
+  *""dap_number"": //character varying(255) //
 }
 
 entity "**spatial_ref_sys**" {

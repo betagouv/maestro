@@ -28,7 +28,7 @@ const etiquetteFromRai = (rai: SachaResultats): NumeroEtiquette =>
 
 describe('processSachaRAI', () => {
   const rai = decodeValidRai();
-  const { referenceSuffix, itemNumber } = referencesFromEtiquette(
+  const { referenceSuffix, numeroDAP, itemNumber } = referencesFromEtiquette(
     etiquetteFromRai(rai)
   );
   const sampleId = 'aaaaaaaa-bbbb-cccc-dddd-000000000099';
@@ -45,7 +45,8 @@ describe('processSachaRAI', () => {
       status: 'Sent',
       region: '44',
       department: '08',
-      reference: `GES-${referenceSuffix}`
+      reference: `GES-${referenceSuffix}`,
+      dapNumber: numeroDAP
     });
     await sampleRepository.insert(sample);
 
@@ -124,6 +125,9 @@ describe('processSachaRAI', () => {
       '029600260009982026113002'
     );
     const multiMatricesSampleId = 'aaaaaaaa-bbbb-cccc-dddd-000000000098';
+    const { referenceSuffix, numeroDAP } = referencesFromEtiquette(
+      multiMatricesEtiquette
+    );
     await sampleRepository.insert(
       genCreatedPartialSample({
         id: multiMatricesSampleId,
@@ -136,7 +140,8 @@ describe('processSachaRAI', () => {
         status: 'Sent',
         region: '44',
         department: '08',
-        reference: `PDL-${referencesFromEtiquette(multiMatricesEtiquette).referenceSuffix}`,
+        reference: `PDL-${referenceSuffix}`,
+        dapNumber: numeroDAP,
         matrices: [
           { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SN#F26.A07XE' },
           { matrixKind: 'A01SN' as MatrixKind, matrix: 'A01SQ#F28.A0C0S' }

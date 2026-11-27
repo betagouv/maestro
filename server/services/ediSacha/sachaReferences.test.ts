@@ -3,7 +3,7 @@ import {
   NumeroEtiquette,
   referencesFromEtiquette,
   referencesFromSample,
-  SampleReference
+  sampleReferenceValidator
 } from './sachaReferences';
 
 const dateMay20_2026 = Date.UTC(2026, 4, 20, 12, 0, 0);
@@ -11,7 +11,7 @@ const dateMay20_2026 = Date.UTC(2026, 4, 20, 12, 0, 0);
 describe('referencesFromSample', () => {
   test('encode une référence', () => {
     const { numeroDAP, numeroEtiquette } = referencesFromSample(
-      SampleReference.parse('ARA-26-00073'),
+      sampleReferenceValidator.parse('ARA-26-00073'),
       dateMay20_2026,
       2
     );
@@ -23,7 +23,7 @@ describe('referencesFromSample', () => {
 
   test('ne dépend pas de la région', () => {
     const { numeroDAP } = referencesFromSample(
-      SampleReference.parse('GUA-26-12345'),
+      sampleReferenceValidator.parse('GUA-26-12345'),
       dateMay20_2026,
       1
     );
@@ -31,14 +31,14 @@ describe('referencesFromSample', () => {
   });
 
   test('rejette une référence au format pré-2026 (sérial 4 digits)', () => {
-    expect(() => SampleReference.parse('ARA-25-1234')).toThrow();
+    expect(() => sampleReferenceValidator.parse('ARA-25-1234')).toThrow();
   });
 });
 
 describe('referencesFromEtiquette', () => {
   test('décode le numéro DAP, l’année et le serial de la référence', () => {
     const { numeroEtiquette } = referencesFromSample(
-      SampleReference.parse('ARA-26-00073'),
+      sampleReferenceValidator.parse('ARA-26-00073'),
       dateMay20_2026,
       2
     );
@@ -53,7 +53,7 @@ describe('referencesFromEtiquette', () => {
 
   test('décode un serial à 5 chiffres', () => {
     const { numeroEtiquette } = referencesFromSample(
-      SampleReference.parse('IDF-26-99999'),
+      sampleReferenceValidator.parse('IDF-26-99999'),
       dateMay20_2026,
       26
     );

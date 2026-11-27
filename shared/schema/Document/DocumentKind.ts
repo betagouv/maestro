@@ -12,6 +12,7 @@ export const DocumentKind = z.enum(
     'TechnicalInstruction',
     'OtherResourceDocument',
     'RaiSourceFile',
+    'SachaAcknowledgementFile',
     'RegulationResourceDocument',
     'TemplateResourceDocument'
   ],
@@ -53,6 +54,7 @@ export const DocumentKindLabels: Partial<Record<DocumentKind, string>> = {
   TechnicalInstruction: 'Instruction technique',
   OtherResourceDocument: 'Autre',
   RaiSourceFile: 'Fichier source RAI',
+  SachaAcknowledgementFile: 'Acquittement SACHA',
   RegulationResourceDocument: 'Règlementation',
   TemplateResourceDocument: 'Modèle'
 };

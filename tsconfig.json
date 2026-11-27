@@ -14,7 +14,8 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "noEmit": true,
-    "allowJs": true
+    "allowJs": true,
+    "verbatimModuleSyntax": true
   },
   "include": ["types/env.d.ts", "test/*"]
 }

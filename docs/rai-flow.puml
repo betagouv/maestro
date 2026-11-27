@@ -11,13 +11,16 @@ group Via email
   Laboratoires -> MailSigal : RAI (email)
   ModuleRedirection -> MailSigal : lecture
   ModuleRedirection -> SFTP : dépôt RAI
-  Maestro -> SFTP : récupération RAI
 end
 
 group Via SFTP
   Laboratoires -> SFTP : dépôt RAI
   ModuleRedirection -> SFTP : déplacement RAI (autre répertoire)
-  Maestro -> SFTP : récupération RAI
+end
+
+group Toutes les heures
+  Maestro -> SFTP : récupération des zips RA01 accompagnés de leur Decl_
+  Maestro -> SFTP : zip AN01 (un dossier par labo) + Decl_
 end
 
 @enduml

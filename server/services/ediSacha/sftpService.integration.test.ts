@@ -10,21 +10,52 @@ import {
   genSampleItem
 } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi
+} from 'vitest';
 import { analysisRaiRepository } from '../../repositories/analysisRaiRepository';
 import { kysely } from '../../repositories/kysely';
+import { sachaOutgoingFileRepository } from '../../repositories/sachaOutgoingFileRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
+import config from '../../utils/config';
 import { documentService } from '../documentService';
+import { unzip, zip } from '../zipService';
 import { NumeroEtiquette, referencesFromEtiquette } from './sachaReferences';
 import { readSachaExample } from './testUtils';
 
-const { mockSendSachaFile } = vi.hoisted(() => ({
-  mockSendSachaFile: vi.fn()
+const { sftpFiles } = vi.hoisted(() => ({
+  sftpFiles: new Map<string, Buffer>()
 }));
-vi.mock('./sachaSender', () => ({ sendSachaFile: mockSendSachaFile }));
+vi.mock('ssh2-sftp-client', () => ({
+  default: class {
+    connect = async () => undefined;
+    end = async () => true;
+    list = async (directory: string) =>
+      [...sftpFiles.keys()]
+        .filter((key) => key.startsWith(`${directory}/`))
+        .map((key) => ({ name: key.slice(directory.length + 1) }));
+    get = async (remote: string) => sftpFiles.get(remote);
+    put = async (content: Buffer, remote: string) => {
+      sftpFiles.set(remote, content);
+      return remote;
+    };
+    delete = async (remote: string) => {
+      sftpFiles.delete(remote);
+      return remote;
+    };
+  }
+}));
 
-const { processSachaContent, replayRai } = await import('./sftpService');
+const { exchangeWithSachaSftp, processSachaContent, replayRai } = await import(
+  './sftpService'
+);
 
 const LAB_SIGLE = 'LABTEST';
 const SAMPLE_ID = 'aaaaaaaa-bbbb-cccc-dddd-000000000098';
@@ -45,14 +76,15 @@ const sachaConf = {
   versionReferencePrescripteur: 'v0'
 } as const;
 
-const lastSentFile = () => {
-  const call = mockSendSachaFile.mock.calls.at(-1);
-  if (!call) throw new Error('sendSachaFile was not called');
-  return { xmlFile: call[0], laboratory: call[2] };
+const acknowledgementOf = (
+  response: Awaited<ReturnType<typeof processSachaContent>>
+) => {
+  if (!response.acknowledgement) throw new Error('aucun AN01 généré');
+  return response.acknowledgement;
 };
 
 describe('sftpService pipeline (decode, process, respond)', () => {
-  const { referenceSuffix, itemNumber } = referencesFromEtiquette(
+  const { referenceSuffix, numeroDAP, itemNumber } = referencesFromEtiquette(
     NumeroEtiquette.parse(KNOWN_ETIQUETTE)
   );
 
@@ -61,9 +93,7 @@ describe('sftpService pipeline (decode, process, respond)', () => {
       .updateTable('laboratories')
       .set({
         sachaActivated: true,
-        sachaSigle: LAB_SIGLE,
-        sachaCommunicationMethod: 'EMAIL',
-        sachaRecipientEmail: 'labo@test.fr'
+        sachaSigle: LAB_SIGLE
       })
       .where('id', '=', LaboratoryFixture.id)
       .execute();
@@ -80,7 +110,8 @@ describe('sftpService pipeline (decode, process, respond)', () => {
         status: 'Sent',
         region: '44',
         department: '08',
-        reference: `GES-${referenceSuffix}`
+        reference: `GES-${referenceSuffix}`,
+        dapNumber: numeroDAP
       })
     );
     await SampleItems().insert([
@@ -93,11 +124,6 @@ describe('sftpService pipeline (decode, process, respond)', () => {
         substanceKinds: ['Mono', 'Multi']
       })
     ]);
-  });
-
-  beforeEach(() => {
-    mockSendSachaFile.mockReset();
-    mockSendSachaFile.mockResolvedValue('EMAIL');
   });
 
   const ADDRESSABLE_FILENAME = `RA01${LAB_SIGLE}DDSV08260101120000000.xml`;
@@ -115,9 +141,8 @@ describe('sftpService pipeline (decode, process, respond)', () => {
 
     expect(response.state).toBe('PROCESSED');
     expect(response.laboratoryId).toBe(LaboratoryFixture.id);
-    expect(mockSendSachaFile).toHaveBeenCalledTimes(1);
 
-    const { xmlFile } = lastSentFile();
+    const { xmlFile } = acknowledgementOf(response);
     expect(xmlFile.fileType).toBe('AN01');
     expect(xmlFile.content).toContain('<MessageAcquittement>');
     expect(xmlFile.content).not.toContain('<MessageNonAcquittement>');
@@ -145,16 +170,15 @@ describe('sftpService pipeline (decode, process, respond)', () => {
     expect(response.message).toMatch(
       /Conclusion d’échantillon inconnue|Conclusion d'échantillon inconnue/
     );
-    expect(mockSendSachaFile).toHaveBeenCalledTimes(1);
 
-    const { xmlFile, laboratory } = lastSentFile();
+    const { xmlFile, laboratory } = acknowledgementOf(response);
     expect(xmlFile.fileType).toBe('AN01');
     expect(xmlFile.content).toContain('<MessageNonAcquittement>');
     expect(xmlFile.content).not.toContain('<MessageAcquittement>');
     expect(xmlFile.content).toContain('INCONNU');
     // The recipient of the NACK is resolved from the incoming Emetteur.Sigle.
     expect(laboratory.id).toBe(LaboratoryFixture.id);
-    expect(laboratory.sacha.sigle).toBe(LAB_SIGLE);
+    expect(laboratory.sacha?.sigle).toBe(LAB_SIGLE);
   });
 
   test('faute interne (analyte non mappé) : INTERNAL_ERROR, aucun AN01', async () => {
@@ -167,7 +191,7 @@ describe('sftpService pipeline (decode, process, respond)', () => {
 
     expect(response.state).toBe('INTERNAL_ERROR');
     expect(response.message).toContain('ZZZUNKNOWN');
-    expect(mockSendSachaFile).not.toHaveBeenCalled();
+    expect(response.acknowledgement).toBeNull();
   });
 
   test('échantillon introuvable : REJECTED adressé via l’enveloppe (indépendant de la résolution)', async () => {
@@ -177,11 +201,10 @@ describe('sftpService pipeline (decode, process, respond)', () => {
 
     expect(response.state).toBe('REJECTED');
     expect(response.message).toMatch(/Échantillon introuvable/);
-    expect(mockSendSachaFile).toHaveBeenCalledTimes(1);
 
-    const { xmlFile, laboratory } = lastSentFile();
+    const { xmlFile, laboratory } = acknowledgementOf(response);
     expect(xmlFile.content).toContain('<MessageNonAcquittement>');
-    expect(laboratory.sacha.sigle).toBe(LAB_SIGLE);
+    expect(laboratory.sacha?.sigle).toBe(LAB_SIGLE);
   });
 
   test('XSD invalide mais nom de fichier adressable : REJECTED (fichier invalide)', async () => {
@@ -194,12 +217,11 @@ describe('sftpService pipeline (decode, process, respond)', () => {
 
     expect(response.state).toBe('REJECTED');
     expect(response.message).toContain('fichier invalide');
-    expect(mockSendSachaFile).toHaveBeenCalledTimes(1);
 
-    const { xmlFile, laboratory } = lastSentFile();
+    const { xmlFile, laboratory } = acknowledgementOf(response);
     expect(xmlFile.content).toContain('<MessageNonAcquittement>');
     // Addressing is resolved from the file name, not from the invalid XML.
-    expect(laboratory.sacha.sigle).toBe(LAB_SIGLE);
+    expect(laboratory.sacha?.sigle).toBe(LAB_SIGLE);
     expect(xmlFile.content).toContain(`RA01${LAB_SIGLE}DDSV08260101120000000`);
   });
 
@@ -210,7 +232,7 @@ describe('sftpService pipeline (decode, process, respond)', () => {
 
     expect(response.state).toBe('INTERNAL_ERROR');
     expect(response.message).toMatch(/non adressable/);
-    expect(mockSendSachaFile).not.toHaveBeenCalled();
+    expect(response.acknowledgement).toBeNull();
   });
 
   test('XSD valide mais sans Resultats (AN01) : INTERNAL_ERROR, aucun AN01', async () => {
@@ -220,53 +242,13 @@ describe('sftpService pipeline (decode, process, respond)', () => {
 
     expect(response.state).toBe('INTERNAL_ERROR');
     expect(response.message).toContain('XML conforme à la XSD');
-    expect(mockSendSachaFile).not.toHaveBeenCalled();
-  });
-
-  test('échec d’envoi de l’AN01 après un ACK : INTERNAL_ERROR mais analyse persistée ; le replay idempotent aboutit à PROCESSED sans doublon', async () => {
-    mockSendSachaFile.mockReset();
-    mockSendSachaFile.mockRejectedValueOnce(new Error('SFTP indisponible'));
-    mockSendSachaFile.mockResolvedValue('EMAIL');
-
-    const first = await run(validXml);
-    expect(first.state).toBe('INTERNAL_ERROR');
-    expect(first.message).toContain('SFTP indisponible');
-
-    const analysis = await kysely
-      .selectFrom('analysis')
-      .selectAll()
-      .where('sampleId', '=', SAMPLE_ID)
-      .executeTakeFirstOrThrow();
-    expect(first.analysisId).toBe(analysis.id);
-    const residuesBefore = await kysely
-      .selectFrom('analysisResidues')
-      .select((eb) => eb.fn.countAll().as('count'))
-      .where('analysisId', '=', analysis.id)
-      .executeTakeFirstOrThrow();
-    expect(Number(residuesBefore.count)).toBe(64);
-
-    const second = await run(validXml);
-    expect(second.state).toBe('PROCESSED');
-
-    const analyses = await kysely
-      .selectFrom('analysis')
-      .selectAll()
-      .where('sampleId', '=', SAMPLE_ID)
-      .execute();
-    expect(analyses).toHaveLength(1);
-    const residuesAfter = await kysely
-      .selectFrom('analysisResidues')
-      .select((eb) => eb.fn.countAll().as('count'))
-      .where('analysisId', '=', analyses[0].id)
-      .executeTakeFirstOrThrow();
-    expect(Number(residuesAfter.count)).toBe(64);
+    expect(response.acknowledgement).toBeNull();
   });
 });
 
 describe('replayRai (SFTP)', () => {
-  beforeEach(() => {
-    mockSendSachaFile.mockReset();
-    mockSendSachaFile.mockResolvedValue('EMAIL');
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   const replayWithContent = async (
@@ -305,10 +287,23 @@ describe('replayRai (SFTP)', () => {
     return analysisRaiRepository.findById(id);
   };
 
-  test('INTERNAL_ERROR réparable : PROCESSED', async () => {
+  test('INTERNAL_ERROR réparable : PROCESSED, AN01 mis en file', async () => {
     const rai = await replayWithContent('INTERNAL_ERROR', validXml);
     expect(rai?.state).toBe('PROCESSED');
     expect(rai?.analysisId).not.toBeNull();
+
+    const outgoingFiles = await kysely
+      .selectFrom('sachaOutgoingFile')
+      .selectAll()
+      .where('analysisRaiId', '=', rai!.id)
+      .execute();
+    expect(outgoingFiles).toMatchObject([
+      {
+        fileType: 'AN01',
+        depositedAt: null,
+        laboratoryId: LaboratoryFixture.id
+      }
+    ]);
   });
 
   test('INTERNAL_ERROR dont la cause est une faute labo : REJECTED', async () => {
@@ -319,5 +314,147 @@ describe('replayRai (SFTP)', () => {
     const rai = await replayWithContent('INTERNAL_ERROR', xml);
     expect(rai?.state).toBe('REJECTED');
     expect(rai?.message).toMatch(/inconnue/);
+  });
+});
+
+describe('exchangeWithSachaSftp', () => {
+  const RAI_DIR = 'uploads/Labo-Sigal-Maestro/RA01';
+  const RAI_FILENAME = `RA01${LAB_SIGLE}DDSV08260101120000000.xml`;
+
+  const putRaiArchive = (
+    baseName: string,
+    files: Record<string, string>,
+    withTrigger = true
+  ) => {
+    sftpFiles.set(
+      `${RAI_DIR}/${baseName}.zip`,
+      Buffer.from(
+        zip(
+          Object.fromEntries(
+            Object.entries(files).map(([name, xml]) => [name, asBuffer(xml)])
+          )
+        )
+      )
+    );
+    if (withTrigger) {
+      sftpFiles.set(`${RAI_DIR}/Decl_${baseName}`, Buffer.alloc(0));
+    }
+  };
+
+  const findRaisReceivedSince = (since: Date) =>
+    kysely
+      .selectFrom('analysisRai')
+      .selectAll()
+      .where('receivedAt', '>=', since)
+      .execute();
+
+  beforeAll(() => {
+    config.sigal.sftp = {
+      ...config.sigal.sftp,
+      privateKey: 'private-key',
+      passphrase: 'passphrase',
+      host: 'sftp.test',
+      username: 'maestro'
+    };
+  });
+
+  beforeEach(() => {
+    sftpFiles.clear();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test('zip RA01 déclenché : archivé, retiré du SFTP, traité, et son AN01 part dans le zip du cycle', async () => {
+    const since = new Date();
+    putRaiArchive('RA01_2611171300', {
+      [`${LAB_SIGLE}/${RAI_FILENAME}`]: validXml
+    });
+
+    await exchangeWithSachaSftp();
+
+    expect(
+      [...sftpFiles.keys()].filter((key) => key.startsWith(RAI_DIR))
+    ).toEqual([]);
+
+    const archives = await kysely
+      .selectFrom('documents')
+      .select('kind')
+      .where('filename', '=', 'RA01_2611171300.zip')
+      .execute();
+    expect(archives).toEqual([{ kind: 'RaiSourceFile' }]);
+
+    const rais = await findRaisReceivedSince(since);
+    expect(rais).toMatchObject([{ state: 'PROCESSED', source: 'SFTP' }]);
+
+    const outgoingFile = await kysely
+      .selectFrom('sachaOutgoingFile')
+      .selectAll()
+      .where('analysisRaiId', '=', rais[0].id)
+      .executeTakeFirstOrThrow();
+    expect(outgoingFile.fileType).toBe('AN01');
+    expect(outgoingFile.depositedAt).not.toBeNull();
+
+    const zipPath = `/uploads/Maestro-Sigal-Labo/AN01/${outgoingFile.zipName}`;
+    const archive = sftpFiles.get(zipPath);
+    expect(archive).toBeDefined();
+    expect(
+      sftpFiles.get(
+        `/uploads/Maestro-Sigal-Labo/AN01/Decl_${outgoingFile.zipName?.replace('.zip', '')}`
+      )
+    ).toEqual(Buffer.alloc(0));
+    expect(Object.keys(unzip(new Uint8Array(archive!)))).toContain(
+      `${LAB_SIGLE}/${outgoingFile.fileName}.xml`
+    );
+  });
+
+  test('zip sans déclencheur : laissé sur le SFTP, non traité', async () => {
+    const since = new Date();
+    putRaiArchive('RA01_2611171301', { [RAI_FILENAME]: validXml }, false);
+
+    await exchangeWithSachaSftp();
+
+    expect(sftpFiles.has(`${RAI_DIR}/RA01_2611171301.zip`)).toBe(true);
+    expect(await findRaisReceivedSince(since)).toEqual([]);
+  });
+
+  test('échec de mise en file de l’AN01 : RAI en INTERNAL_ERROR, rejouable sans doublon d’analyse', async () => {
+    const since = new Date();
+    vi.spyOn(sachaOutgoingFileRepository, 'insert').mockRejectedValueOnce(
+      new Error('base indisponible')
+    );
+    putRaiArchive('RA01_2611171302', { [RAI_FILENAME]: validXml });
+
+    await exchangeWithSachaSftp();
+
+    const [rai] = await findRaisReceivedSince(since);
+    expect(rai).toMatchObject({
+      state: 'INTERNAL_ERROR',
+      message: 'base indisponible'
+    });
+    expect(rai.analysisId).not.toBeNull();
+
+    const replayable = await analysisRaiRepository.findById(rai.id);
+    if (replayable?.source !== 'SFTP') {
+      throw new Error('setup: RAI SFTP introuvable');
+    }
+    await replayRai(replayable);
+
+    expect(await analysisRaiRepository.findById(rai.id)).toMatchObject({
+      state: 'PROCESSED'
+    });
+    const outgoingFiles = await kysely
+      .selectFrom('sachaOutgoingFile')
+      .select('fileType')
+      .where('analysisRaiId', '=', rai.id)
+      .execute();
+    expect(outgoingFiles).toEqual([{ fileType: 'AN01' }]);
+    const analyses = await kysely
+      .selectFrom('analysis')
+      .select('id')
+      .where('sampleId', '=', SAMPLE_ID)
+      .execute();
+    expect(analyses).toHaveLength(1);
   });
 });

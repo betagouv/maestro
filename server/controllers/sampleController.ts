@@ -62,6 +62,11 @@ import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
+import {
+  numeroDAPFromReference,
+  type SampleReference,
+  sampleReferenceValidator
+} from '../services/ediSacha/sachaReferences';
 import { excelService } from '../services/excelService/excelService';
 import { padReferenceSerial } from '../services/imapService/utils';
 import { hasUnknownSampleMatrixCodes } from '../services/matrixService';
@@ -116,14 +121,16 @@ export const computeAnalysisStatus = (
 export const getNewReference = async (
   region: Region,
   currentYear: number
-): Promise<string> => {
+): Promise<SampleReference> => {
   //TODO à simplifier en 2026, idem en bdd
   const serial = await sampleRepository.getNextSequence(
     currentYear < 2026 ? region : '01',
     currentYear
   );
 
-  return `${Regions[region].shortName}-${currentYear - 2000}-${padReferenceSerial(currentYear, serial)}`;
+  return sampleReferenceValidator.parse(
+    `${Regions[region].shortName}-${currentYear - 2000}-${padReferenceSerial(currentYear, serial)}`
+  );
 };
 
 export const sampleRouter = {
@@ -200,10 +207,11 @@ export const sampleRouter = {
         programmingPlan.year
       );
 
-      const sample = {
+      const sample: PartialSample = {
         ...sampleToCreate,
         region: user.region,
         reference,
+        dapNumber: numeroDAPFromReference(reference),
         createdAt: new Date(),
         lastUpdatedAt: new Date()
       };

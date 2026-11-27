@@ -65,7 +65,7 @@ import config from '../../utils/config';
 import {
   numeroDAPFromReference,
   referencesFromSample,
-  SampleReference
+  sampleReferenceValidator
 } from '../ediSacha/sachaReferences';
 import { buildSampleItems } from '../sampleItemService';
 
@@ -334,7 +334,7 @@ const generateSamplePDF = async (
 
   //Rétro compatible avec les anciens formats
   const sampleReference =
-    SampleReference.safeParse(sample.reference).data ?? null;
+    sampleReferenceValidator.safeParse(sample.reference).data ?? null;
 
   const barcodeReference =
     itemNumber !== undefined && sampleReference && (subPlan?.withSacha ?? false)

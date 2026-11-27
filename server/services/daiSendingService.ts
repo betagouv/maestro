@@ -7,9 +7,9 @@ import { Regions } from 'maestro-shared/referential/Region';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
+import type { DaiSentMethod } from 'maestro-shared/schema/AnalysisDai/DaiSentMethod';
 import { getAnalysisReportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
-import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import {
   type MatrixReferential,
   matrixKindLabel
@@ -36,10 +36,24 @@ import { excelService } from './excelService/excelService';
 import { type LaboratoryWithConf, laboratoriesConf } from './imapService';
 import { mailService } from './mailService';
 
-export type DaiSentResult = {
-  sentMethod: SachaCommunicationMethod;
+type DaiSentResultCommon = {
+  sentMethod: DaiSentMethod;
   documentIds: string[];
 };
+
+export type DaiSentEDIResult = DaiSentResultCommon & {
+  edi: true;
+  sachaFile: {
+    fileName: string;
+    documentId: string;
+    laboratoryId: string;
+  };
+};
+
+type DaiSentNoEDIResult = DaiSentResultCommon & {
+  edi: false;
+};
+export type DaiSentResult = DaiSentEDIResult | DaiSentNoEDIResult;
 
 const streamToBase64 = async (stream: Readable): Promise<string> => {
   const chunks: Buffer[] = [];
@@ -209,12 +223,12 @@ const generateAndStoreAnalysisRequestDocuments = async (
 
 export class DaiProcessingError extends Error {
   readonly edi: boolean | null;
-  readonly sentMethod: SachaCommunicationMethod | null;
+  readonly sentMethod: DaiSentMethod | null;
 
   constructor(
     message: string,
     edi: boolean | null,
-    sentMethod: SachaCommunicationMethod | null = null
+    sentMethod: DaiSentMethod | null = null
   ) {
     super(message);
     this.name = 'DaiProcessingError';
@@ -326,6 +340,7 @@ export const sendDAIWithoutEDI = async (
 
   return {
     sentMethod: 'EMAIL',
-    documentIds: collectedDocumentIds
+    documentIds: collectedDocumentIds,
+    edi: false
   };
 };

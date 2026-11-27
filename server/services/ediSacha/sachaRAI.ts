@@ -5,6 +5,7 @@ import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStat
 import type { AnalysisKind } from 'maestro-shared/schema/Analysis/Residue/AnalysisKind';
 import type { ResidueComplianceDAOA } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import type { NumeroDAP } from 'maestro-shared/schema/Sample/Sample';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import {
   type MaestroDate,
@@ -194,12 +195,10 @@ export const processSachaRAI = async (
     throw new RaiLabError('NumeroEtiquette manquant', xmlDocumentId);
   }
 
-  let numeroDAP: string;
-  let referenceSuffix: string;
+  let numeroDAP: NumeroDAP;
   let itemNumber: number;
   try {
-    ({ numeroDAP, referenceSuffix, itemNumber } =
-      referencesFromEtiquette(etiquette));
+    ({ numeroDAP, itemNumber } = referencesFromEtiquette(etiquette));
   } catch {
     throw new RaiLabError(
       `NumeroEtiquette invalide (${etiquette})`,
@@ -216,7 +215,7 @@ export const processSachaRAI = async (
         .onRef('analysis.itemNumber', '=', 'sampleItems.itemNumber')
         .onRef('analysis.copyNumber', '=', 'sampleItems.copyNumber')
     )
-    .where('samples.reference', 'like', `___-${referenceSuffix}`)
+    .where('samples.dapNumber', '=', numeroDAP)
     .where('sampleItems.recipientKind', '=', 'Laboratory')
     .where('sampleItems.itemNumber', '=', itemNumber)
     .select([

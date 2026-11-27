@@ -18,7 +18,7 @@ import { tchapService } from './tchapService';
 
 const processAnalysisDai = async (
   dai: Pick<AnalysisDai, 'id' | 'analysisId'>
-): Promise<DaiSentResult & { edi: boolean }> => {
+): Promise<DaiSentResult> => {
   const analysis = await analysisRepository.findUnique(dai.analysisId);
   if (
     !analysis?.sampleId ||
@@ -71,20 +71,14 @@ const processAnalysisDai = async (
   const subPlanNumber = subPlan?.subPlanNumber ?? '';
 
   if (subPlan?.withSacha && !laboratory.legacyDai) {
-    return {
-      ...(await sendDAIWithEDI(checkedSample, subPlan, sampleItem, laboratory)),
-      edi: true
-    };
+    return sendDAIWithEDI(checkedSample, subPlan, sampleItem, laboratory, dai);
   }
-  return {
-    ...(await sendDAIWithoutEDI(
-      checkedSample,
-      subPlanNumber,
-      sampleItem,
-      laboratory
-    )),
-    edi: false
-  };
+  return sendDAIWithoutEDI(
+    checkedSample,
+    subPlanNumber,
+    sampleItem,
+    laboratory
+  );
 };
 
 const triggerProcessing = () => {
@@ -115,7 +109,7 @@ const processPending = async (): Promise<void> => {
             id: dai.id,
             sentMethod: result.sentMethod,
             edi: result.edi,
-            state: 'SENT'
+            state: result.edi ? 'QUEUED' : 'SENT'
           },
           trx
         );
@@ -124,7 +118,9 @@ const processPending = async (): Promise<void> => {
           result.documentIds,
           trx
         );
-        console.info(`[analysisDaiProcessor] DAI ${dai.id} sent.`);
+        console.info(
+          `[analysisDaiProcessor] DAI ${dai.id} ${result.edi ? 'queued' : 'sent'}.`
+        );
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         const edi = err instanceof DaiProcessingError ? err.edi : null;

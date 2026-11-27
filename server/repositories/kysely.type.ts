@@ -21,6 +21,7 @@ import type {
 import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import type { AnalysisDaiId } from 'maestro-shared/schema/AnalysisDai/AnalysisDai';
 import type { AnalysisDaiState } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiState';
+import type { DaiSentMethod } from 'maestro-shared/schema/AnalysisDai/DaiSentMethod';
 import type {
   AnalysisRaiId,
   AnalysisRaiSource,
@@ -28,7 +29,6 @@ import type {
 } from 'maestro-shared/schema/AnalysisRai/AnalysisRai';
 import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
-import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type {
   Matrix,
@@ -50,6 +50,7 @@ import type {
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import type { SachaCommemoratifLevel } from 'maestro-shared/schema/SachaContext/SachaContext';
+import type { NumeroDAP } from 'maestro-shared/schema/Sample/Sample';
 import type { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import type { PartialSampleMatrix } from 'maestro-shared/schema/Sample/SampleMatrix';
 import type { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -86,6 +87,9 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 export const SachaResidueId = z.string().brand<'SachaResidueId'>();
 export type SachaResidueId = z.infer<typeof SachaResidueId>;
 
+export const SachaOutgoingFileId = z.guid().brand<'SachaOutgoingFileId'>();
+export type SachaOutgoingFileId = z.infer<typeof SachaOutgoingFileId>;
+
 export {
   ProgrammingPlanFieldId,
   ProgrammingSubPlanFieldId,
@@ -110,7 +114,7 @@ export interface AnalysisDai {
   id: Generated<AnalysisDaiId>;
   analysisId: string;
   state: AnalysisDaiState;
-  sentMethod: SachaCommunicationMethod | null;
+  sentMethod: DaiSentMethod | null;
   sentAt: Timestamp | null;
   message: string | null;
   edi: boolean | null;
@@ -231,6 +235,19 @@ export interface KnexMigrations {
   name: string | null;
 }
 
+export interface SachaOutgoingFile {
+  id: Generated<SachaOutgoingFileId>;
+  fileType: 'DA01' | 'AN01';
+  fileName: string;
+  laboratoryId: string;
+  documentId: string;
+  analysisDaiId: AnalysisDaiId | null;
+  analysisRaiId: AnalysisRaiId | null;
+  zipName: string | null;
+  depositedAt: Timestamp | null;
+  createdAt: Generated<Timestamp>;
+}
+
 export interface SachaSender {
   sachaSigle: string;
   name: string;
@@ -288,13 +305,9 @@ export interface Laboratories {
   billingCity: string | null;
   emailsAnalysisResult: string[];
   sachaRecipientEmail: string | null;
-  sachaGpgEmail: string | null;
-  sachaGpgPublicKey: string | null;
   sachaSigle: string | null;
-  sachaSftpLogin: string | null;
   legacyDai: boolean;
   sachaActivated: boolean;
-  sachaCommunicationMethod: SachaCommunicationMethod | null;
   programmingPlanIds: string[] | null;
 }
 
@@ -445,6 +458,7 @@ export interface Samples {
   context: string;
   createdAt: Generated<Timestamp | null>;
   department: string | null;
+  dapNumber: NumeroDAP | null;
   geolocation: Point | null;
   id: Generated<string>;
   laboratoryId: string | null;
@@ -694,6 +708,7 @@ export interface DB {
   sachaCommemoratifValues: SachaCommemoratifValues;
   sachaContexts: SachaContexts;
   sachaContextCommemoratifs: SachaContextCommemoratifs;
+  sachaOutgoingFile: SachaOutgoingFile;
   sachaSender: SachaSender;
   sampleDocuments: SampleDocuments;
   sampleItems: SampleItems;
